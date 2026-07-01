@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Морское путешествие — Парные согласные</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a2a5e 0%, #1e5799 40%, #2989d8 70%, #3fa9d8 100%);
+    overflow-x: hidden;
+    color: #fff;
+    position: relative;
+  }
+  .waves {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 180px;
+    pointer-events: none; z-index: 0;
+  }
+  .wave {
+    position: absolute; bottom: 0; left: 0; width: 200%; height: 100%;
+    background-repeat: repeat-x;
+    animation: waveMove 12s linear infinite;
+  }
+  .wave1 {
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'><path fill='%231e5799' d='M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z'/></svg>") 0 bottom/600px 120px;
+    opacity: 0.7; animation-duration: 10s;
+  }
+  .wave2 {
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'><path fill='%232989d8' d='M0,60 C300,0 900,120 1200,60 L1200,120 L0,120 Z'/></svg>") 0 bottom/600px 120px;
+    opacity: 0.6; animation-duration: 14s;
+  }
+  .wave3 {
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'><path fill='%23ffffff' fill-opacity='0.3' d='M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z'/></svg>") 0 bottom/600px 120px;
+    opacity: 0.5; animation-duration: 18s;
+  }
+  @keyframes waveMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .container {
+    position: relative; z-index: 2; padding: 20px;
+    padding-top: 20px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    text-align: center; font-size: 2.2em; margin: 15px 0 25px;
+    text-shadow: 2px 2px 0 #0a2a5e, 0 0 15px #7fd8ff;
+    color: #fff;
+  }
+
+  .level-map {
+    display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .level-card {
+    width: 200px; height: 240px;
+    background: linear-gradient(160deg, #f5deb3, #c9a66b);
+    border: 4px solid #5a3a1a; border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    transition: transform 0.3s;
+  }
+  .level-card:hover:not(.locked) { transform: translateY(-8px) scale(1.03); }
+  .level-card.locked { filter: grayscale(0.8) brightness(0.6); cursor: not-allowed; }
+  .level-icon { font-size: 4em; margin-bottom: 10px; }
+  .level-title { font-size: 1.3em; font-weight: bold; color: #3a2410; }
+  .level-sub { font-size: 0.9em; color: #5a3a1a; margin-top: 4px; }
+  .stars { margin-top: 10px; font-size: 1.5em; letter-spacing: 3px; }
+  .star-on { color: #ffd700; text-shadow: 0 0 8px #ffb700; }
+  .star-off { color: #8b7355; }
+  .lock {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 1.8em;
+  }
+
+  .game-screen { display: none; max-width: 900px; margin: 0 auto; }
+  .game-screen.active { display: block; }
+
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(10, 42, 94, 0.7); padding: 12px 20px;
+    border-radius: 15px; border: 2px solid #7fd8ff;
+    margin-bottom: 20px;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .btn {
+    background: linear-gradient(180deg, #ffd700, #ff9500);
+    border: 2px solid #8b4513; color: #3a2410;
+    padding: 10px 20px; border-radius: 12px;
+    font-size: 1em; font-weight: bold; cursor: pointer;
+    box-shadow: 0 4px 0 #8b4513;
+    transition: all 0.15s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #8b4513; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #8b4513; }
+  .btn:disabled {
+    filter: grayscale(0.6) brightness(0.8);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .level-indicator {
+    font-size: 1.2em; font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+  }
+
+  .inventory {
+    position: fixed; top: 20px; right: 20px;
+    background: linear-gradient(160deg, rgba(245,222,179,0.95), rgba(201,166,107,0.95));
+    border: 3px solid #5a3a1a; border-radius: 15px;
+    padding: 12px; width: 180px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+  .inv-title {
+    text-align: center; color: #3a2410; font-weight: bold;
+    font-size: 0.95em; margin-bottom: 8px;
+    border-bottom: 2px dashed #8b4513; padding-bottom: 5px;
+  }
+  .inv-slots {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  .inv-slot {
+    width: 45px; height: 45px;
+    background: rgba(90,58,26,0.2);
+    border: 2px dashed #8b4513; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8em; color: rgba(90,58,26,0.3);
+  }
+  .inv-slot.filled {
+    border-style: solid; background: rgba(255,215,0,0.2);
+    animation: popIn 0.5s ease;
+  }
+  .inv-slot.filled::before {
+    content: "🗺️"; color: #5a3a1a;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(20deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .task-card {
+    background: rgba(255,255,255,0.95);
+    color: #0a2a5e;
+    border-radius: 20px; padding: 25px 30px;
+    border: 3px solid #7fd8ff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .task-number {
+    display: inline-block; background: #1e5799; color: #fff;
+    padding: 5px 15px; border-radius: 20px; font-weight: bold;
+    margin-bottom: 12px;
+  }
+  .task-text { font-size: 1.25em; margin-bottom: 18px; line-height: 1.4; }
+  .hint {
+    display: inline-block; background: #fff3cd; color: #8b4513;
+    padding: 4px 12px; border-radius: 12px; font-size: 0.9em;
+    margin-left: 8px; border: 1px solid #ffd700;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    background: #e8f4ff; border: 2px solid #7fd8ff;
+    padding: 12px 18px; border-radius: 12px;
+    cursor: pointer; font-size: 1.1em; color: #0a2a5e;
+    transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+  }
+  .option:hover:not(.disabled) { background: #cde8ff; transform: translateX(4px); }
+  .option.selected {
+    background: #7fd8ff; color: #0a2a5e; border-color: #1e5799;
+    font-weight: bold;
+  }
+  .option.correct {
+    background: #90ee90; border-color: #228b22; color: #006400;
+  }
+  .option.wrong {
+    background: #ffb3b3; border-color: #c0392b; color: #8b0000;
+  }
+  .option.disabled { cursor: default; }
+  .checkbox {
+    width: 22px; height: 22px; border: 2px solid #1e5799;
+    border-radius: 5px; display: inline-flex;
+    align-items: center; justify-content: center;
+    background: #fff; flex-shrink: 0;
+  }
+  .option.selected .checkbox::after { content: "✓"; color: #1e5799; font-weight: bold; }
+
+  .actions { text-align: center; margin-top: 20px; }
+  .feedback {
+    text-align: center; margin-top: 15px; font-size: 1.1em;
+    min-height: 30px; font-weight: bold;
+  }
+  .feedback.ok { color: #228b22; }
+  .feedback.bad { color: #c0392b; }
+  .feedback.warn { color: #b8860b; }
+
+  .final-screen { display: none; text-align: center; padding: 30px 20px; }
+  .final-screen.active { display: block; }
+  .treasure-map {
+    width: 320px; height: 320px; margin: 20px auto;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(139,69,19,0.3) 0%, transparent 40%),
+      radial-gradient(circle at 70% 60%, rgba(139,69,19,0.3) 0%, transparent 40%),
+      linear-gradient(160deg, #f5deb3, #c9a66b);
+    border: 5px solid #5a3a1a; border-radius: 15px;
+    position: relative;
+    box-shadow: 0 0 40px #ffd700, 0 0 80px #ff9500;
+    animation: glowMap 2s ease-in-out infinite alternate;
+    overflow: hidden;
+  }
+  @keyframes glowMap {
+    from { box-shadow: 0 0 30px #ffd700, 0 0 60px #ff9500; }
+    to { box-shadow: 0 0 60px #ffd700, 0 0 120px #ff9500, 0 0 150px #fff3cd; }
+  }
+  .treasure-map::before {
+    content: ""; position: absolute; inset: 15px;
+    border: 2px dashed #8b4513; border-radius: 8px;
+    opacity: 0.5;
+  }
+  .map-content {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5em;
+  }
+  .map-x {
+    position: absolute; color: #c0392b; font-weight: bold;
+    font-size: 2em; text-shadow: 2px 2px 0 #fff;
+  }
+  .x1 { top: 25%; left: 30%; }
+  .x2 { top: 55%; left: 65%; }
+  .map-path {
+    position: absolute; top: 30%; left: 35%;
+    width: 120px; height: 80px;
+    border: 3px dashed #8b4513; border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+  .final-title {
+    font-size: 2em; margin: 15px 0;
+    text-shadow: 2px 2px 0 #0a2a5e, 0 0 15px #ffd700;
+  }
+  .final-score { font-size: 1.3em; margin: 10px 0; }
+
+  .progress-bar {
+    width: 100%; height: 12px; background: rgba(255,255,255,0.3);
+    border-radius: 10px; overflow: hidden; margin: 10px 0;
+    border: 1px solid #7fd8ff;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #ffd700, #ff9500);
+    width: 0%; transition: width 0.4s;
+  }
+
+  @media (max-width: 700px) {
+    .inventory { width: 140px; padding: 8px; top: 10px; right: 10px; }
+    .inv-slot { width: 35px; height: 35px; font-size: 1.4em; }
+    h1 { font-size: 1.5em; margin-top: 10px; }
+    .container { padding-top: 110px; }
+    .level-card { width: 150px; height: 190px; }
+    .task-card { padding: 18px; }
+    .task-text { font-size: 1.05em; }
+  }
+  @media (min-width: 701px) {
+    .container { padding-right: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="waves">
+  <div class="wave wave1"></div>
+  <div class="wave wave2"></div>
+  <div class="wave wave3"></div>
+</div>
+
+<div class="container">
+  <h1>🏴‍☠️ Морское путешествие: Парные согласные ⚓</h1>
+
+  <div id="mapScreen">
+    <div class="level-map" id="levelMap"></div>
+  </div>
+
+  <div class="game-screen" id="gameScreen">
+    <div class="top-bar">
+      <button class="btn" onclick="showMap()">🗺️ Карта</button>
+      <div class="level-indicator" id="levelIndicator">Уровень 1</div>
+      <div id="taskCounter">Задание 1/5</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="task-card" id="taskCard"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button class="btn" id="checkBtn" onclick="checkAnswer()">✓ Проверить</button>
+      <button class="btn" id="nextBtn" onclick="nextTask()" style="display:none;">Далее ➡️</button>
+    </div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <div class="final-title" id="finalTitle">🎉 Сокровище найдено!</div>
+    <div class="treasure-map">
+      <div class="map-path"></div>
+      <div class="map-x x1">✕</div>
+      <div class="map-x x2">✕</div>
+      <div class="map-content">🏴‍☠️</div>
+    </div>
+    <div class="final-score" id="finalScore"></div>
+    <button class="btn" onclick="showMap()" style="margin-top:15px;">🗺️ К карте уровней</button>
+  </div>
+</div>
+
+<div class="inventory" id="inventory" style="display:none;">
+  <div class="inv-title">🎒 Сундук</div>
+  <div class="inv-slots" id="invSlots"></div>
+</div>
+
+<script>
+// ============================================================
+// ЗАДАНИЯ
+// Парные согласные (6 пар): Б-П, В-Ф, Г-К, Д-Т, З-С, Ж-Ш
+// Непарные звонкие: Й, Л, М, Н, Р
+// Непарные глухие: Х, Ц, Ч, Щ
+// ============================================================
+const LEVELS = [
+  { // Уровень 1 — лёгкий
+    name: "Лёгкий", icon: "⛵",
+    tasks: [
+      { text: "Выбери слова, в которых на конце пишется парная согласная:",
+        options: ["дуб", "дом", "кот", "луна", "снег"],
+        correct: [0, 2, 4] },
+      { text: "Выбери пары парных согласных:",
+        options: ["Б — П", "В — Ф", "М — Н", "Г — К", "Д — Т", "Р — Л"],
+        correct: [0, 1, 3, 4] },
+      { text: "В каких словах на конце стоит парная согласная, которую нужно проверять?",
+        options: ["дуб", "кот", "шар", "зонт", "сад", "нос"],
+        correct: [0, 1, 3, 4, 5] },
+      { text: "Выбери проверочные слова для слова «дуб»:",
+        options: ["дубы", "дубок", "дом", "дубрава"],
+        correct: [0, 1, 3] },
+      { text: "Выбери слова с глухой парной согласной на конце:",
+        options: ["дуб", "кот", "шар", "дом", "нос", "рот"],
+        correct: [1, 4, 5] }
+    ]
+  },
+  { // Уровень 2 — средний
+    name: "Средний", icon: "⛴️",
+    tasks: [
+      { text: "Выбери слова с правильно написанной парной согласной на конце:",
+        options: ["дуб", "дуп", "лук", "луг", "нос", "ноз"],
+        correct: [0, 2, 3, 4] },
+      { text: "Выбери слова, где на конце звонкая парная согласная:",
+        options: ["дуб", "кот", "шар", "сад", "нос", "жук"],
+        correct: [0, 3] },
+      { text: "Найди проверочные слова для слова «мороз»:",
+        options: ["морозы", "морозный", "мост", "мор"],
+        correct: [0, 1] },
+      { text: "Выбери слова, где на конце НЕ парная согласная:",
+        options: ["дом", "кот", "мяч", "сад", "грач"],
+        correct: [0, 2, 4] },
+      { text: "Выбери все правильные пары парных согласных:",
+        options: ["Б — П", "В — Ф", "Ж — Ш", "З — С", "Г — К", "Д — Т", "М — Н"],
+        correct: [0, 1, 2, 3, 4, 5] }
+    ]
+  },
+  { // Уровень 3 — сложный
+    name: "Сложный", icon: "🚢",
+    tasks: [
+      { text: "Найди слова с ошибкой в написании парной согласной на конце:",
+        options: ["дуп", "шарф", "стул", "носок", "луг"],
+        correct: [0] },
+      { text: "Выбери слова с парной согласной на конце из текста: «Дуб шумел. Кот спал. Снег шёл.»",
+        options: ["Дуб", "шумел", "Кот", "спал", "Снег", "шёл"],
+        correct: [0, 2, 4] },
+      { text: "Выбери проверочные слова для слова «лёд»:",
+        options: ["льды", "ледяной", "лесть", "ледник"],
+        correct: [0, 1, 3] },
+      { text: "Найди слова, где на конце парная согласная (её нужно проверять):",
+        options: ["дуб", "дом", "кот", "шар", "луна", "сад"],
+        correct: [0, 2, 5] },
+      { text: "Выбери предложения, где есть слово с парной согласной на конце:",
+        options: ["Дуб стоял.", "Кот спал.", "Дом большой.", "Шар улетел.", "Сад цветёт."],
+        correct: [0, 1, 4] }
+    ]
+  }
+];
+
+let state = {
+  currentLevel: 0,
+  currentTask: 0,
+  selected: new Set(),
+  fragments: 0,
+  correctTasks: 0,
+  levelResults: [0, 0, 0],
+  levelUnlocked: [true, false, false],
+  levelStars: [0, 0, 0]
+};
+
+const saved = localStorage.getItem('seaGame');
+if (saved) {
+  try {
+    const s = JSON.parse(saved);
+    state.levelResults = s.levelResults || [0,0,0];
+    state.levelUnlocked = s.levelUnlocked || [true,false,false];
+    state.levelStars = s.levelStars || [0,0,0];
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem('seaGame', JSON.stringify({
+    levelResults: state.levelResults,
+    levelUnlocked: state.levelUnlocked,
+    levelStars: state.levelStars
+  }));
+}
+
+function renderMap() {
+  const map = document.getElementById('levelMap');
+  map.innerHTML = '';
+  LEVELS.forEach((lvl, i) => {
+    const card = document.createElement('div');
+    card.className = 'level-card' + (state.levelUnlocked[i] ? '' : ' locked');
+    const stars = state.levelStars[i];
+    let starsHtml = '';
+    for (let s = 0; s < 3; s++) {
+      starsHtml += `<span class="${s < stars ? 'star-on' : 'star-off'}">★</span>`;
+    }
+    card.innerHTML = `
+      ${!state.levelUnlocked[i] ? '<div class="lock">🔒</div>' : ''}
+      <div class="level-icon">${lvl.icon}</div>
+      <div class="level-title">Уровень ${i+1}</div>
+      <div class="level-sub">${lvl.name}</div>
+      <div class="stars">${starsHtml}</div>
+      ${state.levelResults[i] > 0 ? `<div class="level-sub">${state.levelResults[i]}%</div>` : ''}
+    `;
+    if (state.levelUnlocked[i]) {
+      card.onclick = () => startLevel(i);
+    }
+    map.appendChild(card);
+  });
+}
+
+function showMap() {
+  document.getElementById('mapScreen').style.display = 'block';
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('finalScreen').classList.remove('active');
+  document.getElementById('inventory').style.display = 'none';
+  renderMap();
+}
+
+function startLevel(levelIdx) {
+  state.currentLevel = levelIdx;
+  state.currentTask = 0;
+  state.fragments = 0;
+  state.correctTasks = 0;
+  document.getElementById('mapScreen').style.display = 'none';
+  document.getElementById('finalScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('inventory').style.display = 'block';
+  document.getElementById('levelIndicator').textContent = `Уровень ${levelIdx+1} — ${LEVELS[levelIdx].name}`;
+  renderInventory();
+  renderTask();
+}
+
+function renderInventory() {
+  const slots = document.getElementById('invSlots');
+  slots.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'inv-slot' + (i < state.fragments ? ' filled' : '');
+    slots.appendChild(slot);
+  }
+}
+
+function renderTask() {
+  const task = LEVELS[state.currentLevel].tasks[state.currentTask];
+  state.selected.clear();
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('checkBtn').style.display = 'inline-block';
+  document.getElementById('checkBtn').disabled = false;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('taskCounter').textContent = `Задание ${state.currentTask+1}/5`;
+  document.getElementById('progressFill').style.width = (state.currentTask / 5 * 100) + '%';
+
+  const card = document.getElementById('taskCard');
+  const correctCount = task.correct.length;
+  let optionsHtml = '';
+  task.options.forEach((opt, i) => {
+    optionsHtml += `<div class="option" data-idx="${i}" onclick="toggleOption(${i})">
+      <span class="checkbox"></span>
+      <span>${opt}</span>
+    </div>`;
+  });
+  card.innerHTML = `
+    <div class="task-number">Задание ${state.currentTask+1}</div>
+    <div class="task-text">${task.text}
+      <span class="hint">верных ответов: ${correctCount}</span>
+    </div>
+    <div class="options">${optionsHtml}</div>
+  `;
+}
+
+function toggleOption(idx) {
+  const options = document.querySelectorAll('.option');
+  if (options[0] && options[0].classList.contains('disabled')) return;
+  if (state.selected.has(idx)) {
+    state.selected.delete(idx);
+    options[idx].classList.remove('selected');
+  } else {
+    state.selected.add(idx);
+    options[idx].classList.add('selected');
+  }
+}
+
+function checkAnswer() {
+  const task = LEVELS[state.currentLevel].tasks[state.currentTask];
+  const options = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+
+  if (state.selected.size === 0) {
+    fb.textContent = '⚠️ Выбери хотя бы один вариант ответа!';
+    fb.className = 'feedback warn';
+    return;
+  }
+
+  const correctSet = new Set(task.correct);
+  const selectedSet = state.selected;
+
+  let isCorrect = correctSet.size === selectedSet.size;
+  if (isCorrect) {
+    for (const c of correctSet) {
+      if (!selectedSet.has(c)) { isCorrect = false; break; }
+    }
+  }
+
+  options.forEach((opt, i) => {
+    opt.classList.add('disabled');
+    opt.style.pointerEvents = 'none';
+    if (correctSet.has(i)) opt.classList.add('correct');
+    if (selectedSet.has(i) && !correctSet.has(i)) opt.classList.add('wrong');
+  });
+
+  if (isCorrect) {
+    fb.textContent = '🎉 Отлично! Фрагмент карты добавлен в сундук!';
+    fb.className = 'feedback ok';
+    state.fragments++;
+    state.correctTasks++;
+    renderInventory();
+  } else {
+    fb.textContent = '😕 Не совсем. Посмотри правильные ответы (зелёные) и иди дальше.';
+    fb.className = 'feedback bad';
+  }
+
+  document.getElementById('checkBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function nextTask() {
+  state.currentTask++;
+  if (state.currentTask >= 5) {
+    finishLevel();
+  } else {
+    renderTask();
+  }
+}
+
+function finishLevel() {
+  const percent = Math.round(state.correctTasks / 5 * 100);
+  state.levelResults[state.currentLevel] = Math.max(state.levelResults[state.currentLevel], percent);
+
+  let stars = 0;
+  if (percent >= 40) stars = 1;
+  if (percent >= 70) stars = 2;
+  if (percent >= 90) stars = 3;
+  state.levelStars[state.currentLevel] = Math.max(state.levelStars[state.currentLevel], stars);
+
+  if (percent >= 70 && state.currentLevel < 2) {
+    state.levelUnlocked[state.currentLevel + 1] = true;
+  }
+  save();
+
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('finalScreen').classList.add('active');
+  document.getElementById('inventory').style.display = 'none';
+
+  const title = document.getElementById('finalTitle');
+  const score = document.getElementById('finalScore');
+
+  if (percent >= 70) {
+    title.textContent = '🏴‍☠️ Сокровище найдено!';
+    score.innerHTML = `Ты собрал карту! Результат: <b>${percent}%</b> (${state.correctTasks}/5)<br>Заработано звёзд: ${'⭐'.repeat(stars)}`;
+    if (state.currentLevel < 2) {
+      score.innerHTML += `<br><br>🔓 Открыт следующий уровень!`;
+    } else {
+      score.innerHTML += `<br><br>👑 Ты — настоящий капитан! Все уровни пройдены!`;
+    }
+  } else {
+    title.textContent = '🌊 Нужно ещё потренироваться!';
+    score.innerHTML = `Результат: <b>${percent}%</b> (${state.correctTasks}/5)<br>Чтобы открыть следующий уровень, нужно 70%. Попробуй ещё раз!`;
+  }
+}
+
+showMap();
+</script>
+
+</body>
+</html>

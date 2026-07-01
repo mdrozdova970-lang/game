@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математика с солнцезащитными очками</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .sun {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 40px #FFD700;
+            animation: rotate 10s linear infinite;
+            position: relative;
+        }
+
+        .sun::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .fact-box {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        .fact-box strong {
+            color: #d68910;
+        }
+
+        .glasses {
+            font-size: 60px;
+            margin: 15px 0;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .level-btn.easy {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .level-btn.medium {
+            background: #FF9800;
+            color: white;
+        }
+
+        .level-btn.hard {
+            background: #F44336;
+            color: white;
+        }
+
+        .level-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .level-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            outline: 3px solid #333;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 28px;
+            border: 3px solid #764ba2;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .check-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+
+        .check-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .next-btn {
+            background: #2196F3;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .glasses-collection {
+            font-size: 36px;
+            margin-top: 15px;
+            min-height: 50px;
+            letter-spacing: 3px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .level-desc {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sun"></div>
+        <h1>🌞 День изобретения солнцезащитных очков 🕶️</h1>
+        <p class="subtitle">Реши примеры и собери коллекцию очков!</p>
+
+        <div class="fact-box">
+            <strong>💡 А ты знал?</strong> Первые солнцезащитные очки придумали эскимосы! Они делали их из дерева и кости с узкими прорезями для глаз, чтобы снег не слепил. А в 1929 году Сэм Фостер начал продавать современные очки на пляжах!
+        </div>
+
+        <div class="glasses">🕶️</div>
+
+        <div class="level-selector">
+            <button class="level-btn easy active" onclick="selectLevel('easy')">🟢 Легкий</button>
+            <button class="level-btn medium" onclick="selectLevel('medium')">🟠 Средний</button>
+            <button class="level-btn hard" onclick="selectLevel('hard')">🔴 Сложный</button>
+        </div>
+
+        <p class="level-desc" id="levelDesc">Сложение и вычитание в пределах 20</p>
+
+        <div class="question-box" id="questionBox">
+            Нажми на уровень, чтобы начать!
+        </div>
+
+        <input type="number" class="answer-input hidden" id="answerInput" placeholder="Твой ответ">
+
+        <button class="check-btn hidden" id="checkBtn" onclick="checkAnswer()">✅ Проверить</button>
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">➡️ Дальше</button>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">0</div>
+                <div class="stat-label">Правильно</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Всего</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="glassesCount">0</div>
+                <div class="stat-label">🕶️ Очков</div>
+            </div>
+        </div>
+
+        <div class="glasses-collection" id="glassesCollection"></div>
+    </div>
+
+    <script>
+        let currentLevel = 'easy';
+        let currentAnswer = null;
+        let correctCount = 0;
+        let totalCount = 0;
+        let glassesCount = 0;
+        let answered = false;
+
+        const levelDescriptions = {
+            easy: 'Сложение и вычитание в пределах 20',
+            medium: 'Сложение и вычитание в пределах 100',
+            hard: 'Табличное умножение (2–9)'
+        };
+
+        function selectLevel(level) {
+            currentLevel = level;
+
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.getElementById('levelDesc').textContent = levelDescriptions[level];
+
+            document.getElementById('answerInput').classList.remove('hidden');
+            document.getElementById('checkBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            answered = false;
+
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            let question = '';
+            let answer = 0;
+            let num1, num2;
+
+            if (currentLevel === 'easy') {
+                // Сложение и вычитание в пределах 20
+                const isAdd = Math.random() > 0.5;
+
+                if (isAdd) {
+                    // a + b, результат ≤ 20
+                    num1 = Math.floor(Math.random() * 15) + 1; // 1..15
+                    num2 = Math.floor(Math.random() * (20 - num1)) + 1; // так чтобы сумма ≤ 20
+                    answer = num1 + num2;
+                    question = `${num1} + ${num2} = ?`;
+                } else {
+                    // a - b, результат ≥ 0
+                    num1 = Math.floor(Math.random() * 16) + 5; // 5..20
+                    num2 = Math.floor(Math.random() * num1) + 1; // 1..num1 (не больше num1!)
+                    answer = num1 - num2;
+                    question = `${num1} − ${num2} = ?`;
+                }
+
+            } else if (currentLevel === 'medium') {
+                // Сложение и вычитание в пределах 100
+                const isAdd = Math.random() > 0.5;
+
+                if (isAdd) {
+                    // a + b, результат ≤ 100
+                    num1 = Math.floor(Math.random() * 80) + 10; // 10..89
+                    num2 = Math.floor(Math.random() * (100 - num1)) + 1; // так чтобы сумма ≤ 100
+                    answer = num1 + num2;
+                    question = `${num1} + ${num2} = ?`;
+                } else {
+                    // a - b, результат ≥ 0
+                    num1 = Math.floor(Math.random() * 71) + 30; // 30..100
+                    num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1..(num1-1)
+                    answer = num1 - num2;
+                    question = `${num1} − ${num2} = ?`;
+                }
+
+            } else {
+                // Табличное умножение от 2 до 9
+                num1 = Math.floor(Math.random() * 8) + 2; // 2..9
+                num2 = Math.floor(Math.random() * 8) + 2; // 2..9
+                answer = num1 * num2;
+                question = `${num1} × ${num2} = ?`;
+            }
+
+            currentAnswer = answer;
+            document.getElementById('questionBox').textContent = question;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').disabled = false;
+            document.getElementById('answerInput').focus();
+            document.getElementById('checkBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            answered = false;
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '☝️ Введи число!';
+                feedback.className = 'feedback incorrect';
+                feedback.style.display = 'block';
+                return;
+            }
+
+            answered = true;
+            totalCount++;
+            document.getElementById('answerInput').disabled = true;
+
+            const praises = ['🎉 Отлично!', '🌟 Супер!', '👏 Молодец!', '🏆 Великолепно!', '💪 Так держать!'];
+            const randomPraise = praises[Math.floor(Math.random() * praises.length)];
+
+            if (userAnswer === currentAnswer) {
+                correctCount++;
+                glassesCount++;
+                feedback.innerHTML = `${randomPraise} Правильно! +1 очки 🕶️`;
+                feedback.className = 'feedback correct';
+                updateGlassesCollection();
+            } else {
+                feedback.innerHTML = `❌ Неверно. Правильный ответ: <strong>${currentAnswer}</strong>. Попробуй ещё!`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            feedback.style.display = 'block';
+            updateStats();
+
+            document.getElementById('checkBtn').classList.add('hidden');
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            generateQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('glassesCount').textContent = glassesCount;
+        }
+
+        function updateGlassesCollection() {
+            const collection = document.getElementById('glassesCollection');
+            let glasses = '';
+            let show = Math.min(glassesCount, 15);
+            for (let i = 0; i < show; i++) {
+                glasses += '🕶️';
+            }
+            if (glassesCount > 15) {
+                glasses += ` +${glassesCount - 15}`;
+            }
+            collection.textContent = glasses;
+        }
+
+        // Обработка Enter
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (!answered) {
+                    checkAnswer();
+                } else {
+                    nextQuestion();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

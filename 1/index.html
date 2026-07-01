@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍎 Фруктовый праздник — 3 уровня!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Comic Sans MS', 'Arial', cursive; }
+  body {
+    background: linear-gradient(135deg, #ffe29f 0%, #ffa99f 50%, #ff719a 100%);
+    min-height: 100vh;
+    padding: 15px;
+    user-select: none;
+  }
+  .container {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 5px dashed #ff719a;
+  }
+  h1 {
+    text-align: center;
+    color: #d6336c;
+    font-size: 1.8em;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 1em;
+  }
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    background: #fff3bf;
+    padding: 12px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .level-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 15px;
+    color: white;
+    font-size: 0.9em;
+    margin-left: 8px;
+  }
+  .level-1 { background: #51cf66; }
+  .level-2 { background: #fcc419; }
+  .level-3 { background: #ff6b6b; }
+
+  .task-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 3px solid #339af0;
+  }
+  .task-box.l1 { border-color: #51cf66; background: #f1f8e9; }
+  .task-box.l2 { border-color: #fcc419; background: #fffde7; }
+  .task-box.l3 { border-color: #ff6b6b; background: #ffebee; }
+
+  .task-box h2 {
+    margin-bottom: 12px;
+    font-size: 1.3em;
+  }
+  .task-box.l1 h2 { color: #2b8a3e; }
+  .task-box.l2 h2 { color: #e67700; }
+  .task-box.l3 h2 { color: #c92a2a; }
+
+  .task-text {
+    font-size: 1.2em;
+    margin-bottom: 12px;
+    color: #333;
+  }
+  .fruit-word {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #d6336c;
+    text-align: center;
+    margin: 12px 0;
+    letter-spacing: 2px;
+  }
+  .options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .btn {
+    background: #339af0;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    min-width: 50px;
+  }
+  .btn:hover { transform: scale(1.08); background: #228be6; }
+  .btn.correct { background: #51cf66 !important; animation: pop 0.5s; }
+  .btn.wrong { background: #ff6b6b !important; animation: shake 0.5s; }
+  .btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+  @keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 12px;
+    min-height: 28px;
+    font-weight: bold;
+  }
+  .feedback.good { color: #2b8a3e; }
+  .feedback.bad { color: #c92a2a; }
+
+  /* Выпадающий список */
+  .select-wrapper {
+    text-align: center;
+    margin: 15px 0;
+  }
+  .stress-select {
+    font-family: inherit;
+    font-size: 1.4em;
+    padding: 12px 20px;
+    border: 3px solid #fcc419;
+    border-radius: 15px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    min-width: 250px;
+    font-weight: bold;
+  }
+  .stress-select:focus { border-color: #e67700; }
+
+  .check-btn {
+    background: #51cf66;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: inherit;
+    font-weight: bold;
+  }
+  .check-btn:hover { background: #40c057; }
+
+  /* Drag & Drop */
+  .drop-zone {
+    min-height: 70px;
+    border: 3px dashed #adb5bd;
+    border-radius: 15px;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    margin: 10px 0;
+    transition: all 0.2s;
+  }
+  .drop-zone.active { background: #d3f9d8; border-color: #51cf66; }
+  .drop-zone.wrong-zone { background: #ffe3e3; border-color: #ff6b6b; }
+
+  .drag-item {
+    background: #339af0;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 15px;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: grab;
+    transition: transform 0.2s;
+    touch-action: none;
+  }
+  .drag-item:active { cursor: grabbing; transform: scale(1.1); }
+  .drag-item.placed { background: #51cf66; }
+
+  .source-zone {
+    min-height: 70px;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  /* Start & Final screens */
+  .screen {
+    text-align: center;
+    padding: 30px 15px;
+  }
+  .screen h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+    color: #d6336c;
+  }
+  .screen p {
+    font-size: 1.15em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  .start-btn, .restart-btn {
+    background: linear-gradient(135deg, #ff719a, #ffa99f);
+    color: white;
+    border: none;
+    padding: 18px 40px;
+    border-radius: 30px;
+    font-size: 1.4em;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    font-family: inherit;
+  }
+  .start-btn:hover, .restart-btn:hover { transform: scale(1.05); }
+
+  .level-intro {
+    background: #e7f5ff;
+    padding: 20px;
+    border-radius: 20px;
+    margin: 15px 0;
+    border: 3px solid #339af0;
+  }
+  .level-intro h3 {
+    color: #1971c2;
+    font-size: 1.4em;
+    margin-bottom: 10px;
+  }
+
+  .medal { font-size: 5em; margin: 15px 0; }
+  .fruit-deco {
+    text-align: center;
+    font-size: 1.8em;
+    letter-spacing: 8px;
+    margin: 10px 0;
+  }
+  .hidden { display: none; }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.4em; }
+    .fruit-word { font-size: 1.4em; }
+    .btn, .drag-item { font-size: 1em; padding: 10px 14px; }
+    .stress-select { font-size: 1.2em; min-width: 200px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🍎 Фруктовый праздник 🍊</h1>
+  <p class="subtitle">Международный день фруктов — 3 уровня приключений!</p>
+  <div class="fruit-deco">🍓 🍌 🍇 🍍 🍑 🥝 🍒</div>
+
+  <!-- Экран старта -->
+  <div id="startScreen" class="screen">
+    <h2>Добро пожаловать! 🎉</h2>
+    <p>Сегодня Международный день фруктов!</p>
+    <p>Тебя ждут <b>3 уровня</b> с разными заданиями:</p>
+    <div class="level-intro">
+      <h3>🟢 Уровень 1 — Слоги</h3>
+      <p>Выбери, сколько слогов в слове-фрукте</p>
+    </div>
+    <div class="level-intro" style="background:#fff9db; border-color:#fcc419;">
+      <h3 style="color:#e67700;">🟡 Уровень 2 — Ударение</h3>
+      <p>Выбери из списка слово с правильным ударением</p>
+    </div>
+    <div class="level-intro" style="background:#ffe3e3; border-color:#ff6b6b;">
+      <h3 style="color:#c92a2a;">🔴 Уровень 3 — Собери слово!</h3>
+      <p>Перетащи буквы и собери название фрукта</p>
+    </div>
+    <button class="start-btn" onclick="startGame()">Начать игру! 🚀</button>
+  </div>
+
+  <!-- Игровой экран -->
+  <div id="gameScreen" class="hidden">
+    <div class="score-bar">
+      <div>⭐ Очки: <span id="score">0</span></div>
+      <div>📝 Задание: <span id="current">1</span>/9</div>
+      <div id="levelIndicator"></div>
+    </div>
+    <div id="taskArea"></div>
+  </div>
+
+  <!-- Финальный экран -->
+  <div id="finalScreen" class="screen hidden">
+    <h2>Поздравляем! 🎉</h2>
+    <div class="medal" id="medal">🏆</div>
+    <p id="finalText" style="font-size:1.3em;"></p>
+    <button class="restart-btn" onclick="location.reload()">Играть ещё раз 🔄</button>
+  </div>
+</div>
+
+<script>
+// ========== ДАННЫЕ ЗАДАНИЙ ==========
+const allTasks = [
+  // УРОВЕНЬ 1: СЛОГИ (выбор ответа)
+  { level: 1, type: 'syllables', word: 'СЛИВА', emoji: '🍑', answer: 2, hint: 'Сли-ва' },
+  { level: 1, type: 'syllables', word: 'ЯБЛОКО', emoji: '🍎', answer: 3, hint: 'Яб-ло-ко' },
+  { level: 1, type: 'syllables', word: 'ГРУША', emoji: '🍐', answer: 2, hint: 'Гру-ша' },
+
+  // УРОВЕНЬ 2: УДАРЕНИЕ (ВЫПАДАЮЩИЙ СПИСОК)
+  { level: 2, type: 'stress', word: 'яблоко', emoji: '🍎',
+    options: ['я́блоко', 'яблóко', 'яблокó'], answer: 0 },
+  { level: 2, type: 'stress', word: 'слива', emoji: '🍑',
+    options: ['сли́ва', 'сливá', 'сливá'], answer: 0 },
+  { level: 2, type: 'stress', word: 'банан', emoji: '🍌',
+    options: ['бáнан', 'банáн', 'банан'], answer: 1 },
+
+  // УРОВЕНЬ 3: СОБЕРИ СЛОВО (перетаскивание)
+  { level: 3, type: 'dragword', word: 'ГРУША', emoji: '🍐', letters: ['Ш','У','А','Г','Р'] },
+  { level: 3, type: 'dragword', word: 'СЛИВА', emoji: '🍑', letters: ['И','В','С','А','Л'] },
+  { level: 3, type: 'dragword', word: 'ВИШНЯ', emoji: '🍒', letters: ['Н','Я','В','Ш','И'] }
+];
+
+let currentTask = 0;
+let score = 0;
+let dragData = null;
+
+// ========== НАВИГАЦИЯ ==========
+function startGame() {
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  renderTask();
+}
+
+function showFinal() {
+  document.getElementById('gameScreen').classList.add('hidden');
+  const final = document.getElementById('finalScreen');
+  final.classList.remove('hidden');
+  const maxScore = 90;
+  const percent = (score / maxScore) * 100;
+  let medal, text;
+  if (percent >= 90) { medal = '🏆'; text = 'Ты настоящий фруктовый чемпион!'; }
+  else if (percent >= 70) { medal = '🥇'; text = 'Отличный результат! Так держать!'; }
+  else if (percent >= 50) { medal = '🥈'; text = 'Хорошо! Но можно лучше!'; }
+  else { medal = '🥉'; text = 'Попробуй ещё раз — у тебя получится!'; }
+  document.getElementById('medal').textContent = medal;
+  document.getElementById('finalText').innerHTML = `Ты набрал <b>${score}</b> очков из ${maxScore}!<br>${text}`;
+}
+
+function nextTask() {
+  currentTask++;
+  if (currentTask >= allTasks.length) {
+    showFinal();
+  } else {
+    renderTask();
+  }
+}
+
+// ========== РЕНДЕР ЗАДАНИЙ ==========
+function renderTask() {
+  const t = allTasks[currentTask];
+  document.getElementById('current').textContent = currentTask + 1;
+  const indicator = document.getElementById('levelIndicator');
+  const levelNames = {1:'🟢 Слоги', 2:'🟡 Ударение', 3:'🔴 Собери слово'};
+  indicator.innerHTML = `<span class="level-badge level-${t.level}">${levelNames[t.level]}</span>`;
+
+  const area = document.getElementById('taskArea');
+
+  if (t.type === 'syllables') renderSyllables(area, t);
+  else if (t.type === 'stress') renderStress(area, t);
+  else if (t.type === 'dragword') renderDragWord(area, t);
+}
+
+// --- Уровень 1: Слоги ---
+function renderSyllables(area, t) {
+  let html = `<div class="task-box l1">
+    <h2>🟢 Уровень 1: Сколько слогов?</h2>
+    <p class="task-text">Посчитай слоги в слове:</p>
+    <div class="fruit-word">${t.emoji} ${t.word} ${t.emoji}</div>
+    <div class="options">`;
+  for (let i = 1; i <= 4; i++) {
+    html += `<button class="btn" onclick="checkSyllables(${i}, ${t.answer}, '${t.hint}', this)">${i}</button>`;
+  }
+  html += `</div><div class="feedback" id="feedback"></div></div>`;
+  area.innerHTML = html;
+}
+
+function checkSyllables(user, correct, hint, btn) {
+  const fb = document.getElementById('feedback');
+  const btns = document.querySelectorAll('.btn');
+  btns.forEach(b => b.disabled = true);
+  if (user === correct) {
+    fb.textContent = '✅ Правильно! Молодец! 🎉';
+    fb.className = 'feedback good';
+    btn.classList.add('correct');
+    score += 10;
+    document.getElementById('score').textContent = score;
+    setTimeout(nextTask, 1300);
+  } else {
+    fb.innerHTML = `❌ Неверно. Правильно: <b>${allTasks[currentTask].word}</b> — ${hint}`;
+    fb.className = 'feedback bad';
+    btn.classList.add('wrong');
+    setTimeout(() => {
+      btns.forEach(b => b.disabled = false);
+      btn.classList.remove('wrong');
+      fb.textContent = 'Попробуй ещё раз!';
+    }, 1500);
+  }
+}
+
+// --- Уровень 2: Ударение (ВЫПАДАЮЩИЙ СПИСОК) ---
+function renderStress(area, t) {
+  let optionsHTML = '<option value="-1">— Выбери правильный вариант —</option>';
+  t.options.forEach((opt, idx) => {
+    optionsHTML += `<option value="${idx}">${opt}</option>`;
+  });
+
+  let html = `<div class="task-box l2">
+    <h2>🟡 Уровень 2: Выбери правильное ударение</h2>
+    <p class="task-text">Как правильно поставить ударение в слове?</p>
+    <div class="fruit-word">${t.emoji} ${t.word.toUpperCase()} ${t.emoji}</div>
+    <div class="select-wrapper">
+      <select class="stress-select" id="stressSelect">
+        ${optionsHTML}
+      </select>
+    </div>
+    <div style="text-align:center;">
+      <button class="check-btn" onclick="checkStress(${t.answer})">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>`;
+  area.innerHTML = html;
+}
+
+function checkStress(correctIdx) {
+  const select = document.getElementById('stressSelect');
+  const fb = document.getElementById('feedback');
+  const userVal = parseInt(select.value);
+
+  if (userVal === -1) {
+    fb.textContent = '⚠️ Сначала выбери вариант из списка!';
+    fb.className = 'feedback bad';
+    return;
+  }
+
+  if (userVal === correctIdx) {
+    fb.textContent = '✅ Отлично! Верное ударение! 🌟';
+    fb.className = 'feedback good';
+    select.disabled = true;
+    score += 10;
+    document.getElementById('score').textContent = score;
+    setTimeout(nextTask, 1300);
+  } else {
+    fb.textContent = '❌ Неверно. Попробуй ещё раз!';
+    fb.className = 'feedback bad';
+    select.value = '-1';
+  }
+}
+
+// --- Уровень 3: Перетаскивание ---
+function renderDragWord(area, t) {
+  const lettersHTML = t.letters.map((l, i) => 
+    `<div class="drag-item" draggable="true" data-letter="${l}" data-id="src${i}">${l}</div>`
+  ).join('');
+
+  let html = `<div class="task-box l3">
+    <h2>🔴 Уровень 3: Собери слово!</h2>
+    <p class="task-text">Перетащи буквы в правильном порядке, чтобы получилось название фрукта:</p>
+    <div class="fruit-word">${t.emoji} ??? ${t.emoji}</div>
+    <div class="source-zone" id="sourceZone">${lettersHTML}</div>
+    <p class="task-text" style="font-size:1em;">↓ Перетащи сюда в нужном порядке:</p>
+    <div class="drop-zone" id="dropZone"></div>
+    <div style="text-align:center;">
+      <button class="check-btn" onclick="checkDragWord('${t.word}')">Проверить ✓</button>
+      <button class="btn" style="background:#adb5bd;" onclick="resetDrag()">Сбросить ↺</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>`;
+  area.innerHTML = html;
+  initDragAndDrop();
+}
+
+function initDragAndDrop() {
+  const items = document.querySelectorAll('.drag-item');
+  const dropZone = document.getElementById('dropZone');
+  const sourceZone = document.getElementById('sourceZone');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragData = item;
+      item.style.opacity = '0.5';
+    });
+    item.addEventListener('dragend', e => {
+      item.style.opacity = '1';
+      dragData = null;
+    });
+
+    item.addEventListener('touchstart', e => {
+      dragData = item;
+      item.style.opacity = '0.7';
+    }, {passive: true});
+    item.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      item.style.position = 'fixed';
+      item.style.left = (touch.clientX - 30) + 'px';
+      item.style.top = (touch.clientY - 30) + 'px';
+      item.style.zIndex = '1000';
+    }, {passive: false});
+    item.addEventListener('touchend', e => {
+      const touch = e.changedTouches[0];
+      const dropRect = dropZone.getBoundingClientRect();
+      const srcRect = sourceZone.getBoundingClientRect();
+      item.style.position = '';
+      item.style.left = '';
+      item.style.top = '';
+      item.style.zIndex = '';
+      item.style.opacity = '1';
+
+      if (touch.clientX >= dropRect.left && touch.clientX <= dropRect.right &&
+          touch.clientY >= dropRect.top && touch.clientY <= dropRect.bottom) {
+        dropZone.appendChild(item);
+      } else if (touch.clientX >= srcRect.left && touch.clientX <= srcRect.right &&
+                 touch.clientY >= srcRect.top && touch.clientY <= srcRect.bottom) {
+        sourceZone.appendChild(item);
+      }
+      dragData = null;
+    });
+  });
+
+  [dropZone, sourceZone].forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('active');
+    });
+    zone.addEventListener('dragleave', e => {
+      zone.classList.remove('active');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('active');
+      if (dragData) zone.appendChild(dragData);
+    });
+  });
+
+  // Клик для перемещения (альтернатива для мобильных)
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      const parent = item.parentElement;
+      if (parent.id === 'sourceZone') dropZone.appendChild(item);
+      else if (parent.id === 'dropZone') sourceZone.appendChild(item);
+    });
+  });
+}
+
+function resetDrag() {
+  const sourceZone = document.getElementById('sourceZone');
+  const dropZone = document.getElementById('dropZone');
+  const items = dropZone.querySelectorAll('.drag-item');
+  items.forEach(i => sourceZone.appendChild(i));
+  document.getElementById('feedback').textContent = '';
+}
+
+function checkDragWord(correctWord) {
+  const dropZone = document.getElementById('dropZone');
+  const fb = document.getElementById('feedback');
+  const items = dropZone.querySelectorAll('.drag-item');
+  let userWord = '';
+  items.forEach(i => userWord += i.dataset.letter);
+
+  if (userWord === correctWord) {
+    fb.textContent = '✅ Великолепно! Слово собрано верно! 🎉';
+    fb.className = 'feedback good';
+    dropZone.classList.add('active');
+    items.forEach(i => i.classList.add('placed'));
+    score += 15;
+    document.getElementById('score').textContent = score;
+    setTimeout(nextTask, 1500);
+  } else {
+    fb.textContent = '❌ Неверно. Попробуй переставить буквы!';
+    fb.className = 'feedback bad';
+    dropZone.classList.add('wrong-zone');
+    setTimeout(() => dropZone.classList.remove('wrong-zone'), 1000);
+  }
+}
+</script>
+</body>
+</html>
