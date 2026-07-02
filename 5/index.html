@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🏜️ День песка - Математическое приключение 🐪</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', cursive; }
+  
+  body {
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #fdb813 0%, #f4d03f 30%, #d4ac0d 70%, #b7950b 100%);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Интерактивный фон - песок */
+  .sand-particle {
+    position: fixed;
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 200, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: fall linear infinite;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(360deg); }
+  }
+
+  .sun {
+    position: fixed;
+    top: 20px;
+    right: 50px;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #fff700 0%, #ffaa00 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 60px #ffaa00;
+    animation: pulse 3s infinite;
+    z-index: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  .cactus {
+    position: fixed;
+    bottom: 0;
+    font-size: 60px;
+    z-index: 1;
+    animation: sway 4s ease-in-out infinite;
+  }
+
+  @keyframes sway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #8b4513;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+    margin-bottom: 10px;
+  }
+
+  .story-box {
+    background: rgba(255, 248, 220, 0.95);
+    border: 4px solid #d4ac0d;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+  }
+
+  .character {
+    font-size: 4em;
+    text-align: center;
+    margin: 10px 0;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .story-text {
+    font-size: 1.3em;
+    color: #5d4037;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .map-container {
+    background: rgba(255, 255, 240, 0.9);
+    border: 5px solid #b7950b;
+    border-radius: 25px;
+    padding: 30px;
+    margin: 20px 0;
+    position: relative;
+    min-height: 500px;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4ac0d' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .map-point {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    transition: all 0.3s;
+    border: 4px solid white;
+    animation: glow 2s infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px #ff6b6b; }
+    50% { box-shadow: 0 0 40px #ff6b6b, 0 0 60px #ff6b6b; }
+  }
+
+  .map-point:hover {
+    transform: scale(1.2) rotate(10deg);
+  }
+
+  .map-point.completed {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    animation: none;
+  }
+
+  .map-point-label {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8b4513;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 0.6em;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  .screen {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: none;
+    margin-top: 20px;
+    border: 4px solid #d4ac0d;
+  }
+
+  .screen.active { display: block; animation: fadeIn 0.5s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .back-btn {
+    background: #e67e22;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .back-btn:hover { background: #d35400; transform: translateY(-2px); }
+
+  /* Задание 1: Найди пары */
+  .matching-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .match-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 3px solid transparent;
+    font-weight: bold;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .match-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+  .match-card.selected { border-color: #f1c40f; background: linear-gradient(135deg, #f1c40f, #f39c12); }
+  .match-card.matched { background: linear-gradient(135deg, #2ecc71, #27ae60); opacity: 0.6; pointer-events: none; }
+
+  /* Задание 2: Вставь число */
+  .fill-blank {
+    background: #fff3cd;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 15px 0;
+    font-size: 1.8em;
+    text-align: center;
+    border: 3px dashed #d4ac0d;
+  }
+
+  .number-input {
+    width: 100px;
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    border: 3px solid #d4ac0d;
+    border-radius: 10px;
+    margin: 0 10px;
+  }
+
+  /* Задание 3: Сравнение */
+  .comparison-item {
+    background: #e8f5e9;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-size: 1.5em;
+    border: 3px solid #4caf50;
+    flex-wrap: wrap;
+  }
+
+  .compare-select {
+    width: 100px;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 3px solid #4caf50;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    color: #2e7d32;
+    font-family: 'Comic Sans MS', cursive;
+    transition: all 0.3s;
+  }
+
+  .compare-select:hover { background: #c8e6c9; }
+  .compare-select.correct { background: #d5f4e6; border-color: #27ae60; color: #27ae60; }
+  .compare-select.wrong { background: #fadbd8; border-color: #e74c3c; color: #e74c3c; }
+
+  /* Задание 4: Периметр */
+  .square-task {
+    background: #fff8e1;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 20px 0;
+    border: 4px solid #ff9800;
+  }
+
+  .square-visual {
+    width: 160px;
+    height: 160px;
+    border: 4px solid #8b4513;
+    margin: 30px auto;
+    position: relative;
+    background: rgba(255, 200, 100, 0.3);
+  }
+
+  .square-side {
+    position: absolute;
+    background: #8b4513;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.7em;
+    font-weight: bold;
+  }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.5em;
+    margin-top: 15px;
+    min-height: 40px;
+    font-weight: bold;
+  }
+
+  .feedback.correct { color: #27ae60; }
+  .feedback.wrong { color: #e74c3c; }
+
+  .stars {
+    text-align: center;
+    font-size: 2em;
+    margin: 20px 0;
+  }
+
+  .star {
+    color: #f1c40f;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: starPulse 1s infinite;
+  }
+
+  @keyframes starPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #ecf0f1;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 20px 0;
+    border: 3px solid #bdc3c7;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f1c40f, #f39c12);
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+
+  .btn-check {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .btn-check:hover { background: #229954; transform: translateY(-2px); }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cactus" style="left: 50px; animation-delay: 0s;">🌵</div>
+<div class="cactus" style="left: 150px; bottom: 100px; animation-delay: 1s; font-size: 40px;">🌵</div>
+<div class="cactus" style="right: 80px; animation-delay: 2s; font-size: 50px;">🌵</div>
+
+<!-- Генерация песка через JS -->
+<div id="sandContainer"></div>
+
+<div class="container">
+  <h1>🏜️ День песка 🐪</h1>
+  
+  <!-- Главная страница с историей -->
+  <div id="startScreen" class="screen active">
+    <div class="story-box">
+      <div class="character">🐪</div>
+      <h2 style="text-align: center; color: #d35400; margin-bottom: 15px;">Привет, юный исследователь!</h2>
+      <div class="story-text">
+        <p>Меня зовут <b>Камиль</b> - верблюжонок, и я живу в Великой Пустыне! 🏜️</p>
+        <br>
+        <p>Сегодня особенный день - <b>День песка</b>! В этот день песок в пустыне становится волшебным и может исполнять желания. Но чтобы получить волшебную силу песка, нужно пройти испытания!</p>
+        <br>
+        <p>Мой друг <b>Кактус Колючка</b> 🌵 и мудрая <b>Песчаная Фея</b> 🧚‍♀️ спрятали 4 сокровища в разных уголках пустыни. Помоги мне найти их, решив математические задания!</p>
+        <br>
+        <p style="font-size: 1.5em; color: #e67e22;">🌟 Готов к приключению? 🌟</p>
+      </div>
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn-check" onclick="showMap()" style="font-size: 1.5em; padding: 20px 40px;">Начать приключение! 🗺️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Карта -->
+  <div id="mapScreen" class="screen">
+    <h2 style="text-align: center; color: #8b4513; margin-bottom: 20px;">🗺️ Карта Великой Пустыни</h2>
+    <p style="text-align: center; color: #5d4037; margin-bottom: 20px;">Кликай на точки, чтобы выполнить задания и найти сокровища!</p>
+    
+    <div class="map-container">
+      <div class="map-point" style="top: 50px; left: 100px;" onclick="showTask(1)" id="point1">
+        🎯
+        <div class="map-point-label">Найди пары</div>
+      </div>
+      <div class="map-point" style="top: 150px; right: 150px;" onclick="showTask(2)" id="point2">
+        🔢
+        <div class="map-point-label">Вставь число</div>
+      </div>
+      <div class="map-point" style="bottom: 150px; left: 200px;" onclick="showTask(3)" id="point3">
+        ⚖️
+        <div class="map-point-label">Сравнение</div>
+      </div>
+      <div class="map-point" style="bottom: 50px; right: 100px;" onclick="showTask(4)" id="point4">
+        📐
+        <div class="map-point-label">Периметр</div>
+      </div>
+      
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5em; opacity: 0.3;">
+        🏜️
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar" style="width: 0%">0/4</div>
+    </div>
+
+    <div class="stars" id="totalStars"></div>
+  </div>
+
+  <!-- Задание 1: Найди пары -->
+  <div id="task1" class="screen">
+    <button class="back-btn" onclick="showMap()">← На карту</button>
+    <h2 style="text-align: center; color: #8b4513;">🎯 Найди пары</h2>
+    <p style="text-align: center; color: #5d4037;">Кликай на пример и его правильный ответ. Найди все пары!</p>
+    
+    <div class="matching-grid" id="matchingGrid"></div>
+    <div class="feedback" id="feedback1"></div>
+    <div class="stars" id="stars1"></div>
+  </div>
+
+  <!-- Задание 2: Вставь число -->
+  <div id="task2" class="screen">
+    <button class="back-btn" onclick="showMap()">← На карту</button>
+    <h2 style="text-align: center; color: #8b4513;">🔢 Вставь пропущенное число</h2>
+    <p style="text-align: center; color: #5d4037;">Впиши нужное число в окошко, чтобы равенство было верным.</p>
+    
+    <div id="fillBlankContainer"></div>
+    <div class="feedback" id="feedback2"></div>
+    <div class="stars" id="stars2"></div>
+  </div>
+
+  <!-- Задание 3: Сравнение -->
+  <div id="task3" class="screen">
+    <button class="back-btn" onclick="showMap()">← На карту</button>
+    <h2 style="text-align: center; color: #8b4513;">⚖️ Сравни числа</h2>
+    <p style="text-align: center; color: #5d4037;">Выбери из списка нужный знак: <b>&gt;</b> (больше), <b>&lt;</b> (меньше) или <b>=</b> (равно)</p>
+    
+    <div id="comparisonContainer"></div>
+    <div class="feedback" id="feedback3"></div>
+    <div class="stars" id="stars3"></div>
+  </div>
+
+  <!-- Задание 4: Периметр -->
+  <div id="task4" class="screen">
+    <button class="back-btn" onclick="showMap()">← На карту</button>
+    <h2 style="text-align: center; color: #8b4513;">📐 Периметр квадрата</h2>
+    <p style="text-align: center; color: #5d4037;">Найди периметр квадрата (сложи все стороны или умножь сторону на 4)</p>
+    
+    <div class="square-task">
+      <div class="square-visual" id="squareVisual">
+        <div class="square-side" style="top: -25px; left: 50%; transform: translateX(-50%);">16 см</div>
+        <div class="square-side" style="bottom: -25px; left: 50%; transform: translateX(-50%);">16 см</div>
+        <div class="square-side" style="left: -45px; top: 50%; transform: translateY(-50%);">16 см</div>
+        <div class="square-side" style="right: -45px; top: 50%; transform: translateY(-50%);">16 см</div>
+      </div>
+      <p style="font-size: 1.3em; margin: 15px 0;">Сторона квадрата: <b id="squareSide">16</b> см</p>
+      <p style="font-size: 1.2em; margin: 15px 0;">Чему равен периметр?</p>
+      <div>
+        <input type="number" class="number-input" id="perimeterInput" placeholder="?">
+        <span style="font-size: 1.5em;">см</span>
+      </div>
+      <button class="btn-check" onclick="checkPerimeter()">Проверить</button>
+    </div>
+    <div class="feedback" id="feedback4"></div>
+    <div class="stars" id="stars4"></div>
+  </div>
+
+  <!-- Финальный экран -->
+  <div id="finalScreen" class="screen">
+    <div class="story-box">
+      <div class="character">🏆</div>
+      <h2 style="text-align: center; color: #d35400;">Поздравляем!</h2>
+      <div class="story-text">
+        <p>Ты прошел все испытания Великой Пустыни!</p>
+        <br>
+        <p>Камиль, Кактус Колючка и Песчаная Фея дарят тебе <b>Волшебный Песок Желаний</b>! ✨</p>
+        <br>
+        <p>Теперь ты настоящий Мастер Математики Пустыни!</p>
+        <br>
+        <div class="stars" id="finalStars"></div>
+        <p style="font-size: 1.5em;">Всего звезд: <span id="finalScore">0</span> ⭐</p>
+      </div>
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn-check" onclick="location.reload()">Играть снова 🔄</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Генерация песка
+function createSand() {
+  const container = document.getElementById('sandContainer');
+  for (let i = 0; i < 50; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'sand-particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDuration = (3 + Math.random() * 7) + 's';
+    particle.style.animationDelay = Math.random() * 5 + 's';
+    container.appendChild(particle);
+  }
+}
+createSand();
+
+// Игровые данные
+let completedTasks = {1: false, 2: false, 3: false, 4: false};
+let stars = {1: 0, 2: 0, 3: 0, 4: 0};
+const SQUARE_SIDE = 16; // Фиксированная сторона квадрата
+
+// Данные для заданий
+const matchingPairs = [
+  {id: 1, text: '25 + 18', value: '43'},
+  {id: 2, text: '67 - 23', value: '44'},
+  {id: 3, text: '35 + 27', value: '62'},
+  {id: 4, text: '80 - 36', value: '44'},
+  {id: 5, text: '45 + 29', value: '74'},
+  {id: 6, text: '92 - 47', value: '45'}
+];
+
+const fillBlanks = [
+  {text: '35 + ? = 58', answer: 23},
+  {text: '? - 24 = 31', answer: 55},
+  {text: '67 - ? = 29', answer: 38},
+  {text: '? + 36 = 82', answer: 46},
+  {text: '75 - ? = 48', answer: 27}
+];
+
+const comparisons = [
+  {left: '45 + 18', right: '62', correct: '>'},
+  {left: '73 - 25', right: '50', correct: '<'},
+  {left: '36 + 27', right: '63', correct: '='},
+  {left: '84 - 39', right: '45', correct: '='},
+  {left: '52 + 29', right: '80', correct: '>'}
+];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showMap() {
+  updateProgress();
+  showScreen('mapScreen');
+}
+
+function showTask(num) {
+  if (completedTasks[num]) {
+    alert('Это задание уже выполнено! ⭐');
+    return;
+  }
+  showScreen('task' + num);
+  initTask(num);
+}
+
+function updateProgress() {
+  const completed = Object.values(completedTasks).filter(v => v).length;
+  const percent = (completed / 4) * 100;
+  document.getElementById('progressBar').style.width = percent + '%';
+  document.getElementById('progressBar').textContent = completed + '/4';
+  
+  // Обновление точек на карте
+  for (let i = 1; i <= 4; i++) {
+    const point = document.getElementById('point' + i);
+    if (completedTasks[i]) {
+      point.classList.add('completed');
+      point.innerHTML = '⭐<div class="map-point-label">Готово!</div>';
+    }
+  }
+  
+  // Обновление звезд
+  const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
+  let starsHtml = '';
+  for (let i = 0; i < totalStars; i++) {
+    starsHtml += '<span class="star">⭐</span>';
+  }
+  document.getElementById('totalStars').innerHTML = starsHtml;
+}
+
+// Задание 1: Найди пары
+let selectedCard = null;
+let matchedPairs = 0;
+
+function initTask1() {
+  const grid = document.getElementById('matchingGrid');
+  grid.innerHTML = '';
+  matchedPairs = 0;
+  selectedCard = null;
+  document.getElementById('feedback1').textContent = '';
+  document.getElementById('stars1').innerHTML = '';
+  
+  // Создаем массив с вопросами и ответами
+  let cards = [];
+  matchingPairs.forEach(pair => {
+    cards.push({id: pair.id, text: pair.text, type: 'question'});
+    cards.push({id: pair.id, text: pair.value, type: 'answer'});
+  });
+  
+  // Перемешиваем
+  cards.sort(() => Math.random() - 0.5);
+  
+  cards.forEach((card, index) => {
+    const div = document.createElement('div');
+    div.className = 'match-card';
+    div.textContent = card.text;
+    div.dataset.id = card.id;
+    div.dataset.index = index;
+    div.onclick = () => handleCardClick(div);
+    grid.appendChild(div);
+  });
+}
+
+function handleCardClick(card) {
+  if (card.classList.contains('matched') || card === selectedCard) return;
+  
+  card.classList.add('selected');
+  
+  if (!selectedCard) {
+    selectedCard = card;
+  } else {
+    // Проверяем пару
+    if (selectedCard.dataset.id === card.dataset.id && 
+        selectedCard.dataset.index !== card.dataset.index) {
+      // Пара найдена!
+      setTimeout(() => {
+        selectedCard.classList.remove('selected');
+        card.classList.remove('selected');
+        selectedCard.classList.add('matched');
+        card.classList.add('matched');
+        matchedPairs++;
+        selectedCard = null;
+        
+        if (matchedPairs === matchingPairs.length) {
+          document.getElementById('feedback1').innerHTML = '🎉 Отлично! Все пары найдены!';
+          document.getElementById('feedback1').className = 'feedback correct';
+          stars[1] = 3;
+          document.getElementById('stars1').innerHTML = '⭐⭐⭐';
+          completedTasks[1] = true;
+          setTimeout(() => {
+            alert('Задание выполнено! Получено 3 звезды! ⭐⭐⭐');
+            updateProgress();
+          }, 500);
+        }
+      }, 500);
+    } else {
+      // Неверно
+      setTimeout(() => {
+        selectedCard.classList.remove('selected');
+        card.classList.remove('selected');
+        selectedCard = null;
+        document.getElementById('feedback1').textContent = 'Попробуй еще раз!';
+        document.getElementById('feedback1').className = 'feedback wrong';
+      }, 800);
+    }
+  }
+}
+
+// Задание 2: Вставь число
+function initTask2() {
+  const container = document.getElementById('fillBlankContainer');
+  container.innerHTML = '';
+  document.getElementById('feedback2').textContent = '';
+  document.getElementById('stars2').innerHTML = '';
+  
+  fillBlanks.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'fill-blank';
+    div.innerHTML = `
+      <div style="margin-bottom: 10px;">${item.text}</div>
+      <input type="number" class="number-input" id="fill${index}" placeholder="?">
+      <button class="btn-check" onclick="checkFill(${index}, ${item.answer})" style="padding: 8px 20px; font-size: 1em;">OK</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function checkFill(index, correct) {
+  const input = document.getElementById('fill' + index);
+  const val = parseInt(input.value);
+  
+  if (val === correct) {
+    input.style.borderColor = '#27ae60';
+    input.style.background = '#d5f4e6';
+    input.disabled = true;
+    
+    // Проверяем все ли заполнено
+    const allCorrect = fillBlanks.every((item, i) => {
+      const inp = document.getElementById('fill' + i);
+      return inp.disabled && parseInt(inp.value) === item.answer;
+    });
+    
+    if (allCorrect) {
+      document.getElementById('feedback2').innerHTML = '🌟 Все числа вставлены правильно!';
+      document.getElementById('feedback2').className = 'feedback correct';
+      stars[2] = 3;
+      document.getElementById('stars2').innerHTML = '⭐⭐⭐';
+      completedTasks[2] = true;
+      setTimeout(() => {
+        alert('Задание выполнено! Получено 3 звезды! ⭐⭐⭐');
+        updateProgress();
+      }, 500);
+    }
+  } else {
+    input.style.borderColor = '#e74c3c';
+    input.style.background = '#fadbd8';
+    setTimeout(() => {
+      input.style.borderColor = '#d4ac0d';
+      input.style.background = 'white';
+    }, 1000);
+  }
+}
+
+// Задание 3: Сравнение (с выпадающим списком)
+function initTask3() {
+  const container = document.getElementById('comparisonContainer');
+  container.innerHTML = '';
+  document.getElementById('feedback3').textContent = '';
+  document.getElementById('stars3').innerHTML = '';
+  
+  comparisons.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'comparison-item';
+    div.innerHTML = `
+      <span style="min-width: 100px;">${item.left}</span>
+      <select class="compare-select" id="sign${index}" onchange="checkComparison(${index})">
+        <option value="">?</option>
+        <option value=">">&gt;</option>
+        <option value="<">&lt;</option>
+        <option value="=">=</option>
+      </select>
+      <span style="min-width: 100px;">${item.right}</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function checkComparison(index) {
+  const selectEl = document.getElementById('sign' + index);
+  const userSign = selectEl.value;
+  const correct = comparisons[index].correct;
+  
+  // Сбрасываем классы
+  selectEl.classList.remove('correct', 'wrong');
+  
+  if (userSign === '') {
+    return; // Пока не выбрано — ничего не делаем
+  }
+  
+  if (userSign === correct) {
+    selectEl.classList.add('correct');
+  } else {
+    selectEl.classList.add('wrong');
+  }
+  
+  // Проверяем, все ли выбраны правильно
+  checkAllComparisons();
+}
+
+function checkAllComparisons() {
+  let allAnswered = true;
+  let allCorrect = true;
+  
+  comparisons.forEach((item, index) => {
+    const selectEl = document.getElementById('sign' + index);
+    const userSign = selectEl.value;
+    
+    if (userSign === '') {
+      allAnswered = false;
+    } else if (userSign !== item.correct) {
+      allCorrect = false;
+    }
+  });
+  
+  if (allAnswered && allCorrect) {
+    document.getElementById('feedback3').innerHTML = '🎯 Все сравнения верны! Молодец!';
+    document.getElementById('feedback3').className = 'feedback correct';
+    stars[3] = 3;
+    document.getElementById('stars3').innerHTML = '⭐⭐⭐';
+    completedTasks[3] = true;
+    setTimeout(() => {
+      alert('Задание выполнено! Получено 3 звезды! ⭐⭐⭐');
+      updateProgress();
+    }, 500);
+  } else if (allAnswered && !allCorrect) {
+    document.getElementById('feedback3').innerHTML = 'Есть ошибки! Подумай ещё раз и исправь красные ответы.';
+    document.getElementById('feedback3').className = 'feedback wrong';
+  } else {
+    document.getElementById('feedback3').textContent = '';
+  }
+}
+
+// Задание 4: Периметр (фиксированная сторона 16 см)
+function initTask4() {
+  document.getElementById('squareSide').textContent = SQUARE_SIDE;
+  
+  // Обновляем визуализацию
+  const visual = document.getElementById('squareVisual');
+  visual.innerHTML = `
+    <div class="square-side" style="top: -25px; left: 50%; transform: translateX(-50%);">${SQUARE_SIDE} см</div>
+    <div class="square-side" style="bottom: -25px; left: 50%; transform: translateX(-50%);">${SQUARE_SIDE} см</div>
+    <div class="square-side" style="left: -45px; top: 50%; transform: translateY(-50%);">${SQUARE_SIDE} см</div>
+    <div class="square-side" style="right: -45px; top: 50%; transform: translateY(-50%);">${SQUARE_SIDE} см</div>
+  `;
+  
+  document.getElementById('perimeterInput').value = '';
+  document.getElementById('feedback4').textContent = '';
+  document.getElementById('stars4').innerHTML = '';
+}
+
+function checkPerimeter() {
+  const input = document.getElementById('perimeterInput');
+  const val = parseInt(input.value);
+  const correct = SQUARE_SIDE * 4; // 16 × 4 = 64
+  
+  if (val === correct) {
+    document.getElementById('feedback4').innerHTML = `🎉 Правильно! ${SQUARE_SIDE} × 4 = ${correct} см`;
+    document.getElementById('feedback4').className = 'feedback correct';
+    stars[4] = 3;
+    document.getElementById('stars4').innerHTML = '⭐⭐⭐';
+    completedTasks[4] = true;
+    
+    setTimeout(() => {
+      alert('Задание выполнено! Получено 3 звезды! ⭐⭐⭐');
+      updateProgress();
+      checkAllCompleted();
+    }, 500);
+  } else {
+    document.getElementById('feedback4').innerHTML = `❌ Подумай еще! Подсказка: умножь ${SQUARE_SIDE} на 4`;
+    document.getElementById('feedback4').className = 'feedback wrong';
+  }
+}
+
+function checkAllCompleted() {
+  if (Object.values(completedTasks).every(v => v)) {
+    setTimeout(() => {
+      showFinal();
+    }, 1000);
+  }
+}
+
+function showFinal() {
+  const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
+  document.getElementById('finalScore').textContent = totalStars;
+  
+  let starsHtml = '';
+  for (let i = 0; i < totalStars; i++) {
+    starsHtml += '<span class="star">⭐</span>';
+  }
+  document.getElementById('finalStars').innerHTML = starsHtml;
+  
+  showScreen('finalScreen');
+}
+
+function initTask(num) {
+  if (num === 1) initTask1();
+  if (num === 2) initTask2();
+  if (num === 3) initTask3();
+  if (num === 4) initTask4();
+}
+</script>
+
+</body>
+</html>

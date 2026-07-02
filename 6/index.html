@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🐾 Международный день собак - Математика 🐾</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', cursive; }
+  
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffe4b5 0%, #ffb6c1 50%, #87ceeb 100%);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Интерактивный фон */
+  .bg-item {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.6;
+    pointer-events: none;
+    animation: float 15s infinite linear;
+    z-index: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-100px) rotate(360deg); }
+  }
+
+  @keyframes run {
+    0% { left: -100px; }
+    100% { left: 110%; }
+  }
+
+  .running-dog {
+    position: fixed;
+    bottom: 20px;
+    font-size: 60px;
+    animation: run 12s linear infinite;
+    z-index: 1;
+  }
+
+  .running-dog:nth-child(2) { animation-duration: 18s; animation-delay: 3s; bottom: 80px; font-size: 50px; }
+  .running-dog:nth-child(3) { animation-duration: 15s; animation-delay: 7s; bottom: 150px; font-size: 45px; }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #8b4513;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #a0522d;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+  }
+
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 30px 0;
+  }
+
+  .menu-btn {
+    padding: 30px 20px;
+    font-size: 1.3em;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ff9a56, #ff6b9d);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    font-weight: bold;
+  }
+
+  .menu-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+  }
+
+  .screen {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: none;
+    margin-top: 20px;
+  }
+
+  .screen.active { display: block; animation: fadeIn 0.5s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .back-btn {
+    background: #8b4513;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 20px;
+  }
+
+  .back-btn:hover { background: #a0522d; }
+
+  /* Уровень 1 - Викторина */
+  .quiz-question {
+    font-size: 2em;
+    text-align: center;
+    margin: 20px 0;
+    color: #8b4513;
+    padding: 20px;
+    background: #fff3cd;
+    border-radius: 15px;
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .quiz-option {
+    padding: 20px;
+    font-size: 1.5em;
+    border: 3px solid #8b4513;
+    border-radius: 15px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+  }
+
+  .quiz-option:hover { background: #ffe4b5; }
+  .quiz-option.correct { background: #4caf50 !important; color: white; border-color: #2e7d32; animation: pulse 0.5s; }
+  .quiz-option.wrong { background: #f44336 !important; color: white; border-color: #c62828; animation: shake 0.5s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  .score {
+    text-align: center;
+    font-size: 1.5em;
+    color: #8b4513;
+    margin: 15px 0;
+  }
+
+  /* Уровень 2 - Колесо фортуны */
+  .wheel-container {
+    text-align: center;
+    position: relative;
+  }
+
+  #wheelCanvas {
+    max-width: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+  }
+
+  .wheel-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .spin-btn {
+    padding: 15px 40px;
+    font-size: 1.5em;
+    background: linear-gradient(135deg, #ff6b9d, #ff9a56);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 20px 0;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .spin-btn:hover { transform: scale(1.05); }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .answer-area {
+    margin: 20px 0;
+    padding: 20px;
+    background: #e3f2fd;
+    border-radius: 15px;
+    display: none;
+  }
+
+  .answer-area.active { display: block; }
+
+  .example-display {
+    font-size: 2em;
+    text-align: center;
+    color: #1565c0;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .answer-input {
+    width: 150px;
+    padding: 15px;
+    font-size: 1.8em;
+    text-align: center;
+    border: 3px solid #1565c0;
+    border-radius: 15px;
+    margin: 10px;
+  }
+
+  .check-btn {
+    padding: 15px 30px;
+    font-size: 1.3em;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .check-btn:hover { background: #45a049; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.5em;
+    margin-top: 15px;
+    min-height: 40px;
+    font-weight: bold;
+  }
+
+  .feedback.correct { color: #4caf50; }
+  .feedback.wrong { color: #f44336; }
+
+  /* Уровень 3 - Задачи */
+  .task-card {
+    background: #fff8e1;
+    border: 3px dashed #ff9800;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px 0;
+  }
+
+  .task-title {
+    font-size: 1.5em;
+    color: #e65100;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .task-text {
+    font-size: 1.3em;
+    color: #5d4037;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .task-input-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .dog-emoji {
+    font-size: 3em;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .final-score {
+    text-align: center;
+    font-size: 2em;
+    color: #8b4513;
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff3cd;
+    border-radius: 20px;
+  }
+
+  .medal { font-size: 3em; }
+</style>
+</head>
+<body>
+
+<!-- Интерактивный фон -->
+<div class="running-dog">🐕</div>
+<div class="running-dog">🐩</div>
+<div class="running-dog">🦮</div>
+
+<div class="container">
+  <h1>🐾 Международный день собак 🐾</h1>
+  <p class="subtitle">Математическое приключение с друзьями-собачками!</p>
+
+  <div id="menuScreen" class="screen active">
+    <div class="dog-emoji">🐶 🦴 🐕 🦴 🐶</div>
+    <p style="text-align:center; font-size:1.2em; color:#8b4513; margin:20px 0;">
+      Привет! Сегодня праздник — Международный день собак!<br>
+      Наши собачки-друзья приглашают тебя решить интересные задания!
+    </p>
+    <div class="menu">
+      <button class="menu-btn" onclick="showScreen('level1')">🎯 Уровень 1<br>Устный счёт</button>
+      <button class="menu-btn" onclick="showScreen('level2')">🎡 Уровень 2<br>Колесо фортуны</button>
+      <button class="menu-btn" onclick="showScreen('level3')">📝 Уровень 3<br>Задачи</button>
+    </div>
+    <div id="totalScore" class="final-score" style="display:none;"></div>
+  </div>
+
+  <!-- Уровень 1: Викторина -->
+  <div id="level1" class="screen">
+    <button class="back-btn" onclick="showScreen('menuScreen')">← Назад в меню</button>
+    <h2 style="text-align:center; color:#8b4513;">🎯 Уровень 1: Устный счёт</h2>
+    <p style="text-align:center; color:#8b4513;">Выбери правильный ответ!</p>
+    <div class="score">Счёт: <span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+    <div id="quizContent"></div>
+  </div>
+
+  <!-- Уровень 2: Колесо фортуны -->
+  <div id="level2" class="screen">
+    <button class="back-btn" onclick="showScreen('menuScreen')">← Назад в меню</button>
+    <h2 style="text-align:center; color:#8b4513;">🎡 Уровень 2: Колесо фортуны</h2>
+    <div class="wheel-container">
+      <canvas id="wheelCanvas" width="400" height="400"></canvas>
+      <div class="wheel-pointer">🐾</div>
+      <br>
+      <button class="spin-btn" id="spinBtn" onclick="spinWheel()">🎲 Крутить колесо!</button>
+    </div>
+    <div class="answer-area" id="answerArea">
+      <div class="example-display" id="exampleDisplay"></div>
+      <div class="task-input-area">
+        <span style="font-size:1.5em;">Ответ:</span>
+        <input type="number" class="answer-input" id="answerInput" placeholder="?">
+        <button class="check-btn" onclick="checkAnswer()">Проверить ✓</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="score">Решено верно: <span id="wheelScore">0</span></div>
+    </div>
+  </div>
+
+  <!-- Уровень 3: Задачи -->
+  <div id="level3" class="screen">
+    <button class="back-btn" onclick="showScreen('menuScreen')">← Назад в меню</button>
+    <h2 style="text-align:center; color:#8b4513;">📝 Уровень 3: Задачи</h2>
+    
+    <div class="task-card">
+      <div class="task-title">🦴 Задача 1 (на сумму, 2 действия)</div>
+      <div class="dog-emoji">🐕 + 🦴 + 🦴</div>
+      <div class="task-text">
+        У собаки Бобика было <b>47</b> косточек.<br>
+        Ему подарили ещё <b>28</b> косточек,<br>
+        а потом ещё <b>15</b> косточек.<br>
+        Сколько всего косточек стало у Бобика?
+      </div>
+      <div class="task-input-area">
+        <input type="number" class="answer-input" id="task1Input" placeholder="?">
+        <button class="check-btn" onclick="checkTask(1, 90)">Проверить</button>
+      </div>
+      <div class="feedback" id="task1Feedback"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🐾 Задача 2 (на умножение)</div>
+      <div class="dog-emoji">🐶 🐶 🐶 🐶 🐶 🐶 🐶</div>
+      <div class="task-text">
+        В приюте живут <b>7</b> собак-мам.<br>
+        У каждой мамы по <b>8</b> щенков.<br>
+        Сколько всего щенков в приюте?
+      </div>
+      <div class="task-input-area">
+        <input type="number" class="answer-input" id="task2Input" placeholder="?">
+        <button class="check-btn" onclick="checkTask(2, 56)">Проверить</button>
+      </div>
+      <div class="feedback" id="task2Feedback"></div>
+    </div>
+
+    <div class="score">Решено задач: <span id="tasksScore">0</span> / 2</div>
+  </div>
+</div>
+
+<script>
+// Генерация фона
+const emojis = ['🦴', '🐾', '🎾', '❤️', '🐕'];
+for (let i = 0; i < 15; i++) {
+  const div = document.createElement('div');
+  div.className = 'bg-item';
+  div.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  div.style.left = Math.random() * 100 + '%';
+  div.style.animationDuration = (10 + Math.random() * 15) + 's';
+  div.style.animationDelay = (Math.random() * 10) + 's';
+  div.style.fontSize = (30 + Math.random() * 30) + 'px';
+  document.body.appendChild(div);
+}
+
+let totalScore = {quiz: 0, wheel: 0, tasks: 0};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'level1') startQuiz();
+  if (id === 'level2') initWheel();
+  if (id === 'menuScreen') updateTotalScore();
+}
+
+function updateTotalScore() {
+  const total = totalScore.quiz + totalScore.wheel + totalScore.tasks;
+  const el = document.getElementById('totalScore');
+  if (total > 0) {
+    el.style.display = 'block';
+    let medal = '🥉';
+    if (total >= 15) medal = '🏆';
+    else if (total >= 10) medal = '🥇';
+    else if (total >= 5) medal = '🥈';
+    el.innerHTML = `<div class="medal">${medal}</div>Твой общий счёт: ${total} очков!`;
+  }
+}
+
+// ====== УРОВЕНЬ 1: ВИКТОРИНА ======
+const quizQuestions = [
+  {q: '25 + 34 = ?', options: [59, 49, 69, 58], correct: 0},
+  {q: '67 - 23 = ?', options: [44, 34, 54, 45], correct: 0},
+  {q: '45 + 18 = ?', options: [53, 63, 73, 62], correct: 1},
+  {q: '80 - 36 = ?', options: [54, 44, 46, 56], correct: 1},
+  {q: '29 + 31 = ?', options: [50, 60, 70, 59], correct: 1},
+  {q: '56 - 19 = ?', options: [47, 37, 27, 43], correct: 1},
+  {q: '38 + 27 = ?', options: [55, 65, 75, 64], correct: 1},
+  {q: '92 - 45 = ?', options: [47, 57, 37, 48], correct: 0}
+];
+
+let currentQuiz = 0;
+let quizScore = 0;
+
+function startQuiz() {
+  currentQuiz = 0;
+  quizScore = 0;
+  document.getElementById('quizScore').textContent = 0;
+  document.getElementById('quizTotal').textContent = quizQuestions.length;
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if (currentQuiz >= quizQuestions.length) {
+    totalScore.quiz = quizScore;
+    document.getElementById('quizContent').innerHTML = `
+      <div class="final-score">
+        <div class="medal">🎉</div>
+        Викторина завершена!<br>
+        Правильных ответов: ${quizScore} из ${quizQuestions.length}
+      </div>
+    `;
+    return;
+  }
+  const q = quizQuestions[currentQuiz];
+  let html = `<div class="quiz-question">🐶 ${q.q}</div><div class="quiz-options">`;
+  q.options.forEach((opt, i) => {
+    html += `<button class="quiz-option" onclick="checkQuiz(${i}, ${q.correct}, this)">${opt}</button>`;
+  });
+  html += '</div>';
+  document.getElementById('quizContent').innerHTML = html;
+}
+
+function checkQuiz(selected, correct, btn) {
+  const buttons = document.querySelectorAll('.quiz-option');
+  buttons.forEach(b => b.disabled = true);
+  if (selected === correct) {
+    btn.classList.add('correct');
+    quizScore++;
+    document.getElementById('quizScore').textContent = quizScore;
+  } else {
+    btn.classList.add('wrong');
+    buttons[correct].classList.add('correct');
+  }
+  setTimeout(() => {
+    currentQuiz++;
+    showQuizQuestion();
+  }, 1500);
+}
+
+// ====== УРОВЕНЬ 2: КОЛЕСО ФОРТУНЫ ======
+const wheelExamples = [
+  {text: '35 + 28 + 17', answer: 80},
+  {text: '65 - 27 + 18', answer: 56},
+  {text: '42 + 33 - 19', answer: 56},
+  {text: '58 + 24 - 16', answer: 66},
+  {text: '73 - 38 + 25', answer: 60},
+  {text: '47 + 26 - 18', answer: 55},
+  {text: '82 - 35 + 19', answer: 66},
+  {text: '39 + 27 - 14', answer: 52}
+];
+
+const wheelColors = ['#ff6b9d', '#ffa751', '#ffe259', '#4facfe', '#43e97b', '#fa709a', '#667eea', '#f093fb'];
+let currentRotation = 0;
+let currentExample = null;
+let wheelScore = 0;
+let wheelCanvas, wheelCtx;
+
+// Звуковой контекст
+let audioContext = null;
+
+function playSpinSound() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function initWheel() {
+  wheelCanvas = document.getElementById('wheelCanvas');
+  wheelCtx = wheelCanvas.getContext('2d');
+  drawWheel(0);
+}
+
+function drawWheel(rotation) {
+  const cx = 200, cy = 200, r = 180;
+  const n = wheelExamples.length;
+  const angle = (2 * Math.PI) / n;
+  
+  wheelCtx.clearRect(0, 0, 400, 400);
+  
+  for (let i = 0; i < n; i++) {
+    const startAngle = rotation + i * angle;
+    const endAngle = startAngle + angle;
+    
+    wheelCtx.beginPath();
+    wheelCtx.moveTo(cx, cy);
+    wheelCtx.arc(cx, cy, r, startAngle, endAngle);
+    wheelCtx.closePath();
+    wheelCtx.fillStyle = wheelColors[i];
+    wheelCtx.fill();
+    wheelCtx.strokeStyle = 'white';
+    wheelCtx.lineWidth = 3;
+    wheelCtx.stroke();
+    
+    // Текст
+    wheelCtx.save();
+    wheelCtx.translate(cx, cy);
+    wheelCtx.rotate(startAngle + angle / 2);
+    wheelCtx.fillStyle = 'white';
+    wheelCtx.font = 'bold 14px Comic Sans MS';
+    wheelCtx.textAlign = 'center';
+    wheelCtx.fillText(wheelExamples[i].text, r * 0.6, 5);
+    wheelCtx.restore();
+  }
+  
+  // Центр
+  wheelCtx.beginPath();
+  wheelCtx.arc(cx, cy, 25, 0, 2 * Math.PI);
+  wheelCtx.fillStyle = '#8b4513';
+  wheelCtx.fill();
+  wheelCtx.strokeStyle = 'white';
+  wheelCtx.lineWidth = 3;
+  wheelCtx.stroke();
+  wheelCtx.fillStyle = 'white';
+  wheelCtx.font = '20px Arial';
+  wheelCtx.textAlign = 'center';
+  wheelCtx.textBaseline = 'middle';
+  wheelCtx.fillText('🐾', cx, cy);
+}
+
+function spinWheel() {
+  playSpinSound(); // Звук при начале раскрутки
+  
+  const btn = document.getElementById('spinBtn');
+  btn.disabled = true;
+  document.getElementById('answerArea').classList.remove('active');
+  
+  const spins = 5 + Math.random() * 3;
+  const extraAngle = Math.random() * 2 * Math.PI;
+  const totalRotation = spins * 2 * Math.PI + extraAngle;
+  const duration = 4000;
+  const startTime = Date.now();
+  const startRotation = currentRotation;
+  
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // easeOutCubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    currentRotation = startRotation + totalRotation * eased;
+    drawWheel(currentRotation);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Определяем выпавший сектор (указатель слева, т.е. угол π)
+      const n = wheelExamples.length;
+      const angle = (2 * Math.PI) / n;
+      const pointerAngle = Math.PI; // указатель слева
+      let normalized = (pointerAngle - currentRotation) % (2 * Math.PI);
+      if (normalized < 0) normalized += 2 * Math.PI;
+      const index = Math.floor(normalized / angle) % n;
+      currentExample = wheelExamples[index];
+      
+      document.getElementById('exampleDisplay').textContent = currentExample.text + ' = ?';
+      document.getElementById('answerArea').classList.add('active');
+      document.getElementById('answerInput').value = '';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('answerInput').focus();
+      btn.disabled = false;
+    }
+  }
+  animate();
+}
+
+function checkAnswer() {
+  const input = document.getElementById('answerInput');
+  const feedback = document.getElementById('feedback');
+  const userAnswer = parseInt(input.value);
+  
+  if (isNaN(userAnswer)) {
+    feedback.textContent = '🐾 Введи число!';
+    feedback.className = 'feedback wrong';
+    return;
+  }
+  
+  if (userAnswer === currentExample.answer) {
+    feedback.textContent = '🎉 Правильно! Молодец!';
+    feedback.className = 'feedback correct';
+    wheelScore++;
+    totalScore.wheel = wheelScore;
+    document.getElementById('wheelScore').textContent = wheelScore;
+  } else {
+    feedback.textContent = `❌ Неверно. Правильный ответ: ${currentExample.answer}`;
+    feedback.className = 'feedback wrong';
+  }
+}
+
+// ====== УРОВЕНЬ 3: ЗАДАЧИ ======
+let tasksSolved = 0;
+
+function checkTask(num, correct) {
+  const input = document.getElementById('task' + num + 'Input');
+  const feedback = document.getElementById('task' + num + 'Feedback');
+  const userAnswer = parseInt(input.value);
+  
+  if (isNaN(userAnswer)) {
+    feedback.textContent = '🐾 Введи число!';
+    feedback.className = 'feedback wrong';
+    return;
+  }
+  
+  if (userAnswer === correct) {
+    feedback.textContent = '🎉 Правильно! Ты настоящий друг собачек!';
+    feedback.className = 'feedback correct';
+    if (!input.dataset.solved) {
+      tasksSolved++;
+      totalScore.tasks = tasksSolved;
+      input.dataset.solved = 'true';
+      document.getElementById('tasksScore').textContent = tasksSolved;
+    }
+  } else {
+    feedback.textContent = '❌ Подумай ещё раз!';
+    feedback.className = 'feedback wrong';
+  }
+}
+
+// Enter для проверки ответа в колесе
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('answerInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') checkAnswer();
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Математическая экспедиция: Летние джунгли</title>
+<style>
+  :root {
+    --game-bg: #1b4332;
+    --game-bg-light: #2d6a4f;
+    --game-card: #d8f3dc;
+    --game-primary: #f4a261;
+    --game-accent: #e9c46a;
+    --game-text: #081c15;
+    --game-success: #52b788;
+    --game-error: #e76f51;
+    --game-muted: #95d5b2;
+    --game-wood: #9c462b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(180deg, var(--game-bg) 0%, var(--game-bg-light) 100%);
+    color: var(--game-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Фоновые листья */
+  .leaf {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.15;
+    pointer-events: none;
+    animation: floatLeaf 15s infinite linear;
+    z-index: 0;
+  }
+  @keyframes floatLeaf {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-100px) rotate(360deg); }
+  }
+
+  /* Глобальный UI */
+  .global-ui {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .global-ui > * { pointer-events: auto; }
+
+  .score-panel {
+    background: var(--game-accent);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.1em;
+    box-shadow: 0 4px 0 var(--game-wood);
+    border: 2px solid var(--game-primary);
+    color: var(--game-text);
+  }
+
+  .inventory-panel {
+    background: rgba(27, 67, 50, 0.9);
+    padding: 8px;
+    border-radius: 15px;
+    border: 2px solid var(--game-success);
+    display: flex;
+    gap: 5px;
+  }
+  .inv-slot {
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+  }
+  .inv-slot.filled {
+    background: var(--game-accent);
+    animation: popIn 0.5s;
+    box-shadow: 0 0 10px var(--game-accent);
+  }
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  /* Кот-учёный */
+  .helper {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  .helper-avatar {
+    font-size: 50px;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+    animation: catBounce 3s infinite;
+  }
+  @keyframes catBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .helper-bubble {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 15px;
+    border-bottom-left-radius: 0;
+    max-width: 250px;
+    font-size: 0.9em;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s;
+  }
+  .helper-bubble.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Контейнер игры */
+  .game-container {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 80px 15px 100px;
+    min-height: 100vh;
+  }
+
+  .screen {
+    display: none;
+    animation: fadeIn 0.5s;
+  }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Карточки */
+  .card {
+    background: var(--game-card);
+    border: 3px solid var(--game-success);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, var(--game-muted) 0%, transparent 70%);
+    opacity: 0.5;
+  }
+
+  .card-title {
+    font-size: 1.5em;
+    color: var(--game-bg);
+    margin-bottom: 15px;
+    text-align: center;
+    text-shadow: 1px 1px 0 var(--game-muted);
+  }
+
+  /* Кнопки */
+  .btn {
+    background: linear-gradient(to bottom, var(--game-primary), #e76f51);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--game-wood);
+    transition: all 0.1s;
+    font-family: inherit;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    display: inline-block;
+    text-align: center;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--game-wood); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--game-wood); }
+  .btn:disabled {
+    background: #999;
+    box-shadow: 0 6px 0 #666;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-success {
+    background: linear-gradient(to bottom, var(--game-success), #40916c);
+    box-shadow: 0 6px 0 #1b4332;
+  }
+  .btn-block { display: block; width: 100%; max-width: 300px; margin: 20px auto; }
+
+  /* Прогресс-бар */
+  .progress-container {
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    height: 25px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid var(--game-muted);
+    position: relative;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--game-success), var(--game-accent));
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 15px;
+  }
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-size: 0.9em;
+  }
+
+  /* Стартовый экран */
+  .start-screen {
+    text-align: center;
+    padding-top: 50px;
+  }
+  .start-screen h1 {
+    font-size: 2.5em;
+    color: var(--game-accent);
+    text-shadow: 3px 3px 0 var(--game-wood);
+    margin-bottom: 20px;
+  }
+  .start-screen p {
+    color: var(--game-card);
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  .start-decor {
+    font-size: 4em;
+    margin: 20px 0;
+  }
+
+  /* ЭТАП 1: Бродилка */
+  .board-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .board-cell {
+    aspect-ratio: 1;
+    background: var(--game-card);
+    border: 3px solid var(--game-muted);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .board-cell.current {
+    border-color: var(--game-accent);
+    box-shadow: 0 0 15px var(--game-accent);
+    transform: scale(1.05);
+  }
+  .board-cell.passed {
+    background: var(--game-muted);
+    opacity: 0.6;
+  }
+  .board-cell.bonus { background: #ffe8d6; border-color: var(--game-primary); }
+  .board-cell.penalty { background: #fcd5ce; border-color: var(--game-error); }
+  .board-cell.finish { background: var(--game-accent); border-color: var(--game-primary); }
+  
+  .cell-icon { font-size: 1.5em; }
+  .cell-num { font-size: 0.8em; color: #666; }
+  
+  .player-token {
+    position: absolute;
+    font-size: 1.8em;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 5;
+    filter: drop-shadow(2px 4px 2px rgba(0,0,0,0.3));
+  }
+
+  .dice-area {
+    text-align: center;
+    margin: 20px 0;
+  }
+  .dice {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 15px;
+    font-size: 3em;
+    line-height: 80px;
+    box-shadow: 0 5px 0 #ccc;
+    margin: 10px;
+    transition: transform 0.5s;
+  }
+  .dice.rolling {
+    animation: rollDice 0.5s linear;
+  }
+  @keyframes rollDice {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  /* Модальное окно задания */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: var(--game-card);
+    border: 4px solid var(--game-success);
+    border-radius: 25px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    animation: popIn 0.3s;
+  }
+  .modal-question {
+    font-size: 2em;
+    margin: 20px 0;
+    color: var(--game-bg);
+  }
+  .modal-input {
+    width: 120px;
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    border: 3px solid var(--game-muted);
+    border-radius: 15px;
+    font-family: inherit;
+  }
+  .modal-input:focus { outline: none; border-color: var(--game-primary); }
+  
+  .feedback-text {
+    margin-top: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    min-height: 30px;
+  }
+  .feedback-text.correct { color: var(--game-success); }
+  .feedback-text.wrong { color: var(--game-error); }
+
+  /* ЭТАП 2: Квест */
+  .quest-scene {
+    text-align: center;
+    padding: 20px;
+  }
+  .quest-illustration {
+    font-size: 5em;
+    margin: 20px 0;
+  }
+  .quest-text {
+    font-size: 1.3em;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+  .quest-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .choice-btn {
+    background: white;
+    border: 3px solid var(--game-muted);
+    border-radius: 15px;
+    padding: 15px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .choice-btn:hover { border-color: var(--game-primary); transform: translateY(-3px); }
+  .choice-btn.correct-choice {
+    border-color: var(--game-success);
+    background: #d8f3dc;
+    box-shadow: 0 0 15px var(--game-success);
+  }
+  .choice-btn.wrong-choice {
+    border-color: var(--game-error);
+    background: #fcd5ce;
+    animation: shake 0.5s;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  .route-map {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+  }
+  .route-map::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: var(--game-muted);
+    z-index: 0;
+  }
+  .route-point {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--game-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    z-index: 1;
+    transition: all 0.5s;
+    border: 3px solid white;
+  }
+  .route-point.active {
+    background: var(--game-accent);
+    transform: scale(1.3);
+    box-shadow: 0 0 15px var(--game-accent);
+  }
+  .route-point.passed {
+    background: var(--game-success);
+  }
+
+  /* ЭТАП 3: Тренажёр */
+  .trainer-question {
+    font-size: 2.5em;
+    text-align: center;
+    margin: 30px 0;
+    color: var(--game-bg);
+  }
+  .trainer-input-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  /* Финальные экраны */
+  .final-screen {
+    text-align: center;
+    padding: 30px 15px;
+  }
+  .final-screen h2 {
+    font-size: 2em;
+    color: var(--game-accent);
+    text-shadow: 2px 2px 0 var(--game-wood);
+    margin-bottom: 20px;
+  }
+  .stars-display {
+    font-size: 3em;
+    margin: 20px 0;
+  }
+  .star { color: #ddd; transition: all 0.3s; }
+  .star.earned { color: var(--game-accent); text-shadow: 0 0 10px var(--game-accent); animation: starPop 0.5s; }
+  @keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .stat-item {
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid var(--game-muted);
+  }
+  .stat-value { font-size: 2em; font-weight: bold; color: var(--game-primary); }
+  .stat-label { font-size: 0.9em; color: #666; }
+
+  /* Конфетти */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 300;
+    overflow: hidden;
+  }
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confettiFall 1s linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Адаптив */
+  @media (max-width: 600px) {
+    .game-container { padding: 70px 10px 120px; }
+    .start-screen h1 { font-size: 1.8em; }
+    .board-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .board-cell { font-size: 0.7em; border-radius: 10px; }
+    .cell-icon { font-size: 1.2em; }
+    .player-token { font-size: 1.4em; }
+    .helper-avatar { font-size: 40px; }
+    .helper-bubble { max-width: 180px; font-size: 0.8em; }
+    .modal-question { font-size: 1.5em; }
+    .trainer-question { font-size: 1.8em; }
+    .btn { padding: 12px 20px; font-size: 1em; }
+    .score-panel { font-size: 0.9em; padding: 5px 10px; }
+    .inv-slot { width: 25px; height: 25px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Фоновые листья -->
+<div id="leaves-bg"></div>
+
+<!-- Глобальный UI -->
+<div class="global-ui">
+  <div class="score-panel">⭐ <span id="globalScore">0</span> баллов</div>
+  <div class="inventory-panel" id="inventory">
+    <div class="inv-slot" id="inv1"></div>
+    <div class="inv-slot" id="inv2"></div>
+    <div class="inv-slot" id="inv3"></div>
+    <div class="inv-slot" id="inv4"></div>
+    <div class="inv-slot" id="inv5"></div>
+  </div>
+</div>
+
+<!-- Кот-учёный -->
+<div class="helper" id="helper">
+  <div class="helper-avatar">🐱🕶️</div>
+  <div class="helper-bubble" id="helperBubble">Мяу! Готов к экспедиции?</div>
+</div>
+
+<div class="game-container">
+  
+  <!-- СТАРТОВЫЙ ЭКРАН -->
+  <div class="screen active" id="startScreen">
+    <div class="start-screen">
+      <div class="start-decor">🌴🦜🌿</div>
+      <h1>Математическая экспедиция</h1>
+      <h2 style="color: var(--game-muted); margin-bottom: 20px;">Летние джунгли</h2>
+      <p>Привет, исследователь! Тебя ждёт опасное, но увлекательное путешествие по летним джунглям! Тебе предстоит пройти через математические заросли, разгадать древние загадки и найти сокровища. Кот-учёный будет твоим проводником!</p>
+      <button class="btn btn-block" onclick="startGame()">Начать экспедицию 🎒</button>
+    </div>
+  </div>
+
+  <!-- ЭТАП 1: БРОДИЛКА -->
+  <div class="screen" id="stage1Screen">
+    <div class="card">
+      <div class="card-title">🗺️ Тропа через джунгли</div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progress1"></div>
+        <div class="progress-text" id="progressText1">Задание 0 из 10</div>
+      </div>
+      <div class="board-grid" id="boardGrid"></div>
+      <div class="dice-area">
+        <div class="dice" id="dice">🎲</div>
+        <br>
+        <button class="btn" id="rollBtn" onclick="rollDice()">Бросить кубик 🎲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭТАП 2: КВЕСТ -->
+  <div class="screen" id="stage2Screen">
+    <div class="card">
+      <div class="card-title">🧒 Приключения Артёма</div>
+      <div class="route-map" id="routeMap"></div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progress2"></div>
+        <div class="progress-text" id="progressText2">Ситуация 0 из 6</div>
+      </div>
+      <div class="quest-scene" id="questScene"></div>
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn" id="nextQuestBtn" onclick="nextQuestStep()" disabled>Дальше ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭТАП 3: ТРЕНАЖЁР -->
+  <div class="screen" id="stage3Screen">
+    <div class="card">
+      <div class="card-title">🧮 Тренажёр мудрой обезьянки</div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progress3"></div>
+        <div class="progress-text" id="progressText3">Задание 0 из 5</div>
+      </div>
+      <div class="trainer-question" id="trainerQuestion"></div>
+      <div class="trainer-input-area">
+        <input type="number" class="modal-input" id="trainerInput" placeholder="?">
+        <button class="btn btn-success" id="trainerCheckBtn" onclick="checkTrainerAnswer()">Проверить ✓</button>
+      </div>
+      <div class="feedback-text" id="trainerFeedback"></div>
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn" id="nextTrainerBtn" onclick="nextTrainerQuestion()" disabled>Дальше ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН ЗАВЕРШЕНИЯ ЭТАПА -->
+  <div class="screen" id="stageCompleteScreen">
+    <div class="final-screen">
+      <div style="font-size: 4em;">🎉</div>
+      <h2 id="completeTitle">Этап пройден!</h2>
+      <div class="stars-display" id="completeStars"></div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="completeCorrect">0</div>
+          <div class="stat-label">Верных ответов</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="completeScore">0</div>
+          <div class="stat-label">Баллов получено</div>
+        </div>
+      </div>
+      <p id="completeMessage" style="margin: 20px 0; font-size: 1.2em;"></p>
+      <button class="btn btn-block" id="nextStageBtn" onclick="goToNextStage()">Следующий этап ➡️</button>
+    </div>
+  </div>
+
+  <!-- ФИНАЛЬНЫЙ ЭКРАН -->
+  <div class="screen" id="finalScreen">
+    <div class="final-screen">
+      <div style="font-size: 5em;">🏆</div>
+      <h2>Миссия выполнена!</h2>
+      <p style="font-size: 1.3em; margin: 15px 0;">Ты прошёл все испытания летних джунглей!</p>
+      <div class="stars-display" id="finalStars"></div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="finalCorrect">0</div>
+          <div class="stat-label">Верных ответов</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="finalScore">0</div>
+          <div class="stat-label">Общий счёт</div>
+        </div>
+      </div>
+      <div class="card" style="margin: 20px 0; text-align: left;">
+        <h3 style="text-align: center; margin-bottom: 10px;">🗺️ Собранная карта сокровищ</h3>
+        <div style="text-align: center; font-size: 3em;" id="finalMap">🗺️</div>
+      </div>
+      <button class="btn btn-block" onclick="location.reload()">Играть снова 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Модальное окно для бродилки -->
+<div class="modal-overlay" id="boardModal">
+  <div class="modal-content">
+    <div style="font-size: 3em;" id="modalIcon">🌿</div>
+    <div class="modal-question" id="modalQuestion">25 + 14 = ?</div>
+    <div class="trainer-input-area">
+      <input type="number" class="modal-input" id="modalInput" placeholder="?">
+      <button class="btn btn-success" id="modalCheckBtn" onclick="checkBoardAnswer()">Ответить</button>
+    </div>
+    <div class="feedback-text" id="modalFeedback"></div>
+    <button class="btn" id="modalNextBtn" onclick="closeBoardModal()" disabled style="margin-top: 15px;">Дальше ➡️</button>
+  </div>
+</div>
+
+<!-- Конфетти -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+let globalScore = 0;
+let totalCorrect = 0;
+let currentStage = 0;
+let inventoryCount = 0;
+
+// Фразы кота
+const catPhrases = {
+  correct: ["Мяу! Отличная работа!", "Ты настоящий следопыт!", "Верно! Так держать!", "Блестяще!"],
+  wrong: ["Ой, не совсем... Попробуй ещё!", "Не беда, давай подумаем вместе!", "Ошибаться не страшно, страшно сдаваться!", "Почти! Будь внимательнее."],
+  hint: ["Подсказка: будь внимателен к знакам!", "Совет: проверяй вычисления.", "Загляни вглубь задачи!"],
+  final: ["Ты справился! Я горжусь тобой!", "Джунгли покорены!"]
+};
+
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+function init() {
+  createLeaves();
+  showHelper(catPhrases.hint[0]);
+}
+
+function createLeaves() {
+  const container = document.getElementById('leaves-bg');
+  const leaves = ['🌿', '🍃', '🌴', '🍀'];
+  for (let i = 0; i < 15; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    leaf.textContent = leaves[Math.floor(Math.random() * leaves.length)];
+    leaf.style.left = Math.random() * 100 + '%';
+    leaf.style.animationDuration = (10 + Math.random() * 15) + 's';
+    leaf.style.animationDelay = Math.random() * 10 + 's';
+    leaf.style.fontSize = (20 + Math.random() * 30) + 'px';
+    container.appendChild(leaf);
+  }
+}
+
+function showHelper(text) {
+  const bubble = document.getElementById('helperBubble');
+  bubble.textContent = text;
+  bubble.classList.add('show');
+  setTimeout(() => bubble.classList.remove('show'), 4000);
+}
+
+function updateGlobalScore() {
+  document.getElementById('globalScore').textContent = globalScore;
+}
+
+function addInventory() {
+  if (inventoryCount < 5) {
+    inventoryCount++;
+    const slot = document.getElementById('inv' + inventoryCount);
+    slot.textContent = '🧩';
+    slot.classList.add('filled');
+  }
+}
+
+function showConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#f4a261', '#e9c46a', '#52b788', '#e76f51', '#2a9d8f'];
+  for (let i = 0; i < 30; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.animationDelay = Math.random() * 0.5 + 's';
+    conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    container.appendChild(conf);
+    setTimeout(() => conf.remove(), 1500);
+  }
+}
+
+function shakeElement(el) {
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = 'shake 0.5s', 10);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function getStars(correct, total) {
+  const percent = (correct / total) * 100;
+  if (percent >= 100) return 3;
+  if (percent >= 75) return 2;
+  if (percent >= 50) return 1;
+  return 0;
+}
+
+function renderStars(containerId, count, max = 3) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < max; i++) {
+    const star = document.createElement('span');
+    star.className = 'star' + (i < count ? ' earned' : '');
+    star.textContent = '⭐';
+    star.style.animationDelay = (i * 0.2) + 's';
+    container.appendChild(star);
+  }
+}
+
+// ===== СТАРТ ИГРЫ =====
+function startGame() {
+  currentStage = 1;
+  showScreen('stage1Screen');
+  initStage1();
+  showHelper("Джунгли встречают нас! Бросай кубик!");
+}
+
+// ===== ЭТАП 1: БРОДИЛКА =====
+const boardCells = [
+  {type: 'start', icon: '🏕️'},
+  {type: 'math', q: '23 + 15', a: 38, icon: '🌿'},
+  {type: 'math', q: '45 - 20', a: 25, icon: '🦜'},
+  {type: 'bonus', icon: '🍌', text: 'Нашёл бананы! +2 шага'},
+  {type: 'math', q: '36 + 14', a: 50, icon: '🐒'},
+  {type: 'math', q: '60 - 25', a: 35, icon: '🌺'},
+  {type: 'penalty', icon: '🕸️', text: 'Попал в паутину! -1 шаг'},
+  {type: 'math', q: '28 + 12', a: 40, icon: '🦋'},
+  {type: 'math', q: '55 - 30', a: 25, icon: '🐆'},
+  {type: 'math', q: '42 + 18', a: 60, icon: '🌴'},
+  {type: 'bonus', icon: '🥥', text: 'Нашёл кокос! +2 шага'},
+  {type: 'math', q: '70 - 35', a: 35, icon: '🐊'},
+  {type: 'penalty', icon: '🌧️', text: 'Начался дождь! -1 шаг'},
+  {type: 'math', q: '19 + 21', a: 40, icon: '🦎'},
+  {type: 'math', q: '84 - 40', a: 44, icon: '🗿'},
+  {type: 'finish', icon: '🏆'}
+];
+
+let s1 = { pos: 0, questionsAnswered: 0, correct: 0, score: 0, isMoving: false };
+
+function initStage1() {
+  s1 = { pos: 0, questionsAnswered: 0, correct: 0, score: 0, isMoving: false };
+  renderBoard();
+  updateProgress1();
+}
+
+function renderBoard() {
+  const grid = document.getElementById('boardGrid');
+  grid.innerHTML = '';
+  boardCells.forEach((cell, i) => {
+    const div = document.createElement('div');
+    div.className = 'board-cell';
+    if (cell.type === 'bonus') div.classList.add('bonus');
+    if (cell.type === 'penalty') div.classList.add('penalty');
+    if (cell.type === 'finish') div.classList.add('finish');
+    if (i === s1.pos) div.classList.add('current');
+    if (i < s1.pos) div.classList.add('passed');
+    
+    div.innerHTML = `<div class="cell-icon">${cell.icon}</div><div class="cell-num">${i}</div>`;
+    if (i === s1.pos) {
+      const token = document.createElement('div');
+      token.className = 'player-token';
+      token.textContent = '🧒';
+      token.style.bottom = '-5px';
+      token.style.right = '-5px';
+      div.appendChild(token);
+    }
+    grid.appendChild(div);
+  });
+}
+
+function updateProgress1() {
+  const percent = (s1.questionsAnswered / 10) * 100;
+  document.getElementById('progress1').style.width = percent + '%';
+  document.getElementById('progressText1').textContent = `Задание ${s1.questionsAnswered} из 10`;
+}
+
+function rollDice() {
+  if (s1.isMoving) return;
+  s1.isMoving = true;
+  document.getElementById('rollBtn').disabled = true;
+  
+  const dice = document.getElementById('dice');
+  dice.classList.add('rolling');
+  const roll = Math.floor(Math.random() * 6) + 1;
+  
+  setTimeout(() => {
+    dice.classList.remove('rolling');
+    dice.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][roll-1];
+    
+    let newPos = s1.pos + roll;
+    if (newPos >= boardCells.length - 1) {
+      newPos = boardCells.length - 1;
+    }
+    
+    animateMove(s1.pos, newPos, () => {
+      s1.pos = newPos;
+      renderBoard();
+      handleCellEffect();
+    });
+  }, 600);
+}
+
+function animateMove(from, to, callback) {
+  let current = from;
+  const step = () => {
+    current++;
+    s1.pos = current;
+    renderBoard();
+    if (current < to) {
+      setTimeout(step, 300);
+    } else {
+      setTimeout(callback, 300);
+    }
+  };
+  setTimeout(step, 300);
+}
+
+function handleCellEffect() {
+  const cell = boardCells[s1.pos];
+  
+  if (cell.type === 'math') {
+    showBoardModal(cell);
+  } else if (cell.type === 'bonus') {
+    showHelper("Удача! " + cell.text);
+    setTimeout(() => {
+      let newPos = Math.min(s1.pos + 2, boardCells.length - 1);
+      animateMove(s1.pos, newPos, () => {
+        s1.isMoving = false;
+        document.getElementById('rollBtn').disabled = false;
+        if (s1.pos === boardCells.length - 1) finishStage1();
+      });
+    }, 1000);
+  } else if (cell.type === 'penalty') {
+    showHelper("Ой! " + cell.text);
+    setTimeout(() => {
+      let newPos = Math.max(s1.pos - 1, 0);
+      animateMove(s1.pos, newPos, () => {
+        s1.isMoving = false;
+        document.getElementById('rollBtn').disabled = false;
+      });
+    }, 1000);
+  } else if (cell.type === 'finish') {
+    finishStage1();
+  } else {
+    s1.isMoving = false;
+    document.getElementById('rollBtn').disabled = false;
+  }
+}
+
+function showBoardModal(cell) {
+  const modal = document.getElementById('boardModal');
+  modal.classList.add('active');
+  document.getElementById('modalIcon').textContent = cell.icon;
+  document.getElementById('modalQuestion').textContent = cell.q + ' = ?';
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalFeedback').textContent = '';
+  document.getElementById('modalCheckBtn').disabled = false;
+  document.getElementById('modalNextBtn').disabled = true;
+  document.getElementById('modalInput').focus();
+}
+
+function checkBoardAnswer() {
+  const input = document.getElementById('modalInput');
+  const val = parseInt(input.value);
+  const cell = boardCells[s1.pos];
+  const feedback = document.getElementById('modalFeedback');
+  
+  if (isNaN(val)) return;
+  
+  document.getElementById('modalCheckBtn').disabled = true;
+  s1.questionsAnswered++;
+  updateProgress1();
+  
+  if (val === cell.a) {
+    feedback.textContent = '✅ Верно! ' + cell.a;
+    feedback.className = 'feedback-text correct';
+    input.style.borderColor = 'var(--game-success)';
+    s1.correct++;
+    s1.score += 10;
+    globalScore += 10;
+    totalCorrect++;
+    updateGlobalScore();
+    addInventory();
+    showConfetti();
+    showHelper(catPhrases.correct[Math.floor(Math.random() * catPhrases.correct.length)]);
+  } else {
+    feedback.textContent = '❌ Неверно. Правильный ответ: ' + cell.a;
+    feedback.className = 'feedback-text wrong';
+    input.style.borderColor = 'var(--game-error)';
+    shakeElement(input);
+    showHelper(catPhrases.wrong[Math.floor(Math.random() * catPhrases.wrong.length)]);
+  }
+  
+  document.getElementById('modalNextBtn').disabled = false;
+}
+
+function closeBoardModal() {
+  document.getElementById('boardModal').classList.remove('active');
+  s1.isMoving = false;
+  document.getElementById('rollBtn').disabled = false;
+  
+  if (s1.pos === boardCells.length - 1) {
+    finishStage1();
+  }
+}
+
+function finishStage1() {
+  s1.isMoving = false;
+  showStageComplete(1, s1.correct, 10, s1.score);
+}
+
+// ===== ЭКРАН ЗАВЕРШЕНИЯ ЭТАПА =====
+function showStageComplete(stage, correct, total, score) {
+  const stars = getStars(correct, total);
+  renderStars('completeStars', stars);
+  document.getElementById('completeCorrect').textContent = correct;
+  document.getElementById('completeScore').textContent = score;
+  
+  let msg = '';
+  if (stars === 3) msg = 'Превосходно! Ты настоящий мастер джунглей!';
+  else if (stars === 2) msg = 'Отлично! Ещё немного практики и будет идеально!';
+  else if (stars === 1) msg = 'Хорошо! Ты на верном пути, попробуй ещё раз для лучшего результата!';
+  else msg = 'Не сдавайся! Каждый шаг приближает тебя к цели!';
+  
+  document.getElementById('completeMessage').textContent = msg;
+  document.getElementById('completeTitle').textContent = `Этап ${stage} пройден!`;
+  
+  if (stage === 3) {
+    document.getElementById('nextStageBtn').textContent = 'Финал 🏆';
+  } else {
+    document.getElementById('nextStageBtn').textContent = 'Следующий этап ➡️';
+  }
+  
+  showScreen('stageCompleteScreen');
+  showHelper(catPhrases.final[Math.floor(Math.random() * catPhrases.final.length)]);
+}
+
+function goToNextStage() {
+  if (currentStage === 1) {
+    currentStage = 2;
+    showScreen('stage2Screen');
+    initStage2();
+  } else if (currentStage === 2) {
+    currentStage = 3;
+    showScreen('stage3Screen');
+    initStage3();
+  } else {
+    showFinalScreen();
+  }
+}
+
+// ===== ЭТАП 2: КВЕСТ =====
+const questNodes = [
+  {
+    id: 1, text: 'Артём нашёл реку. Чтобы перейти, нужно наступить на камень с числом 45 + 12.',
+    illustration: '🏞️🐊',
+    choices: [
+      { text: '57', correct: true },
+      { text: '47', correct: false, badEnd: 'Артём упал в воду! 45 + 12 = 57, а не 47.' }
+    ]
+  },
+  {
+    id: 2, text: 'На тропе сундук. Замок откроется, если ввести код: 80 - 35.',
+    illustration: '📦🔒',
+    choices: [
+      { text: '55', correct: false, badEnd: 'Код неверный! 80 - 35 = 45. Сундук не открылся.' },
+      { text: '45', correct: true }
+    ]
+  },
+  {
+    id: 3, text: 'Голодный попугай просит ягод. У Артёма 30 ягод, он отдал 25. Сколько осталось?',
+    illustration: '🦜🍇',
+    choices: [
+      { text: '5', correct: true },
+      { text: '15', correct: false, badEnd: 'Попугай расстроился! 30 - 25 = 5, а не 15.' }
+    ]
+  },
+  {
+    id: 4, text: 'Зыбучие пески! Нужно прыгнуть на расстояние 20 + 20 метров.',
+    illustration: '🏜️⚠️',
+    choices: [
+      { text: '30', correct: false, badEnd: 'Артём увяз! 20 + 20 = 40, а не 30.' },
+      { text: '40', correct: true }
+    ]
+  },
+  {
+    id: 5, text: 'Древняя дверь храма. Продолжи ряд: 10, 20, 30, ...',
+    illustration: '🛕🗿',
+    choices: [
+      { text: '40', correct: true },
+      { text: '50', correct: false, badEnd: 'Дверь не открылась! Правило: +10. Ответ 40.' }
+    ]
+  },
+  {
+    id: 6, text: 'Финальное сокровище! Сколько будет 50 + 50?',
+    illustration: '💎👑',
+    choices: [
+      { text: '90', correct: false, badEnd: 'Сокровище ускользнуло! 50 + 50 = 100.' },
+      { text: '100', correct: true }
+    ]
+  }
+];
+
+let s2 = { currentNode: 0, correct: 0, score: 0, answered: false };
+
+function initStage2() {
+  s2 = { currentNode: 0, correct: 0, score: 0, answered: false };
+  renderRouteMap();
+  renderQuestNode();
+  updateProgress2();
+}
+
+function renderRouteMap() {
+  const map = document.getElementById('routeMap');
+  map.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const point = document.createElement('div');
+    point.className = 'route-point';
+    if (i === s2.currentNode) point.classList.add('active');
+    if (i < s2.currentNode) point.classList.add('passed');
+    point.textContent = i < s2.currentNode ? '✅' : (i === s2.currentNode ? '🧒' : '🌿');
+    map.appendChild(point);
+  }
+}
+
+function updateProgress2() {
+  const percent = (s2.currentNode / 6) * 100;
+  document.getElementById('progress2').style.width = percent + '%';
+  document.getElementById('progressText2').textContent = `Ситуация ${s2.currentNode} из 6`;
+}
+
+function renderQuestNode() {
+  if (s2.currentNode >= questNodes.length) {
+    finishStage2();
+    return;
+  }
+  
+  s2.answered = false;
+  document.getElementById('nextQuestBtn').disabled = true;
+  
+  const node = questNodes[s2.currentNode];
+  const scene = document.getElementById('questScene');
+  
+  let choicesHtml = '<div class="quest-choices">';
+  node.choices.forEach((choice, i) => {
+    choicesHtml += `<button class="choice-btn" onclick="makeChoice(${i})">${choice.text}</button>`;
+  });
+  choicesHtml += '</div>';
+  
+  scene.innerHTML = `
+    <div class="quest-illustration">${node.illustration}</div>
+    <div class="quest-text">${node.text}</div>
+    ${choicesHtml}
+    <div class="feedback-text" id="questFeedback"></div>
+  `;
+  
+  renderRouteMap();
+}
+
+function makeChoice(index) {
+  if (s2.answered) return;
+  s2.answered = true;
+  
+  const node = questNodes[s2.currentNode];
+  const choice = node.choices[index];
+  const buttons = document.querySelectorAll('.choice-btn');
+  const feedback = document.getElementById('questFeedback');
+  
+  buttons.forEach((btn, i) => {
+    btn.style.pointerEvents = 'none';
+    if (node.choices[i].correct) {
+      btn.classList.add('correct-choice');
+    }
+  });
+  
+  if (choice.correct) {
+    s2.correct++;
+    s2.score += 10;
+    globalScore += 10;
+    totalCorrect++;
+    updateGlobalScore();
+    addInventory();
+    showConfetti();
+    feedback.textContent = '✅ Отличный выбор! Идём дальше!';
+    feedback.className = 'feedback-text correct';
+    showHelper(catPhrases.correct[Math.floor(Math.random() * catPhrases.correct.length)]);
+  } else {
+    feedback.textContent = '❌ ' + choice.badEnd;
+    feedback.className = 'feedback-text wrong';
+    buttons[index].classList.add('wrong-choice');
+    shakeElement(buttons[index]);
+    showHelper(catPhrases.wrong[Math.floor(Math.random() * catPhrases.wrong.length)]);
+  }
+  
+  document.getElementById('nextQuestBtn').disabled = false;
+}
+
+function nextQuestStep() {
+  s2.currentNode++;
+  updateProgress2();
+  renderQuestNode();
+}
+
+function finishStage2() {
+  showStageComplete(2, s2.correct, 6, s2.score);
+}
+
+// ===== ЭТАП 3: ТРЕНАЖЁР =====
+const trainerBank = [
+  { q: '45 + 27', a: 72 },
+  { q: '82 - 34', a: 48 },
+  { q: '15 + 15 + 10', a: 40 },
+  { q: '60 - 18', a: 42 },
+  { q: '39 + 21', a: 60 },
+  { q: '74 - 26', a: 48 },
+  { q: '28 + 32', a: 60 },
+  { q: '90 - 45', a: 45 },
+  { q: '56 + 14', a: 70 },
+  { q: '48 - 19', a: 29 }
+];
+
+let s3 = { session: [], current: 0, correct: 0, score: 0, answered: false };
+
+function initStage3() {
+  // Перемешиваем и берём 5
+  const shuffled = [...trainerBank].sort(() => Math.random() - 0.5);
+  s3 = { session: shuffled.slice(0, 5), current: 0, correct: 0, score: 0, answered: false };
+  
+  renderTrainerQuestion();
+  updateProgress3();
+}
+
+function updateProgress3() {
+  const percent = (s3.current / 5) * 100;
+  document.getElementById('progress3').style.width = percent + '%';
+  document.getElementById('progressText3').textContent = `Задание ${s3.current} из 5`;
+}
+
+function renderTrainerQuestion() {
+  if (s3.current >= s3.session.length) {
+    finishStage3();
+    return;
+  }
+  
+  s3.answered = false;
+  document.getElementById('nextTrainerBtn').disabled = true;
+  document.getElementById('trainerCheckBtn').disabled = false;
+  document.getElementById('trainerInput').value = '';
+  document.getElementById('trainerInput').style.borderColor = 'var(--game-muted)';
+  document.getElementById('trainerFeedback').textContent = '';
+  document.getElementById('trainerQuestion').textContent = s3.session[s3.current].q + ' = ?';
+  document.getElementById('trainerInput').focus();
+}
+
+function checkTrainerAnswer() {
+  if (s3.answered) return;
+  
+  const input = document.getElementById('trainerInput');
+  const val = parseInt(input.value);
+  if (isNaN(val)) return;
+  
+  s3.answered = true;
+  document.getElementById('trainerCheckBtn').disabled = true;
+  s3.current++;
+  updateProgress3();
+  
+  const correct = s3.session[s3.current - 1].a;
+  const feedback = document.getElementById('trainerFeedback');
+  
+  if (val === correct) {
+    feedback.textContent = '✅ Верно!';
+    feedback.className = 'feedback-text correct';
+    input.style.borderColor = 'var(--game-success)';
+    s3.correct++;
+    s3.score += 10;
+    globalScore += 10;
+    totalCorrect++;
+    updateGlobalScore();
+    addInventory();
+    showConfetti();
+    showHelper(catPhrases.correct[Math.floor(Math.random() * catPhrases.correct.length)]);
+  } else {
+    feedback.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+    feedback.className = 'feedback-text wrong';
+    input.style.borderColor = 'var(--game-error)';
+    shakeElement(input);
+    showHelper(catPhrases.wrong[Math.floor(Math.random() * catPhrases.wrong.length)]);
+  }
+  
+  document.getElementById('nextTrainerBtn').disabled = false;
+}
+
+function nextTrainerQuestion() {
+  renderTrainerQuestion();
+}
+
+function finishStage3() {
+  showStageComplete(3, s3.correct, 5, s3.score);
+}
+
+// ===== ФИНАЛЬНЫЙ ЭКРАН =====
+function showFinalScreen() {
+  const totalQuestions = 10 + 6 + 5; // 21
+  const stars = getStars(totalCorrect, totalQuestions);
+  renderStars('finalStars', stars, 3);
+  
+  document.getElementById('finalCorrect').textContent = totalCorrect;
+  document.getElementById('finalScore').textContent = globalScore;
+  
+  showScreen('finalScreen');
+  showHelper("Ты собрал всю карту! Джунгли покорены!");
+  
+  setTimeout(showConfetti, 500);
+  setTimeout(showConfetti, 1000);
+}
+
+// Enter для полей ввода
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('boardModal').classList.contains('active')) {
+      if (!document.getElementById('modalCheckBtn').disabled) checkBoardAnswer();
+      else if (!document.getElementById('modalNextBtn').disabled) closeBoardModal();
+    }
+    if (document.getElementById('stage3Screen').classList.contains('active')) {
+      if (!document.getElementById('trainerCheckBtn').disabled) checkTrainerAnswer();
+      else if (!document.getElementById('nextTrainerBtn').disabled) nextTrainerQuestion();
+    }
+  }
+});
+
+init();
+</script>
+</body>
+</html>
