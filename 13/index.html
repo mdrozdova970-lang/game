@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Замок знаний с пчёлкой Жужей 🏰🐝</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 40%, #98FB98 70%, #90EE90 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  .sun {
+    position: fixed;
+    top: 20px; right: 30px;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, #FFEB3B, #FFA726);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #FFD54F;
+    animation: spin 20s linear infinite, glow 3s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 40px #FFD54F; }
+    50% { box-shadow: 0 0 70px #FFC107; }
+  }
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+    z-index: 0;
+    animation: float 30s linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .c1 { width: 120px; height: 40px; top: 60px; left: -150px; animation-duration: 45s; }
+  .c1::before { width: 60px; height: 60px; top: -25px; left: 15px; }
+  .c1::after { width: 50px; height: 50px; top: -20px; left: 55px; }
+  .c2 { width: 100px; height: 35px; top: 140px; left: -120px; animation-duration: 60s; animation-delay: -20s; }
+  .c2::before { width: 50px; height: 50px; top: -20px; left: 10px; }
+  .c2::after { width: 45px; height: 45px; top: -15px; left: 45px; }
+  @keyframes float {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+  .flowers {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .flower {
+    position: absolute;
+    bottom: 10px;
+    font-size: 30px;
+    animation: sway 3s ease-in-out infinite;
+  }
+  @keyframes sway {
+    0%,100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+  .container {
+    max-width: 950px;
+    margin: 20px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+  }
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .nav button {
+    padding: 10px 18px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 3px solid #6A1B9A;
+    background: #FFF;
+    color: #6A1B9A;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 4px 0 #9C27B0;
+  }
+  .nav button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #9C27B0; }
+  .nav button.active {
+    background: #9C27B0;
+    color: white;
+    box-shadow: 0 2px 0 #4A148C;
+    transform: translateY(2px);
+  }
+  .page {
+    background: rgba(255,255,255,0.95);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border: 4px dashed #FFB74D;
+    display: none;
+    animation: fadeIn 0.5s;
+  }
+  .page.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h1 {
+    text-align: center;
+    color: #6A1B9A;
+    font-size: 34px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #FFD54F;
+  }
+  h2 {
+    color: #FF6F00;
+    font-size: 24px;
+    margin: 15px 0;
+    text-align: center;
+  }
+  p { font-size: 18px; line-height: 1.6; color: #333; margin-bottom: 12px; }
+  .bee {
+    display: inline-block;
+    font-size: 50px;
+    animation: fly 2s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes fly {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+  }
+  .speech {
+    background: #FFF9C4;
+    border: 3px solid #FBC02D;
+    border-radius: 20px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    position: relative;
+    font-size: 18px;
+  }
+  .speech::before {
+    content: '';
+    position: absolute;
+    left: 30px; top: -15px;
+    width: 0; height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #FBC02D;
+  }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .intro-card {
+    background: linear-gradient(135deg, #E1BEE7, #CE93D8);
+    border: 3px solid #6A1B9A;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 0 #6A1B9A;
+  }
+  .intro-card .icon { font-size: 50px; margin-bottom: 10px; }
+  .intro-card h3 { color: #4A148C; margin-bottom: 8px; }
+  .intro-card p { font-size: 15px; color: #4A148C; }
+  .start-btn {
+    display: block;
+    margin: 25px auto;
+    padding: 18px 40px;
+    font-size: 22px;
+    font-family: inherit;
+    background: linear-gradient(135deg, #FF6B9D, #E91E63);
+    color: white;
+    border: 4px solid #C2185B;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 6px 0 #880E4F;
+    transition: all 0.2s;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .start-btn:hover { transform: scale(1.1); }
+  .castle {
+    text-align: center;
+    font-size: 100px;
+    margin: 20px 0;
+    animation: castleFloat 4s ease-in-out infinite;
+  }
+  @keyframes castleFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .castle-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .castle-level {
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    border: 3px solid #E65100;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 0 #BF360C;
+  }
+  .castle-level:hover:not(.locked) {
+    transform: translateX(10px);
+    box-shadow: 5px 4px 0 #BF360C;
+  }
+  .castle-level.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #EEEEEE;
+    border-color: #9E9E9E;
+  }
+  .castle-level.completed {
+    background: linear-gradient(135deg, #C8E6C9, #A5D6A7);
+    border-color: #2E7D32;
+    box-shadow: 0 4px 0 #1B5E20;
+  }
+  .castle-level.current {
+    background: linear-gradient(135deg, #BBDEFB, #90CAF9);
+    border-color: #1565C0;
+    box-shadow: 0 4px 0 #0D47A1;
+    animation: pulse 2s infinite;
+  }
+  .level-icon { font-size: 50px; }
+  .level-info { flex: 1; text-align: left; }
+  .level-info h3 { color: #E65100; font-size: 20px; margin-bottom: 5px; }
+  .level-info p { font-size: 14px; color: #555; margin: 0; }
+  .level-status { font-size: 30px; }
+  .game-area {
+    background: #E3F2FD;
+    border: 3px solid #2196F3;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 15px 0;
+  }
+  .progress-bar {
+    background: #FFF;
+    border: 3px solid #1976D2;
+    border-radius: 15px;
+    height: 30px;
+    overflow: hidden;
+    margin: 15px 0;
+    position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+  .word-display {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #1565C0;
+    margin: 25px 0;
+    letter-spacing: 5px;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    border: 3px dashed #1976D2;
+  }
+  .word-display .letter {
+    display: inline-block;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 8px;
+  }
+  .word-display .letter:hover {
+    background: #FFEB3B;
+    transform: scale(1.2);
+  }
+  .word-display .letter.vowel {
+    color: #E91E63;
+  }
+  .word-display .letter.stressed {
+    background: #FF5722;
+    color: white;
+    position: relative;
+  }
+  .word-display .letter.stressed::after {
+    content: '́';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    color: #FF5722;
+  }
+  .options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .option-btn {
+    padding: 15px 30px;
+    font-size: 24px;
+    font-family: inherit;
+    background: linear-gradient(135deg, #FFD54F, #FFC107);
+    border: 3px solid #F57F17;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #E65100;
+    box-shadow: 0 4px 0 #E65100;
+    transition: all 0.2s;
+    min-width: 70px;
+  }
+  .option-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 #E65100;
+  }
+  .option-btn.correct {
+    background: linear-gradient(135deg, #A5D6A7, #66BB6A);
+    border-color: #2E7D32;
+    color: white;
+    animation: pop 0.5s;
+  }
+  .option-btn.wrong {
+    background: linear-gradient(135deg, #EF9A9A, #E57373);
+    border-color: #C62828;
+    color: white;
+    animation: shake 0.5s;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+  .words-to-sort {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  .sortable-word {
+    background: linear-gradient(135deg, #81D4FA, #4FC3F7);
+    border: 3px solid #0288D1;
+    border-radius: 15px;
+    padding: 12px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #01579B;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 0 #0288D1;
+  }
+  .sortable-word:hover { transform: translateY(-3px); box-shadow: 0 6px 0 #0288D1; }
+  .sortable-word.placed {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: scale(0.9);
+  }
+  .answer-row {
+    background: #FFF3E0;
+    border: 3px dashed #FF9800;
+    border-radius: 15px;
+    padding: 15px;
+    min-height: 60px;
+    margin: 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .answer-row .placed-word {
+    background: linear-gradient(135deg, #A5D6A7, #81C784);
+    border: 3px solid #388E3C;
+    border-radius: 12px;
+    padding: 8px 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #1B5E20;
+    animation: pop 0.3s;
+  }
+  .answer-row .arrow {
+    font-size: 24px;
+    color: #FF9800;
+  }
+  .dictation-word {
+    text-align: center;
+    font-size: 56px;
+    font-weight: bold;
+    color: #1565C0;
+    margin: 20px 0;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: 3px dashed #1976D2;
+    letter-spacing: 8px;
+  }
+  .dictation-word .gap {
+    display: inline-block;
+    min-width: 40px;
+    border-bottom: 4px solid #E91E63;
+    margin: 0 3px;
+    color: #E91E63;
+  }
+  .dictation-word .gap.filled {
+    border-bottom: none;
+    color: #E91E63;
+    animation: pop 0.3s;
+  }
+  .dictation-word .letter-click {
+    display: inline-block;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 8px;
+  }
+  .dictation-word .letter-click:hover {
+    background: #FFEB3B;
+    transform: scale(1.2);
+  }
+  .dictation-word .letter-click.stressed {
+    background: #FF5722;
+    color: white;
+    position: relative;
+  }
+  .dictation-word .letter-click.stressed::after {
+    content: '́';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    color: #FF5722;
+  }
+  .timer {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #D32F2F;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: 3px solid #D32F2F;
+    display: inline-block;
+    margin: 10px auto;
+  }
+  .timer.warning {
+    animation: pulse 1s infinite;
+    color: #B71C1C;
+  }
+  .letter-choices {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+  }
+  .letter-choice {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    font-family: inherit;
+    background: linear-gradient(135deg, #FFD54F, #FFC107);
+    border: 3px solid #F57F17;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #E65100;
+    box-shadow: 0 4px 0 #E65100;
+    transition: all 0.2s;
+  }
+  .letter-choice:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 #E65100;
+  }
+  .hint-box {
+    background: #FFF9C4;
+    border: 2px solid #FBC02D;
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    font-size: 16px;
+    text-align: center;
+    color: #5D4037;
+  }
+  .feedback {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 15px;
+    min-height: 30px;
+  }
+  .feedback.good { color: #2E7D32; }
+  .feedback.bad { color: #C62828; }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 3px solid #4CAF50;
+    background: #C8E6C9;
+    color: #1B5E20;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #388E3C;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: #A5D6A7; transform: translateY(-2px); }
+  .btn.primary {
+    background: linear-gradient(135deg, #FF6B9D, #E91E63);
+    color: white;
+    border-color: #C2185B;
+    box-shadow: 0 3px 0 #880E4F;
+  }
+  .score-display {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #6A1B9A;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: 3px solid #6A1B9A;
+    display: inline-block;
+    margin: 10px auto;
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 24px; }
+    .word-display, .dictation-word { font-size: 32px; letter-spacing: 3px; }
+    .nav button { font-size: 14px; padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="flowers">
+  <div class="flower" style="left:5%">🌻</div>
+  <div class="flower" style="left:20%; animation-delay:-0.5s">🌼</div>
+  <div class="flower" style="left:35%; animation-delay:-1s">🌸</div>
+  <div class="flower" style="left:50%; animation-delay:-1.5s">🌺</div>
+  <div class="flower" style="left:65%; animation-delay:-2s">🌷</div>
+  <div class="flower" style="left:80%; animation-delay:-0.8s">🌻</div>
+  <div class="flower" style="left:95%; animation-delay:-1.3s">🌼</div>
+</div>
+
+<div class="container">
+  <div class="nav">
+    <button class="active" onclick="showPage(0, this)">📜 Инструкция</button>
+    <button onclick="showPage(1, this)" id="navCastle">🏰 Замок знаний</button>
+    <button onclick="showPage(2, this)" id="navDict">✏️ Диктант</button>
+  </div>
+
+  <div class="page active" id="page0">
+    <h1>🏰 Замок знаний 🐝</h1>
+    <div style="text-align:center; font-size:80px;">
+      <span class="bee">🐝</span>
+    </div>
+    <div class="speech">
+      <strong>Жужа:</strong> Жж-жж! Привет, дружок! Меня зовут <b>пчёлка Жужа</b>. Я приглашаю тебя в волшебный <b>Замок Знаний</b>! 🏰✨
+    </div>
+    <h2>🎯 Что тебя ждёт?</h2>
+    <p style="text-align:center;">В замке <b>3 волшебные комнаты</b>. В каждой — новое задание!</p>
+    <div class="intro-grid">
+      <div class="intro-card">
+        <div class="icon">🏰</div>
+        <h3>Замок знаний</h3>
+        <p>Пройди 3 уровня: алфавит, слоги и ударение!</p>
+      </div>
+      <div class="intro-card">
+        <div class="icon">✏️</div>
+        <h3>Скоростной диктант</h3>
+        <p>Вставь буквы и поставь ударение на время!</p>
+      </div>
+      <div class="intro-card">
+        <div class="icon">⭐</div>
+        <h3>Собирай звёзды</h3>
+        <p>За каждое задание — звёздочка! Собери все!</p>
+      </div>
+    </div>
+    <div class="speech">
+      <strong>Жужа:</strong> Я буду рядом и помогу тебе! Если ошибёшься — не беда, я подскажу правильный ответ. Начинаем? 🍯
+    </div>
+    <button class="start-btn" onclick="startGame()">🚀 Начать приключение!</button>
+  </div>
+
+  <div class="page" id="page1">
+    <h1>🏰 Замок знаний</h1>
+    <div class="castle">🏰</div>
+    <div class="speech" id="castleSpeech">
+      <strong>Жужа:</strong> Перед тобой Замок Знаний! В нём 3 комнаты. Пройди их все по порядку!
+    </div>
+    <div id="castleMenu">
+      <div class="castle-levels">
+        <div class="castle-level current" id="castleLevel1" onclick="openCastleLevel(1)">
+          <div class="level-icon">🔤</div>
+          <div class="level-info">
+            <h3>Комната 1: Алфавит</h3>
+            <p>Расставь слова по алфавиту</p>
+          </div>
+          <div class="level-status">▶️</div>
+        </div>
+        <div class="castle-level locked" id="castleLevel2" onclick="openCastleLevel(2)">
+          <div class="level-icon">📏</div>
+          <div class="level-info">
+            <h3>Комната 2: Слоги</h3>
+            <p>Посчитай количество слогов</p>
+          </div>
+          <div class="level-status">🔒</div>
+        </div>
+        <div class="castle-level locked" id="castleLevel3" onclick="openCastleLevel(3)">
+          <div class="level-icon">⭐</div>
+          <div class="level-info">
+            <h3>Комната 3: Ударение</h3>
+            <p>Поставь ударение в слове</p>
+          </div>
+          <div class="level-status">🔒</div>
+        </div>
+      </div>
+    </div>
+    <div id="castleGame" style="display:none;">
+      <div class="progress-bar">
+        <div class="progress-fill" id="castleProgress">0%</div>
+      </div>
+      <div class="game-area" id="castleGameArea"></div>
+      <div class="feedback" id="castleFeedback"></div>
+      <div class="controls">
+        <button class="btn" onclick="backToCastleMenu()">🏠 В меню замка</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page2">
+    <h1>✏️ Скоростной диктант</h1>
+    <div style="text-align:center; font-size:60px;">
+      <span class="bee">🐝</span>
+    </div>
+    <div class="speech">
+      <strong>Жужа:</strong> Жж-жж! Сейчас будет диктант на время! Вставь пропущенную букву, а потом поставь ударение. Я подскажу, если ошибёшься! 💪
+    </div>
+    <div style="text-align:center;">
+      <div class="timer" id="dictTimer">⏱️ 60 сек</div>
+      <div class="score-display" id="dictScore">⭐ 0 / 5</div>
+    </div>
+    <div class="game-area">
+      <div class="dictation-word" id="dictWord"></div>
+      <div class="hint-box" id="dictHint">Выбери пропущенную букву 👇</div>
+      <div class="letter-choices" id="dictChoices"></div>
+      <div class="feedback" id="dictFeedback"></div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" onclick="startDictation()">🚀 Начать диктант</button>
+      <button class="btn" onclick="resetDictation()">🔄 Заново</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showPage(idx, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page' + idx).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function startGame() {
+    const btn = document.querySelectorAll('.nav button')[1];
+    showPage(1, btn);
+  }
+
+  const castleState = {
+    currentLevel: 1,
+    completed: [false, false, false],
+    level1: {
+      words: ['Белка', 'Ворона', 'Гриб', 'Дерево', 'Енот', 'Жираф'],
+      correct: ['Белка', 'Ворона', 'Гриб', 'Дерево', 'Енот', 'Жираф'],
+      userAnswer: []
+    },
+    level2: [
+      { word: 'ШКОЛА', syllables: 2 },
+      { word: 'УЧЕНИК', syllables: 3 },
+      { word: 'РУЧКА', syllables: 2 },
+      { word: 'ПЕНАЛ', syllables: 2 },
+      { word: 'БУКВАРЬ', syllables: 2 }
+    ],
+    level2Idx: 0,
+    level3: [
+      { word: 'ЗИМА', stressed: 1 },
+      { word: 'ПОЛЕ', stressed: 0 },
+      { word: 'РЕКА', stressed: 1 },
+      { word: 'ГОРА', stressed: 1 },
+      { word: 'ЛИСА', stressed: 1 }
+    ],
+    level3Idx: 0
+  };
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function openCastleLevel(n) {
+    if (n > 1 && !castleState.completed[n-2]) {
+      document.getElementById('castleSpeech').innerHTML = '<strong>Жужа:</strong> Сначала пройди предыдущую комнату! 🔒';
+      return;
+    }
+    castleState.currentLevel = n;
+    document.getElementById('castleMenu').style.display = 'none';
+    document.getElementById('castleGame').style.display = 'block';
+    document.getElementById('castleFeedback').textContent = '';
+    if (n === 1) initCastleLevel1();
+    else if (n === 2) initCastleLevel2();
+    else if (n === 3) initCastleLevel3();
+  }
+
+  function backToCastleMenu() {
+    document.getElementById('castleMenu').style.display = 'block';
+    document.getElementById('castleGame').style.display = 'none';
+    updateCastleMenu();
+  }
+
+  function updateCastleMenu() {
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById('castleLevel' + i);
+      el.classList.remove('locked', 'completed', 'current');
+      const status = el.querySelector('.level-status');
+      if (castleState.completed[i-1]) {
+        el.classList.add('completed');
+        status.textContent = '✅';
+      } else if (i === 1 || castleState.completed[i-2]) {
+        el.classList.add('current');
+        status.textContent = '▶️';
+      } else {
+        el.classList.add('locked');
+        status.textContent = '🔒';
+      }
+    }
+  }
+
+  function updateCastleProgress(current, total) {
+    const percent = Math.round((current / total) * 100);
+    const bar = document.getElementById('castleProgress');
+    bar.style.width = percent + '%';
+    bar.textContent = percent + '%';
+  }
+
+  function initCastleLevel1() {
+    const data = castleState.level1;
+    data.userAnswer = [];
+    const area = document.getElementById('castleGameArea');
+    const shuffled = shuffle(data.words);
+    area.innerHTML = `
+      <h2>🔤 Расставь слова по алфавиту</h2>
+      <div class="speech"><strong>Жужа:</strong> Нажимай на слова по порядку алфавита — смотри на первую букву! 🐝</div>
+      <div class="words-to-sort" id="castleWords"></div>
+      <div class="answer-row" id="castleAnswer"></div>
+    `;
+    const wordsDiv = document.getElementById('castleWords');
+    shuffled.forEach(word => {
+      const div = document.createElement('div');
+      div.className = 'sortable-word';
+      div.textContent = word;
+      div.onclick = () => pickCastleWord(word, div);
+      wordsDiv.appendChild(div);
+    });
+    updateCastleProgress(0, data.correct.length);
+  }
+
+  function pickCastleWord(word, div) {
+    if (div.classList.contains('placed')) return;
+    const data = castleState.level1;
+    const expected = data.correct[data.userAnswer.length];
+    if (word === expected) {
+      data.userAnswer.push(word);
+      div.classList.add('placed');
+      const ans = document.getElementById('castleAnswer');
+      if (data.userAnswer.length > 1) {
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = '→';
+        ans.appendChild(arrow);
+      }
+      const placed = document.createElement('div');
+      placed.className = 'placed-word';
+      placed.textContent = word;
+      ans.appendChild(placed);
+      document.getElementById('castleFeedback').textContent = '🐝 Жж-жж! Верно!';
+      document.getElementById('castleFeedback').className = 'feedback good';
+      updateCastleProgress(data.userAnswer.length, data.correct.length);
+      if (data.userAnswer.length === data.correct.length) {
+        castleState.completed[0] = true;
+        document.getElementById('castleFeedback').innerHTML = '🎉 Отлично! Комната 1 пройдена! Возвращайся в меню!';
+        setTimeout(() => backToCastleMenu(), 2000);
+      }
+    } else {
+      document.getElementById('castleFeedback').textContent = `❌ Не то! Следующее слово — "${expected}".`;
+      document.getElementById('castleFeedback').className = 'feedback bad';
+      div.style.background = '#FFCDD2';
+      setTimeout(() => { div.style.background = ''; }, 500);
+    }
+  }
+
+  function initCastleLevel2() {
+    castleState.level2Idx = 0;
+    showCastleLevel2Question();
+  }
+
+  function showCastleLevel2Question() {
+    const data = castleState.level2;
+    const idx = castleState.level2Idx;
+    if (idx >= data.length) {
+      castleState.completed[1] = true;
+      document.getElementById('castleGameArea').innerHTML = '<h2>🎉 Комната 2 пройдена!</h2>';
+      document.getElementById('castleFeedback').innerHTML = '🎉 Молодец! Все слоги посчитаны!';
+      setTimeout(() => backToCastleMenu(), 2000);
+      return;
+    }
+    const q = data[idx];
+    updateCastleProgress(idx, data.length);
+    const area = document.getElementById('castleGameArea');
+    area.innerHTML = `
+      <h2>📏 Сколько слогов в слове?</h2>
+      <div class="speech"><strong>Жужа:</strong> Сколько гласных — столько и слогов! Хлопай в ладоши и считай! 👏</div>
+      <div class="word-display">${q.word}</div>
+      <div class="options">
+        <button class="option-btn" onclick="answerSyllables(1)">1</button>
+        <button class="option-btn" onclick="answerSyllables(2)">2</button>
+        <button class="option-btn" onclick="answerSyllables(3)">3</button>
+        <button class="option-btn" onclick="answerSyllables(4)">4</button>
+      </div>
+    `;
+    document.getElementById('castleFeedback').textContent = '';
+  }
+
+  function answerSyllables(n) {
+    const q = castleState.level2[castleState.level2Idx];
+    const btns = document.querySelectorAll('.option-btn');
+    if (n === q.syllables) {
+      btns.forEach(b => { if (b.textContent == n) b.classList.add('correct'); });
+      document.getElementById('castleFeedback').textContent = '🐝 Жж-жж! Правильно!';
+      document.getElementById('castleFeedback').className = 'feedback good';
+      castleState.level2Idx++;
+      setTimeout(showCastleLevel2Question, 1200);
+    } else {
+      btns.forEach(b => { 
+        if (b.textContent == n) b.classList.add('wrong'); 
+        if (b.textContent == q.syllables) b.classList.add('correct');
+      });
+      document.getElementById('castleFeedback').textContent = `❌ Не-а! В слове ${q.word} ${q.syllables} слог(а/ов).`;
+      document.getElementById('castleFeedback').className = 'feedback bad';
+      setTimeout(showCastleLevel2Question, 2000);
+    }
+  }
+
+  function initCastleLevel3() {
+    castleState.level3Idx = 0;
+    showCastleLevel3Question();
+  }
+
+  function showCastleLevel3Question() {
+    const data = castleState.level3;
+    const idx = castleState.level3Idx;
+    if (idx >= data.length) {
+      castleState.completed[2] = true;
+      document.getElementById('castleGameArea').innerHTML = '<h2>🎉 Комната 3 пройдена!</h2>';
+      document.getElementById('castleFeedback').innerHTML = '🎉 Замок покорён! Ты настоящий знаток!';
+      setTimeout(() => backToCastleMenu(), 2000);
+      return;
+    }
+    const q = data[idx];
+    updateCastleProgress(idx, data.length);
+    const vowels = 'АЕЁИОУЫЭЮЯ';
+    const letterSpans = [];
+    let vowelCount = 0;
+    for (let i = 0; i < q.word.length; i++) {
+      const ch = q.word[i];
+      if (vowels.includes(ch)) {
+        letterSpans.push(`<span class="letter vowel" data-vowel-idx="${vowelCount}" onclick="pickStress(${vowelCount})">${ch}</span>`);
+        vowelCount++;
+      } else {
+        letterSpans.push(`<span class="letter">${ch}</span>`);
+      }
+    }
+    const area = document.getElementById('castleGameArea');
+    area.innerHTML = `
+      <h2>⭐ Поставь ударение</h2>
+      <div class="speech"><strong>Жужа:</strong> Кликни на гласную (розовую), которая под ударением! 🐝</div>
+      <div class="word-display">${letterSpans.join('')}</div>
+    `;
+    document.getElementById('castleFeedback').textContent = '';
+  }
+
+  function pickStress(vowelIdx) {
+    const q = castleState.level3[castleState.level3Idx];
+    const letters = document.querySelectorAll('.word-display .letter');
+    if (vowelIdx === q.stressed) {
+      letters.forEach(l => {
+        if (l.dataset.vowelIdx == vowelIdx) {
+          l.classList.add('stressed');
+        }
+      });
+      document.getElementById('castleFeedback').textContent = '🐝 Жж-жж! Верное ударение!';
+      document.getElementById('castleFeedback').className = 'feedback good';
+      castleState.level3Idx++;
+      setTimeout(showCastleLevel3Question, 1200);
+    } else {
+      letters.forEach(l => {
+        if (l.dataset.vowelIdx == vowelIdx) {
+          l.style.background = '#FFCDD2';
+          setTimeout(() => { l.style.background = ''; }, 500);
+        }
+      });
+      document.getElementById('castleFeedback').textContent = `❌ Не тут! Ударение на другую гласную.`;
+      document.getElementById('castleFeedback').className = 'feedback bad';
+    }
+  }
+
+  const dictationWords = [
+    { 
+      full: 'ЗИМА', 
+      display: 'З_МА', 
+      missing: 'И', 
+      choices: ['И', 'Е', 'Ы', 'Я'],
+      stressedVowel: 1
+    },
+    { 
+      full: 'ГОРА', 
+      display: 'Г_РА', 
+      missing: 'О', 
+      choices: ['О', 'А', 'У', 'Е'],
+      stressedVowel: 1
+    },
+    { 
+      full: 'РЕКА', 
+      display: 'Р_КА', 
+      missing: 'Е', 
+      choices: ['Е', 'И', 'Я', 'А'],
+      stressedVowel: 1
+    },
+    { 
+      full: 'ШКОЛА', 
+      display: 'ШК_ЛА', 
+      missing: 'О', 
+      choices: ['О', 'А', 'У', 'Ы'],
+      stressedVowel: 0
+    },
+    { 
+      full: 'ПОЛЕ', 
+      display: 'П_ЛЕ', 
+      missing: 'О', 
+      choices: ['О', 'А', 'Е', 'И'],
+      stressedVowel: 0
+    }
+  ];
+
+  let dictState = {
+    current: 0,
+    score: 0,
+    phase: 'letter',
+    timeLeft: 60,
+    timerId: null,
+    started: false
+  };
+
+  function startDictation() {
+    dictState = {
+      current: 0,
+      score: 0,
+      phase: 'letter',
+      timeLeft: 60,
+      timerId: null,
+      started: true
+    };
+    if (dictState.timerId) clearInterval(dictState.timerId);
+    dictState.timerId = setInterval(tickTimer, 1000);
+    showDictWord();
+  }
+
+  function resetDictation() {
+    if (dictState.timerId) clearInterval(dictState.timerId);
+    dictState.started = false;
+    document.getElementById('dictWord').innerHTML = '<span style="font-size:24px; color:#999;">Нажми «Начать диктант»</span>';
+    document.getElementById('dictChoices').innerHTML = '';
+    document.getElementById('dictHint').textContent = 'Выбери пропущенную букву 👇';
+    document.getElementById('dictFeedback').textContent = '';
+    document.getElementById('dictTimer').textContent = '⏱️ 60 сек';
+    document.getElementById('dictTimer').classList.remove('warning');
+    document.getElementById('dictScore').textContent = '⭐ 0 / 5';
+  }
+
+  function tickTimer() {
+    dictState.timeLeft--;
+    const timer = document.getElementById('dictTimer');
+    timer.textContent = `⏱️ ${dictState.timeLeft} сек`;
+    if (dictState.timeLeft <= 10) timer.classList.add('warning');
+    if (dictState.timeLeft <= 0) {
+      clearInterval(dictState.timerId);
+      endDictation();
+    }
+  }
+
+  function endDictation() {
+    document.getElementById('dictWord').innerHTML = `<div style="font-size:30px;">🏁 Время вышло!</div><div style="font-size:24px; margin-top:10px;">Твой результат: ${dictState.score} / 5</div>`;
+    document.getElementById('dictChoices').innerHTML = '';
+    document.getElementById('dictHint').textContent = dictState.score >= 4 ? '🐝 Жж-жж! Отлично!' : '🐝 Жж-жж! Попробуй ещё раз!';
+  }
+
+  function showDictWord() {
+    if (dictState.current >= dictationWords.length) {
+      clearInterval(dictState.timerId);
+      document.getElementById('dictWord').innerHTML = `<div style="font-size:30px;">🎉 Диктант окончен!</div><div style="font-size:24px; margin-top:10px;">Результат: ${dictState.score} / 5</div>`;
+      document.getElementById('dictChoices').innerHTML = '';
+      document.getElementById('dictHint').textContent = '🐝 Жж-жж! Ты молодец!';
+      return;
+    }
+    const w = dictationWords[dictState.current];
+    dictState.phase = 'letter';
+    document.getElementById('dictWord').innerHTML = w.display.replace('_', '<span class="gap">?</span>');
+    document.getElementById('dictHint').textContent = '🐝 Жужа: Выбери пропущенную букву!';
+    document.getElementById('dictFeedback').textContent = '';
+    const choices = document.getElementById('dictChoices');
+    choices.innerHTML = '';
+    const shuffledChoices = shuffle(w.choices);
+    shuffledChoices.forEach(letter => {
+      const btn = document.createElement('button');
+      btn.className = 'letter-choice';
+      btn.textContent = letter;
+      btn.onclick = () => pickDictLetter(letter, btn);
+      choices.appendChild(btn);
+    });
+  }
+
+  function pickDictLetter(letter, btn) {
+    const w = dictationWords[dictState.current];
+    if (letter === w.missing) {
+      btn.classList.add('correct');
+      const gap = document.querySelector('.gap');
+      gap.textContent = letter;
+      gap.classList.add('filled');
+      document.getElementById('dictFeedback').textContent = '🐝 Жж-жж! Буква верна!';
+      document.getElementById('dictFeedback').className = 'feedback good';
+      setTimeout(() => {
+        dictState.phase = 'stress';
+        showDictStressPhase();
+      }, 800);
+    } else {
+      btn.classList.add('wrong');
+      document.getElementById('dictFeedback').textContent = `❌ Не-а! Подумай ещё — Жужа верит в тебя!`;
+      document.getElementById('dictFeedback').className = 'feedback bad';
+      setTimeout(() => btn.classList.remove('wrong'), 500);
+    }
+  }
+
+  function showDictStressPhase() {
+    const w = dictationWords[dictState.current];
+    const vowels = 'АЕЁИОУЫЭЮЯ';
+    const letterSpans = [];
+    let vowelCount = 0;
+    for (let i = 0; i < w.full.length; i++) {
+      const ch = w.full[i];
+      if (vowels.includes(ch)) {
+        letterSpans.push(`<span class="letter-click" data-vowel-idx="${vowelCount}" onclick="pickDictStress(${vowelCount})">${ch}</span>`);
+        vowelCount++;
+      } else {
+        letterSpans.push(`<span>${ch}</span>`);
+      }
+    }
+    document.getElementById('dictWord').innerHTML = letterSpans.join('');
+    document.getElementById('dictHint').textContent = '🐝 Жужа: Теперь поставь ударение — кликни на гласную!';
+    document.getElementById('dictChoices').innerHTML = '';
+  }
+
+  function pickDictStress(vowelIdx) {
+    const w = dictationWords[dictState.current];
+    const letters = document.querySelectorAll('.letter-click');
+    if (vowelIdx === w.stressedVowel) {
+      letters.forEach(l => {
+        if (l.dataset.vowelIdx == vowelIdx) l.classList.add('stressed');
+      });
+      document.getElementById('dictFeedback').textContent = '🐝 Жж-жж! Отлично!';
+      document.getElementById('dictFeedback').className = 'feedback good';
+      dictState.score++;
+      document.getElementById('dictScore').textContent = `⭐ ${dictState.score} / 5`;
+      dictState.current++;
+      setTimeout(showDictWord, 1200);
+    } else {
+      letters.forEach(l => {
+        if (l.dataset.vowelIdx == vowelIdx) {
+          l.style.background = '#FFCDD2';
+          setTimeout(() => { l.style.background = ''; }, 500);
+        }
+      });
+      document.getElementById('dictFeedback').textContent = `❌ Не та гласная! Попробуй ещё раз — прислушайся к слову!`;
+      document.getElementById('dictFeedback').className = 'feedback bad';
+    }
+  }
+</script>
+
+</body>
+</html>

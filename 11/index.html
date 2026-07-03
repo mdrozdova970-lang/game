@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочая тетрадь: Периметр</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #dce9ee;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .notebook {
+            max-width: 880px;
+            width: 100%;
+            background: #fefcf5;
+            border-radius: 40px 40px 30px 30px;
+            padding: 30px 35px 35px;
+            box-shadow: 0 20px 30px rgba(0, 30, 40, 0.2), 0 8px 0 #c6d6d0;
+            border: 3px solid #e3d8c8;
+            position: relative;
+        }
+
+        /* ---- титульный лист ---- */
+        .title-page {
+            text-align: center;
+            padding: 20px 10px 30px;
+            border-bottom: 4px dashed #d4c9b8;
+            margin-bottom: 25px;
+        }
+        .title-page .big-icon { font-size: 4.2rem; display: block; }
+        .title-page h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #f7d875, #f0b83a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 0 #b8832a;
+            line-height: 1.2;
+        }
+        .title-page .sub {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2a5f4a;
+        }
+        .title-page .badge {
+            display: inline-block;
+            background: #f5b83d;
+            padding: 6px 30px;
+            border-radius: 60px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1d3b2f;
+            border: 3px solid #d49d30;
+            box-shadow: 0 4px 0 #b07d2a;
+            margin: 8px 0 12px;
+        }
+        .title-page .meta {
+            font-size: 1.1rem;
+            color: #3d5a5a;
+            background: #eef6f0;
+            padding: 6px 24px;
+            border-radius: 40px;
+            border: 2px solid #c6d9ce;
+            display: inline-block;
+        }
+
+        /* ---- прогресс ---- */
+        .progress-wrap {
+            background: #e3efe8;
+            border-radius: 60px;
+            padding: 8px 18px 8px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            border: 2px solid #b8d5c6;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            min-width: 120px;
+            height: 20px;
+            background: #c6d9ce;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 2px solid #9bb8ac;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f5b83d, #f7d875);
+            border-radius: 30px;
+            transition: width 0.5s ease;
+        }
+        .progress-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1d4b3f;
+            white-space: nowrap;
+        }
+        .hero-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fcf3df;
+            padding: 2px 16px 2px 10px;
+            border-radius: 60px;
+            border: 2px solid #f5dbb1;
+        }
+        .hero-emoji { font-size: 2.2rem; line-height: 1; }
+        .hero-message {
+            font-weight: 600;
+            color: #3b2c1b;
+            font-size: 1rem;
+        }
+
+        /* ---- инструкция ---- */
+        .instruction {
+            background: #f5f8f0;
+            border-radius: 24px;
+            padding: 16px 22px;
+            margin-bottom: 28px;
+            border-left: 8px solid #3ba38a;
+            border: 2px solid #dde3d5;
+            border-left-width: 8px;
+        }
+        .instruction h2 {
+            font-size: 1.5rem;
+            color: #0a434a;
+        }
+        .instruction ul {
+            list-style: none;
+            padding: 6px 0 0 10px;
+            font-size: 1.05rem;
+        }
+        .instruction ul li::before { content: "✏️ "; }
+
+        /* ---- задача ---- */
+        .task-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            border: 2px solid #e0e8e0;
+            box-shadow: 0 4px 0 #d0dcd0;
+            transition: 0.15s;
+        }
+        .task-card.correct {
+            border-color: #3ba38a;
+            background: #f0faf5;
+        }
+        .task-card.wrong {
+            border-color: #e07c5a;
+            background: #fdf0ea;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1d4b3f;
+            margin-bottom: 4px;
+        }
+        .task-header .emoji { font-size: 2rem; }
+        .task-text {
+            font-size: 1.1rem;
+            padding: 4px 0 8px;
+            line-height: 1.6;
+        }
+        .task-figure {
+            background: #f7faf5;
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre;
+            border: 1px solid #d4e0d4;
+            overflow-x: auto;
+            margin: 6px 0 12px;
+        }
+        
+        /* ---- КЛЕТЧАТЫЙ КОВРИК (задание 9) ---- */
+        .grid-carpet {
+            display: inline-block;
+            background: #f5f8f5;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 2px solid #b8cdc2;
+            margin: 6px 0 12px;
+        }
+        .grid-carpet table {
+            border-collapse: collapse;
+            border: 3px solid #5a7a6a;
+            background: white;
+        }
+        .grid-carpet td {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #c6d9ce;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa89a;
+            background: #fafffe;
+        }
+        .grid-carpet td.filled {
+            background: #f5b83d;
+            border-color: #b8832a;
+        }
+        .grid-carpet td.filled-dark {
+            background: #d49d30;
+            border-color: #a07020;
+        }
+        .grid-carpet td.empty {
+            background: #fafffe;
+        }
+        .grid-carpet .row-label {
+            background: #e3efe8;
+            color: #3d5a5a;
+            font-size: 0.7rem;
+            border: 1px solid #c6d9ce;
+            padding: 0 4px;
+            width: 26px;
+            height: 38px;
+        }
+        .grid-carpet .col-label {
+            background: #e3efe8;
+            color: #3d5a5a;
+            font-size: 0.7rem;
+            border: 1px solid #c6d9ce;
+            padding: 0 4px;
+            height: 26px;
+            width: 38px;
+        }
+        .grid-carpet .corner-label {
+            background: #d4e0d4;
+            border: 1px solid #c6d9ce;
+            width: 26px;
+            height: 26px;
+        }
+        .grid-carpet .hint-text {
+            font-size: 0.95rem;
+            color: #3d5a5a;
+            margin-top: 8px;
+            padding: 6px 14px;
+            background: #fcf3df;
+            border-radius: 20px;
+            display: inline-block;
+            border: 1px dashed #dba14b;
+        }
+
+        .task-interact {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+            margin: 10px 0 6px;
+        }
+        .task-interact label {
+            font-weight: 600;
+            color: #1d4b3f;
+            font-size: 1.05rem;
+        }
+        .task-interact select, .task-interact input {
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 2px solid #b8cdc2;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            outline: none;
+            transition: 0.15s;
+            min-width: 100px;
+        }
+        .task-interact select:focus, .task-interact input:focus {
+            border-color: #f5b83d;
+            box-shadow: 0 0 0 3px rgba(245, 184, 61, 0.3);
+        }
+        .task-interact input {
+            width: 110px;
+        }
+        .task-interact .unit {
+            font-weight: 600;
+            color: #3d5a5a;
+        }
+        .check-btn {
+            background: #f5b83d;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #1d3b2f;
+            cursor: pointer;
+            border-bottom: 4px solid #b8832a;
+            transition: 0.1s;
+            font-family: inherit;
+        }
+        .check-btn:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+        .check-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            pointer-events: none;
+        }
+
+        .task-feedback {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 6px 14px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        .task-feedback.ok {
+            background: #c2e6d6;
+            color: #004d3a;
+        }
+        .task-feedback.fail {
+            background: #fde0d0;
+            color: #9a3d1a;
+        }
+        .task-feedback.hint {
+            background: #fcf3df;
+            color: #6a4f1a;
+        }
+
+        /* ---- фейерверк (конфетти) ---- */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(110vh) rotate(720deg) scale(0.5); }
+        }
+
+        /* ---- аплодисменты (текст) ---- */
+        .clap-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+            color: #f5b83d;
+            text-shadow: 0 8px 0 #b8832a, 0 12px 30px rgba(0,0,0,0.2);
+            animation: clapAnim 1.8s ease forwards;
+        }
+        @keyframes clapAnim {
+            0% { opacity: 0; transform: scale(0.3); }
+            30% { opacity: 1; transform: scale(1.3); }
+            60% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        /* ---- hero появляется ---- */
+        .hero-popup {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #fef3d6;
+            border: 4px solid #f5b83d;
+            border-radius: 60px 60px 60px 12px;
+            padding: 14px 24px 14px 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 997;
+            animation: heroIn 0.5s ease;
+            max-width: 280px;
+        }
+        @keyframes heroIn {
+            0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hero-popup .h-emoji { font-size: 2.8rem; }
+        .hero-popup .h-text {
+            font-weight: 600;
+            color: #3b2c1b;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 600px) {
+            .notebook { padding: 18px 14px; }
+            .title-page h1 { font-size: 2.2rem; }
+            .task-interact { flex-direction: column; align-items: stretch; }
+            .task-interact select, .task-interact input { width: 100%; }
+            .hero-area { flex-wrap: wrap; justify-content: center; }
+            .progress-wrap { flex-direction: column; align-items: stretch; }
+            .hero-popup { bottom: 10px; right: 10px; left: 10px; max-width: none; }
+            .grid-carpet td { width: 28px; height: 28px; }
+            .grid-carpet .row-label { width: 20px; height: 28px; }
+            .grid-carpet .col-label { height: 20px; width: 28px; }
+            .grid-carpet .corner-label { width: 20px; height: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="notebook" id="app">
+
+    <!-- ======== ТИТУЛЬНЫЙ ЛИСТ ======== -->
+    <div class="title-page">
+        <span class="big-icon">📐</span>
+        <h1>РАБОЧАЯ ТЕТРАДЬ</h1>
+        <h1 style="font-size: 2.8rem; margin-top: -6px;">ПЕРИМЕТР</h1>
+        <div class="sub">для учеников 2–3 класса</div>
+        <div class="badge">7–8 лет</div>
+        <div class="meta">✏️ 10 заданий с проверкой</div>
+    </div>
+
+    <!-- ======== ПРОГРЕСС + ГЕРОЙ ======== -->
+    <div class="progress-wrap">
+        <div class="hero-area">
+            <span class="hero-emoji" id="heroEmoji">🦉</span>
+            <span class="hero-message" id="heroMessage">Привет! Я Мудрый Филин!</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">0 / 10</span>
+    </div>
+
+    <!-- ======== ИНСТРУКЦИЯ ======== -->
+    <div class="instruction">
+        <h2>📖 Как работать с тетрадью</h2>
+        <ul>
+            <li>В каждом задании выбери ответ или впиши число.</li>
+            <li>Нажми <strong>«Проверить»</strong> — узнаешь, правильно ли.</li>
+            <li>Если ответ верный — задача засчитается, и ты увидишь фейерверк! 🎉</li>
+            <li>Постарайся решить все 10 задач — и получишь звание <strong>Мастера периметра!</strong></li>
+        </ul>
+    </div>
+
+    <!-- ======== ЗАДАЧИ ======== -->
+    <div id="tasksContainer"></div>
+
+    <!-- ======== ФИНАЛЬНЫЙ БЛОК ======== -->
+    <div id="finalBlock" style="display: none; text-align: center; padding: 20px; background: #fef3d6; border-radius: 40px; border: 4px solid #f5b83d; margin-top: 10px;">
+        <div style="font-size: 3rem;">🏆</div>
+        <div style="font-size: 2rem; font-weight: 800; color: #1d4b3f;">ТЫ МАСТЕР ПЕРИМЕТРА!</div>
+        <div style="font-size: 1.3rem; color: #2a5f4a;">Все 10 задач решены верно! Ты супер! 🌟</div>
+    </div>
+
+</div>
+
+<!-- ======== КОНФЕТТИ КОНТЕЙНЕР ======== -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+    // ========== ДАННЫЕ ЗАДАЧ ==========
+    const tasksData = [
+        {
+            id: 1,
+            emoji: '🐱',
+            title: 'Котёнок и будка',
+            text: 'Квадратная будка со стороной 3 м. Чему равен периметр?',
+            figure: '     3 м\n  ┌──────┐\n  │      │\n  │      │\n  └──────┘',
+            type: 'select',
+            options: ['6 м', '9 м', '12 м', '15 м'],
+            correct: '12 м',
+            unit: 'м'
+        },
+        {
+            id: 2,
+            emoji: '👵',
+            title: 'Огород бабушки',
+            text: 'Прямоугольный огород: длина 8 м, ширина 5 м. Найди периметр.',
+            figure: '      8 м\n  ┌──────────┐\n  │          │ 5 м\n  │          │\n  └──────────┘\n      8 м',
+            type: 'select',
+            options: ['20 м', '26 м', '30 м', '40 м'],
+            correct: '26 м',
+            unit: 'м'
+        },
+        {
+            id: 3,
+            emoji: '🎾',
+            title: 'Теннисный корт',
+            text: 'Корт: длина 12 м, ширина 6 м. Найди периметр.',
+            figure: '      12 м\n  ┌──────────────┐\n  │              │ 6 м\n  │              │\n  └──────────────┘\n      12 м',
+            type: 'select',
+            options: ['24 м', '30 м', '36 м', '42 м'],
+            correct: '36 м',
+            unit: 'м'
+        },
+        {
+            id: 4,
+            emoji: '🐕',
+            title: 'Прогулка собаки',
+            text: 'Треугольный сквер: стороны 20 м, 30 м, 25 м. Найди периметр.',
+            figure: '     20 м\n    /    \\\n   /      \\  25 м\n  /        \\\n /__________\\\n    30 м',
+            type: 'select',
+            options: ['65 м', '70 м', '75 м', '80 м'],
+            correct: '75 м',
+            unit: 'м'
+        },
+        {
+            id: 5,
+            emoji: '🖼️',
+            title: 'Рама для картины',
+            text: 'Квадратная картина со стороной 50 см. Чему равен периметр?',
+            figure: '     50 см\n  ┌────────┐\n  │        │\n  │        │\n  └────────┘\n     50 см',
+            type: 'input',
+            correct: '200',
+            unit: 'см',
+            hint: 'Введи число (например, 200)'
+        },
+        {
+            id: 6,
+            emoji: '🎡',
+            title: 'Детская площадка',
+            text: 'Прямоугольник: длина 15 м, ширина 10 м. Найди периметр.',
+            figure: '      15 м\n  ┌─────────────┐\n  │             │ 10 м\n  │             │\n  └─────────────┘\n      15 м',
+            type: 'select',
+            options: ['40 м', '45 м', '50 м', '55 м'],
+            correct: '50 м',
+            unit: 'м'
+        },
+        {
+            id: 7,
+            emoji: '🦜',
+            title: 'Птичья клетка',
+            text: 'Клетка: длина 40 см, ширина 25 см. Найди периметр.',
+            figure: '      40 см\n  ┌─────────────┐\n  │             │ 25 см\n  │             │\n  └─────────────┘\n      40 см',
+            type: 'select',
+            options: ['110 см', '120 см', '130 см', '140 см'],
+            correct: '130 см',
+            unit: 'см'
+        },
+        {
+            id: 8,
+            emoji: '🏊',
+            title: 'Бассейн',
+            text: 'Бассейн: длина 25 м, ширина 10 м. Найди периметр.',
+            figure: '      25 м\n  ┌───────────────┐\n  │               │ 10 м\n  │               │\n  └───────────────┘\n      25 м',
+            type: 'select',
+            options: ['60 м', '65 м', '70 м', '80 м'],
+            correct: '70 м',
+            unit: 'м'
+        },
+        {
+            id: 9,
+            emoji: '🧩',
+            title: 'Коврик (буква Г)',
+            text: 'Найди периметр коврика. Каждая клетка — 1 см. Сосчитай стороны по клеточкам!',
+            figure: 'grid',
+            type: 'input',
+            correct: '26',
+            unit: 'см',
+            hint: 'Введи число (периметр в сантиметрах)'
+        },
+        {
+            id: 10,
+            emoji: '📚',
+            title: 'Обложка учебника',
+            text: 'Прямоугольник: длина 22 см, ширина 17 см. Найди периметр.',
+            figure: '      22 см\n  ┌─────────────┐\n  │             │ 17 см\n  │             │\n  └─────────────┘\n      22 см',
+            type: 'select',
+            options: ['68 см', '74 см', '78 см', '82 см'],
+            correct: '78 см',
+            unit: 'см'
+        }
+    ];
+
+    // ========== СОСТОЯНИЕ ==========
+    let solved = new Array(tasksData.length).fill(false);
+    let progress = 0;
+
+    // ========== РЕНДЕР ==========
+    const container = document.getElementById('tasksContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const heroEmoji = document.getElementById('heroEmoji');
+    const heroMessage = document.getElementById('heroMessage');
+    const finalBlock = document.getElementById('finalBlock');
+
+    function renderTasks() {
+        container.innerHTML = '';
+        tasksData.forEach((task, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `task-${index}`;
+
+            let figureHTML = '';
+            if (task.figure === 'grid') {
+                // Клетчатый коврик — буква Г, правильная форма
+                figureHTML = `
+                    <div class="grid-carpet">
+                        <table>
+                            <tr>
+                                <td class="corner-label"></td>
+                                <td class="col-label">1</td>
+                                <td class="col-label">2</td>
+                                <td class="col-label">3</td>
+                                <td class="col-label">4</td>
+                                <td class="col-label">5</td>
+                                <td class="col-label">6</td>
+                                <td class="col-label">7</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">1</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">2</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">3</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td class="empty"></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">4</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">5</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">6</td>
+                                <td class="filled"></td><td class="filled"></td><td class="filled"></td><td class="filled"></td>
+                                <td></td><td></td><td></td>
+                            </tr>
+                        </table>
+                        <div style="margin-top: 10px;">
+                            <span class="hint-text">📏 1 клетка = 1 см. Сосчитай все стороны по клеточкам!</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                figureHTML = `<div class="task-figure">${task.figure}</div>`;
+            }
+
+            let interactHTML = '';
+            if (task.type === 'select') {
+                const opts = task.options.map(opt =>
+                    `<option value="${opt}">${opt}</option>`
+                ).join('');
+                interactHTML = `
+                    <div class="task-interact">
+                        <label>Периметр =</label>
+                        <select id="select-${index}">
+                            <option value="">— выбери —</option>
+                            ${opts}
+                        </select>
+                        <span class="unit">${task.unit}</span>
+                        <button class="check-btn" data-index="${index}">Проверить</button>
+                    </div>
+                `;
+            } else if (task.type === 'input') {
+                interactHTML = `
+                    <div class="task-interact">
+                        <label>Периметр =</label>
+                        <input type="text" id="input-${index}" placeholder="впиши число">
+                        <span class="unit">${task.unit}</span>
+                        <button class="check-btn" data-index="${index}">Проверить</button>
+                    </div>
+                    <div style="font-size:0.9rem; color:#6a7f7a; margin-top:2px;">${task.hint || ''}</div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="task-header">
+                    <span class="emoji">${task.emoji}</span>
+                    Задача ${task.id}. ${task.title}
+                </div>
+                <div class="task-text">${task.text}</div>
+                ${figureHTML}
+                ${interactHTML}
+                <div class="task-feedback" id="feedback-${index}"></div>
+            `;
+            container.appendChild(card);
+
+            const btn = card.querySelector('.check-btn');
+            btn.addEventListener('click', () => checkTask(index));
+        });
+        updateProgress();
+    }
+
+    // ========== ПРОВЕРКА ==========
+    function checkTask(index) {
+        if (solved[index]) return;
+
+        const task = tasksData[index];
+        let userAnswer = '';
+        if (task.type === 'select') {
+            const sel = document.getElementById(`select-${index}`);
+            userAnswer = sel.value;
+        } else if (task.type === 'input') {
+            const inp = document.getElementById(`input-${index}`);
+            userAnswer = inp.value.trim();
+        }
+
+        const feedback = document.getElementById(`feedback-${index}`);
+        const card = document.getElementById(`task-${index}`);
+
+        let isCorrect = false;
+        if (task.type === 'select') {
+            isCorrect = (userAnswer === task.correct);
+        } else if (task.type === 'input') {
+            isCorrect = (userAnswer === task.correct);
+        }
+
+        if (isCorrect) {
+            solved[index] = true;
+            card.classList.remove('wrong');
+            card.classList.add('correct');
+            feedback.className = 'task-feedback ok';
+            feedback.textContent = '✅ Верно! Молодец!';
+            const btn = card.querySelector('.check-btn');
+            btn.disabled = true;
+            if (task.type === 'select') {
+                document.getElementById(`select-${index}`).disabled = true;
+            } else {
+                document.getElementById(`input-${index}`).disabled = true;
+            }
+            updateProgress();
+
+            fireConfetti();
+            showClap('👏 Отлично!');
+            showHero('🌟', 'Так держать! Ты справляешься!');
+
+            if (progress === tasksData.length) {
+                setTimeout(() => {
+                    finalBlock.style.display = 'block';
+                    fireConfetti();
+                    fireConfetti();
+                    showHero('🏆', 'Ты МАСТЕР ПЕРИМЕТРА! Ура!');
+                    setTimeout(() => showClap('🎉 ПОЗДРАВЛЯЮ!'), 500);
+                }, 400);
+            }
+        } else {
+            card.classList.remove('correct');
+            card.classList.add('wrong');
+            feedback.className = 'task-feedback fail';
+            if (userAnswer === '' || userAnswer === '— выбери —') {
+                feedback.textContent = '😅 Выбери ответ!';
+            } else {
+                feedback.textContent = '❌ Не совсем. Попробуй ещё раз!';
+                showHero('🤔', 'Подумай ещё! Вспомни формулу.');
+            }
+        }
+    }
+
+    // ========== ПРОГРЕСС ==========
+    function updateProgress() {
+        progress = solved.filter(Boolean).length;
+        const pct = (progress / tasksData.length) * 100;
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `${progress} / ${tasksData.length}`;
+        if (progress === tasksData.length) {
+            heroMessage.textContent = '🎉 Ты решил ВСЁ! Великолепно!';
+            heroEmoji.textContent = '🏆';
+        } else {
+            const msgs = [
+                'Давай, ты сможешь!', 'Хороший старт!', 'Так держать!',
+                'Ты почти у цели!', 'Ещё немного!', 'Молодец, продолжай!'
+            ];
+            const idx = Math.min(progress, msgs.length-1);
+            heroMessage.textContent = msgs[idx] || 'Ты супер!';
+            heroEmoji.textContent = ['🦉','🐣','🐥','🦊','🐼','🐨'][Math.min(progress,5)];
+        }
+    }
+
+    // ========== ЭФФЕКТЫ ==========
+    function fireConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#f5b83d', '#e07c5a', '#3ba38a', '#d45a9a', '#5a8ad4', '#f5d875', '#ff6b6b'];
+        for (let i = 0; i < 60; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti';
+            el.style.left = Math.random() * 100 + '%';
+            el.style.top = '-10px';
+            el.style.background = colors[Math.floor(Math.random() * colors.length)];
+            el.style.width = (6 + Math.random() * 10) + 'px';
+            el.style.height = (6 + Math.random() * 10) + 'px';
+            el.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+            el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+            el.style.animationDelay = (Math.random() * 0.8) + 's';
+            el.style.transform = `rotate(${Math.random()*360}deg)`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+    }
+
+    function showClap(text) {
+        const overlay = document.createElement('div');
+        overlay.className = 'clap-overlay';
+        overlay.textContent = text;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.remove(), 2200);
+    }
+
+    function showHero(emoji, msg) {
+        const old = document.querySelector('.hero-popup');
+        if (old) old.remove();
+        const div = document.createElement('div');
+        div.className = 'hero-popup';
+        div.innerHTML = `
+            <span class="h-emoji">${emoji}</span>
+            <span class="h-text">${msg}</span>
+        `;
+        document.body.appendChild(div);
+        setTimeout(() => {
+            if (div.parentNode) div.remove();
+        }, 3500);
+    }
+
+    // ========== СТАРТ ==========
+    renderTasks();
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const target = e.target;
+            if (target.id && target.id.startsWith('input-')) {
+                const idx = parseInt(target.id.replace('input-',''));
+                if (!isNaN(idx)) checkTask(idx);
+            }
+        }
+    });
+
+    setTimeout(() => showHero('🦉', 'Я Мудрый Филин! Помогу тебе!'), 800);
+</script>
+
+</body>
+</html>
