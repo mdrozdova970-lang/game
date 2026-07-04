@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Согласные буквы и звуки — Игра</title>
+<style>
+:root {
+  --game-bg: #FFF8E7;
+  --game-card: #FFFFFF;
+  --game-primary: #FF6B35;
+  --game-accent: #FFD23F;
+  --game-secondary: #4ECDC4;
+  --game-text: #2D2D2D;
+  --game-success: #4CAF50;
+  --game-error: #E53935;
+  --game-muted: #B0BEC5;
+  --game-shadow: rgba(0,0,0,0.15);
+  --game-purple: #9B59B6;
+  --game-pink: #FF6B9D;
+  --game-blue: #3498DB;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+  background: var(--game-bg);
+  color: var(--game-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Декоративный фон */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(255,210,63,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(78,205,196,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(255,107,53,0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Плавающие облака */
+.cloud {
+  position: fixed;
+  background: white;
+  border-radius: 50px;
+  opacity: 0.6;
+  z-index: 0;
+  animation: floatCloud 20s infinite ease-in-out;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+.cloud-1 { width: 120px; height: 40px; top: 10%; left: -120px; animation-duration: 25s; }
+.cloud-1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
+.cloud-1::after { width: 70px; height: 60px; top: -30px; left: 50px; }
+.cloud-2 { width: 100px; height: 35px; top: 30%; left: -100px; animation-duration: 30s; animation-delay: 5s; }
+.cloud-2::before { width: 45px; height: 45px; top: -20px; left: 15px; }
+.cloud-2::after { width: 60px; height: 50px; top: -25px; left: 40px; }
+.cloud-3 { width: 80px; height: 30px; top: 60%; left: -80px; animation-duration: 22s; animation-delay: 10s; }
+.cloud-3::before { width: 40px; height: 40px; top: -18px; left: 10px; }
+.cloud-3::after { width: 50px; height: 45px; top: -22px; left: 30px; }
+
+@keyframes floatCloud {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(100vw + 200px)); }
+}
+
+/* Цветы-декор */
+.flower {
+  position: fixed;
+  bottom: 0;
+  z-index: 0;
+  font-size: 2rem;
+  opacity: 0.4;
+  animation: sway 3s infinite ease-in-out;
+}
+.flower:nth-child(1) { left: 5%; animation-delay: 0s; }
+.flower:nth-child(2) { left: 25%; animation-delay: 1s; }
+.flower:nth-child(3) { left: 50%; animation-delay: 0.5s; }
+.flower:nth-child(4) { left: 75%; animation-delay: 1.5s; }
+.flower:nth-child(5) { left: 90%; animation-delay: 0.8s; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* Контейнер игры */
+.game-container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 15px;
+  min-height: 100vh;
+}
+
+/* Верхняя панель */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--game-card);
+  border-radius: 20px;
+  padding: 12px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px var(--game-shadow);
+  border: 3px solid var(--game-accent);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.score-display {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--game-primary);
+}
+
+.stage-indicator {
+  font-size: 0.9rem;
+  color: var(--game-text);
+  background: var(--game-accent);
+  padding: 5px 12px;
+  border-radius: 15px;
+}
+
+/* Прогресс-бар */
+.progress-container {
+  background: var(--game-card);
+  border-radius: 15px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 10px var(--game-shadow);
+  border: 2px solid var(--game-secondary);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.progress-bar {
+  height: 18px;
+  background: #E8E8E8;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--game-success), var(--game-secondary));
+  border-radius: 10px;
+  transition: width 0.8s ease;
+  width: 0%;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Карточки */
+.card {
+  background: var(--game-card);
+  border-radius: 25px;
+  padding: 25px;
+  margin-bottom: 15px;
+  box-shadow: 0 6px 20px var(--game-shadow);
+  border: 4px solid var(--game-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--game-primary), var(--game-accent), var(--game-secondary));
+}
+
+/* Кнопки */
+.btn {
+  display: inline-block;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+  position: relative;
+  top: 0;
+}
+
+.btn:active {
+  top: 4px;
+  box-shadow: 0 0 0 rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+  background: var(--game-primary);
+  color: white;
+}
+
+.btn-primary:hover { background: #E55A2B; }
+
+.btn-secondary {
+  background: var(--game-secondary);
+  color: white;
+}
+
+.btn-secondary:hover { background: #3DBDB5; }
+
+.btn-accent {
+  background: var(--game-accent);
+  color: var(--game-text);
+}
+
+.btn-accent:hover { background: #F0C030; }
+
+.btn-success {
+  background: var(--game-success);
+  color: white;
+}
+
+.btn-large {
+  padding: 20px 40px;
+  font-size: 1.3rem;
+  border-radius: 25px;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* Медвежонок */
+.bear-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 15px;
+  background: rgba(255,210,63,0.2);
+  border-radius: 20px;
+  border: 3px dashed var(--game-accent);
+}
+
+.bear-avatar {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--game-accent);
+  background: #FFF;
+}
+
+.bear-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bear-speech {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--game-text);
+  position: relative;
+  padding: 10px 15px;
+  background: white;
+  border-radius: 15px;
+  border: 2px solid var(--game-accent);
+}
+
+.bear-speech::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: var(--game-accent);
+}
+
+/* Инвентарь */
+.inventory {
+  position: fixed;
+  top: 80px;
+  right: 10px;
+  background: var(--game-card);
+  border-radius: 15px;
+  padding: 10px;
+  box-shadow: 0 4px 15px var(--game-shadow);
+  border: 3px solid var(--game-purple);
+  z-index: 10;
+  max-width: 120px;
+}
+
+.inventory-title {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--game-purple);
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.inventory-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+}
+
+.inventory-item {
+  width: 30px;
+  height: 30px;
+  background: var(--game-accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  animation: popIn 0.5s ease;
+  border: 2px solid var(--game-primary);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0) rotate(-180deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Маршрут */
+.route-map {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px;
+  background: rgba(78,205,196,0.1);
+  border-radius: 15px;
+  margin: 15px 0;
+  border: 2px solid var(--game-secondary);
+}
+
+.route-point {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.5s ease;
+  position: relative;
+}
+
+.route-point.completed {
+  background: var(--game-success);
+  color: white;
+  box-shadow: 0 0 10px rgba(76,175,80,0.5);
+}
+
+.route-point.current {
+  background: var(--game-primary);
+  color: white;
+  box-shadow: 0 0 15px rgba(255,107,53,0.7);
+  animation: pulse 1s infinite;
+}
+
+.route-point.upcoming {
+  background: #E0E0E0;
+  color: #999;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.route-line {
+  flex: 1;
+  height: 4px;
+  background: #E0E0E0;
+  margin: 0 5px;
+  border-radius: 2px;
+}
+
+.route-line.completed {
+  background: var(--game-success);
+}
+
+/* Звёзды наград */
+.stars-display {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.star {
+  font-size: 2.5rem;
+  color: #E0E0E0;
+  transition: all 0.5s ease;
+}
+
+.star.earned {
+  color: var(--game-accent);
+  text-shadow: 0 0 10px rgba(255,210,63,0.8);
+  animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+  0% { transform: scale(0) rotate(-180deg); }
+  50% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Этап 1: Тренажёр */
+.task-card {
+  text-align: center;
+}
+
+.task-question {
+  font-size: 1.3rem;
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+.task-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  border: 3px solid var(--game-secondary);
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.task-input:focus {
+  border-color: var(--game-primary);
+  box-shadow: 0 0 10px rgba(255,107,53,0.3);
+}
+
+.task-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.option-btn {
+  padding: 12px 25px;
+  border: 3px solid var(--game-secondary);
+  border-radius: 15px;
+  background: white;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.option-btn:hover {
+  background: var(--game-secondary);
+  color: white;
+  transform: scale(1.05);
+}
+
+.option-btn.correct {
+  background: var(--game-success);
+  color: white;
+  border-color: var(--game-success);
+}
+
+.option-btn.wrong {
+  background: var(--game-error);
+  color: white;
+  border-color: var(--game-error);
+}
+
+/* Обратная связь */
+.feedback {
+  padding: 15px;
+  border-radius: 15px;
+  margin: 15px 0;
+  font-size: 1rem;
+  text-align: center;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback.correct {
+  background: rgba(76,175,80,0.15);
+  border: 2px solid var(--game-success);
+  color: #2E7D32;
+}
+
+.feedback.wrong {
+  background: rgba(229,57,53,0.1);
+  border: 2px solid var(--game-error);
+  color: #C62828;
+}
+
+.feedback-icon {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+/* Этап 2: Бродилка */
+.board-game {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 15px;
+  background: rgba(255,210,63,0.1);
+  border-radius: 20px;
+  border: 3px solid var(--game-accent);
+}
+
+.board-cell {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  position: relative;
+  border: 2px solid rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.board-cell.normal {
+  background: white;
+  color: var(--game-text);
+}
+
+.board-cell.start {
+  background: var(--game-secondary);
+  color: white;
+}
+
+.board-cell.finish {
+  background: var(--game-accent);
+  color: var(--game-text);
+  font-size: 1.2rem;
+}
+
+.board-cell.current {
+  box-shadow: 0 0 15px rgba(255,107,53,0.8);
+  transform: scale(1.1);
+  z-index: 2;
+}
+
+.board-cell .cell-icon {
+  font-size: 1.5rem;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+
+.player-token {
+  width: 30px;
+  height: 30px;
+  background: var(--game-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  animation: bounce 0.5s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 3;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Кубик */
+.dice-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.dice {
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--game-primary);
+  border: 4px solid var(--game-primary);
+  box-shadow: 0 4px 15px var(--game-shadow);
+  margin: 10px;
+}
+
+.dice.rolling {
+  animation: rollDice 0.5s ease;
+}
+
+@keyframes rollDice {
+  0% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(90deg) scale(0.8); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  75% { transform: rotate(270deg) scale(0.9); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Этап 3: Квест */
+.quest-scene {
+  text-align: center;
+}
+
+.quest-scene-image {
+  font-size: 4rem;
+  margin: 15px 0;
+}
+
+.quest-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 15px 0;
+}
+
+.quest-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.choice-btn {
+  padding: 18px 25px;
+  border: 3px solid var(--game-secondary);
+  border-radius: 18px;
+  background: white;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.choice-btn:hover {
+  background: var(--game-secondary);
+  color: white;
+  transform: translateX(5px);
+}
+
+/* Экраны */
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Стартовый экран */
+.start-screen {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.game-title {
+  font-size: 2rem;
+  color: var(--game-primary);
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0 var(--game-accent);
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  color: var(--game-text);
+  margin-bottom: 20px;
+}
+
+.start-bear {
+  width: 150px;
+  height: 150px;
+  margin: 20px auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 5px solid var(--game-accent);
+  box-shadow: 0 6px 20px var(--game-shadow);
+}
+
+.start-bear img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Финальный экран */
+.final-screen {
+  text-align: center;
+}
+
+.final-score {
+  font-size: 3rem;
+  color: var(--game-primary);
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.final-stars {
+  font-size: 3rem;
+  margin: 15px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+  .game-title { font-size: 1.5rem; }
+  .game-subtitle { font-size: 1rem; }
+  .task-question { font-size: 1.1rem; }
+  .btn { padding: 12px 20px; font-size: 1rem; }
+  .btn-large { padding: 15px 30px; font-size: 1.1rem; }
+  .board-game { grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 10px; }
+  .board-cell { font-size: 0.7rem; }
+  .bear-container { flex-direction: column; text-align: center; }
+  .bear-speech::before { display: none; }
+  .inventory { position: static; max-width: 100%; margin: 10px 0; }
+  .route-map { flex-wrap: wrap; gap: 5px; }
+  .route-point { width: 35px; height: 35px; font-size: 0.8rem; }
+  .card { padding: 18px; }
+  .top-bar { padding: 10px 15px; }
+  .score-display { font-size: 0.95rem; }
+}
+
+/* Специальные анимации */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  z-index: 100;
+  animation: confettiFall 3s ease-in forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Скрытые элементы */
+.hidden { display: none !important; }
+
+/* Табы этапов */
+.stage-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.stage-tab {
+  padding: 8px 16px;
+  border-radius: 15px;
+  background: #E0E0E0;
+  font-size: 0.85rem;
+  font-weight: bold;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+
+.stage-tab.active {
+  background: var(--game-primary);
+  color: white;
+}
+
+.stage-tab.completed {
+  background: var(--game-success);
+  color: white;
+}
+
+/* Артефакт финал */
+.artifact-final {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  background: linear-gradient(135deg, var(--game-accent), var(--game-primary));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  box-shadow: 0 10px 30px var(--game-shadow);
+  animation: artifactGlow 2s infinite;
+}
+
+@keyframes artifactGlow {
+  0%, 100% { box-shadow: 0 10px 30px rgba(255,210,63,0.5); }
+  50% { box-shadow: 0 10px 40px rgba(255,107,53,0.8); }
+}
+
+/* Картинка в вопросе */
+.word-image {
+  font-size: 3.5rem;
+  margin: 10px 0;
+  display: block;
+  animation: bounce 2s infinite;
+}
+
+.word-description {
+  font-size: 1.1rem;
+  color: var(--game-muted);
+  margin-top: 5px;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<!-- Декоративные элементы -->
+<div class="cloud cloud-1"></div>
+<div class="cloud cloud-2"></div>
+<div class="cloud cloud-3"></div>
+<div class="flower">🌸</div>
+<div class="flower">🌼</div>
+<div class="flower">🌺</div>
+<div class="flower">🌻</div>
+<div class="flower">🌷</div>
+
+<!-- Инвентарь (для этапов 2 и 3) -->
+<div class="inventory hidden" id="inventory">
+  <div class="inventory-title">🗺️ Артефакты</div>
+  <div class="inventory-items" id="inventoryItems"></div>
+</div>
+
+<div class="game-container">
+  <!-- Верхняя панель -->
+  <div class="top-bar">
+    <div class="score-display">⭐ Баллы: <span id="totalScore">0</span></div>
+    <div class="stage-indicator" id="stageIndicator">Этап 1 из 3</div>
+  </div>
+
+  <!-- Прогресс-бар -->
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-label">
+      <span id="progressText">Задание 0 из 5</span>
+      <span id="progressStage">Этап 1</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- ===== СТАРТОВЫЙ ЭКРАН ===== -->
+  <div class="screen active" id="startScreen">
+    <div class="start-screen">
+      <h1 class="game-title">🐻 Приключения Медвежонка</h1>
+      <p class="game-subtitle">Согласные буквы и звуки</p>
+      <div class="start-bear">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M 70 60 Q 75 45 85 50' stroke='%238B6914' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M 130 60 Q 125 45 115 50' stroke='%238B6914' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Crect x='75' y='155' width='50' height='20' rx='10' fill='%23E53935'/%3E%3C/svg%3E" alt="Медвежонок">
+      </div>
+      <p style="font-size:1.1rem; margin:15px 0; line-height:1.5;">
+        Привет! Я медвежонок Мишка! 🐻<br>
+        Давай вместе поиграем и выучим согласные буквы и звуки!<br>
+        Тебя ждут 3 весёлых этапа!
+      </p>
+      <button class="btn btn-primary btn-large" onclick="startGame()">🎮 Начать игру!</button>
+    </div>
+  </div>
+
+  <!-- ===== ЭТАП 1: ТРЕНАЖЁР ===== -->
+  <div class="screen" id="stage1Screen">
+    <div class="stage-tabs">
+      <div class="stage-tab active">Этап 1: Тренажёр</div>
+      <div class="stage-tab">Этап 2: Бродилка</div>
+      <div class="stage-tab">Этап 3: Квест</div>
+    </div>
+    
+    <div class="card">
+      <div class="task-card" id="taskCard">
+        <h2 style="color:var(--game-primary); margin-bottom:10px;">📝 Тренажёр</h2>
+        <div class="task-question" id="taskQuestion"></div>
+        <div id="taskInputArea"></div>
+        <div id="taskFeedback"></div>
+        <div class="bear-container" id="bearContainer1">
+          <div class="bear-avatar">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+          </div>
+          <div class="bear-speech" id="bearSpeech1">Привет! Давай решать задания вместе!</div>
+        </div>
+        <button class="btn btn-primary hidden" id="nextTaskBtn" onclick="nextTask()">Следующее задание →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ЭКРАН ЗАВЕРШЕНИЯ ЭТАПА 1 ===== -->
+  <div class="screen" id="stage1Complete">
+    <div class="card" style="text-align:center;">
+      <h2 style="color:var(--game-success); font-size:1.8rem;">🎉 Этап 1 пройден!</h2>
+      <div class="stars-display" id="stage1Stars"></div>
+      <p style="font-size:1.2rem; margin:15px 0;">
+        Верных ответов: <strong id="stage1Correct">0</strong> из 5<br>
+        Баллы: <strong id="stage1Score">0</strong>
+      </p>
+      <div class="bear-container">
+        <div class="bear-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+        </div>
+        <div class="bear-speech" id="stage1BearSpeech">Молодец! Ты отлично справился!</div>
+      </div>
+      <button class="btn btn-primary btn-large" onclick="goToStage2()">Перейти к этапу 2 →</button>
+    </div>
+  </div>
+
+  <!-- ===== ЭТАП 2: БРОДИЛКА ===== -->
+  <div class="screen" id="stage2Screen">
+    <div class="stage-tabs">
+      <div class="stage-tab completed">Этап 1 ✓</div>
+      <div class="stage-tab active">Этап 2: Бродилка</div>
+      <div class="stage-tab">Этап 3: Квест</div>
+    </div>
+
+    <!-- Маршрут -->
+    <div class="route-map" id="routeMap2">
+      <div class="route-point completed" id="rp2-0">🏠</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp2-1">2</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp2-2">3</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp2-3">4</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp2-4"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="color:var(--game-primary); text-align:center; margin-bottom:15px;">🎲 Бродилка</h2>
+      
+      <!-- Игровое поле -->
+      <div class="board-game" id="boardGame"></div>
+      
+      <!-- Кубик -->
+      <div class="dice-container">
+        <div class="dice" id="diceDisplay">🎲</div>
+        <br>
+        <button class="btn btn-accent" id="rollDiceBtn" onclick="rollDice()"> Бросить кубик!</button>
+      </div>
+
+      <!-- Задание на клетке -->
+      <div id="cellTaskArea" class="hidden">
+        <div class="task-question" id="cellTaskQuestion"></div>
+        <div id="cellTaskOptions"></div>
+        <div id="cellTaskFeedback"></div>
+      </div>
+
+      <div class="bear-container">
+        <div class="bear-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+        </div>
+        <div class="bear-speech" id="bearSpeech2">Бросай кубик и двигайся по полю!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ЭКРАН ЗАВЕРШЕНИЯ ЭТАПА 2 ===== -->
+  <div class="screen" id="stage2Complete">
+    <div class="card" style="text-align:center;">
+      <h2 style="color:var(--game-success); font-size:1.8rem;">🏆 Этап 2 пройден!</h2>
+      <div class="stars-display" id="stage2Stars"></div>
+      <p style="font-size:1.2rem; margin:15px 0;">
+        Верных ответов: <strong id="stage2Correct">0</strong><br>
+        Баллы: <strong id="stage2Score">0</strong>
+      </p>
+      <div class="artifact-final" id="stage2Artifact">🗺️</div>
+      <p style="font-size:1rem; color:var(--game-muted);">Ты собрал карту!</p>
+      <div class="bear-container">
+        <div class="bear-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+        </div>
+        <div class="bear-speech" id="stage2BearSpeech">Ура! Мы добрались до финиша!</div>
+      </div>
+      <button class="btn btn-primary btn-large" onclick="goToStage3()">Перейти к этапу 3 →</button>
+    </div>
+  </div>
+
+  <!-- ===== ЭТАП 3: КВЕСТ ===== -->
+  <div class="screen" id="stage3Screen">
+    <div class="stage-tabs">
+      <div class="stage-tab completed">Этап 1 ✓</div>
+      <div class="stage-tab completed">Этап 2 ✓</div>
+      <div class="stage-tab active">Этап 3: Квест</div>
+    </div>
+
+    <!-- Маршрут -->
+    <div class="route-map" id="routeMap3">
+      <div class="route-point completed" id="rp3-0">🏠</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp3-1">2</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp3-2">3</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp3-3">4</div>
+      <div class="route-line"></div>
+      <div class="route-point upcoming" id="rp3-4">🏆</div>
+    </div>
+
+    <div class="card">
+      <h2 style="color:var(--game-primary); text-align:center; margin-bottom:15px;">🎯 Квест</h2>
+      
+      <div class="quest-scene" id="questScene">
+        <div class="quest-scene-image" id="questImage">🌲</div>
+        <div class="quest-text" id="questText"></div>
+        <div class="quest-choices" id="questChoices"></div>
+        <div id="questFeedback"></div>
+      </div>
+
+      <div class="bear-container">
+        <div class="bear-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+        </div>
+        <div class="bear-speech" id="bearSpeech3">Выбирай путь внимательно!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ФИНАЛЬНЫЙ ЭКРАН ===== -->
+  <div class="screen" id="finalScreen">
+    <div class="card final-screen">
+      <h2 style="color:var(--game-primary); font-size:2rem;">🎊 Игра пройдена!</h2>
+      <div class="final-stars" id="finalStars"></div>
+      <div class="final-score" id="finalScore">0</div>
+      <p style="font-size:1.2rem;">общих баллов</p>
+      <p style="font-size:1.1rem; margin:15px 0;">
+        Верных ответов: <strong id="finalCorrect">0</strong><br>
+        Ошибок: <strong id="finalWrong">0</strong>
+      </p>
+      <div class="artifact-final">🗺️✨</div>
+      <p style="font-size:1rem; color:var(--game-muted); margin:10px 0;">Ты собрал все артефакты!</p>
+      <div class="bear-container">
+        <div class="bear-avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%23D4A574'/%3E%3Ccircle cx='60' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='140' cy='50' r='25' fill='%23C4956A'/%3E%3Ccircle cx='60' cy='50' r='15' fill='%23FFB6C1'/%3E%3Ccircle cx='140' cy='50' r='15' fill='%23FFB6C1'/%3E%3Cellipse cx='100' cy='110' rx='70' ry='65' fill='%23E8C9A0'/%3E%3Ccircle cx='75' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='125' cy='90' r='12' fill='%23333'/%3E%3Ccircle cx='78' cy='87' r='4' fill='white'/%3E%3Ccircle cx='128' cy='87' r='4' fill='white'/%3E%3Cellipse cx='100' cy='115' rx='12' ry='8' fill='%23333'/%3E%3Cpath d='M 85 125 Q 100 140 115 125' stroke='%23333' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Мишка">
+        </div>
+        <div class="bear-speech" id="finalBearSpeech">Ты настоящий знаток согласных букв!</div>
+      </div>
+      <button class="btn btn-primary btn-large" onclick="restartGame()">🔄 Играть снова!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ДАННЫЕ ИГРЫ =====
+
+// Банк заданий этапа 1 (10 заданий)
+const stage1Bank = [
+  {
+    question: 'Сколько согласных звуков в слове «кот»?',
+    answer: '3',
+    explanation: 'В слове «кот» три согласных звука: [к], [о] — гласный, [т]. Подожди! На самом деле: к-о-т — согласные [к] и [т], гласный [о]. Значит 2 согласных звука.',
+    correctAnswer: '2',
+    type: 'input'
+  },
+  {
+    question: 'Какая согласная буква стоит первой в слове «дом»?',
+    answer: 'д',
+    explanation: 'Слово «дом» начинается с буквы «д» — это согласная буква, она обозначает звук [д].',
+    correctAnswer: 'д',
+    type: 'input'
+  },
+  {
+    question: 'Сколько согласных букв в слове «школа»?',
+    answer: '3',
+    explanation: 'В слове «школа» буквы: ш-к-о-л-а. Согласные: ш, к, л — их три! О и а — гласные.',
+    correctAnswer: '3',
+    type: 'input'
+  },
+  {
+    question: 'Выбери согласную букву:',
+    options: ['а', 'м'],
+    answer: 'м',
+    explanation: 'Буква «м» — согласная, она обозначает звук [м]. А буква «а» — гласная.',
+    correctAnswer: 'м',
+    type: 'choice'
+  },
+  {
+    question: 'Сколько согласных звуков в слове «зонт»?',
+    answer: '3',
+    explanation: 'В слове «зонт» звуки: [з], [о], [н], [т]. Согласные: [з], [н], [т] — их три!',
+    correctAnswer: '3',
+    type: 'input'
+  },
+  {
+    question: 'Какая согласная буква стоит в конце этого могучего дерева? 🌳<div class="word-description">дуб — могучее дерево из трёх букв</div>',
+    answer: 'б',
+    explanation: 'Слово «дуб» заканчивается буквой «б» — это согласная буква. Звук [б] здесь глухой, потому что стоит в конце слова.',
+    correctAnswer: 'б',
+    type: 'input'
+  },
+  {
+    question: 'Сколько согласных в слове «слон»?',
+    answer: '3',
+    explanation: 'В слове «слон» буквы: с-л-о-н. Согласные: с, л, н — три согласные буквы!',
+    correctAnswer: '3',
+    type: 'input'
+  },
+  {
+    question: 'Выбери слово, в котором больше согласных букв:',
+    options: ['кот', 'слон'],
+    answer: 'слон',
+    explanation: 'В слове «кот» 2 согласных (к, т), а в слове «слон» — 3 согласных (с, л, н). Значит, в слове «слон» согласных больше!',
+    correctAnswer: 'слон',
+    type: 'choice'
+  },
+  {
+    question: 'Какая согласная буква первая в слове «рыба»?',
+    answer: 'р',
+    explanation: 'Слово «рыба» начинается с буквы «р» — это согласная буква, она обозначает звук [р].',
+    correctAnswer: 'р',
+    type: 'input'
+  },
+  {
+    question: 'Сколько согласных букв в слове «книга»?',
+    answer: '3',
+    explanation: 'В слове «книга» буквы: к-н-и-г-а. Согласные: к, н, г — их три! И и а — гласные.',
+    correctAnswer: '3',
+    type: 'input'
+  }
+];
+
+// Задания для клеток этапа 2 (26 заданий)
+const stage2CellTasks = [
+  { question: 'Сколько согласных в слове «мама»?', options: ['1', '2', '3'], answer: 1, explanation: 'В слове «мама» две согласные буквы: м и м.' },
+  { question: 'Какой звук обозначает буква «ж»?', options: ['Гласный', 'Согласный'], answer: 1, explanation: 'Буква «ж» обозначает согласный звук [ж]. Это всегда согласный!' },
+  { question: 'Выбери согласную букву:', options: ['у', 'с', 'о'], answer: 1, explanation: 'Буква «с» — согласная. Буквы «у» и «о» — гласные.' },
+  { question: 'Сколько согласных в слове «лес»?', options: ['1', '2', '3'], answer: 1, explanation: 'В слове «лес» две согласные буквы: л и с. Буква е — гласная.' },
+  { question: 'Какая буква лишняя: б, в, а, г?', options: ['б', 'в', 'а', 'г'], answer: 2, explanation: 'Буква «а» — гласная, а остальные (б, в, г) — согласные. Значит, «а» лишняя!' },
+  { question: 'Сколько согласных звуков в слове «стул»?', options: ['2', '3', '4'], answer: 1, explanation: 'В слове «стул» звуки: [с], [т], [у], [л]. Согласные: [с], [т], [л] — три согласных звука!' },
+  { question: 'Выбери слово только с согласными буквами:', options: ['мд', 'ао', 'уы'], answer: 0, explanation: '«мд» — только согласные буквы. «ао» и «уы» — только гласные.' },
+  { question: 'Какая буква стоит между согласными в слове «кот»?', options: ['к', 'о', 'т'], answer: 1, explanation: 'В слове «кот» буква «о» стоит между «к» и «т». Это гласная буква!' },
+  { question: 'Сколько согласных в слове «друг»?', options: ['2', '3', '4'], answer: 1, explanation: 'В слове «друг» буквы: д-р-у-г. Согласные: д, р, г — три согласные буквы!' },
+  { question: 'Буква «й» — это:', options: ['Гласная', 'Согласная'], answer: 1, explanation: 'Буква «й» — согласная! Она обозначает звук [й] и всегда согласная.' },
+  { question: 'Сколько согласных в слове «школа»?', options: ['2', '3', '4'], answer: 1, explanation: 'В слове «школа» согласные: ш, к, л — три согласных буквы!' },
+  { question: 'Какая буква обозначает два звука?', options: ['м', 'я', 'с'], answer: 1, explanation: 'Буква «я» может обозначать два звука [йа] в начале слова или после гласной.' },
+  { question: 'Выбери гласную букву:', options: ['м', 'а', 'с'], answer: 1, explanation: 'Буква «а» — гласная. Буквы «м» и «с» — согласные.' },
+  { question: 'Сколько согласных в слове «дом»?', options: ['1', '2', '3'], answer: 1, explanation: 'В слове «дом» две согласные буквы: д и м. Буква о — гласная.' },
+  { question: 'Какая первая буква в слове «кот»?', options: ['к', 'о', 'т'], answer: 0, explanation: 'Слово «кот» начинается с буквы «к» — это согласная буква.' },
+  { question: 'Сколько букв в слове «слон»?', options: ['3', '4', '5'], answer: 1, explanation: 'В слове «слон» 4 буквы: с-л-о-н.' },
+  { question: 'Выбери согласную:', options: ['и', 'л', 'у'], answer: 1, explanation: 'Буква «л» — согласная. Буквы «и» и «у» — гласные.' },
+  { question: 'Сколько согласных в слове «зонт»?', options: ['2', '3', '4'], answer: 1, explanation: 'В слове «зонт» три согласные буквы: з, н, т.' },
+  { question: 'Какая последняя буква в слове «дом»?', options: ['д', 'о', 'м'], answer: 2, explanation: 'Слово «дом» заканчивается буквой «м» — это согласная буква.' },
+  { question: 'Сколько гласных в слове «кот»?', options: ['1', '2', '3'], answer: 0, explanation: 'В слове «кот» одна гласная буква — о. Согласные: к и т.' },
+  // НОВЫЕ ЗАДАНИЯ ПО ЗАПРОСУ ПОЛЬЗОВАТЕЛЯ
+  { question: 'Какие согласные всегда обозначают мягкие звуки?', options: ['ж, ш, ц', 'й, ч, щ', 'б, в, г'], answer: 1, explanation: 'Буквы й, ч, щ всегда обозначают только мягкие согласные звуки! Запомни: й, ч, щ — всегда мягкие!' },
+  { question: 'Какие согласные буквы всегда обозначают твёрдые звуки?', options: ['й, ч, щ', 'ж, ш, ц', 'б, в, г'], answer: 1, explanation: 'Буквы ж, ш, ц всегда обозначают только твёрдые согласные звуки! Запомни: ж, ш, ц — всегда твёрдые!' },
+  { question: 'Сколько всего букв в русском алфавите?', options: ['30', '33', '35'], answer: 1, explanation: 'В русском алфавите 33 буквы! Это нужно запомнить как таблицу умножения!' },
+  { question: 'Сколько всего гласных букв в русском алфавите?', options: ['6', '10', '12'], answer: 1, explanation: 'В русском алфавите 10 гласных букв: а, о, у, ы, э, я, ю, е, ё, и.' },
+  { question: 'Сколько всего согласных букв в русском алфавите?', options: ['18', '21', '24'], answer: 1, explanation: 'В русском алфавите 21 согласная буква! Запомни: всего 33 буквы, из них 10 гласных, 21 согласная и 2 знака (ъ и ь).' },
+  { question: 'Выбери парные согласные:', options: ['й, ч, щ', 'б-п, в-ф, г-к', 'ж, ш, ц'], answer: 1, explanation: 'Парные согласные — это б-п, в-ф, г-к, д-т, ж-ш, з-с. У них есть пара: твёрдый-мягкий, звонкий-глухой.' }
+];
+
+// Квест — дерево решений (6 ситуаций)
+const questTree = {
+  1: {
+    text: 'Медвежонок Мишка нашёл в лесу табличку со словом «дом». Он хочет узнать, сколько в этом слове согласных букв. Что ему сделать?',
+    image: '🌲',
+    choices: [
+      { text: 'Посчитать все буквы по порядку: д-о-м', next: 2, correct: true },
+      { text: 'Сказать, что все буквы согласные', next: 3, correct: false }
+    ]
+  },
+  2: {
+    text: 'Мишка правильно решил считать по порядку! Он нашёл буквы: д, о, м. Теперь нужно определить, какие из них согласные. Что делать?',
+    image: '🤔',
+    choices: [
+      { text: 'Проверить каждую: д — согласная, о — гласная, м — согласная', next: 4, correct: true },
+      { text: 'Сказать, что «о» — тоже согласная', next: 5, correct: false }
+    ]
+  },
+  3: {
+    text: 'Ой-ой! Мишка сказал, что все буквы согласные. Но буква «о» — это гласная! Нужно исправить ошибку.',
+    image: '😅',
+    choices: [
+      { text: 'Извиниться и пересчитать правильно', next: 4, correct: true },
+      { text: 'Настоять на своём', next: 6, correct: false }
+    ]
+  },
+  4: {
+    text: 'Отлично! Мишка выяснил, что в слове «дом» две согласные буквы: д и м. Теперь он встретил зайца, который несёт слово «слон». Сколько в нём согласных?',
+    image: '🐰',
+    choices: [
+      { text: 'Посчитать: с-л-о-н → с, л, н = 3 согласных', next: 'good', correct: true },
+      { text: 'Сказать: 4 согласных, потому что 4 буквы', next: 6, correct: false }
+    ]
+  },
+  5: {
+    text: 'Мишка решил, что «о» — согласная. Но это не так! Гласные буквы — это а, о, у, ы, э, я, ю, е, ё, и. Нужно запомнить!',
+    image: '📚',
+    choices: [
+      { text: 'Запомнить правило и идти дальше', next: 'good', correct: true },
+      { text: 'Забыть правило и пойти по другой дороге', next: 6, correct: false }
+    ]
+  },
+  6: {
+    text: 'Мишка запутался и пошёл не туда. Он оказался в тупике! Нужно вернуться и вспомнить правило о согласных буквах.',
+    image: '🚧',
+    choices: [
+      { text: 'Вернуться и выучить правило', next: 'bad', correct: false },
+      { text: 'Попросить помощи у друга', next: 'bad', correct: false }
+    ]
+  }
+};
+
+// Реплики медвежонка
+const bearPhrases = {
+  correct: [
+    'Молодец! Ты отлично знаешь согласные буквы! 🌟',
+    'Правильно! Ты настоящий знаток! ⭐',
+    'Отлично! Так держать! 🌟',
+    'Супер! Ты очень умный! 🐻'
+  ],
+  wrong: [
+    'Не расстраивайся! Давай разберёмся вместе! 💪',
+    'Почти получилось! Попробуй ещё раз! 😊',
+    'Ничего страшного! Ошибки помогают учиться! 📚',
+    'Не переживай! В следующий раз получится! ⭐'
+  ],
+  hint: [
+    'Подсказка: согласные буквы — это все, кроме гласных! 🤔',
+    'Вспомни: гласные — а, о, у, ы, э, я, ю, е, ё, и! 💡',
+    'Посчитай буквы по порядку! 🔢',
+    'Согласные не поются, а гласные — поются! 🎵'
+  ],
+  final: [
+    'Ты прошёл все испытания! Я горжусь тобой! 🎉',
+    'Мы отлично поработали вместе! 🐻⭐',
+    'Ты настоящий герой русского языка! 🎊',
+    'До новых встреч! Приходи ещё! 👋'
+  ]
+};
+
+// ===== СОСТОЯНИЕ ИГРЫ =====
+let gameState = {
+  totalScore: 0,
+  totalCorrect: 0,
+  totalWrong: 0,
+  currentStage: 0,
+  // Этап 1
+  stage1Tasks: [],
+  stage1Current: 0,
+  stage1Correct: 0,
+  stage1Wrong: 0,
+  stage1Answered: false,
+  // Этап 2
+  stage2Position: 0,
+  stage2Correct: 0,
+  stage2Wrong: 0,
+  stage2Answered: false,
+  stage2Artifacts: [],
+  // Этап 3
+  stage3Node: 1,
+  stage3Correct: 0,
+  stage3Wrong: 0,
+  stage3Artifacts: [],
+  stage3Depth: 0
+};
+
+// ===== УТИЛИТЫ =====
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getRandomPhrase(category) {
+  const phrases = bearPhrases[category];
+  return phrases[Math.floor(Math.random() * phrases.length)];
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateScore() {
+  document.getElementById('totalScore').textContent = gameState.totalScore;
+}
+
+function updateProgress(current, total, stageName) {
+  const pct = (current / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Задание ${current} из ${total}`;
+  document.getElementById('progressStage').textContent = stageName;
+}
+
+function showConfetti() {
+  const colors = ['#FF6B35', '#FFD23F', '#4ECDC4', '#4CAF50', '#9B59B6', '#FF6B9D'];
+  for (let i = 0; i < 30; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 2 + 's';
+    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+  }
+}
+
+function renderStars(containerId, count, max = 3) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < max; i++) {
+    const star = document.createElement('span');
+    star.className = 'star' + (i < count ? ' earned' : '');
+    star.textContent = '⭐';
+    container.appendChild(star);
+  }
+}
+
+function addArtifact(artifact) {
+  const items = document.getElementById('inventoryItems');
+  const item = document.createElement('div');
+  item.className = 'inventory-item';
+  item.textContent = artifact;
+  items.appendChild(item);
+}
+
+// ===== СТАРТ ИГРЫ =====
+function startGame() {
+  gameState.currentStage = 1;
+  document.getElementById('inventory').classList.remove('hidden');
+  document.getElementById('stageIndicator').textContent = 'Этап 1 из 3';
+  initStage1();
+  showScreen('stage1Screen');
+}
+
+// ===== ЭТАП 1: ТРЕНАЖЁР =====
+function initStage1() {
+  // Выбираем 5 случайных заданий из 10
+  const shuffled = shuffleArray(stage1Bank);
+  gameState.stage1Tasks = shuffled.slice(0, 5);
+  gameState.stage1Current = 0;
+  gameState.stage1Correct = 0;
+  gameState.stage1Wrong = 0;
+  gameState.stage1Answered = false;
+  
+  updateProgress(0, 5, 'Этап 1');
+  showTask();
+}
+
+function showTask() {
+  const task = gameState.stage1Tasks[gameState.stage1Current];
+  document.getElementById('taskQuestion').innerHTML = task.question;
+  document.getElementById('taskFeedback').innerHTML = '';
+  document.getElementById('nextTaskBtn').classList.add('hidden');
+  gameState.stage1Answered = false;
+  
+  const inputArea = document.getElementById('taskInputArea');
+  inputArea.innerHTML = '';
+  
+  if (task.type === 'input') {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'task-input';
+    input.id = 'taskAnswer';
+    input.placeholder = 'Введи ответ...';
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkStage1Answer();
+    });
+    inputArea.appendChild(input);
+    
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.textContent = 'Проверить ✓';
+    btn.style.marginTop = '10px';
+    btn.onclick = checkStage1Answer;
+    inputArea.appendChild(btn);
+  } else if (task.type === 'choice') {
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'task-options';
+    task.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = () => checkStage1Choice(opt, btn);
+      optionsDiv.appendChild(btn);
+    });
+    inputArea.appendChild(optionsDiv);
+  }
+  
+  document.getElementById('bearSpeech1').textContent = getRandomPhrase('hint');
+  updateProgress(gameState.stage1Current, 5, 'Этап 1');
+}
+
+function checkStage1Answer() {
+  if (gameState.stage1Answered) return;
+  
+  const task = gameState.stage1Tasks[gameState.stage1Current];
+  const input = document.getElementById('taskAnswer');
+  const userAnswer = input.value.trim().toLowerCase();
+  const correct = userAnswer === task.correctAnswer.toLowerCase();
+  
+  gameState.stage1Answered = true;
+  showStage1Feedback(correct, task);
+}
+
+function checkStage1Choice(choice, btn) {
+  if (gameState.stage1Answered) return;
+  
+  const task = gameState.stage1Tasks[gameState.stage1Current];
+  const correct = choice === task.correctAnswer;
+  
+  gameState.stage1Answered = true;
+  
+  // Подсветка кнопок
+  document.querySelectorAll('.option-btn').forEach(b => {
+    if (b.textContent === task.correctAnswer) b.classList.add('correct');
+    if (b === btn && !correct) b.classList.add('wrong');
+    b.style.pointerEvents = 'none';
+  });
+  
+  showStage1Feedback(correct, task);
+}
+
+function showStage1Feedback(correct, task) {
+  const feedback = document.getElementById('taskFeedback');
+  
+  if (correct) {
+    gameState.stage1Correct++;
+    gameState.totalCorrect++;
+    gameState.totalScore++;
+    updateScore();
+    feedback.innerHTML = `
+      <div class="feedback correct">
+        <div class="feedback-icon">✅</div>
+        <strong>Отлично!</strong><br>
+        ${task.explanation}
+      </div>
+    `;
+    document.getElementById('bearSpeech1').textContent = getRandomPhrase('correct');
+  } else {
+    gameState.stage1Wrong++;
+    gameState.totalWrong++;
+    feedback.innerHTML = `
+      <div class="feedback wrong">
+        <div class="feedback-icon">❌</div>
+        <strong>Почти! Попробуй ещё раз.</strong><br>
+        Правильный ответ: <strong>${task.correctAnswer}</strong><br>
+        ${task.explanation}
+      </div>
+    `;
+    document.getElementById('bearSpeech1').textContent = getRandomPhrase('wrong');
+  }
+  
+  updateProgress(gameState.stage1Current + 1, 5, 'Этап 1');
+  document.getElementById('nextTaskBtn').classList.remove('hidden');
+}
+
+function nextTask() {
+  gameState.stage1Current++;
+  if (gameState.stage1Current >= 5) {
+    completeStage1();
+  } else {
+    showTask();
+  }
+}
+
+function completeStage1() {
+  const stars = gameState.stage1Correct >= 4 ? 3 : gameState.stage1Correct >= 3 ? 2 : gameState.stage1Correct >= 2 ? 1 : 0;
+  
+  document.getElementById('stage1Correct').textContent = gameState.stage1Correct;
+  document.getElementById('stage1Score').textContent = gameState.stage1Correct;
+  renderStars('stage1Stars', stars);
+  
+  const speeches = [
+    'Молодец! Ты отлично справился с заданиями!',
+    'Хорошая работа! Продолжай в том же духе!',
+    'Неплохо! Но можно ещё лучше!',
+    'Не расстраивайся! Попробуй ещё раз!'
+  ];
+  document.getElementById('stage1BearSpeech').textContent = speeches[Math.min(stars, 3)];
+  
+  showScreen('stage1Complete');
+  showConfetti();
+}
+
+// ===== ЭТАП 2: БРОДИЛКА =====
+function goToStage2() {
+  gameState.currentStage = 2;
+  document.getElementById('stageIndicator').textContent = 'Этап 2 из 3';
+  initStage2();
+  showScreen('stage2Screen');
+}
+
+function initStage2() {
+  gameState.stage2Position = 0;
+  gameState.stage2Correct = 0;
+  gameState.stage2Wrong = 0;
+  gameState.stage2Answered = false;
+  gameState.stage2Artifacts = [];
+  document.getElementById('inventoryItems').innerHTML = '';
+  
+  // Создаём игровое поле 20 клеток
+  const board = document.getElementById('boardGame');
+  board.innerHTML = '';
+  
+  const cellTypes = [];
+  // Клетка 1 - старт
+  cellTypes.push('start');
+  // Клетки 2-19 - обычные (все с заданиями)
+  for (let i = 1; i < 19; i++) {
+    cellTypes.push('normal');
+  }
+  // Клетка 20 - финиш
+  cellTypes.push('finish');
+  
+  const cellIcons = { start: '🏠', finish: '🏁', normal: '❓' };
+  
+  for (let i = 0; i < 20; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'board-cell ' + cellTypes[i];
+    cell.id = 'cell-' + i;
+    cell.innerHTML = `<span>${i + 1}</span>`;
+    if (cellIcons[cellTypes[i]]) {
+      cell.innerHTML += `<span class="cell-icon">${cellIcons[cellTypes[i]]}</span>`;
+    }
+    board.appendChild(cell);
+  }
+  
+  // Размещаем игрока на старте
+  placePlayer(0);
+  
+  document.getElementById('rollDiceBtn').classList.remove('hidden');
+  document.getElementById('cellTaskArea').classList.add('hidden');
+  document.getElementById('bearSpeech2').textContent = 'Бросай кубик и двигайся по полю!';
+  
+  updateProgress(0, 19, 'Этап 2');
+  updateRouteMap2(0);
+}
+
+function placePlayer(pos) {
+  // Убираем старого игрока
+  document.querySelectorAll('.player-token').forEach(t => t.remove());
+  document.querySelectorAll('.board-cell').forEach(c => c.classList.remove('current'));
+  
+  const cell = document.getElementById('cell-' + pos);
+  if (cell) {
+    cell.classList.add('current');
+    const token = document.createElement('div');
+    token.className = 'player-token';
+    token.textContent = '🐻';
+    cell.appendChild(token);
+  }
+}
+
+function updateRouteMap2(pos) {
+  const routePoints = 5;
+  const step = Math.floor(19 / (routePoints - 1));
+  
+  for (let i = 0; i < routePoints; i++) {
+    const rp = document.getElementById('rp2-' + i);
+    const pointPos = i * step;
+    rp.className = 'route-point';
+    if (pos >= pointPos) rp.classList.add('completed');
+    else if (pos >= pointPos - step/2) rp.classList.add('current');
+    else rp.classList.add('upcoming');
+  }
+}
+
+function rollDice() {
+  if (gameState.stage2Answered) return;
+  
+  const dice = document.getElementById('diceDisplay');
+  dice.classList.add('rolling');
+  
+  // Анимация броска
+  let rolls = 0;
+  const rollInterval = setInterval(() => {
+    dice.textContent = Math.floor(Math.random() * 6) + 1;
+    rolls++;
+    if (rolls > 10) {
+      clearInterval(rollInterval);
+      const result = Math.floor(Math.random() * 6) + 1;
+      dice.textContent = result;
+      dice.classList.remove('rolling');
+      movePlayer(result);
+    }
+  }, 100);
+}
+
+function movePlayer(steps) {
+  let newPos = gameState.stage2Position + steps;
+  if (newPos > 19) newPos = 19;
+  
+  // Анимация движения
+  let currentPos = gameState.stage2Position;
+  const moveInterval = setInterval(() => {
+    if (currentPos < newPos) {
+      currentPos++;
+      placePlayer(currentPos);
+    } else {
+      clearInterval(moveInterval);
+      gameState.stage2Position = newPos;
+      onCellArrive(newPos);
+    }
+  }, 300);
+}
+
+function onCellArrive(pos) {
+  const cell = document.getElementById('cell-' + pos);
+  const cellType = cell.className.replace('board-cell ', '').replace(' current', '');
+  
+  updateRouteMap2(pos);
+  updateProgress(pos, 19, 'Этап 2');
+  
+  if (pos === 19) {
+    // Финиш
+    completeStage2();
+  } else {
+    // Обычная клетка — задание
+    showCellTask(pos);
+  }
+}
+
+function showCellTask(pos) {
+  const taskIdx = pos % stage2CellTasks.length;
+  const task = stage2CellTasks[taskIdx];
+  
+  document.getElementById('cellTaskQuestion').textContent = task.question;
+  document.getElementById('cellTaskFeedback').innerHTML = '';
+  document.getElementById('cellTaskArea').classList.remove('hidden');
+  gameState.stage2Answered = false;
+  
+  const optionsDiv = document.getElementById('cellTaskOptions');
+  optionsDiv.innerHTML = '';
+  optionsDiv.className = 'task-options';
+  
+  task.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => checkCellAnswer(idx, btn, task);
+    optionsDiv.appendChild(btn);
+  });
+  
+  document.getElementById('bearSpeech2').textContent = getRandomPhrase('hint');
+}
+
+function checkCellAnswer(idx, btn, task) {
+  if (gameState.stage2Answered) return;
+  gameState.stage2Answered = true;
+  
+  const correct = idx === task.answer;
+  
+  document.querySelectorAll('#cellTaskOptions .option-btn').forEach(b => {
+    b.style.pointerEvents = 'none';
+  });
+  
+  if (correct) {
+    btn.classList.add('correct');
+    gameState.stage2Correct++;
+    gameState.totalCorrect++;
+    gameState.totalScore++;
+    updateScore();
+    addArtifact('🧩');
+    gameState.stage2Artifacts.push('🧩');
+    
+    document.getElementById('cellTaskFeedback').innerHTML = `
+      <div class="feedback correct">
+        <div class="feedback-icon">✅</div>
+        <strong>Отлично!</strong><br>${task.explanation}
+      </div>
+    `;
+    document.getElementById('bearSpeech2').textContent = getRandomPhrase('correct');
+  } else {
+    btn.classList.add('wrong');
+    // Подсветить правильный
+    document.querySelectorAll('#cellTaskOptions .option-btn')[task.answer].classList.add('correct');
+    gameState.stage2Wrong++;
+    gameState.totalWrong++;
+    
+    document.getElementById('cellTaskFeedback').innerHTML = `
+      <div class="feedback wrong">
+        <div class="feedback-icon">❌</div>
+        <strong>Почти! Попробуй ещё раз.</strong><br>${task.explanation}
+      </div>
+    `;
+    document.getElementById('bearSpeech2').textContent = getRandomPhrase('wrong');
+  }
+  
+  setTimeout(() => checkStage2Continue(), 2500);
+}
+
+function checkStage2Continue() {
+  // Сбрасываем флаг ответа
+  gameState.stage2Answered = false;
+  
+  if (gameState.stage2Position >= 19) {
+    completeStage2();
+  } else {
+    document.getElementById('cellTaskArea').classList.add('hidden');
+    document.getElementById('rollDiceBtn').classList.remove('hidden');
+    document.getElementById('bearSpeech2').textContent = 'Бросай кубик ещё раз!';
+  }
+}
+
+function completeStage2() {
+  const total = gameState.stage2Correct + gameState.stage2Wrong;
+  const pct = total > 0 ? (gameState.stage2Correct / total) * 100 : 0;
+  const stars = pct >= 100 ? 3 : pct >= 75 ? 2 : pct >= 50 ? 1 : 0;
+  
+  document.getElementById('stage2Correct').textContent = gameState.stage2Correct;
+  document.getElementById('stage2Score').textContent = gameState.stage2Correct;
+  renderStars('stage2Stars', stars);
+  
+  const speeches = [
+    'Ура! Мы добрались до финиша! Ты собрал карту!',
+    'Отличная прогулка! Карта почти собрана!',
+    'Хорошо получилось! Продолжай!',
+    'Не расстраивайся! В следующий раз будет лучше!'
+  ];
+  document.getElementById('stage2BearSpeech').textContent = speeches[Math.min(stars, 3)];
+  
+  showScreen('stage2Complete');
+  showConfetti();
+}
+
+// ===== ЭТАП 3: КВЕСТ =====
+function goToStage3() {
+  gameState.currentStage = 3;
+  document.getElementById('stageIndicator').textContent = 'Этап 3 из 3';
+  initStage3();
+  showScreen('stage3Screen');
+}
+
+function initStage3() {
+  gameState.stage3Node = 1;
+  gameState.stage3Correct = 0;
+  gameState.stage3Wrong = 0;
+  gameState.stage3Artifacts = [];
+  gameState.stage3Depth = 0;
+  document.getElementById('inventoryItems').innerHTML = '';
+  
+  showQuestNode(1);
+  updateRouteMap3(0);
+  updateProgress(0, 6, 'Этап 3');
+}
+
+function updateRouteMap3(depth) {
+  const routePoints = 5;
+  for (let i = 0; i < routePoints; i++) {
+    const rp = document.getElementById('rp3-' + i);
+    rp.className = 'route-point';
+    if (i <= depth) rp.classList.add('completed');
+    else if (i === depth + 1) rp.classList.add('current');
+    else rp.classList.add('upcoming');
+  }
+}
+
+function showQuestNode(nodeId) {
+  if (nodeId === 'good') {
+    completeStage3(true);
+    return;
+  }
+  if (nodeId === 'bad') {
+    completeStage3(false);
+    return;
+  }
+  
+  const node = questTree[nodeId];
+  if (!node) return;
+  
+  document.getElementById('questImage').textContent = node.image;
+  document.getElementById('questText').textContent = node.text;
+  document.getElementById('questFeedback').innerHTML = '';
+  
+  const choicesDiv = document.getElementById('questChoices');
+  choicesDiv.innerHTML = '';
+  
+  node.choices.forEach((choice, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = (idx + 1) + '. ' + choice.text;
+    btn.onclick = () => makeQuestChoice(choice, btn);
+    choicesDiv.appendChild(btn);
+  });
+  
+  document.getElementById('bearSpeech3').textContent = getRandomPhrase('hint');
+}
+
+function makeQuestChoice(choice, btn) {
+  // Блокируем кнопки
+  document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
+  
+  gameState.stage3Depth++;
+  updateRouteMap3(Math.min(gameState.stage3Depth, 4));
+  updateProgress(gameState.stage3Depth, 6, 'Этап 3');
+  
+  if (choice.correct) {
+    gameState.stage3Correct++;
+    gameState.totalCorrect++;
+    gameState.totalScore++;
+    updateScore();
+    addArtifact('🧩');
+    gameState.stage3Artifacts.push('🧩');
+    
+    btn.style.background = 'var(--game-success)';
+    btn.style.color = 'white';
+    document.getElementById('questFeedback').innerHTML = `
+      <div class="feedback correct">
+        <div class="feedback-icon">✅</div>
+        <strong>Отлично!</strong> Правильный выбор!
+      </div>
+    `;
+    document.getElementById('bearSpeech3').textContent = getRandomPhrase('correct');
+  } else {
+    gameState.stage3Wrong++;
+    gameState.totalWrong++;
+    
+    btn.style.background = 'var(--game-error)';
+    btn.style.color = 'white';
+    document.getElementById('questFeedback').innerHTML = `
+      <div class="feedback wrong">
+        <div class="feedback-icon">❌</div>
+        <strong>Почти! Попробуй ещё раз.</strong> Этот путь не привёл к цели.
+      </div>
+    `;
+    document.getElementById('bearSpeech3').textContent = getRandomPhrase('wrong');
+  }
+  
+  setTimeout(() => {
+    showQuestNode(choice.next);
+  }, 2000);
+}
+
+function completeStage3(goodEnding) {
+  const total = gameState.stage3Correct + gameState.stage3Wrong;
+  const pct = total > 0 ? (gameState.stage3Correct / total) * 100 : 0;
+  const stars = pct >= 100 ? 3 : pct >= 75 ? 2 : pct >= 50 ? 1 : 0;
+  
+  // Показываем финальный экран квеста внутри stage3Screen
+  const questScene = document.getElementById('questScene');
+  if (goodEnding) {
+    questScene.innerHTML = `
+      <div class="quest-scene-image">🏆</div>
+      <div class="quest-text" style="font-size:1.3rem; color:var(--game-success);">
+        <strong>Хороший финал!</strong><br>
+        Медвежонок Мишка успешно разобрался с согласными буквами!
+        Ты помог ему найти правильный путь!
+      </div>
+      <div class="stars-display" id="stage3StarsInline"></div>
+      <p style="font-size:1.1rem;">Верных ответов: ${gameState.stage3Correct} из ${total}</p>
+      <button class="btn btn-primary btn-large" onclick="showFinalScreen()" style="margin-top:20px;">Посмотреть итоги 🎊</button>
+    `;
+    renderStars('stage3StarsInline', stars);
+  } else {
+    questScene.innerHTML = `
+      <div class="quest-scene-image">😔</div>
+      <div class="quest-text" style="font-size:1.3rem; color:var(--game-error);">
+        <strong>Плохой финал...</strong><br>
+        Мишка запутался в согласных буквах. Но не расстраивайся!
+        Можно попробовать ещё раз и найти правильный путь!
+      </div>
+      <div class="stars-display" id="stage3StarsInline2"></div>
+      <p style="font-size:1.1rem;">Верных ответов: ${gameState.stage3Correct} из ${total}</p>
+      <button class="btn btn-primary btn-large" onclick="showFinalScreen()" style="margin-top:20px;">Посмотреть итоги</button>
+    `;
+    renderStars('stage3StarsInline2', stars);
+  }
+  
+  document.getElementById('bearSpeech3').textContent = getRandomPhrase('final');
+  showConfetti();
+}
+
+// ===== ФИНАЛЬНЫЙ ЭКРАН =====
+function showFinalScreen() {
+  const totalCorrect = gameState.totalCorrect;
+  const totalWrong = gameState.totalWrong;
+  const total = totalCorrect + totalWrong;
+  const pct = total > 0 ? (totalCorrect / total) * 100 : 0;
+  const stars = pct >= 80 ? 3 : pct >= 60 ? 2 : pct >= 40 ? 1 : 0;
+  
+  document.getElementById('finalScore').textContent = gameState.totalScore;
+  document.getElementById('finalCorrect').textContent = totalCorrect;
+  document.getElementById('finalWrong').textContent = totalWrong;
+  renderStars('finalStars', stars);
+  
+  const speeches = [
+    'Ты настоящий знаток согласных букв! Горжусь тобой! ',
+    'Отличный результат! Ты многому научился! 👏',
+    'Хорошая работа! Продолжай изучать русский язык! 📚',
+    'Не расстраивайся! Практика — путь к мастерству! 💪'
+  ];
+  document.getElementById('finalBearSpeech').textContent = speeches[Math.min(stars, 3)];
+  
+  showScreen('finalScreen');
+  showConfetti();
+  setTimeout(showConfetti, 1000);
+}
+
+// ===== ПЕРЕЗАПУСК =====
+function restartGame() {
+  gameState = {
+    totalScore: 0,
+    totalCorrect: 0,
+    totalWrong: 0,
+    currentStage: 0,
+    stage1Tasks: [],
+    stage1Current: 0,
+    stage1Correct: 0,
+    stage1Wrong: 0,
+    stage1Answered: false,
+    stage2Position: 0,
+    stage2Correct: 0,
+    stage2Wrong: 0,
+    stage2Answered: false,
+    stage2Artifacts: [],
+    stage3Node: 1,
+    stage3Correct: 0,
+    stage3Wrong: 0,
+    stage3Artifacts: [],
+    stage3Depth: 0
+  };
+  
+  updateScore();
+  document.getElementById('inventory').classList.add('hidden');
+  document.getElementById('inventoryItems').innerHTML = '';
+  document.getElementById('progressFill').style.width = '0%';
+  
+  // Восстанавливаем квест-сцену
+  document.getElementById('questScene').innerHTML = `
+    <div class="quest-scene-image" id="questImage"></div>
+    <div class="quest-text" id="questText"></div>
+    <div class="quest-choices" id="questChoices"></div>
+    <div id="questFeedback"></div>
+  `;
+  
+  showScreen('startScreen');
+}
+</script>
+</body>
+</html>

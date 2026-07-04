@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Морская математика — Соедини вопрос и ответ</title>
+    <style>
+        :root {
+            --game-bg: #fef9f0;
+            --game-card: #fffef9;
+            --game-primary: #ff7b5c;
+            --game-accent: #3cc5c0;
+            --game-text: #2c3e50;
+            --game-success: #5cb85c;
+            --game-error: #e8735a;
+            --game-muted: #e8d5c4;
+            --game-sky: #c9e8f7;
+            --game-sand: #f5e1c8;
+            --game-wave1: #7ec8e3;
+            --game-wave2: #a3d9ed;
+            --game-star: #ffb347;
+            --game-comic-border: #3a2f28;
+            --game-bubble: #fffef7;
+            --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.12);
+            --radius-card: 18px;
+            --radius-btn: 28px;
+            --font-comic: 'Segoe UI', 'Trebuchet MS', 'Comic Sans MS', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-comic);
+            /* Увеличенный базовый размер шрифта */
+            font-size: 1.125rem; /* 18px */
+            background: linear-gradient(180deg, #d4eefb 0%, #c9e4f5 15%, #fef7ed 40%, #fce8d5 70%, #f5dcc3 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* Декоративные облака */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 3%;
+            left: 5%;
+            width: 120px;
+            height: 55px;
+            background: radial-gradient(ellipse at 30% 40%, #fff 0%, #e8f4fb 60%, transparent 70%),
+                radial-gradient(ellipse at 50% 25%, #fff 0%, #eef7fc 55%, transparent 70%),
+                radial-gradient(ellipse at 70% 35%, #fff 0%, #e6f2f9 60%, transparent 70%),
+                radial-gradient(ellipse at 40% 50%, #fff 0%, #f0f8fc 65%, transparent 75%);
+            border-radius: 50%;
+            opacity: 0.85;
+            pointer-events: none;
+            z-index: 0;
+            animation: cloudFloat 18s ease-in-out infinite;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 8%;
+            right: 8%;
+            width: 90px;
+            height: 40px;
+            background: radial-gradient(ellipse at 35% 38%, #fff 0%, #eaf5fb 55%, transparent 68%),
+                radial-gradient(ellipse at 55% 30%, #fff 0%, #edf6fc 60%, transparent 72%),
+                radial-gradient(ellipse at 45% 48%, #fff 0%, #f2f9fd 62%, transparent 74%);
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 0;
+            animation: cloudFloat 22s ease-in-out 3s infinite reverse;
+        }
+        @keyframes cloudFloat {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(18px);
+            }
+            50% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(14px);
+            }
+        }
+
+        /* Волны внизу */
+        .waves-decoration {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+        .waves-decoration svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Основной контейнер */
+        .game-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 700px;
+            min-height: 520px;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            border: 5px solid var(--game-comic-border);
+            box-shadow: var(--shadow-card), 0 0 0 8px rgba(255, 255, 255, 0.5), 0 0 0 13px var(--game-comic-border);
+            padding: 20px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: visible;
+        }
+
+        /* Секции экранов */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: fadeSlideIn 0.4s ease-out;
+        }
+        .screen.active {
+            display: flex;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Стартовый экран */
+        .start-screen {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+        }
+        .start-screen .title {
+            font-size: clamp(1.7rem, 4vw, 2.5rem);
+            font-weight: 900;
+            color: var(--game-text);
+            text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.02em;
+            background: linear-gradient(135deg, #ff7b5c, #e8735a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-text-fill-color: #e85d3f;
+            filter: drop-shadow(1px 1px 0 #fff);
+        }
+        .start-screen .subtitle {
+            font-size: 1.1rem;
+            color: #5a7d8c;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+        }
+        .starfish-mascot {
+            width: 90px;
+            height: 90px;
+            transition: transform 0.3s;
+            animation: starBounce 2s ease-in-out infinite;
+            cursor: default;
+        }
+        @keyframes starBounce {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            30% {
+                transform: translateY(-14px) rotate(5deg);
+            }
+            60% {
+                transform: translateY(-4px) rotate(-3deg);
+            }
+            85% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: var(--radius-btn);
+            font-family: var(--font-comic);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            border: 3px solid var(--game-comic-border);
+            transition: all 0.2s;
+            position: relative;
+            text-decoration: none;
+            color: #fff;
+            background: var(--game-primary);
+            box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.2);
+            min-height: 50px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active {
+            transform: translate(2px, 3px);
+            box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+            box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.18);
+        }
+        .btn-accent {
+            background: var(--game-accent);
+            color: #1a3c42;
+        }
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 1rem;
+            min-height: 42px;
+            border-radius: 22px;
+        }
+
+        /* Карта уровней */
+        .level-map {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .level-map h3 {
+            font-size: 1.5rem;
+            color: var(--game-text);
+            text-align: center;
+        }
+        .level-cards {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .level-card {
+            width: 120px;
+            height: 140px;
+            border-radius: var(--radius-card);
+            border: 4px solid var(--game-comic-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            background: var(--game-card);
+            box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.15);
+            transition: all 0.25s;
+            position: relative;
+            text-align: center;
+            font-weight: 700;
+            color: var(--game-text);
+        }
+        .level-card:hover:not(.locked) {
+            transform: translateY(-6px);
+            box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.18);
+            border-color: var(--game-accent);
+        }
+        .level-card.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background: #e8ddd2;
+            filter: grayscale(30%);
+        }
+        .level-card .lock-icon {
+            font-size: 2.2rem;
+        }
+        .level-card .stars-earned {
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+        }
+        .level-card .level-num {
+            font-size: 0.95rem;
+            color: #5a7d8c;
+        }
+        .level-card.completed {
+            border-color: var(--game-success);
+            background: #f6fff6;
+        }
+
+        /* Игровой экран */
+        .game-screen {
+            gap: 8px;
+        }
+        .progress-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .progress-bar-outer {
+            flex: 1;
+            min-width: 100px;
+            height: 16px;
+            background: var(--game-muted);
+            border-radius: 20px;
+            border: 2px solid var(--game-comic-border);
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #ffb347, #ff7b5c);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        .progress-text {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--game-text);
+            white-space: nowrap;
+        }
+        .score-display {
+            background: var(--game-star);
+            color: #5c3d1a;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid var(--game-comic-border);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        /* Поле соединений */
+        .match-field {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            flex: 1;
+            min-height: 280px;
+            align-items: stretch;
+        }
+        .match-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2;
+            justify-content: space-around;
+        }
+        .match-item {
+            background: var(--game-card);
+            border: 3px solid var(--game-comic-border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            /* Увеличенный шрифт в карточках */
+            font-size: clamp(0.9rem, 2.4vw, 1.05rem);
+            text-align: center;
+            transition: all 0.2s;
+            box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+            hyphens: auto;
+            color: var(--game-text);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .match-item:active {
+            transform: scale(0.96);
+        }
+        .match-item.selected {
+            border-color: var(--game-accent);
+            background: #e6faf9;
+            box-shadow: 0 0 0 6px rgba(60, 197, 192, 0.25);
+            animation: pulseSelect 0.8s ease-in-out infinite;
+        }
+        @keyframes pulseSelect {
+            0%,
+            100% {
+                box-shadow: 0 0 0 4px rgba(60, 197, 192, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(60, 197, 192, 0.08);
+            }
+        }
+        .match-item.matched {
+            border-color: var(--game-success);
+            background: #e6ffe6;
+            cursor: default;
+            opacity: 0.8;
+            pointer-events: none;
+            box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .match-item.wrong-flash {
+            animation: shake 0.5s ease;
+            border-color: var(--game-error) !important;
+            background: #ffe8e3 !important;
+        }
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-8px);
+            }
+            40% {
+                transform: translateX(8px);
+            }
+            60% {
+                transform: translateX(-5px);
+            }
+            80% {
+                transform: translateX(4px);
+            }
+        }
+        .match-item.hint-highlight {
+            border-color: #ffb347 !important;
+            background: #fff8e8 !important;
+            animation: hintGlow 0.7s ease 2;
+        }
+        @keyframes hintGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 179, 71, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 14px rgba(255, 179, 71, 0);
+            }
+        }
+
+        /* SVG overlay для линий */
+        .lines-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .lines-overlay line {
+            stroke: var(--game-success);
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+            transition: all 0.3s;
+        }
+
+        /* Персонаж */
+        .mascot-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            min-height: 60px;
+        }
+        .mascot-bubble {
+            background: var(--game-bubble);
+            border: 3px solid var(--game-comic-border);
+            border-radius: 20px 20px 6px 20px;
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            max-width: 260px;
+            color: var(--game-text);
+            box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+            animation: bubblePop 0.35s ease-out;
+        }
+        @keyframes bubblePop {
+            0% {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .mini-starfish {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            animation: starBounce 2.5s ease-in-out infinite;
+        }
+
+        /* Финальный экран */
+        .final-screen {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 14px;
+        }
+        .final-screen h2 {
+            font-size: 1.9rem;
+            color: var(--game-text);
+        }
+        .final-stars {
+            font-size: 3.3rem;
+            letter-spacing: 6px;
+            animation: starPop 0.6s ease-out;
+        }
+        @keyframes starPop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .final-stats {
+            font-size: 1.1rem;
+            color: #5a7d8c;
+            font-weight: 500;
+        }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Конфетти */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            border-radius: 3px;
+            animation: confettiFall 0.9s ease-out forwards;
+        }
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(720deg) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Медиа-запросы */
+        @media (max-width: 600px) {
+            body {
+                /* На мобильных чуть уменьшаем базу, чтобы не было громоздко */
+                font-size: 1rem; /* 16px */
+            }
+            .game-wrapper {
+                padding: 12px 8px 10px;
+                border-radius: 20px;
+                border-width: 4px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 5px rgba(255, 255, 255, 0.4), 0 0 0 9px var(--game-comic-border);
+            }
+            .match-field {
+                gap: 8px;
+                min-height: 240px;
+            }
+            .match-column {
+                gap: 6px;
+            }
+            .match-item {
+                padding: 10px 8px;
+                /* На телефоне шрифт всё равно остаётся крупнее стандартного */
+                font-size: clamp(0.8rem, 2.6vw, 0.9rem);
+                border-radius: 10px;
+                border-width: 2px;
+                min-height: 40px;
+            }
+            .btn {
+                padding: 11px 20px;
+                font-size: 1rem;
+                min-height: 44px;
+            }
+            .level-card {
+                width: 90px;
+                height: 115px;
+                font-size: 0.9rem;
+            }
+            .mascot-bubble {
+                max-width: 180px;
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+            .mini-starfish {
+                width: 40px;
+                height: 40px;
+            }
+            .start-screen .title {
+                font-size: 1.5rem;
+            }
+            .final-screen h2 {
+                font-size: 1.4rem;
+            }
+            .final-stars {
+                font-size: 2.4rem;
+            }
+            .progress-text {
+                font-size: 0.9rem;
+            }
+            .score-display {
+                font-size: 0.85rem;
+                padding: 4px 10px;
+            }
+            .level-map h3 {
+                font-size: 1.3rem;
+            }
+            .level-card .level-num {
+                font-size: 0.8rem;
+            }
+            .level-card .stars-earned {
+                font-size: 1.2rem;
+            }
+            .final-stats {
+                font-size: 0.95rem;
+            }
+        }
+        @media (max-width: 380px) {
+            .match-item {
+                font-size: clamp(0.75rem, 2.8vw, 0.8rem);
+                padding: 8px 6px;
+                min-height: 36px;
+                border-radius: 8px;
+            }
+            .match-field {
+                gap: 5px;
+                min-height: 200px;
+            }
+            .match-column {
+                gap: 4px;
+            }
+            .game-wrapper {
+                padding: 8px 4px 6px;
+            }
+            .level-card {
+                width: 75px;
+                height: 95px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            .mascot-bubble {
+                max-width: 150px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .start-screen .title {
+                font-size: 1.3rem;
+            }
+            .final-screen h2 {
+                font-size: 1.2rem;
+            }
+            .final-stars {
+                font-size: 2rem;
+            }
+            .progress-text {
+                font-size: 0.8rem;
+            }
+            .score-display {
+                font-size: 0.8rem;
+            }
+            .final-stats {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Декоративные волны -->
+    <div class="waves-decoration">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,40 C240,10 480,60 720,35 C960,10 1200,55 1440,30 L1440,80 L0,80 Z" fill="#7ec8e3" opacity="0.5"/>
+            <path d="M0,50 C200,25 400,65 720,45 C1040,25 1300,60 1440,40 L1440,80 L0,80 Z" fill="#a3d9ed" opacity="0.55"/>
+            <path d="M0,60 C300,40 600,70 900,50 C1100,35 1350,58 1440,50 L1440,80 L0,80 Z" fill="#b8e4f2" opacity="0.45"/>
+        </svg>
+    </div>
+
+    <!-- Конфетти-контейнер -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <!-- Основной контейнер игры -->
+    <div class="game-wrapper" id="gameWrapper">
+
+        <!-- Стартовый экран -->
+        <div class="screen active" id="startScreen">
+            <svg class="starfish-mascot" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs><radialGradient id="sfGrad" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffb88c"/><stop offset="70%" stop-color="#ff7b5c"/><stop offset="100%" stop-color="#e85d3f"/></radialGradient></defs>
+                <polygon points="50,10 57,32 80,25 65,42 88,54 63,55 50,78 37,55 12,54 35,42 20,25 43,32" fill="url(#sfGrad)" stroke="#3a2f28" stroke-width="2.5" stroke-linejoin="round"/>
+                <circle cx="42" cy="42" r="6" fill="#fff" stroke="#3a2f28" stroke-width="1.8"/><circle cx="42" cy="42" r="2.5" fill="#2c3e50"/>
+                <circle cx="58" cy="42" r="6" fill="#fff" stroke="#3a2f28" stroke-width="1.8"/><circle cx="58" cy="42" r="2.5" fill="#2c3e50"/>
+                <path d="M44,56 Q50,64 56,56" fill="none" stroke="#3a2f28" stroke-width="2.2" stroke-linecap="round"/>
+                <circle cx="38" cy="32" r="2.8" fill="#ffccb0" opacity="0.8"/><circle cx="62" cy="32" r="2.8" fill="#ffccb0" opacity="0.8"/>
+            </svg>
+            <h1 class="title">Морская математика</h1>
+            <p class="subtitle">Соедини вопрос и ответ &bull; Счёт до 20</p>
+            <button class="btn" onclick="showLevelMap()">🏖️ Начать приключение!</button>
+        </div>
+
+        <!-- Экран карты уровней -->
+        <div class="screen" id="levelMapScreen">
+            <div class="level-map">
+                <h3>🗺️ Карта уровней</h3>
+                <div class="level-cards" id="levelCards">
+                    <!-- Заполняется JS -->
+                </div>
+                <button class="btn btn-small btn-accent" onclick="goToStart()">← На стартовый экран</button>
+            </div>
+        </div>
+
+        <!-- Игровой экран -->
+        <div class="screen" id="gameScreen">
+            <div class="progress-area">
+                <div class="progress-bar-outer">
+                    <div class="progress-bar-inner" id="progressBar"></div>
+                </div>
+                <span class="progress-text" id="progressLabel">0 из 6</span>
+                <span class="score-display" id="scoreDisplay">⭐ 0</span>
+            </div>
+            <div class="match-field" id="matchField">
+                <div class="match-column" id="questionsColumn"></div>
+                <svg class="lines-overlay" id="linesSvg"></svg>
+                <div class="match-column" id="answersColumn"></div>
+            </div>
+            <div class="mascot-area" id="mascotArea">
+                <div class="mascot-bubble" id="mascotBubble">Давай соединим вопросы с ответами!</div>
+                <svg class="mini-starfish" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs><radialGradient id="sfGrad2" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffb88c"/><stop offset="70%" stop-color="#ff7b5c"/><stop offset="100%" stop-color="#e85d3f"/></radialGradient></defs>
+                    <polygon points="50,8 58,34 84,27 67,44 92,58 65,56 50,82 35,56 8,58 33,44 16,27 42,34" fill="url(#sfGrad2)" stroke="#3a2f28" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="40" cy="44" r="6.5" fill="#fff" stroke="#3a2f28" stroke-width="1.8"/><circle cx="40" cy="44" r="2.7" fill="#2c3e50"/>
+                    <circle cx="60" cy="44" r="6.5" fill="#fff" stroke="#3a2f28" stroke-width="1.8"/><circle cx="60" cy="44" r="2.7" fill="#2c3e50"/>
+                    <path d="M43,58 Q50,67 57,58" fill="none" stroke="#3a2f28" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Финальный экран -->
+        <div class="screen" id="finalScreen">
+            <h2 id="finalTitle">Миссия выполнена!</h2>
+            <div class="final-stars" id="finalStars">⭐⭐⭐</div>
+            <p class="final-stats" id="finalStats"></p>
+            <div class="btn-row">
+                <button class="btn" id="btnRetry" onclick="retryLevel()">🔄 Играть снова</button>
+                <button class="btn btn-accent" id="btnNextLevel" onclick="goToNextLevel()" style="display:none;">▶ Следующий уровень</button>
+                <button class="btn btn-small" onclick="showLevelMap()">🗺️ Карта уровней</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // === ДАННЫЕ УРОВНЕЙ ===
+            const levelData = [{
+                id: 1,
+                name: 'Песчаный берег',
+                difficulty: 'Лёгкий',
+                pairs: [
+                    { q: 'У Маши 7 ракушек, она нашла ещё 6. Сколько стало?', a: '13' },
+                    { q: 'На берегу было 15 крабов, 8 уползли. Сколько осталось?', a: '7' },
+                    { q: 'В ведёрке 9 камушков и 8 ракушек. Сколько всего?', a: '17' },
+                    { q: 'Дельфин съел 12 рыбок, потом ещё 4. Сколько всего?', a: '16' },
+                    { q: 'Сколько будет 5 + 5 + 3?', a: '13' },
+                    { q: 'На пляже 20 детей, 6 ушли купаться. Сколько осталось?', a: '14' },
+                ]
+            }, {
+                id: 2,
+                name: 'Коралловый риф',
+                difficulty: 'Средний',
+                pairs: [
+                    { q: 'На палубе 9 моряков и 7 пассажиров. Сколько всего?', a: '16' },
+                    { q: 'Было 20 ракушек, 6 разбилось. Сколько целых?', a: '14' },
+                    { q: 'У трёх крабов по 6 ног. Сколько всего ног?', a: '18' },
+                    { q: 'Рыбак поймал 8 рыб и ещё 7. Сколько всего?', a: '15' },
+                    { q: 'В сундуке 13 монет, 4 забрали. Сколько осталось?', a: '9' },
+                    { q: 'Сложи 3 + 6 + 8', a: '17' },
+                ]
+            }, {
+                id: 3,
+                name: 'Морская глубина',
+                difficulty: 'Сложный',
+                pairs: [
+                    { q: 'Если 7 + ? = 19, найди неизвестное', a: '12' },
+                    { q: 'У Маши 5 монет, у Пети на 8 больше. Сколько у Пети?', a: '13' },
+                    { q: 'Сумма двух чисел 16, одно из них 6. Найди другое.', a: '10' },
+                    { q: 'Сколько будет 20 − 9 − 5?', a: '6' },
+                    { q: 'Какое число на 6 меньше 15?', a: '9' },
+                    { q: 'У двух коньков 16 детёнышей. У одного 9. Сколько у другого?', a: '7' },
+                ]
+            }];
+
+            // === СОСТОЯНИЕ ===
+            let state = {
+                currentLevelIndex: 0,
+                selectedQuestion: null,
+                matchedPairs: [],
+                totalErrors: 0,
+                score: 0,
+                levelStars: [0, 0, 0], // звёзды за каждый уровень (0-3)
+                levelUnlocked: [true, false, false],
+                currentPairs: [],
+                shuffledQuestions: [],
+                shuffledAnswers: [],
+            };
+
+            // Загрузка из localStorage
+            function loadProgress() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('seaMath_progress'));
+                    if (saved) {
+                        state.levelStars = saved.levelStars || [0, 0, 0];
+                        state.levelUnlocked = saved.levelUnlocked || [true, false, false];
+                        // Уровень 1 всегда открыт
+                        state.levelUnlocked[0] = true;
+                        // Обновляем разблокировку
+                        for (let i = 0; i < 2; i++) {
+                            if (state.levelStars[i] >= 2 && state.levelUnlocked[i]) {
+                                state.levelUnlocked[i + 1] = true;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // игнорируем
+                }
+            }
+
+            function saveProgress() {
+                try {
+                    localStorage.setItem('seaMath_progress', JSON.stringify({
+                        levelStars: state.levelStars,
+                        levelUnlocked: state.levelUnlocked,
+                    }));
+                } catch (e) {}
+            }
+
+            // === DOM-элементы ===
+            const gameWrapper = document.getElementById('gameWrapper');
+            const startScreen = document.getElementById('startScreen');
+            const levelMapScreen = document.getElementById('levelMapScreen');
+            const gameScreen = document.getElementById('gameScreen');
+            const finalScreen = document.getElementById('finalScreen');
+            const questionsColumn = document.getElementById('questionsColumn');
+            const answersColumn = document.getElementById('answersColumn');
+            const linesSvg = document.getElementById('linesSvg');
+            const progressBar = document.getElementById('progressBar');
+            const progressLabel = document.getElementById('progressLabel');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const mascotBubble = document.getElementById('mascotBubble');
+            const finalTitle = document.getElementById('finalTitle');
+            const finalStars = document.getElementById('finalStars');
+            const finalStats = document.getElementById('finalStats');
+            const btnRetry = document.getElementById('btnRetry');
+            const btnNextLevel = document.getElementById('btnNextLevel');
+            const levelCards = document.getElementById('levelCards');
+            const matchField = document.getElementById('matchField');
+            const confettiContainer = document.getElementById('confettiContainer');
+
+            // === ФУНКЦИИ ЭКРАНОВ ===
+            function showScreen(screen) {
+                [startScreen, levelMapScreen, gameScreen, finalScreen].forEach(s => s.classList.remove(
+                    'active'));
+                screen.classList.add('active');
+            }
+
+            function goToStart() {
+                showScreen(startScreen);
+                state.selectedQuestion = null;
+                state.matchedPairs = [];
+            }
+
+            function showLevelMap() {
+                showScreen(levelMapScreen);
+                renderLevelMap();
+            }
+
+            function renderLevelMap() {
+                levelCards.innerHTML = '';
+                levelData.forEach((lvl, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'level-card';
+                    if (!state.levelUnlocked[idx]) {
+                        card.classList.add('locked');
+                        card.innerHTML = `
+                            <span class="lock-icon">🔒</span>
+                            <span class="level-num">Уровень ${idx+1}</span>
+                            <span style="font-size:0.75rem;color:#999;">${lvl.difficulty}</span>
+                        `;
+                        card.onclick = () => {
+                            mascotSpeak('Сначала пройди предыдущий уровень на 2+ звезды! ⭐');
+                        };
+                    } else if (state.levelStars[idx] > 0) {
+                        card.classList.add('completed');
+                        const s = '⭐'.repeat(state.levelStars[idx]) + '☆'.repeat(3 - state.levelStars[idx]);
+                        card.innerHTML = `
+                            <span class="stars-earned">${s}</span>
+                            <span class="level-num">Уровень ${idx+1}</span>
+                            <span style="font-size:0.7rem;">${lvl.name}</span>
+                        `;
+                        card.onclick = () => startLevel(idx);
+                    } else {
+                        card.innerHTML = `
+                            <span style="font-size:1.8rem;">🏝️</span>
+                            <span class="level-num">Уровень ${idx+1}</span>
+                            <span style="font-size:0.7rem;">${lvl.name}</span>
+                        `;
+                        card.onclick = () => startLevel(idx);
+                    }
+                    levelCards.appendChild(card);
+                });
+            }
+
+            function startLevel(levelIndex) {
+                state.currentLevelIndex = levelIndex;
+                state.selectedQuestion = null;
+                state.matchedPairs = [];
+                state.totalErrors = 0;
+                state.score = 0;
+                state.currentPairs = [...levelData[levelIndex].pairs];
+                // Перемешиваем вопросы и ответы независимо
+                state.shuffledQuestions = shuffleArray([...state.currentPairs]);
+                state.shuffledAnswers = shuffleArray([...state.currentPairs]);
+                showScreen(gameScreen);
+                renderGameField();
+                updateProgress();
+                updateScore();
+                drawAllLines();
+                mascotSpeak('Выбери вопрос, а затем правильный ответ! 🐚');
+                // Перерисовка линий после рендера
+                setTimeout(drawAllLines, 150);
+            }
+
+            function renderGameField() {
+                questionsColumn.innerHTML = '';
+                answersColumn.innerHTML = '';
+                state.shuffledQuestions.forEach((pair, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'match-item question-item';
+                    div.textContent = pair.q;
+                    div.dataset.pairId = state.currentPairs.indexOf(pair);
+                    div.dataset.column = 'question';
+                    div.addEventListener('click', () => onItemClick(div, 'question', pair));
+                    if (state.matchedPairs.includes(state.currentPairs.indexOf(pair))) {
+                        div.classList.add('matched');
+                    }
+                    questionsColumn.appendChild(div);
+                });
+                state.shuffledAnswers.forEach((pair, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'match-item answer-item';
+                    div.textContent = pair.a;
+                    div.dataset.pairId = state.currentPairs.indexOf(pair);
+                    div.dataset.column = 'answer';
+                    div.addEventListener('click', () => onItemClick(div, 'answer', pair));
+                    if (state.matchedPairs.includes(state.currentPairs.indexOf(pair))) {
+                        div.classList.add('matched');
+                    }
+                    answersColumn.appendChild(div);
+                });
+            }
+
+            function onItemClick(element, column, pair) {
+                const pairId = state.currentPairs.indexOf(pair);
+                // Если уже соединён — игнорируем
+                if (state.matchedPairs.includes(pairId)) return;
+
+                if (column === 'question') {
+                    // Выбор вопроса
+                    clearSelection();
+                    state.selectedQuestion = { element, pair, pairId };
+                    element.classList.add('selected');
+                    mascotSpeak('А теперь выбери ответ справа! 👉');
+                } else if (column === 'answer') {
+                    // Выбор ответа
+                    if (!state.selectedQuestion) {
+                        mascotSpeak('Сначала выбери вопрос слева! 👈');
+                        return;
+                    }
+                    const qPairId = state.selectedQuestion.pairId;
+                    const qElement = state.selectedQuestion.element;
+                    if (qPairId === pairId) {
+                        // Верно!
+                        state.matchedPairs.push(pairId);
+                        state.score++;
+                        qElement.classList.remove('selected');
+                        qElement.classList.add('matched');
+                        element.classList.add('matched');
+                        state.selectedQuestion = null;
+                        updateProgress();
+                        updateScore();
+                        drawAllLines();
+                        spawnConfetti();
+                        mascotSpeakRandom('correct');
+                        // Проверка завершения
+                        if (state.matchedPairs.length === state.currentPairs.length) {
+                            setTimeout(showFinalScreen, 800);
+                        }
+                    } else {
+                        // Неверно
+                        state.totalErrors++;
+                        qElement.classList.add('wrong-flash');
+                        element.classList.add('wrong-flash');
+                        state.selectedQuestion = null;
+                        mascotSpeakRandom('wrong');
+                        // Показать правильный ответ
+                        highlightCorrectAnswer(pairId);
+                        setTimeout(() => {
+                            qElement.classList.remove('wrong-flash', 'selected');
+                            element.classList.remove('wrong-flash');
+                            clearAllHintHighlights();
+                        }, 600);
+                        updateScore();
+                    }
+                }
+            }
+
+            function highlightCorrectAnswer(pairId) {
+                // Подсветить правильный ответ для выбранного вопроса
+                const allAnswerItems = answersColumn.querySelectorAll('.answer-item');
+                allAnswerItems.forEach(item => {
+                    if (parseInt(item.dataset.pairId) === pairId && !item.classList.contains('matched')) {
+                        item.classList.add('hint-highlight');
+                    }
+                });
+            }
+
+            function clearAllHintHighlights() {
+                document.querySelectorAll('.hint-highlight').forEach(el => el.classList.remove('hint-highlight'));
+            }
+
+            function clearSelection() {
+                document.querySelectorAll('.match-item.selected').forEach(el => el.classList.remove('selected'));
+                state.selectedQuestion = null;
+            }
+
+            function updateProgress() {
+                const total = state.currentPairs.length;
+                const done = state.matchedPairs.length;
+                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                progressBar.style.width = pct + '%';
+                progressLabel.textContent = done + ' из ' + total;
+                if (pct === 100) {
+                    progressBar.style.background = 'linear-gradient(90deg, #5cb85c, #3cc5c0)';
+                } else {
+                    progressBar.style.background = 'linear-gradient(90deg, #ffb347, #ff7b5c)';
+                }
+            }
+
+            function updateScore() {
+                scoreDisplay.textContent = '⭐ ' + state.score;
+            }
+
+            function drawAllLines() {
+                linesSvg.innerHTML = '';
+                const fieldRect = matchField.getBoundingClientRect();
+                const questionItems = questionsColumn.querySelectorAll('.question-item.matched');
+                const answerItems = answersColumn.querySelectorAll('.answer-item.matched');
+
+                questionItems.forEach(qEl => {
+                    const qPairId = parseInt(qEl.dataset.pairId);
+                    answerItems.forEach(aEl => {
+                        const aPairId = parseInt(aEl.dataset.pairId);
+                        if (qPairId === aPairId) {
+                            const qRect = qEl.getBoundingClientRect();
+                            const aRect = aEl.getBoundingClientRect();
+                            const x1 = qRect.right - fieldRect.left;
+                            const y1 = qRect.top + qRect.height / 2 - fieldRect.top;
+                            const x2 = aRect.left - fieldRect.left;
+                            const y2 = aRect.top + aRect.height / 2 - fieldRect.top;
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', x1);
+                            line.setAttribute('y1', y1);
+                            line.setAttribute('x2', x2);
+                            line.setAttribute('y2', y2);
+                            line.setAttribute('stroke', '#5cb85c');
+                            line.setAttribute('stroke-width', '3.5');
+                            line.setAttribute('stroke-linecap', 'round');
+                            line.setAttribute('opacity', '0.7');
+                            linesSvg.appendChild(line);
+                        }
+                    });
+                });
+            }
+
+            function showFinalScreen() {
+                const total = state.currentPairs.length;
+                const correct = state.matchedPairs.length;
+                const errors = state.totalErrors;
+                let starsCount = 0;
+                if (correct === total && errors === 0) starsCount = 3;
+                else if (correct >= 5) starsCount = 2;
+                else if (correct >= 2) starsCount = 1;
+                else starsCount = 0;
+
+                // Сохраняем звёзды
+                if (starsCount > state.levelStars[state.currentLevelIndex]) {
+                    state.levelStars[state.currentLevelIndex] = starsCount;
+                }
+                // Разблокируем следующий уровень при 2+ звёздах
+                if (starsCount >= 2 && state.currentLevelIndex < 2) {
+                    state.levelUnlocked[state.currentLevelIndex + 1] = true;
+                }
+                saveProgress();
+
+                finalTitle.textContent = starsCount >= 2 ? '🎉 Миссия выполнена!' : '🌊 Приключение завершено!';
+                finalStars.textContent = '⭐'.repeat(starsCount) + '☆'.repeat(3 - starsCount);
+                finalStats.textContent = `Верных соединений: ${correct} из ${total} | Ошибок: ${errors}`;
+                btnNextLevel.style.display = (starsCount >= 2 && state.currentLevelIndex < 2 && state.levelUnlocked[state
+                    .currentLevelIndex + 1]) ? 'inline-flex' : 'none';
+                showScreen(finalScreen);
+                if (starsCount >= 2) {
+                    mascotSpeakRandom('final_good');
+                    spawnConfettiBurst();
+                } else {
+                    mascotSpeakRandom('final_ok');
+                }
+                drawAllLines();
+            }
+
+            function retryLevel() {
+                startLevel(state.currentLevelIndex);
+            }
+
+            function goToNextLevel() {
+                if (state.currentLevelIndex < 2 && state.levelUnlocked[state.currentLevelIndex + 1]) {
+                    startLevel(state.currentLevelIndex + 1);
+                } else {
+                    showLevelMap();
+                }
+            }
+
+            // === ПЕРСОНАЖ ===
+            const mascotPhrases = {
+                correct: [
+                    'Отлично! Ты молодец! 🌟',
+                    'Верно! Как здорово получается! 🎯',
+                    'Супер! Ты настоящий морской математик! 🐬',
+                    'Правильно! Так держать! ⚡',
+                ],
+                wrong: [
+                    'Не страшно! Попробуй ещё разок! 💪',
+                    'Ошибаться — это нормально! Давай ещё! 🐚',
+                    'Подумай ещё немножко! У тебя получится! 🌊',
+                    'Ничего! В следующий раз точно выйдет! 🤗',
+                ],
+                final_good: [
+                    'Ура! Ты справился великолепно! 🏆',
+                    'Вот это да! Настоящий чемпион! 🥇',
+                    'Все пары найдены! Я горжусь тобой! 🌟',
+                ],
+                final_ok: [
+                    'Ты старался, и это главное! Попробуй ещё! 💛',
+                    'В следующий раз получится ещё лучше! 🌈',
+                    'Каждое приключение делает нас сильнее! 🐠',
+                ],
+            };
+
+            function mascotSpeak(text) {
+                mascotBubble.textContent = text;
+                mascotBubble.style.animation = 'none';
+                void mascotBubble.offsetWidth;
+                mascotBubble.style.animation = 'bubblePop 0.35s ease-out';
+            }
+
+            function mascotSpeakRandom(category) {
+                const phrases = mascotPhrases[category];
+                if (phrases && phrases.length > 0) {
+                    const idx = Math.floor(Math.random() * phrases.length);
+                    mascotSpeak(phrases[idx]);
+                }
+            }
+
+            // === КОНФЕТТИ ===
+            function spawnConfetti() {
+                const colors = ['#ff7b5c', '#ffb347', '#3cc5c0', '#5cb85c', '#ff6b9d', '#7ec8e3', '#ffe066',
+                '#ff9f43'];
+                const count = 40;
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.top = -(Math.random() * 60 + 10) + 'px';
+                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.width = (Math.random() * 10 + 6) + 'px';
+                    piece.style.height = (Math.random() * 14 + 6) + 'px';
+                    piece.style.animationDuration = (Math.random() * 0.6 + 0.7) + 's';
+                    piece.style.animationDelay = Math.random() * 0.2 + 's';
+                    fragment.appendChild(piece);
+                }
+                confettiContainer.appendChild(fragment);
+                setTimeout(() => {
+                    while (confettiContainer.children.length > 80) {
+                        confettiContainer.removeChild(confettiContainer.firstChild);
+                    }
+                }, 300);
+                setTimeout(() => {
+                    const pieces = confettiContainer.querySelectorAll('.confetti-piece');
+                    if (pieces.length > 60) {
+                        for (let i = 0; i < 20; i++) {
+                            if (pieces[i]) pieces[i].remove();
+                        }
+                    }
+                }, 1200);
+            }
+
+            function spawnConfettiBurst() {
+                for (let b = 0; b < 3; b++) {
+                    setTimeout(() => spawnConfetti(), b * 200);
+                }
+            }
+
+            // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            // === ОБРАБОТЧИК РЕСАЙЗА ===
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (gameScreen.classList.contains('active')) {
+                        drawAllLines();
+                    }
+                }, 250);
+            });
+
+            // === ИНИЦИАЛИЗАЦИЯ ===
+            function init() {
+                loadProgress();
+                // Уровень 1 всегда открыт
+                state.levelUnlocked[0] = true;
+                showScreen(startScreen);
+                renderLevelMap();
+            }
+
+            // Запуск
+            init();
+
+            // Экспорт для onclick в HTML
+            window.showLevelMap = showLevelMap;
+            window.goToStart = goToStart;
+            window.retryLevel = retryLevel;
+            window.goToNextLevel = goToNextLevel;
+            window.startLevel = startLevel;
+        })();
+    </script>
+</body>
+</html>
