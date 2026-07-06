@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Лесная Академия Грамотности</title>
+<style>
+  :root{
+    --game-bg: #16241a;
+    --game-card: #3d5233;
+    --game-primary: #2c4a27;
+    --game-accent: #e0a13a;
+    --game-text: #f3ecd6;
+    --game-success: #6ea852;
+    --game-error: #c1552f;
+    --game-muted: #8a9b7c;
+    --bark-dark: #3a2a1c;
+    --bark-light: #59402b;
+    --leaf-dark: #1f3a1f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    font-family: 'Trebuchet MS', Verdana, sans-serif;
+    background: var(--game-bg);
+    color: var(--game-text);
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(224,161,58,0.10), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(110,168,82,0.12), transparent 45%),
+      repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.015) 0px, transparent 3px, transparent 40px),
+      linear-gradient(160deg, #16241a 0%, #10190f 60%, #0d150c 100%);
+    background-attachment: fixed;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #app { width: 100%; max-width: 720px; margin: 16px; position: relative; }
+
+  .screen { display: none; animation: fadeIn 0.4s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn { from{opacity:0; transform: translateY(6px);} to{opacity:1; transform: translateY(0);} }
+
+  .panel {
+    background: linear-gradient(180deg, var(--game-card), #2c3b26);
+    border: 5px solid var(--bark-dark);
+    border-radius: 20px;
+    box-shadow: 0 0 0 3px var(--game-accent) inset, 0 14px 32px rgba(0,0,0,0.55);
+    padding: 26px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 8% 92%, rgba(0,0,0,0.15), transparent 35%);
+    pointer-events: none;
+  }
+
+  .branches { display:flex; justify-content: space-between; margin-bottom: 8px; padding: 0 2px; }
+  .leaf-deco { width: 34px; height: 34px; opacity: 0.9; }
+  .leaf-deco svg { display:block; }
+
+  h1,h2,h3 { margin: 0 0 10px; text-shadow: 0 2px 3px rgba(0,0,0,0.5); }
+  h1 { font-size: clamp(22px,5vw,32px); color: var(--game-accent); text-align:center; }
+  h2 { font-size: clamp(19px,4vw,25px); color: var(--game-accent); text-align:center; }
+  p { line-height: 1.55; }
+
+  .legend { text-align:center; color: var(--game-text); opacity: 0.92; margin-bottom: 18px; }
+
+  .btn {
+    display:block; width:100%; padding: 16px 18px; margin: 10px 0;
+    font-size: clamp(16px,3.6vw,19px); font-weight:bold;
+    color: var(--game-text);
+    background: linear-gradient(180deg, var(--bark-light), var(--bark-dark));
+    border: 3px solid #1c130b; border-radius: 12px; cursor:pointer;
+    box-shadow: 0 4px 0 #1c130b, 0 6px 14px rgba(0,0,0,0.35);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #1c130b, 0 3px 8px rgba(0,0,0,0.35); }
+  .btn.primary { background: linear-gradient(180deg, #4a7a3f, var(--game-primary)); border-color: #16240f; }
+  .btn.gold { background: linear-gradient(180deg, #f0c264, var(--game-accent)); color:#3a2508; border-color:#8a5a1c; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; flex-wrap: wrap; }
+  .score-badge {
+    display:flex; align-items:center; gap:6px;
+    background: #1f2f1a; border: 2px solid var(--game-accent); border-radius: 20px;
+    padding: 6px 14px; font-weight:bold; color: var(--game-accent); white-space: nowrap;
+  }
+  .acorn { width:14px; height:16px; display:inline-block; border-radius: 50% 50% 45% 45%; background: radial-gradient(circle at 35% 25%, #f4d98a, var(--game-accent) 60%, #8a5a1c); }
+
+  .progress-wrap { flex:1; min-width: 140px; }
+  .progress-track { height:14px; background:#1f2f1a; border:2px solid #16240f; border-radius:8px; overflow:hidden; }
+  .progress-fill { height:100%; background: linear-gradient(90deg, var(--game-primary), var(--game-accent)); width:0%; transition: width 0.5s ease; }
+  .progress-count { font-size:12px; color: var(--game-muted); margin-top:3px; text-align:right; }
+
+  .stage-label { text-align:center; color: var(--game-muted); font-size:13px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+
+  .task-card {
+    background: #2a3b23; border: 3px solid var(--bark-dark); border-radius: 16px;
+    padding: 18px; margin-bottom:16px; box-shadow: inset 0 0 0 2px rgba(224,161,58,0.15);
+  }
+  .task-question { font-size: clamp(18px,4.2vw,22px); margin-bottom:14px; color: var(--game-text); text-align:center; font-weight:bold; letter-spacing: 1px; }
+  .task-hint { text-align:center; font-size: 13px; color: var(--game-muted); margin-top: -8px; margin-bottom: 14px; }
+
+  .options-grid { display:grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 460px) {
+    .options-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .options-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  }
+
+  .option {
+    background: var(--game-card); border: 3px solid #1c2a17; border-radius: 12px;
+    padding: 16px 10px; font-size: clamp(17px,4.2vw,21px); font-weight:bold; color: var(--game-text);
+    cursor:pointer; text-align:center; user-select:none;
+    transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+    display:flex; align-items:center; justify-content:center; min-height: 58px;
+  }
+  .option:active { transform: scale(0.96); }
+  .option.correct { border-color: var(--game-success); background:#375a2c; box-shadow: 0 0 0 2px var(--game-success) inset; }
+  .option.incorrect { border-color: var(--game-error); background:#5a3324; box-shadow: 0 0 0 2px var(--game-error) inset; }
+  .option:disabled, .option.locked { pointer-events:none; }
+
+  .feedback-banner {
+    text-align:center; font-weight:bold; font-size: clamp(17px,4vw,20px);
+    padding:12px; border-radius:12px; margin: 12px 0; display:none;
+  }
+  .feedback-banner.show { display:block; animation: popIn 0.3s ease; }
+  .feedback-banner.good { background: rgba(110,168,82,0.22); color:#c7ecb2; border: 2px solid var(--game-success); }
+  .feedback-banner.bad { background: rgba(193,85,47,0.22); color:#f3c2ab; border: 2px solid var(--game-error); }
+  @keyframes popIn { 0%{transform:scale(0.9); opacity:0;} 100%{transform:scale(1); opacity:1;} }
+
+  .explanation {
+    background: rgba(0,0,0,0.22); border-left: 4px solid var(--game-accent);
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; margin: 10px 0; display:none;
+  }
+  .explanation.show { display:block; }
+
+  .tf-row { display:flex; gap:14px; margin-top:16px; flex-wrap: wrap; }
+  .tf-btn {
+    flex:1; min-width: 130px; padding: 20px 8px; font-size: clamp(15px,3.6vw,18px); font-weight:bold;
+    border-radius: 14px; cursor:pointer; border: 3px solid #1c2a17; color: var(--game-text);
+    transition: transform 0.1s ease; line-height: 1.25;
+  }
+  .tf-btn:active { transform: scale(0.96); }
+  .tf-soft { background: linear-gradient(180deg, #5a8a45, #3a5a2c); }
+  .tf-sep { background: linear-gradient(180deg, #4a7a9a, #2c4a5a); }
+  .tf-btn:disabled { opacity:0.55; cursor:not-allowed; }
+  .tf-btn.chosen-correct { box-shadow: 0 0 0 3px var(--game-success) inset; }
+  .tf-btn.chosen-incorrect { box-shadow: 0 0 0 3px var(--game-error) inset; }
+
+  .shake { animation: shakeAnim 0.5s ease; }
+  @keyframes shakeAnim { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
+
+  .helper { display:flex; align-items:flex-start; gap:12px; margin-top:14px; background: rgba(0,0,0,0.18); border-radius:14px; padding:10px; }
+  .helper-avatar { flex-shrink:0; width:52px; height:52px; }
+  .helper-bubble { background: var(--game-card); border: 2px solid var(--game-accent); border-radius:12px; padding: 8px 12px; font-size:14px; flex:1; }
+
+  .stars-row { display:flex; justify-content:center; gap:10px; margin:14px 0; }
+  .star { font-size:44px; color: var(--game-muted); transition: transform 0.3s ease, color 0.3s ease; }
+  .star.filled { color: var(--game-accent); transform: scale(1.15); text-shadow: 0 0 10px rgba(224,161,58,0.7); }
+
+  .result-line { display:flex; justify-content:space-between; padding:8px 4px; border-bottom: 1px dashed var(--game-muted); font-size:15px; }
+
+  .confetti-leaf { position: fixed; top:-10px; z-index: 999; pointer-events:none; animation: leafFall linear forwards; }
+  @keyframes leafFall { to { transform: translateY(110vh) rotate(400deg); opacity:0.15; } }
+
+  .owl-icon { display:block; margin: 0 auto 12px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- СТАРТ -->
+  <div class="screen active" id="screen-start">
+    <div class="panel">
+      <div class="branches">
+        <div class="leaf-deco"><svg viewBox="0 0 40 40"><path d="M20 4 C30 10 34 22 20 36 C6 22 10 10 20 4 Z" fill="#6ea852"/><path d="M20 6 L20 34" stroke="#3a5a2c" stroke-width="2"/></svg></div>
+        <div class="leaf-deco"><svg viewBox="0 0 40 40"><path d="M20 4 C30 10 34 22 20 36 C6 22 10 10 20 4 Z" fill="#e0a13a"/><path d="M20 6 L20 34" stroke="#8a5a1c" stroke-width="2"/></svg></div>
+      </div>
+      <svg class="owl-icon" width="100" height="100" viewBox="0 0 100 100">
+        <ellipse cx="50" cy="58" rx="34" ry="36" fill="#6b4a2f"/>
+        <circle cx="36" cy="46" r="16" fill="#f3ecd6"/>
+        <circle cx="64" cy="46" r="16" fill="#f3ecd6"/>
+        <circle cx="36" cy="46" r="8" fill="#2c1c10"/>
+        <circle cx="64" cy="46" r="8" fill="#2c1c10"/>
+        <path d="M50 52 L44 64 L56 64 Z" fill="#e0a13a"/>
+        <path d="M20 40 L34 30 M80 40 L66 30" stroke="#4a3320" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <h1>Лесная Академия Грамотности</h1>
+      <p class="legend">Мудрая сова-учительница ждёт тебя на лесной поляне! Впереди три непростых испытания: безударные гласные, парные согласные и мягкий знак. Готов доказать, что ты настоящий знаток русского языка?</p>
+      <button class="btn primary" onclick="startGame()">🌳 Войти в лес</button>
+    </div>
+  </div>
+
+  <!-- ЭТАП 1 -->
+  <div class="screen" id="screen-stage1">
+    <div class="panel">
+      <div class="topbar">
+        <div class="score-badge"><span class="acorn"></span><span id="score-display-1">0</span></div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill-1"></div></div>
+          <div class="progress-count" id="progress-count-1">Слово 1 из 8</div>
+        </div>
+      </div>
+      <div class="stage-label">Испытание 1 · Поляна гласных</div>
+      <div id="stage1-content"></div>
+    </div>
+  </div>
+
+  <!-- ЭТАП 2 -->
+  <div class="screen" id="screen-stage2">
+    <div class="panel">
+      <div class="topbar">
+        <div class="score-badge"><span class="acorn"></span><span id="score-display-2">0</span></div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill-2"></div></div>
+          <div class="progress-count" id="progress-count-2">Слово 1 из 8</div>
+        </div>
+      </div>
+      <div class="stage-label">Испытание 2 · Тропа согласных</div>
+      <div id="stage2-content"></div>
+    </div>
+  </div>
+
+  <!-- ЭТАП 3 -->
+  <div class="screen" id="screen-stage3">
+    <div class="panel">
+      <div class="topbar">
+        <div class="score-badge"><span class="acorn"></span><span id="score-display-3">0</span></div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill-3"></div></div>
+          <div class="progress-count" id="progress-count-3">Слово 1 из 8</div>
+        </div>
+      </div>
+      <div class="stage-label">Испытание 3 · Дуб мягкого знака</div>
+      <div id="stage3-content"></div>
+    </div>
+  </div>
+
+  <!-- МЕЖДУ ЭТАПАМИ -->
+  <div class="screen" id="screen-between">
+    <div class="panel">
+      <div class="branches">
+        <div class="leaf-deco"><svg viewBox="0 0 40 40"><path d="M20 4 C30 10 34 22 20 36 C6 22 10 10 20 4 Z" fill="#6ea852"/></svg></div>
+        <div class="leaf-deco"><svg viewBox="0 0 40 40"><path d="M20 4 C30 10 34 22 20 36 C6 22 10 10 20 4 Z" fill="#e0a13a"/></svg></div>
+      </div>
+      <h2 id="between-title">Испытание пройдено!</h2>
+      <p class="legend" id="between-summary"></p>
+      <button class="btn gold" onclick="goToNextStage()">Идти дальше →</button>
+    </div>
+  </div>
+
+  <!-- ФИНАЛ -->
+  <div class="screen" id="screen-final">
+    <div class="panel">
+      <h1>🦉 Ты — мудрец леса!</h1>
+      <p class="legend">Сова гордится тобой: все три испытания Лесной Академии пройдены!</p>
+      <div class="stars-row" id="final-stars">
+        <span class="star" id="fstar1">★</span>
+        <span class="star" id="fstar2">★</span>
+        <span class="star" id="fstar3">★</span>
+      </div>
+      <div class="task-card">
+        <div class="result-line"><span>Всего верных ответов:</span><strong id="final-correct">0</strong></div>
+        <div class="result-line"><span>Всего ошибок:</span><strong id="final-wrong">0</strong></div>
+        <div class="result-line"><span>Итоговые баллы:</span><strong id="final-score">0</strong></div>
+      </div>
+      <button class="btn primary" onclick="restartGame()">↻ Играть снова</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===================== ДАННЫЕ ===================== */
+
+/* Этап 1 — безударные гласные: 3 варианта буквы вместо 2, чтобы было сложнее угадать */
+const stage1Tasks = [
+  { word: "д_жди", options: ["о","а","я"], answer: "о", explanation: "Дожди — проверочное слово «дождь». Пишем О." },
+  { word: "цв_ты", options: ["е","и","я"], answer: "е", explanation: "Цветы — проверочное слово «цвет». Пишем Е." },
+  { word: "гр_бы", options: ["и","е","я"], answer: "и", explanation: "Грибы — проверочное слово «гриб». Пишем И." },
+  { word: "хл_ба", options: ["е","и","я"], answer: "е", explanation: "Хлеба — проверочное слово «хлеб». Пишем Е." },
+  { word: "п_ля",  options: ["о","а","е"], answer: "о", explanation: "Поля — проверочное слово «поле». Пишем О." },
+  { word: "ст_лбы",options: ["о","а","у"], answer: "о", explanation: "Столбы — проверочное слово «столб». Пишем О." },
+  { word: "кр_ты", options: ["о","а","у"], answer: "о", explanation: "Кроты — проверочное слово «крот». Пишем О." },
+  { word: "зв_нок",options: ["о","а","е"], answer: "о", explanation: "Звонок — проверочное слово «звон». Пишем О." }
+];
+
+/* Этап 2 — парные согласные: 3 варианта буквы вместо 2 */
+const stage2Tasks = [
+  { word: "ду_",    options: ["б","п","в"], answer: "б", explanation: "Дуб — проверочное слово «дубы». Пишем Б." },
+  { word: "клю_",   options: ["в","ф","б"], answer: "в", explanation: "Клюв — проверочное слово «клювы». Пишем В." },
+  { word: "утю_",   options: ["г","к","х"], answer: "г", explanation: "Утюг — проверочное слово «утюги». Пишем Г." },
+  { word: "заво_",  options: ["д","т","з"], answer: "д", explanation: "Завод — проверочное слово «заводы». Пишем Д." },
+  { word: "но_",    options: ["ж","ш","з"], answer: "ж", explanation: "Нож — проверочное слово «ножи». Пишем Ж." },
+  { word: "гла_",   options: ["з","с","ц"], answer: "з", explanation: "Глаз — проверочное слово «глаза». Пишем З." },
+  { word: "сугро_", options: ["б","п","в"], answer: "б", explanation: "Сугроб — проверочное слово «сугробы». Пишем Б." },
+  { word: "фла_",   options: ["г","к","х"], answer: "г", explanation: "Флаг — проверочное слово «флаги». Пишем Г." }
+];
+
+/* Этап 3 — мягкий знак: определи его роль в слове.
+   Показатель мягкости — стоит на конце слова или перед согласной, обозначает мягкость.
+   Разделительный — стоит между согласной и гласной Я, Ё, Ю, Е, И, разделяет звуки. */
+const stage3Tasks = [
+  { word: "вьюга",    type: "sep",  explanation: "Ь стоит между согласной В и гласной Ю — это разделительный мягкий знак." },
+  { word: "день",     type: "soft", explanation: "Ь стоит на конце слова и показывает мягкость Н — это показатель мягкости." },
+  { word: "письмо",   type: "soft", explanation: "Ь стоит перед согласной М и показывает мягкость С — это показатель мягкости." },
+  { word: "деревья",  type: "sep",  explanation: "Ь стоит между согласной В и гласной Я — это разделительный мягкий знак." },
+  { word: "коньки",   type: "soft", explanation: "Ь стоит перед согласной К и показывает мягкость Н — это показатель мягкости." },
+  { word: "воробьи",  type: "sep",  explanation: "Ь стоит между согласной Б и гласной И — это разделительный мягкий знак." },
+  { word: "мебель",   type: "soft", explanation: "Ь стоит на конце слова и показывает мягкость Л — это показатель мягкости." },
+  { word: "платье",   type: "sep",  explanation: "Ь стоит между согласной Т и гласной Е — это разделительный мягкий знак." },
+  { word: "льёт",     type: "sep",  explanation: "Ь стоит между согласной Л и гласной Ё — это разделительный мягкий знак." }
+];
+
+const owlLines = {
+  correct: [
+    "Ух! Отличный ответ, юный знаток!",
+    "Мудро подмечено, как настоящая сова!",
+    "Верно! Твои знания крепки, как старый дуб.",
+    "Ух-ух! Именно так!"
+  ],
+  wrong: [
+    "Не расстраивайся, даже сова иногда щурится на солнце. Смотри разбор!",
+    "Почти получилось! Прочитай подсказку и лети дальше.",
+    "Бывает и так. Главное — не сдаваться, юный лесовик!",
+    "Ничего страшного, разберём вместе и полетим дальше!"
+  ],
+  finalGood: [
+    "Ты — настоящий мудрец леса! Горжусь тобой.",
+    "Отличный полёт через все три испытания!",
+    "Ух! Такой ученик — гордость всей рощи!"
+  ],
+  finalOk: [
+    "Неплохой полёт! Ещё немного тренировки — и будешь летать без ошибок.",
+    "Ты справился! В следующий раз будет ещё лучше.",
+    "Хороший результат для начала пути через лес знаний."
+  ]
+};
+
+function pickLine(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function owlAvatarSVG() {
+  return `<svg viewBox="0 0 60 60" width="52" height="52">
+    <ellipse cx="30" cy="36" rx="22" ry="22" fill="#6b4a2f"/>
+    <circle cx="21" cy="28" r="10" fill="#f3ecd6"/>
+    <circle cx="39" cy="28" r="10" fill="#f3ecd6"/>
+    <circle cx="21" cy="28" r="5" fill="#2c1c10"/>
+    <circle cx="39" cy="28" r="5" fill="#2c1c10"/>
+    <path d="M30 32 L26 40 L34 40 Z" fill="#e0a13a"/>
+  </svg>`;
+}
+
+/* ===================== ОБЩЕЕ СОСТОЯНИЕ ===================== */
+
+let totalScore = 0, totalCorrect = 0, totalWrong = 0;
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function updateAllScoreBadges() {
+  document.getElementById("score-display-1").textContent = totalScore;
+  document.getElementById("score-display-2").textContent = totalScore;
+  document.getElementById("score-display-3").textContent = totalScore;
+}
+
+function startGame() {
+  totalScore = 0; totalCorrect = 0; totalWrong = 0;
+  updateAllScoreBadges();
+  startStage1();
+}
+function restartGame() { showScreen("screen-start"); }
+
+function launchLeaves() {
+  const colors = ["#6ea852","#e0a13a","#c1552f","#3a5a2c"];
+  for (let i = 0; i < 20; i++) {
+    const leaf = document.createElement("div");
+    leaf.className = "confetti-leaf";
+    leaf.style.left = Math.random()*100 + "vw";
+    leaf.style.width = "10px";
+    leaf.style.height = "14px";
+    leaf.style.borderRadius = "0 60% 0 60%";
+    leaf.style.background = colors[Math.floor(Math.random()*colors.length)];
+    leaf.style.animationDuration = (0.8 + Math.random()*0.5) + "s";
+    document.body.appendChild(leaf);
+    setTimeout(() => leaf.remove(), 1400);
+  }
+}
+
+/* ===================== ЭТАП 1: БЕЗУДАРНЫЕ ГЛАСНЫЕ ===================== */
+
+let s1Index = 0, s1CorrectCount = 0, s1Answered = false;
+
+let stage1Order = stage1Tasks;
+
+function startStage1() {
+  s1Index = 0; s1CorrectCount = 0;
+  stage1Order = shuffleArray(stage1Tasks);
+  showScreen("screen-stage1");
+  renderStage1Task();
+}
+
+function renderStage1Task() {
+  s1Answered = false;
+  const task = stage1Order[s1Index];
+  const total = stage1Order.length;
+
+  document.getElementById("progress-count-1").textContent = `Слово ${s1Index+1} из ${total}`;
+  document.getElementById("progress-fill-1").style.width = `${(s1Index/total)*100}%`;
+
+  const shuffledOptions = shuffleArray(task.options);
+
+  let html = `<div class="task-card">
+    <div class="task-question">${task.word}</div>
+    <div class="task-hint">Выбери букву для пропуска</div>
+    <div class="options-grid cols-3">`;
+  shuffledOptions.forEach((opt, i) => {
+    html += `<button class="option" data-index="${i}" onclick="answerStage1('${opt}', this)">${opt}</button>`;
+  });
+  html += `</div>
+    <div class="feedback-banner" id="s1-feedback"></div>
+    <div class="explanation" id="s1-explanation">${task.explanation}</div>
+  </div>
+  <button class="btn gold" id="s1-next-btn" style="display:none;" onclick="nextStage1Task()">Дальше →</button>`;
+
+  document.getElementById("stage1-content").innerHTML = html;
+}
+
+function answerStage1(letter, btnEl) {
+  if (s1Answered) return;
+  s1Answered = true;
+  const task = stage1Order[s1Index];
+  const isCorrect = letter === task.answer;
+
+  document.querySelectorAll("#stage1-content .option").forEach(el => {
+    el.classList.add("locked");
+    if (el.textContent === task.answer) el.classList.add("correct");
+    else if (el === btnEl) el.classList.add("incorrect");
+  });
+
+  const banner = document.getElementById("s1-feedback");
+  banner.classList.add("show");
+  if (isCorrect) {
+    banner.classList.add("good"); banner.textContent = "✅ Отлично!";
+    s1CorrectCount++; totalScore += 1; totalCorrect++;
+  } else {
+    banner.classList.add("bad"); banner.textContent = "❌ Почти! Попробуй ещё раз.";
+    totalWrong++;
+    const panel = document.querySelector("#screen-stage1 .panel");
+    panel.classList.add("shake");
+    setTimeout(() => panel.classList.remove("shake"), 500);
+  }
+  updateAllScoreBadges();
+  document.getElementById("s1-explanation").classList.add("show");
+  document.getElementById("s1-next-btn").style.display = "block";
+}
+
+function nextStage1Task() {
+  s1Index++;
+  if (s1Index < stage1Order.length) renderStage1Task();
+  else {
+    document.getElementById("progress-fill-1").style.width = `100%`;
+    showBetweenScreen(
+      "Поляна гласных пройдена!",
+      `Верно выбрано ${s1CorrectCount} из ${stage1Order.length} букв.`,
+      startStage2
+    );
+  }
+}
+
+/* ===================== ЭТАП 2: ПАРНЫЕ СОГЛАСНЫЕ ===================== */
+
+let s2Index = 0, s2CorrectCount = 0, s2Answered = false;
+
+let stage2Order = stage2Tasks;
+
+function startStage2() {
+  s2Index = 0; s2CorrectCount = 0;
+  stage2Order = shuffleArray(stage2Tasks);
+  showScreen("screen-stage2");
+  renderStage2Task();
+}
+
+function renderStage2Task() {
+  s2Answered = false;
+  const task = stage2Order[s2Index];
+  const total = stage2Order.length;
+
+  document.getElementById("progress-count-2").textContent = `Слово ${s2Index+1} из ${total}`;
+  document.getElementById("progress-fill-2").style.width = `${(s2Index/total)*100}%`;
+
+  const shuffledOptions = shuffleArray(task.options);
+
+  let html = `<div class="task-card">
+    <div class="task-question">${task.word}</div>
+    <div class="task-hint">Выбери букву для пропуска</div>
+    <div class="options-grid cols-3">`;
+  shuffledOptions.forEach((opt,i) => {
+    html += `<button class="option" data-index="${i}" onclick="answerStage2('${opt}', this)">${opt}</button>`;
+  });
+  html += `</div>
+    <div class="feedback-banner" id="s2-feedback"></div>
+    <div class="explanation" id="s2-explanation">${task.explanation}</div>
+  </div>
+  <button class="btn gold" id="s2-next-btn" style="display:none;" onclick="nextStage2Task()">Дальше →</button>`;
+
+  document.getElementById("stage2-content").innerHTML = html;
+}
+
+function answerStage2(letter, btnEl) {
+  if (s2Answered) return;
+  s2Answered = true;
+  const task = stage2Order[s2Index];
+  const isCorrect = letter === task.answer;
+
+  document.querySelectorAll("#stage2-content .option").forEach(el => {
+    el.classList.add("locked");
+    if (el.textContent === task.answer) el.classList.add("correct");
+    else if (el === btnEl) el.classList.add("incorrect");
+  });
+
+  const banner = document.getElementById("s2-feedback");
+  banner.classList.add("show");
+  if (isCorrect) {
+    banner.classList.add("good"); banner.textContent = "✅ Отлично!";
+    s2CorrectCount++; totalScore += 1; totalCorrect++;
+  } else {
+    banner.classList.add("bad"); banner.textContent = "❌ Почти! Попробуй ещё раз.";
+    totalWrong++;
+    const panel = document.querySelector("#screen-stage2 .panel");
+    panel.classList.add("shake");
+    setTimeout(() => panel.classList.remove("shake"), 500);
+  }
+  updateAllScoreBadges();
+  document.getElementById("s2-explanation").classList.add("show");
+  document.getElementById("s2-next-btn").style.display = "block";
+}
+
+function nextStage2Task() {
+  s2Index++;
+  if (s2Index < stage2Order.length) renderStage2Task();
+  else {
+    document.getElementById("progress-fill-2").style.width = `100%`;
+    showBetweenScreen(
+      "Тропа согласных пройдена!",
+      `Верно выбрано ${s2CorrectCount} из ${stage2Order.length} букв.`,
+      startStage3
+    );
+  }
+}
+
+/* ===================== ЭТАП 3: РОЛЬ МЯГКОГО ЗНАКА ===================== */
+
+let s3Index = 0, s3CorrectCount = 0, s3Answered = false;
+
+let stage3Order = stage3Tasks;
+
+function startStage3() {
+  s3Index = 0; s3CorrectCount = 0;
+  stage3Order = shuffleArray(stage3Tasks);
+  showScreen("screen-stage3");
+  renderStage3Task();
+}
+
+function renderStage3Task() {
+  s3Answered = false;
+  const task = stage3Order[s3Index];
+  const total = stage3Order.length;
+
+  document.getElementById("progress-count-3").textContent = `Слово ${s3Index+1} из ${total}`;
+  document.getElementById("progress-fill-3").style.width = `${(s3Index/total)*100}%`;
+
+  const tfButtons = shuffleArray([
+    { key: "soft", cls: "tf-soft", label: "Показатель мягкости" },
+    { key: "sep",  cls: "tf-sep",  label: "Разделительный" }
+  ]);
+
+  let html = `<div class="task-card">
+    <div class="task-question">${task.word}</div>
+    <div class="task-hint">Какую роль играет Ь в этом слове?</div>
+    <div class="tf-row">
+      ${tfButtons.map(b => `<button class="tf-btn ${b.cls}" id="tf-${b.key}" onclick="answerStage3('${b.key}')">${b.label}</button>`).join("")}
+    </div>
+    <div class="feedback-banner" id="s3-feedback"></div>
+    <div class="explanation" id="s3-explanation">${task.explanation}</div>
+    <div class="helper" id="s3-helper" style="display:none;">
+      <div class="helper-avatar">${owlAvatarSVG()}</div>
+      <div class="helper-bubble" id="s3-helper-text"></div>
+    </div>
+  </div>
+  <button class="btn gold" id="s3-next-btn" style="display:none;" onclick="nextStage3Task()">Дальше →</button>`;
+
+  document.getElementById("stage3-content").innerHTML = html;
+}
+
+function answerStage3(userChoice) {
+  if (s3Answered) return;
+  s3Answered = true;
+
+  const task = stage3Order[s3Index];
+  const isCorrect = (userChoice === task.type);
+
+  const softBtn = document.getElementById("tf-soft");
+  const sepBtn = document.getElementById("tf-sep");
+  softBtn.disabled = true; sepBtn.disabled = true;
+
+  const chosenBtn = userChoice === "soft" ? softBtn : sepBtn;
+  const correctBtn = task.type === "soft" ? softBtn : sepBtn;
+
+  if (isCorrect) {
+    chosenBtn.classList.add("chosen-correct");
+    chosenBtn.textContent += " ✔";
+  } else {
+    chosenBtn.classList.add("chosen-incorrect");
+    chosenBtn.textContent += " ✘";
+    correctBtn.classList.add("chosen-correct");
+    correctBtn.textContent += " ✔ (верно)";
+    const panel = document.querySelector("#screen-stage3 .panel");
+    panel.classList.add("shake");
+    setTimeout(() => panel.classList.remove("shake"), 500);
+  }
+
+  const banner = document.getElementById("s3-feedback");
+  banner.classList.add("show");
+  if (isCorrect) {
+    banner.classList.add("good"); banner.textContent = "✅ Отлично!";
+    launchLeaves();
+    s3CorrectCount++; totalScore += 1; totalCorrect++;
+  } else {
+    banner.classList.add("bad"); banner.textContent = "❌ Почти! Попробуй ещё раз.";
+    totalWrong++;
+  }
+  updateAllScoreBadges();
+
+  document.getElementById("s3-explanation").classList.add("show");
+  const helper = document.getElementById("s3-helper");
+  helper.style.display = "flex";
+  document.getElementById("s3-helper-text").textContent = isCorrect ? pickLine(owlLines.correct) : pickLine(owlLines.wrong);
+
+  document.getElementById("s3-next-btn").style.display = "block";
+}
+
+function nextStage3Task() {
+  s3Index++;
+  if (s3Index < stage3Order.length) renderStage3Task();
+  else {
+    document.getElementById("progress-fill-3").style.width = `100%`;
+    showFinalScreen();
+  }
+}
+
+/* ===================== МЕЖДУ ЭТАПАМИ / ФИНАЛ ===================== */
+
+let nextStageFn = null;
+
+function showBetweenScreen(title, summary, nextFn) {
+  document.getElementById("between-title").textContent = title;
+  document.getElementById("between-summary").textContent = summary;
+  nextStageFn = nextFn;
+  showScreen("screen-between");
+}
+function goToNextStage() { if (nextStageFn) nextStageFn(); }
+
+function showFinalScreen() {
+  document.getElementById("final-correct").textContent = totalCorrect;
+  document.getElementById("final-wrong").textContent = totalWrong;
+  document.getElementById("final-score").textContent = totalScore;
+
+  const totalTasks = totalCorrect + totalWrong;
+  const ratio = totalTasks > 0 ? totalCorrect/totalTasks : 0;
+  let stars = 1;
+  if (ratio >= 0.85) stars = 3;
+  else if (ratio >= 0.6) stars = 2;
+
+  for (let i=1;i<=3;i++){
+    document.getElementById("fstar"+i).classList.toggle("filled", i<=stars);
+  }
+
+  showScreen("screen-final");
+  if (stars >= 2) launchLeaves();
+}
+</script>
+</body>
+</html>

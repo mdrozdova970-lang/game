@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Орфограммы - 2 класс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category {
+            background: #f8f9fa;
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .category.drag-over {
+            border-color: #667eea;
+            background: #e7e9fd;
+            transform: scale(1.02);
+        }
+
+        .category-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .words-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .word-bank {
+            background: #fff3cd;
+            border: 3px dashed #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .word-bank-title {
+            text-align: center;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .word {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: move;
+            user-select: none;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .word:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .word.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .word.correct {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            animation: pulse 0.5s;
+        }
+
+        .word.incorrect {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .categories {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Орфограммы</h1>
+        <p class="subtitle">Распредели слова по группам в зависимости от типа орфограммы</p>
+
+        <div class="word-bank">
+            <div class="word-bank-title">📚 Слова для распределения</div>
+            <div class="words-container" id="wordBank">
+                <div class="word" draggable="true" data-category="hissing" data-answer="кувшин">кувш...н</div>
+                <div class="word" draggable="true" data-category="unstressed" data-answer="морской">м...рской</div>
+                <div class="word" draggable="true" data-category="paired" data-answer="завод">заво...</div>
+                <div class="word" draggable="true" data-category="hissing" data-answer="щепать">щ...пать</div>
+                <div class="word" draggable="true" data-category="unstressed" data-answer="листок">л...сток</div>
+                <div class="word" draggable="true" data-category="paired" data-answer="мягкий">мя...кий</div>
+                <div class="word" draggable="true" data-category="hissing" data-answer="пушистый">пуш...стый</div>
+                <div class="word" draggable="true" data-category="unstressed" data-answer="светить">св...тить</div>
+                <div class="word" draggable="true" data-category="paired" data-answer="залез">зале...</div>
+            </div>
+        </div>
+
+        <div class="categories">
+            <div class="category" data-category="hissing">
+                <div class="category-title">Гласные после шипящих</div>
+                <div class="words-container"></div>
+            </div>
+            <div class="category" data-category="unstressed">
+                <div class="category-title">Безударные гласные в корне</div>
+                <div class="words-container"></div>
+            </div>
+            <div class="category" data-category="paired">
+                <div class="category-title">Парные согласные в корне</div>
+                <div class="words-container"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="checkAnswers()">✓ Проверить</button>
+            <button onclick="resetGame()">🔄 Начать заново</button>
+        </div>
+
+        <div class="score" id="score"></div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let correctCount = 0;
+
+        document.querySelectorAll('.word').forEach(word => {
+            word.addEventListener('dragstart', dragStart);
+            word.addEventListener('dragend', dragEnd);
+        });
+
+        document.querySelectorAll('.words-container').forEach(container => {
+            container.addEventListener('dragover', dragOver);
+            container.addEventListener('dragleave', dragLeave);
+            container.addEventListener('drop', drop);
+        });
+
+        function dragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.closest('.category, .word-bank').classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            this.closest('.category, .word-bank').classList.remove('drag-over');
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const container = this;
+            const parent = container.closest('.category, .word-bank');
+            parent.classList.remove('drag-over');
+            
+            if (draggedElement) {
+                container.appendChild(draggedElement);
+                draggedElement.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        function checkAnswers() {
+            correctCount = 0;
+            let totalWords = document.querySelectorAll('.word').length;
+
+            document.querySelectorAll('.category').forEach(category => {
+                const categoryType = category.dataset.category;
+                category.querySelectorAll('.word').forEach(word => {
+                    if (word.dataset.category === categoryType) {
+                        word.classList.add('correct');
+                        word.classList.remove('incorrect');
+                        correctCount++;
+                    } else {
+                        word.classList.add('incorrect');
+                        word.classList.remove('correct');
+                    }
+                });
+            });
+
+            const percentage = Math.round((correctCount / totalWords) * 100);
+            document.getElementById('score').innerHTML = 
+                `Результат: ${correctCount} из ${totalWords} (${percentage}%)`;
+            
+            if (percentage === 100) {
+                document.getElementById('score').innerHTML += ' 🎉 Отлично!';
+            }
+        }
+
+        function resetGame() {
+            const wordBank = document.getElementById('wordBank');
+            document.querySelectorAll('.word').forEach(word => {
+                word.classList.remove('correct', 'incorrect');
+                wordBank.appendChild(word);
+            });
+            document.getElementById('score').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
