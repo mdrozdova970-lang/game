@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цветное в раскраску (PDF) — с пунктиром</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            color: #333;
+            font-weight: 500;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fafafa;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            background: #f0f4f8;
+            padding: 12px 20px;
+            border-radius: 40px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 30px;
+        }
+        .slider-toggle:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-toggle {
+            background-color: #ff6b6b;
+        }
+        input:checked + .slider-toggle:before {
+            transform: translateX(30px);
+        }
+        .mode-label {
+            font-size: 0.9em;
+            color: #666;
+            min-width: 70px;
+            text-align: center;
+        }
+        .dash-params {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .dash-params input {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        canvas {
+            max-width: 100%;
+            max-height: 400px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 10px 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: white;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+        .btn-outline:hover {
+            background: #e6f0ff;
+        }
+        #fileName {
+            font-weight: bold;
+            color: #007bff;
+        }
+        #statusMessage {
+            margin-top: 10px;
+            color: #28a745;
+            font-weight: bold;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🖍️ Генератор раскрасок</h1>
+    <p>Загрузите цветную картинку → настройте контуры → сохраните в PDF</p>
+
+    <div class="upload-area" id="uploadArea">
+        📁 Нажмите сюда или перетащите файл (JPG, PNG)
+        <input type="file" id="fileInput" hidden accept="image/*">
+    </div>
+    <div id="fileName"></div>
+
+    <div class="controls" id="controls" style="display: none;">
+        <div class="slider-group">
+            <label>Яркость: <span id="brightVal">50</span>%</label>
+            <input type="range" id="brightness" min="0" max="100" value="50">
+        </div>
+        <div class="slider-group">
+            <label>Контраст: <span id="contrastVal">50</span>%</label>
+            <input type="range" id="contrast" min="0" max="100" value="50">
+        </div>
+    </div>
+
+    <div class="mode-toggle" id="modeToggle" style="display: none;">
+        <span class="mode-label">🔵 Сплошная</span>
+        <label class="switch">
+            <input type="checkbox" id="dashedModeCheckbox">
+            <span class="slider-toggle"></span>
+        </label>
+        <span class="mode-label">🔴 Штриховка</span>
+        <div class="dash-params" id="dashParams" style="display: none;">
+            <label>Штрих:</label>
+            <input type="number" id="dashLength" value="8" min="2" max="30"> px
+            <label>Пробел:</label>
+            <input type="number" id="gapLength" value="6" min="2" max="30"> px
+        </div>
+    </div>
+
+    <canvas id="imageCanvas"></canvas>
+    <div id="statusMessage"></div>
+
+    <div id="buttons" style="display: none; margin-top: 20px;">
+        <button class="btn" id="downloadPdfBtn">📄 Скачать PDF</button>
+        <button class="btn btn-outline" id="downloadPngBtn">🖼️ Скачать PNG</button>
+        <button class="btn btn-outline" id="resetBtn">🔄 Сбросить настройки</button>
+    </div>
+    <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+        💡 Совет: Включите «Штриховку» для контура с разрывами. Настройте длину штриха и пробела под ваш вкус.
+    </p>
+</div>
+
+<script>
+    (function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDiv = document.getElementById('fileName');
+        const canvas = document.getElementById('imageCanvas');
+        const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
+        const modeToggle = document.getElementById('modeToggle');
+        const buttons = document.getElementById('buttons');
+        const brightnessInput = document.getElementById('brightness');
+        const contrastInput = document.getElementById('contrast');
+        const dashedModeCheckbox = document.getElementById('dashedModeCheckbox');
+        const dashParams = document.getElementById('dashParams');
+        const dashLengthInput = document.getElementById('dashLength');
+        const gapLengthInput = document.getElementById('gapLength');
+        const brightVal = document.getElementById('brightVal');
+        const contrastVal = document.getElementById('contrastVal');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let originalImage = null;
+        let originalWidth = 0;
+        let originalHeight = 0;
+        let isProcessing = false;
+
+        // Сохраняем эталонное ч/б изображение (без штрихов)
+        let baseImageData = null;
+
+        function showStatus(message, isGood = true) {
+            statusMessage.textContent = message;
+            statusMessage.style.color = isGood ? '#28a745' : '#dc3545';
+            setTimeout(() => {
+                if (statusMessage.textContent === message) {
+                    statusMessage.textContent = '';
+                }
+            }, 3000);
+        }
+
+        // Показываем/скрываем настройки штриховки
+        dashedModeCheckbox.addEventListener('change', function() {
+            dashParams.style.display = this.checked ? 'flex' : 'none';
+            if (!isProcessing) {
+                if (this.checked) {
+                    applyDashEffect();
+                } else {
+                    restoreBaseImage();
+                }
+            }
+        });
+
+        // Слушатели для параметров штриховки
+        dashLengthInput.addEventListener('input', function() {
+            if (dashedModeCheckbox.checked && !isProcessing) {
+                applyDashEffect();
+            }
+        });
+        gapLengthInput.addEventListener('input', function() {
+            if (dashedModeCheckbox.checked && !isProcessing) {
+                applyDashEffect();
+            }
+        });
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#007bff';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            if (!file.type.match('image.*')) {
+                showStatus('❌ Пожалуйста, выберите изображение (JPG, PNG)', false);
+                return;
+            }
+
+            fileNameDiv.textContent = `📎 ${file.name}`;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    originalWidth = img.width;
+                    originalHeight = img.height;
+                    canvas.style.display = 'block';
+                    controls.style.display = 'flex';
+                    modeToggle.style.display = 'flex';
+                    buttons.style.display = 'block';
+                    brightnessInput.value = 50;
+                    contrastInput.value = 50;
+                    dashLengthInput.value = 8;
+                    gapLengthInput.value = 6;
+                    dashedModeCheckbox.checked = false;
+                    dashParams.style.display = 'none';
+                    brightVal.textContent = '50';
+                    contrastVal.textContent = '50';
+                    baseImageData = null;
+                    createBaseImage();
+                    showStatus('✅ Изображение загружено!');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Создаём базовое ч/б изображение и сохраняем его
+        function createBaseImage() {
+            if (!originalImage || isProcessing) return;
+            isProcessing = true;
+
+            try {
+                let maxCanvasWidth = Math.min(originalWidth, 600);
+                let scale = maxCanvasWidth / originalWidth;
+                canvas.width = maxCanvasWidth;
+                canvas.height = originalHeight * scale;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+                let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                let data = imageData.data;
+
+                let brightnessFactor = parseInt(brightnessInput.value) / 100;
+                let contrastFactor = parseInt(contrastInput.value) / 100;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i];
+                    let g = data[i+1];
+                    let b = data[i+2];
+                    let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    gray = gray + (255 - gray) * brightnessFactor * 0.8;
+                    if (contrastFactor > 0) {
+                        let contrastStrength = contrastFactor * 2.5;
+                        gray = 128 + (gray - 128) * (1 + contrastStrength);
+                    }
+                    let threshold = 128 + (contrastFactor - 0.5) * 50;
+                    threshold += (brightnessFactor - 0.5) * 30;
+                    if (gray > threshold) {
+                        gray = 255;
+                    } else {
+                        gray = 50;
+                    }
+                    data[i] = gray;
+                    data[i+1] = gray;
+                    data[i+2] = gray;
+                }
+                ctx.putImageData(imageData, 0, 0);
+
+                // Сохраняем копию базового изображения
+                baseImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                // Если включена штриховка, применяем её
+                if (dashedModeCheckbox.checked) {
+                    applyDashEffect();
+                }
+            } catch (error) {
+                console.error('Ошибка обработки:', error);
+                showStatus('❌ Ошибка обработки изображения', false);
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        // Восстанавливаем базовое изображение без штрихов
+        function restoreBaseImage() {
+            if (baseImageData) {
+                ctx.putImageData(baseImageData, 0, 0);
+            }
+        }
+
+        // Применяем эффект штриховки (прерывистая линия)
+        function applyDashEffect() {
+            if (!baseImageData) return;
+
+            // Начинаем с базового изображения
+            restoreBaseImage();
+
+            let dashLen = parseInt(dashLengthInput.value);
+            let gapLen = parseInt(gapLengthInput.value);
+            let totalPattern = dashLen + gapLen;
+
+            if (totalPattern <= 0) return;
+
+            // Получаем текущее изображение (уже восстановленное базовое)
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let data = imageData.data;
+            let width = canvas.width;
+            let height = canvas.height;
+
+            // Создаём временную копию для анализа
+            let tempData = new Uint8ClampedArray(data);
+
+            // Функция для пометки посещённых пикселей
+            let visited = new Uint8Array(width * height);
+
+            // Проходим по всем пикселям и ищем контуры
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let idx = (y * width + x) * 4;
+                    let pixelIdx = y * width + x;
+
+                    // Если пиксель тёмный (контур) и ещё не обработан
+                    if (tempData[idx] < 128 && !visited[pixelIdx]) {
+                        // Начинаем трассировку контура от этой точки
+                        traceAndDash(x, y, dashLen, gapLen, totalPattern, tempData, data, visited, width, height);
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Трассируем контур и применяем штриховку
+        function traceAndDash(startX, startY, dashLen, gapLen, totalPattern, srcData, dstData, visited, width, height) {
+            let pixels = [];
+            let queue = [{x: startX, y: startY}];
+            let visitedLocal = new Set();
+
+            // Собираем связный контур с помощью BFS
+            while (queue.length > 0) {
+                let {x, y} = queue.shift();
+                let key = y * width + x;
+
+                if (x < 0 || x >= width || y < 0 || y >= height) continue;
+                if (visitedLocal.has(key)) continue;
+
+                let idx = (y * width + x) * 4;
+                if (srcData[idx] >= 128) continue; // Не контур
+
+                visitedLocal.add(key);
+                pixels.push({x, y});
+                visited[y * width + x] = 1;
+
+                // Проверяем соседей (8-связность)
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        if (dx === 0 && dy === 0) continue;
+                        let nx = x + dx;
+                        let ny = y + dy;
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                            let nkey = ny * width + nx;
+                            if (!visitedLocal.has(nkey)) {
+                                let nidx = (ny * width + nx) * 4;
+                                if (srcData[nidx] < 128) {
+                                    queue.push({x: nx, y: ny});
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Если пикселей слишком мало, оставляем как есть
+            if (pixels.length < 3) return;
+
+            // Сортируем пиксели вдоль контура для правильной штриховки
+            let orderedPixels = orderPixelsAlongContour(pixels);
+
+            // Применяем штриховку: оставляем dashLen пикселей, убираем gapLen пикселей
+            let patternPos = 0;
+            for (let i = 0; i < orderedPixels.length; i++) {
+                let {x, y} = orderedPixels[i];
+                let idx = (y * width + x) * 4;
+
+                // Определяем, в какой фазе паттерна находимся
+                let phaseInPattern = patternPos % totalPattern;
+
+                if (phaseInPattern >= dashLen) {
+                    // Это пробел — делаем пиксель белым
+                    dstData[idx] = 255;
+                    dstData[idx + 1] = 255;
+                    dstData[idx + 2] = 255;
+                }
+                // Иначе оставляем как есть (тёмный штрих)
+
+                patternPos++;
+            }
+        }
+
+        // Упорядочиваем пиксели вдоль контура
+        function orderPixelsAlongContour(pixels) {
+            if (pixels.length <= 1) return pixels;
+
+            let visited = new Set();
+            let result = [];
+
+            // Начинаем с первого пикселя
+            let current = pixels[0];
+            result.push(current);
+            visited.add(`${current.x},${current.y}`);
+
+            // Жадно идём к ближайшему непосещённому соседу
+            while (result.length < pixels.length) {
+                let last = result[result.length - 1];
+                let bestDist = Infinity;
+                let bestPixel = null;
+
+                for (let pixel of pixels) {
+                    let key = `${pixel.x},${pixel.y}`;
+                    if (visited.has(key)) continue;
+
+                    let dist = Math.abs(pixel.x - last.x) + Math.abs(pixel.y - last.y);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestPixel = pixel;
+                    }
+                }
+
+                if (bestPixel && bestDist <= 2) { // Максимальное расстояние между последовательными точками
+                    result.push(bestPixel);
+                    visited.add(`${bestPixel.x},${bestPixel.y}`);
+                } else {
+                    // Если не можем найти близкий пиксель, добавляем оставшиеся в произвольном порядке
+                    for (let pixel of pixels) {
+                        let key = `${pixel.x},${pixel.y}`;
+                        if (!visited.has(key)) {
+                            result.push(pixel);
+                            visited.add(key);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        // Обработчики ползунков
+        brightnessInput.addEventListener('input', function() {
+            brightVal.textContent = this.value;
+            if (!isProcessing) {
+                baseImageData = null;
+                createBaseImage();
+            }
+        });
+
+        contrastInput.addEventListener('input', function() {
+            contrastVal.textContent = this.value;
+            if (!isProcessing) {
+                baseImageData = null;
+                createBaseImage();
+            }
+        });
+
+        // Сброс
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            brightnessInput.value = 50;
+            contrastInput.value = 50;
+            dashLengthInput.value = 8;
+            gapLengthInput.value = 6;
+            dashedModeCheckbox.checked = false;
+            dashParams.style.display = 'none';
+            brightVal.textContent = '50';
+            contrastVal.textContent = '50';
+            baseImageData = null;
+            createBaseImage();
+            showStatus('🔄 Настройки сброшены');
+        });
+
+        // Скачивание PNG
+        document.getElementById('downloadPngBtn').addEventListener('click', function() {
+            if (!originalImage) {
+                showStatus('❌ Сначала загрузите изображение', false);
+                return;
+            }
+
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'raskraska.png';
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showStatus('✅ PNG сохранён!');
+            } catch (error) {
+                console.error('Ошибка скачивания PNG:', error);
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    window.open(dataUrl, '_blank');
+                    showStatus('⚠️ PNG открыт в новой вкладке (сохраните вручную)');
+                } catch (e) {
+                    showStatus('❌ Не удалось сохранить PNG', false);
+                }
+            }
+        });
+
+        // Скачивание PDF
+        document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
+            if (!originalImage) {
+                showStatus('❌ Сначала загрузите изображение', false);
+                return;
+            }
+
+            if (typeof html2canvas === 'undefined') {
+                showStatus('❌ Библиотека не загружена. Проверьте интернет.', false);
+                return;
+            }
+
+            try {
+                showStatus('⏳ Создание PDF...');
+
+                const capturedCanvas = await html2canvas(canvas, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const imgData = capturedCanvas.toDataURL('image/png');
+
+                if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                    window.open(imgData, '_blank');
+                    showStatus('⚠️ PDF библиотека недоступна. Открыто как изображение.');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const pdfWidth = capturedCanvas.width;
+                const pdfHeight = capturedCanvas.height;
+                const orientation = pdfWidth > pdfHeight ? 'l' : 'p';
+
+                const pdf = new jsPDF(orientation, 'px', [pdfWidth, pdfHeight]);
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('raskraska.pdf');
+                showStatus('✅ PDF сохранён!');
+            } catch (error) {
+                console.error('Ошибка создания PDF:', error);
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = 'raskraska.png';
+                    link.href = dataUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showStatus('⚠️ PDF не создан, сохранён PNG');
+                } catch (e) {
+                    showStatus('❌ Ошибка сохранения', false);
+                }
+            }
+        });
+    })();
+</script>
+</body>
+</html>
