@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Математическое приключение</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #87CEEB, #98FB98);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .scene {
+    display: none;
+    width: 100%;
+    max-width: 900px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: fadeIn 0.6s ease;
+  }
+  .scene.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .scene1-bg {
+    background: linear-gradient(to bottom, #87CEEB, #90EE90);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25px;
+  }
+
+  h1 {
+    font-size: 3em;
+    color: #fff;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  h2 {
+    font-size: 2em;
+    color: #FF6B35;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .character-container {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #FFD700;
+    background: #fff;
+  }
+  .character-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4em;
+    background: #f0f0f0;
+    color: #555;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #FF6B35, #F7931E);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.3em;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+    margin: 10px;
+  }
+  .btn:hover { transform: scale(1.05); }
+  
+  .example {
+    background: #FFF8DC;
+    border: 3px solid #FFD700;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 1.4em;
+  }
+  .example input {
+    width: 100px;
+    padding: 8px;
+    font-size: 1em;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    text-align: center;
+    font-family: inherit;
+  }
+  .example.correct { background: #90EE90; border-color: #228B22; }
+  .example.wrong { background: #FFB6B6; border-color: #DC143C; }
+  .correct-answer {
+    color: #228B22;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  .result {
+    text-align: center;
+    font-size: 1.5em;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- СЦЕНА 1: Правило -->
+<div class="scene active" id="scene1">
+  <div class="scene1-bg">
+    <h1>📖 Повтори правило 📖</h1>
+    <h2 style="color:#fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">
+      Порядок действий:<br>
+      1️⃣ Скобки<br>
+      2️⃣ Умножение и деление<br>
+      3️⃣ Сложение и вычитание
+    </h2>
+    <button class="btn" onclick="goToScene(2)">Начать! 🚀</button>
+  </div>
+</div>
+
+<!-- СЦЕНА 2: Кот и первый уровень -->
+<div class="scene" id="scene2">
+  <div class="character-container">
+    <img src="igra/kot.jpg" class="character-img" alt="Кот" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+    <div class="placeholder" style="display:none">🐱</div>
+  </div>
+  <h2>🐱 Реши примеры! 🐱</h2>
+  <div id="level1"></div>
+  <div class="center">
+    <button class="btn" onclick="checkLevel(1)">Проверить ✓</button>
+    <button class="btn" onclick="goToScene(3)">Дальше ➡</button>
+  </div>
+  <div class="result" id="result1"></div>
+</div>
+
+<!-- СЦЕНА 3: Волшебник и второй уровень -->
+<div class="scene" id="scene3">
+  <div class="character-container">
+    <img src="igra/volshebnik.jpg" class="character-img" alt="Волшебник" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+    <div class="placeholder" style="display:none">🧙‍♂️</div>
+  </div>
+  <h2>🧙‍♂️ Будь внимателен! 🧙‍♂️</h2>
+  <div id="level2"></div>
+  <div class="center">
+    <button class="btn" onclick="checkLevel(2)">Проверить ✓</button>
+    <button class="btn" onclick="finishGame()">Завершить 🎉</button>
+  </div>
+  <div class="result" id="result2"></div>
+</div>
+
+<script>
+  const answers1 = [74, 89, 57];
+  const answers2 = [88, 93, 31, 45, 39, 10, 48, 61, 66, 9];
+
+  const examples1 = [
+    "(34 + 19) – 3 – (15 + 18) + (28 + 29) =",
+    "(69 + 27) – (18 – 9) – 30 + (14 + 18) =",
+    "(35 + 55) – 36 – (17 + 18) + 38 ="
+  ];
+
+  const examples2 = [
+    "48 : 8 + 32 – 54 : 9 + 7 · 8 =",
+    "6 · 7 · 2 – 72 : 8 + 2 · 9 =",
+    "17 + 64 : 8 · 4 – 63 : 7 · 2 =",
+    "6 · 6 + 30 : 5 · 2 · 4 – 39 =",
+    "45 : 5 · 3 + 16 : 2 · 5 – 7 · 4 =",
+    "100 – 6 · 2 : 3 · 9 – 6 · 9 =",
+    "40 – 72 : 9 + 4 · 4 =",
+    "3 · 9 + 6 · 7 – 64 : 8 =",
+    "81 : 9 · 8 – 3 · 8 : 4 =",
+    "8 · 7 – 16 : 4 · 7 – 19 ="
+  ];
+
+  function buildExamples(containerId, examples) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    examples.forEach((ex, i) => {
+      const div = document.createElement('div');
+      div.className = 'example';
+      div.id = `ex-${containerId}-${i}`;
+      div.innerHTML = `<span>${ex}</span> <input type="number" id="inp-${containerId}-${i}">`;
+      container.appendChild(div);
+    });
+  }
+
+  buildExamples('level1', examples1);
+  buildExamples('level2', examples2);
+
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function playTone(freq, duration, type='sine') {
+    try {
+      const ctx = getAudio();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    } catch(e) {}
+  }
+  function soundWrong() {
+    playTone(200, 0.3, 'sawtooth');
+  }
+  function soundClick() {
+    playTone(440, 0.1);
+  }
+  function soundWin() {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      setTimeout(() => playTone(f, 0.25), i * 150);
+    });
+  }
+
+  function goToScene(n) {
+    soundClick();
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.getElementById('scene' + n).classList.add('active');
+  }
+
+  function checkLevel(level) {
+    soundClick();
+    const answers = level === 1 ? answers1 : answers2;
+    const containerId = level === 1 ? 'level1' : 'level2';
+    let correct = 0;
+
+    answers.forEach((ans, i) => {
+      const inp = document.getElementById(`inp-${containerId}-${i}`);
+      const ex = document.getElementById(`ex-${containerId}-${i}`);
+      const userVal = parseInt(inp.value);
+      ex.classList.remove('correct', 'wrong');
+      const old = ex.querySelector('.correct-answer');
+      if (old) old.remove();
+
+      if (userVal === ans) {
+        ex.classList.add('correct');
+        correct++;
+      } else {
+        ex.classList.add('wrong');
+        const span = document.createElement('span');
+        span.className = 'correct-answer';
+        span.textContent = `Ответ: ${ans}`;
+        ex.appendChild(span);
+      }
+    });
+
+    const resultEl = document.getElementById('result' + level);
+    if (correct === answers.length) {
+      resultEl.textContent = `🎉 Молодец! Все ${correct} из ${answers.length} правильно!`;
+      resultEl.style.color = '#228B22';
+      soundWin();
+    } else {
+      resultEl.textContent = `Правильно: ${correct} из ${answers.length}. Попробуй ещё! 💪`;
+      resultEl.style.color = '#DC143C';
+      soundWrong();
+    }
+  }
+
+  function finishGame() {
+    soundWin();
+    alert('🎉 Поздравляем! Ты настоящий математик! 🏆');
+  }
+</script>
+
+</body>
+</html>
