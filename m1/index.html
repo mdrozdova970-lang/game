@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Математическое путешествие лисёнка Рыжика</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 55%, #90EE90 55%, #90EE90 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  /* Солнце */
+  .sun {
+    position: fixed; top: 20px; right: 30px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #FFD700, #FFA500);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #FFD700;
+    animation: rotate 20s linear infinite;
+    z-index: 1;
+  }
+  @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+  /* Облака */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.9;
+    z-index: 1;
+  }
+  .cloud::before, .cloud::after {
+    content: ''; position: absolute; background: white; border-radius: 50%;
+  }
+  .cloud1 { width: 100px; height: 30px; top: 60px; left: 10%; animation: drift 30s linear infinite; }
+  .cloud1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+  .cloud1::after { width: 40px; height: 40px; top: -15px; right: 15px; }
+  .cloud2 { width: 80px; height: 25px; top: 120px; left: 50%; animation: drift 40s linear infinite reverse; }
+  .cloud2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+  .cloud2::after { width: 35px; height: 35px; top: -12px; right: 10px; }
+  @keyframes drift {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+  /* Деревья */
+  .tree {
+    position: fixed; bottom: 0; font-size: 60px; z-index: 1;
+  }
+
+  .container {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .game-card {
+    background: #FFF8DC;
+    border: 4px solid #FF8C00;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+
+  h1 {
+    color: #D2691E;
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0 #FFD700;
+  }
+
+  .progress-bar {
+    background: #FFE4B5;
+    height: 22px;
+    border-radius: 11px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid #FF8C00;
+    position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #FFA500, #FFD700);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .score {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #D2691E;
+    font-weight: bold;
+  }
+
+  .fox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .fox {
+    font-size: 70px;
+    animation: bounce 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .speech-bubble {
+    background: white;
+    border: 3px solid #FF8C00;
+    border-radius: 20px;
+    padding: 15px 20px;
+    position: relative;
+    font-size: 17px;
+    color: #333;
+    flex-grow: 1;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -15px; top: 20px;
+    border: 10px solid transparent;
+    border-right-color: #FF8C00;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    left: -10px; top: 22px;
+    border: 8px solid transparent;
+    border-right-color: white;
+  }
+
+  .level-title {
+    background: #FF8C00;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 15px;
+    font-size: 18px;
+  }
+
+  .task {
+    background: #FFFACD;
+    border: 2px dashed #FF8C00;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 17px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .btn {
+    background: linear-gradient(to bottom, #FFA500, #FF8C00);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 0 #D2691E;
+    transition: all 0.1s;
+    min-width: 70px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #D2691E; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #D2691E; }
+  .btn.correct { background: linear-gradient(to bottom, #90EE90, #32CD32); box-shadow: 0 4px 0 #228B22; }
+  .btn.wrong { background: linear-gradient(to bottom, #FFB6B6, #FF6B6B); box-shadow: 0 4px 0 #C0392B; animation: shake 0.5s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .feedback {
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+  }
+  .feedback.show { display: block; animation: pop 0.5s; }
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .feedback.success { background: #90EE90; color: #006400; }
+  .feedback.error { background: #FFB6B6; color: #8B0000; }
+
+  .next-btn {
+    display: block;
+    margin: 20px auto 0;
+    background: linear-gradient(to bottom, #32CD32, #228B22);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 5px 0 #006400;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+
+  /* Визуализация: яблоки в корзинах */
+  .harvest-visual {
+    background: #FFFACD;
+    border: 3px solid #FF8C00;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 15px 0;
+    text-align: center;
+  }
+  .harvest-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #D2691E;
+    font-weight: bold;
+  }
+  .baskets-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+  }
+  .basket-visual {
+    background: #DEB887;
+    border: 3px solid #8B4513;
+    border-radius: 15px;
+    padding: 10px;
+    min-width: 80px;
+    min-height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    gap: 3px;
+  }
+  .apple {
+    font-size: 24px;
+    animation: drop 0.5s ease-out;
+  }
+  @keyframes drop {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .question-mark {
+    font-size: 40px;
+    color: #FF8C00;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  /* Примеры */
+  .example-box {
+    background: white;
+    padding: 25px;
+    margin: 15px 0;
+    border-radius: 15px;
+    border: 3px solid #FF8C00;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #D2691E;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+
+  /* Сравнение */
+  .compare-box {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 15px;
+    border: 3px solid #FF8C00;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #D2691E;
+  }
+  .compare-side {
+    background: #FFFACD;
+    padding: 15px 25px;
+    border-radius: 12px;
+    min-width: 120px;
+  }
+  .compare-sign {
+    font-size: 40px;
+    color: #FF8C00;
+  }
+
+  /* Таймер */
+  .timer {
+    background: #FF6B6B;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .timer.warning { background: #C0392B; animation: pulse 0.5s infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* Таблица умножения */
+  .mult-table {
+    background: #E6F3FF;
+    border: 2px solid #4A90E2;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+  }
+  .mult-table-title {
+    text-align: center;
+    font-size: 18px;
+    color: #4A90E2;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .mult-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    font-size: 14px;
+  }
+  .mult-cell {
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #4A90E2;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mult-cell:hover {
+    background: #4A90E2;
+    color: white;
+    transform: scale(1.05);
+  }
+
+  /* Финал */
+  .final-screen {
+    text-align: center;
+    padding: 30px;
+  }
+  .final-screen .fox { font-size: 100px; animation: jump 1s ease-in-out infinite; }
+  @keyframes jump {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  .trophy { font-size: 80px; margin: 20px 0; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="tree" style="left: 2%;">🌳</div>
+<div class="tree" style="left: 15%;">🌲</div>
+<div class="tree" style="right: 2%;">🌳</div>
+<div class="tree" style="right: 15%;">🌲</div>
+
+<div class="container">
+  <div class="game-card">
+    <h1>🦊 Математическое путешествие лисёнка Рыжика 🔢</h1>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress">0%</div>
+    </div>
+    <div class="score" id="score">⭐ Очки: 0</div>
+
+    <div class="fox-container">
+      <div class="fox">🦊</div>
+      <div class="speech-bubble" id="foxSpeech">Привет! Я лисёнок Рыжик! Сегодня мы отправимся в математическое путешествие. Будем собирать урожай, решать примеры и сравнивать числа! Готов? 🎒</div>
+    </div>
+
+    <div id="gameArea"></div>
+  </div>
+</div>
+
+<script>
+const levels = [
+  // Уровень 0: Приветствие + памятка
+  {
+    type: 'info',
+    fox: 'Сначала вспомним таблицу умножения! Можешь подглядеть, если забудешь. 📚',
+    html: `
+      <div class="level-title">📖 Таблица умножения</div>
+      <div class="mult-table">
+        <div class="mult-table-title">Нажми на пример — увидишь ответ!</div>
+        <div class="mult-grid" id="multGrid"></div>
+      </div>
+      <button class="next-btn" onclick="nextLevel()">Я готов! Вперёд! 🚀</button>
+    `
+  },
+  // Уровень 1: Сбор урожая (деление с визуализацией)
+  {
+    type: 'harvest',
+    fox: 'Задание 1! Помоги разложить яблоки в корзины поровну. Сколько яблок в каждой корзине? 🍎',
+    tasks: [
+      { apples: 12, baskets: 3, answer: 4 },
+      { apples: 15, baskets: 5, answer: 3 },
+      { apples: 18, baskets: 2, answer: 9 },
+      { apples: 20, baskets: 4, answer: 5 },
+      { apples: 16, baskets: 8, answer: 2 }
+    ]
+  },
+  // Уровень 2: Математический тир (примеры на умножение/деление)
+  {
+    type: 'shooter',
+    fox: 'Задание 2! Реши примеры на умножение и деление. Выбери правильный ответ! 🎯',
+    tasks: [
+      { example: '3 × 4 = ?', answer: 12, options: [10, 12, 14, 15] },
+      { example: '5 × 2 = ?', answer: 10, options: [8, 10, 12, 15] },
+      { example: '18 : 3 = ?', answer: 6, options: [5, 6, 7, 9] },
+      { example: '4 × 5 = ?', answer: 20, options: [15, 18, 20, 25] },
+      { example: '16 : 4 = ?', answer: 4, options: [3, 4, 5, 6] },
+      { example: '6 × 3 = ?', answer: 18, options: [15, 16, 18, 21] },
+      { example: '20 : 5 = ?', answer: 4, options: [3, 4, 5, 6] },
+      { example: '7 × 2 = ?', answer: 14, options: [12, 14, 16, 18] },
+      { example: '14 : 2 = ?', answer: 7, options: [6, 7, 8, 9] },
+      { example: '8 × 3 = ?', answer: 24, options: [21, 24, 27, 30] }
+    ]
+  },
+  // Уровень 3: Сравняйка (сравнение выражений)
+  {
+    type: 'compare',
+    fox: 'Задание 3! Сравни два выражения. Какой знак нужно поставить: >, < или =? ⚖️',
+    tasks: [
+      { left: '3 × 4', right: '15', answer: '<' },
+      { left: '5 × 2', right: '10', answer: '=' },
+      { left: '18 : 3', right: '5', answer: '>' },
+      { left: '4 × 5', right: '25', answer: '<' },
+      { left: '20 : 4', right: '5', answer: '=' },
+      { left: '6 × 3', right: '15', answer: '>' },
+      { left: '7 × 2', right: '14', answer: '=' }
+    ]
+  },
+  // Финал
+  {
+    type: 'final',
+    fox: 'Ура! Мы прошли все испытания! Ты настоящий математик! 🏆'
+  }
+];
+
+let currentLevel = 0;
+let score = 0;
+
+function updateProgress() {
+  const percent = Math.round((currentLevel / levels.length) * 100);
+  const fill = document.getElementById('progress');
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  document.getElementById('score').innerHTML = `⭐ Очки: ${score}`;
+}
+
+function setFox(text) {
+  document.getElementById('foxSpeech').textContent = text;
+}
+
+function renderLevel() {
+  updateProgress();
+  const level = levels[currentLevel];
+  const area = document.getElementById('gameArea');
+  setFox(level.fox);
+
+  if (level.type === 'info') {
+    area.innerHTML = level.html;
+    renderMultTable();
+  }
+  else if (level.type === 'harvest') renderHarvest(level);
+  else if (level.type === 'shooter') renderShooter(level);
+  else if (level.type === 'compare') renderCompare(level);
+  else if (level.type === 'final') renderFinal();
+}
+
+// Таблица умножения
+function renderMultTable() {
+  const grid = document.getElementById('multGrid');
+  let html = '';
+  for (let i = 2; i <= 9; i++) {
+    for (let j = 2; j <= 5; j++) {
+      const result = i * j;
+      html += `<div class="mult-cell" onclick="alert('${i} × ${j} = ${result}')">${i}×${j}</div>`;
+    }
+  }
+  grid.innerHTML = html;
+}
+
+// Уровень 1: Сбор урожая
+function renderHarvest(level) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= level.tasks.length) {
+      score += 15;
+      setFox('Ты отлично справился со сбором урожая! 🍎');
+      area.innerHTML = `<div class="feedback success show">Все яблоки разложены! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = level.tasks[taskIdx];
+    let html = `<div class="level-title">🍎 Задача ${taskIdx+1} из ${level.tasks.length}</div>`;
+    html += `<div class="task">
+      <b>Условие:</b> У лисёнка <b>${t.apples} яблок</b>. Нужно разложить их в <b>${t.baskets} корзин</b> поровну.<br>
+      <b>Вопрос:</b> Сколько яблок будет в каждой корзине?
+    </div>`;
+    
+    html += `<div class="harvest-visual">
+      <div class="harvest-title">Визуализация:</div>
+      <div class="baskets-row">`;
+    for (let i = 0; i < t.baskets; i++) {
+      html += `<div class="basket-visual">`;
+      for (let j = 0; j < t.answer; j++) {
+        html += `<span class="apple">🍎</span>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+    html += `<div class="question-mark">? яблок в каждой корзине</div>`;
+    html += `</div>`;
+    
+    html += `<p><b>Выбери правильный ответ:</b></p>`;
+    html += `<div class="buttons" id="harvestBtns">`;
+    const options = generateOptions(t.answer, 2, 20);
+    options.forEach(opt => {
+      html += `<button class="btn" onclick="checkHarvest(${opt}, ${t.answer})">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkHarvest = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#harvestBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (parseInt(b.textContent) === correct) b.classList.add('correct');
+      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно! В каждой корзине по ${correct} яблок!`;
+      score += 3;
+      setTimeout(() => { taskIdx++; showTask(); }, 1500);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+      setTimeout(() => { taskIdx++; showTask(); }, 2000);
+    }
+  };
+  showTask();
+}
+
+// Генерация вариантов ответов
+function generateOptions(correct, min, max) {
+  const options = new Set([correct]);
+  while (options.size < 4) {
+    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (rand !== correct) options.add(rand);
+  }
+  return Array.from(options).sort(() => Math.random() - 0.5);
+}
+
+// Уровень 2: Математический тир
+function renderShooter(level) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= level.tasks.length) {
+      score += 20;
+      setFox('Ты молниеносно решаешь примеры! ⚡');
+      area.innerHTML = `<div class="feedback success show">Все примеры решены! +20 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = level.tasks[taskIdx];
+    let html = `<div class="level-title">🎯 Пример ${taskIdx+1} из ${level.tasks.length}</div>`;
+    html += `<div class="example-box">${t.example}</div>`;
+    html += `<p><b>Выбери правильный ответ:</b></p>`;
+    html += `<div class="buttons" id="shooterBtns">`;
+    t.options.forEach(opt => {
+      html += `<button class="btn" onclick="checkShooter(${opt}, ${t.answer})">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkShooter = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#shooterBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (parseInt(b.textContent) === correct) b.classList.add('correct');
+      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно!`;
+      score += 2;
+      setTimeout(() => { taskIdx++; showTask(); }, 1000);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+      setTimeout(() => { taskIdx++; showTask(); }, 1500);
+    }
+  };
+  showTask();
+}
+
+// Уровень 3: Сравняйка
+function renderCompare(level) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= level.tasks.length) {
+      score += 15;
+      setFox('Ты отлично умеешь сравнивать! ⚖️');
+      area.innerHTML = `<div class="feedback success show">Все сравнения верны! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = level.tasks[taskIdx];
+    let html = `<div class="level-title">⚖️ Сравнение ${taskIdx+1} из ${level.tasks.length}</div>`;
+    html += `<div class="compare-box">
+      <div class="compare-side">${t.left}</div>
+      <div class="compare-sign">?</div>
+      <div class="compare-side">${t.right}</div>
+    </div>`;
+    html += `<p><b>Какой знак нужно поставить?</b></p>`;
+    html += `<div class="buttons" id="compareBtns">`;
+    html += `<button class="btn" onclick="checkCompare('>', '${t.answer}')" style="font-size:28px;">&gt;</button>`;
+    html += `<button class="btn" onclick="checkCompare('<', '${t.answer}')" style="font-size:28px;">&lt;</button>`;
+    html += `<button class="btn" onclick="checkCompare('=', '${t.answer}')" style="font-size:28px;">=</button>`;
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkCompare = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#compareBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      const sign = b.textContent.trim();
+      if (sign === correct) b.classList.add('correct');
+      else if (sign === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно!`;
+      score += 2;
+      setTimeout(() => { taskIdx++; showTask(); }, 1000);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Неверно. Правильный знак: ${correct}`;
+      setTimeout(() => { taskIdx++; showTask(); }, 1500);
+    }
+  };
+  showTask();
+}
+
+// Финал
+function renderFinal() {
+  const area = document.getElementById('gameArea');
+  let medal = '🥉';
+  let comment = 'Хороший результат!';
+  if (score >= 40) { medal = '🥇'; comment = 'Превосходно! Ты настоящий математик!'; }
+  else if (score >= 25) { medal = '🥈'; comment = 'Отлично! Ты очень хорошо потрудился!'; }
+  
+  area.innerHTML = `
+    <div class="final-screen">
+      <div class="fox">🦊</div>
+      <div class="trophy">${medal}</div>
+      <h2 style="color:#D2691E;font-size:28px;">Путешествие окончено!</h2>
+      <p style="font-size:22px;margin:15px 0;">Ты набрал <b>${score}</b> ⭐ очков!</p>
+      <p style="font-size:18px;">${comment}</p>
+      <p style="font-size:16px;margin-top:15px;color:#D2691E;">
+        Лисёнок Рыжик гордится тобой!<br>
+        Ты теперь отлично знаешь таблицу умножения и деления!
+      </p>
+      <button class="next-btn" onclick="restart()" style="margin-top:20px;">🔄 Пройти ещё раз</button>
+    </div>
+  `;
+}
+
+function nextLevel() {
+  currentLevel++;
+  if (currentLevel >= levels.length) currentLevel = levels.length - 1;
+  renderLevel();
+}
+
+function restart() {
+  currentLevel = 0;
+  score = 0;
+  renderLevel();
+}
+
+renderLevel();
+</script>
+
+</body>
+</html>

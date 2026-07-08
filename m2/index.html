@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Зимняя математика с лисёнком Рыжиком</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    background: linear-gradient(to bottom, #B0D8F0 0%, #D6EAF8 50%, #FFFFFF 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  /* Снежинки */
+  .snowflake {
+    position: fixed;
+    top: -30px;
+    color: white;
+    font-size: 20px;
+    text-shadow: 0 0 5px rgba(255,255,255,0.8);
+    animation: fall linear infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.4; }
+  }
+  /* Сугробы */
+  .snowdrift {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background: white;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 1;
+    box-shadow: 0 -5px 15px rgba(255,255,255,0.5);
+  }
+  /* Ёлочки */
+  .tree {
+    position: fixed;
+    bottom: 30px;
+    font-size: 70px;
+    z-index: 2;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2));
+  }
+
+  .container {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .game-card {
+    background: #FFF8F0;
+    border: 4px solid #C0392B;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+
+  h1 {
+    color: #C0392B;
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0 #FFF;
+  }
+
+  .progress-bar {
+    background: #FFE4E1;
+    height: 22px;
+    border-radius: 11px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid #C0392B;
+    position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #E74C3C, #F39C12);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .score {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #C0392B;
+    font-weight: bold;
+  }
+
+  .fox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .fox {
+    font-size: 70px;
+    animation: bounce 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .speech-bubble {
+    background: white;
+    border: 3px solid #C0392B;
+    border-radius: 20px;
+    padding: 15px 20px;
+    position: relative;
+    font-size: 17px;
+    color: #333;
+    flex-grow: 1;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -15px; top: 20px;
+    border: 10px solid transparent;
+    border-right-color: #C0392B;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    left: -10px; top: 22px;
+    border: 8px solid transparent;
+    border-right-color: white;
+  }
+
+  .level-title {
+    background: #C0392B;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 15px;
+    font-size: 18px;
+  }
+
+  .task {
+    background: #FFFACD;
+    border: 2px dashed #C0392B;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .btn {
+    background: linear-gradient(to bottom, #E74C3C, #C0392B);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 0 #8B2820;
+    transition: all 0.1s;
+    min-width: 70px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #8B2820; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #8B2820; }
+  .btn.correct { background: linear-gradient(to bottom, #90EE90, #32CD32); box-shadow: 0 4px 0 #228B22; }
+  .btn.wrong { background: linear-gradient(to bottom, #FFB6B6, #FF6B6B); box-shadow: 0 4px 0 #C0392B; animation: shake 0.5s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .feedback {
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+  }
+  .feedback.show { display: block; animation: pop 0.5s; }
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .feedback.success { background: #90EE90; color: #006400; }
+  .feedback.error { background: #FFB6B6; color: #8B0000; }
+
+  .next-btn {
+    display: block;
+    margin: 20px auto 0;
+    background: linear-gradient(to bottom, #32CD32, #228B22);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 5px 0 #006400;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+
+  /* Пример с пропуском */
+  .missing-box {
+    background: white;
+    padding: 25px;
+    margin: 15px 0;
+    border-radius: 15px;
+    border: 3px solid #C0392B;
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #C0392B;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  .missing-box .blank {
+    display: inline-block;
+    min-width: 60px;
+    border-bottom: 4px solid #F39C12;
+    color: #F39C12;
+    margin: 0 5px;
+  }
+
+  /* Задача */
+  .problem-box {
+    background: linear-gradient(135deg, #FFF8DC, #FFE4B5);
+    border: 3px solid #F39C12;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .problem-box .emoji {
+    font-size: 40px;
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* Цепочка */
+  .chain {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 15px;
+    border: 3px solid #C0392B;
+  }
+  .chain-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #C0392B;
+    flex-wrap: wrap;
+  }
+  .chain-arrow {
+    font-size: 30px;
+    color: #F39C12;
+  }
+  .chain-answer {
+    display: inline-block;
+    min-width: 50px;
+    padding: 5px 15px;
+    background: #FFFACD;
+    border: 2px dashed #F39C12;
+    border-radius: 10px;
+    text-align: center;
+  }
+  .chain-answer.filled {
+    background: #90EE90;
+    border-style: solid;
+    border-color: #32CD32;
+    color: #006400;
+  }
+
+  /* Ошибки */
+  .error-list {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+    border: 3px solid #C0392B;
+  }
+  .error-item {
+    background: #FFF8DC;
+    padding: 12px 15px;
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    text-align: center;
+  }
+  .error-item:hover {
+    background: #FFE4B5;
+    border-color: #F39C12;
+    transform: scale(1.02);
+  }
+  .error-item.found {
+    background: #FFB6B6;
+    border-color: #C0392B;
+  }
+  .error-item.right-found {
+    background: #90EE90;
+    border-color: #32CD32;
+  }
+
+  /* Финал */
+  .final-screen {
+    text-align: center;
+    padding: 30px;
+  }
+  .final-screen .fox { font-size: 100px; animation: jump 1s ease-in-out infinite; }
+  @keyframes jump {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  .trophy { font-size: 80px; margin: 20px 0; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Снежинки -->
+<div class="snowflake" style="left: 5%; animation-duration: 8s; animation-delay: 0s;">❄</div>
+<div class="snowflake" style="left: 15%; animation-duration: 10s; animation-delay: 2s;">❅</div>
+<div class="snowflake" style="left: 25%; animation-duration: 9s; animation-delay: 4s;">❆</div>
+<div class="snowflake" style="left: 35%; animation-duration: 11s; animation-delay: 1s;">❄</div>
+<div class="snowflake" style="left: 45%; animation-duration: 8.5s; animation-delay: 3s;">❅</div>
+<div class="snowflake" style="left: 55%; animation-duration: 10.5s; animation-delay: 5s;">❆</div>
+<div class="snowflake" style="left: 65%; animation-duration: 9.5s; animation-delay: 2.5s;">❄</div>
+<div class="snowflake" style="left: 75%; animation-duration: 11.5s; animation-delay: 0.5s;">❅</div>
+<div class="snowflake" style="left: 85%; animation-duration: 8.8s; animation-delay: 3.5s;">❆</div>
+<div class="snowflake" style="left: 95%; animation-duration: 10.2s; animation-delay: 1.5s;">❄</div>
+
+<!-- Сугроб -->
+<div class="snowdrift"></div>
+
+<!-- Ёлочки -->
+<div class="tree" style="left: 2%;">🎄</div>
+<div class="tree" style="right: 2%;">🎄</div>
+
+<div class="container">
+  <div class="game-card">
+    <h1>🦊 Зимняя математика с лисёнком Рыжиком ❄</h1>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress">0%</div>
+    </div>
+    <div class="score" id="score">⭐ Очки: 0</div>
+
+    <div class="fox-container">
+      <div class="fox">🦊</div>
+      <div class="speech-bubble" id="foxSpeech">Привет! Я лисёнок Рыжик! Наступила зима, и я готовлюсь к Новогодней математической олимпиаде. Помоги мне потренироваться — будем искать пропущенные числа, решать задачи и проходить цепочки! Готов? 🎒</div>
+    </div>
+
+    <div id="gameArea"></div>
+  </div>
+</div>
+
+<script>
+// Функция перемешивания массива (алгоритм Фишера-Йетса)
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const levels = [
+  // Уровень 0: Приветствие
+  {
+    type: 'intro',
+    fox: 'Сегодня нас ждёт 4 испытания! За каждое правильное решение ты получаешь очки. В конце будет медаль! 🏅',
+    html: `
+      <div class="level-title">🎯 План тренировки</div>
+      <div class="task">
+        <b>1. 🔍 Пропущенное число</b> — найди, какое число спряталось в примере<br>
+        <b>2. 📖 Задачки от лисёнка</b> — реши текстовые задачи (в 1 и 2 действия)<br>
+        <b>3. 🔗 Математическая цепочка</b> — пройди цепочку примеров<br>
+        <b>4. 🕵️ Найди ошибку</b> — лисёнок решил примеры, но где-то ошибся
+      </div>
+    `
+  },
+  // Уровень 1: Пропущенное число
+  {
+    type: 'missing',
+    fox: 'Задание 1! В примерах спряталось число. Найди его! 🔍',
+    tasks: [
+      { display: '? × 4 = 20', answer: 5, options: [4, 5, 6, 7] },
+      { display: '3 × ? = 18', answer: 6, options: [5, 6, 7, 9] },
+      { display: '24 : ? = 6', answer: 4, options: [3, 4, 5, 6] },
+      { display: '? : 5 = 3', answer: 15, options: [10, 12, 15, 20] },
+      { display: '7 × ? = 21', answer: 3, options: [2, 3, 4, 7] },
+      { display: '? × 8 = 16', answer: 2, options: [2, 3, 4, 8] }
+    ]
+  },
+  // Уровень 2: Задачки от лисёнка
+  {
+    type: 'problem',
+    fox: 'Задание 2! Реши мои задачки. Внимательно читай условие! 📖',
+    tasks: [
+      {
+        emoji: '🍄',
+        text: 'Лисёнок нашёл в лесу <b>4 корзинки</b>, в каждой из которых лежало по <b>3 гриба</b>. Сколько всего грибов нашёл лисёнок?',
+        options: [7, 10, 12, 15],
+        answer: 12,
+        solution: '4 × 3 = 12'
+      },
+      {
+        emoji: '🐿️',
+        text: 'У белки было <b>18 орехов</b>. Она разложила их в <b>3 дупла</b> поровну. Сколько орехов получилось в каждом дупле?',
+        options: [5, 6, 7, 9],
+        answer: 6,
+        solution: '18 : 3 = 6'
+      },
+      {
+        emoji: '🫐',
+        text: 'Лисёнок нашёл <b>3 ряда</b> ягод, в каждом ряду по <b>5 ягод</b>. Он съел <b>4 ягоды</b>. Сколько ягод осталось?',
+        options: [8, 11, 12, 15],
+        answer: 11,
+        solution: '1) 3 × 5 = 15 (всего ягод)<br>2) 15 − 4 = 11 (осталось)'
+      },
+      {
+        emoji: '🥧',
+        text: 'Мама-лиса испекла <b>20 пирожков</b> и разложила их на <b>4 тарелки</b> поровну. Лисёнок съел <b>2 пирожка</b> с одной тарелки. Сколько пирожков осталось на этой тарелке?',
+        options: [2, 3, 4, 5],
+        answer: 3,
+        solution: '1) 20 : 4 = 5 (на каждой тарелке)<br>2) 5 − 2 = 3 (осталось)'
+      },
+      {
+        emoji: '🥕',
+        text: 'В магазине одна морковка стоит <b>3 рубля</b>. Сколько рублей стоят <b>6 морковок</b>?',
+        options: [15, 18, 21, 24],
+        answer: 18,
+        solution: '3 × 6 = 18'
+      }
+    ]
+  },
+  // Уровень 3: Математическая цепочка
+  {
+    type: 'chain',
+    fox: 'Задание 3! Пройди математическую цепочку. Результат одного примера — начало следующего! 🔗',
+    tasks: [
+      {
+        steps: [
+          { expr: '2 × 3', answer: 6 },
+          { expr: '... : 2', answer: 3 },
+          { expr: '... × 5', answer: 15 },
+          { expr: '... : 3', answer: 5 }
+        ]
+      },
+      {
+        steps: [
+          { expr: '4 × 2', answer: 8 },
+          { expr: '... : 4', answer: 2 },
+          { expr: '... × 6', answer: 12 },
+          { expr: '... : 3', answer: 4 }
+        ]
+      },
+      {
+        steps: [
+          { expr: '5 × 3', answer: 15 },
+          { expr: '... : 5', answer: 3 },
+          { expr: '... × 4', answer: 12 },
+          { expr: '... : 6', answer: 2 }
+        ]
+      }
+    ]
+  },
+  // Уровень 4: Найди ошибку
+  {
+    type: 'error',
+    fox: 'Задание 4! Я решил примеры, но где-то ошибся. Найди неверный пример! 🕵️',
+    tasks: [
+      {
+        items: ['3 × 4 = 12', '5 × 3 = 15', '6 × 2 = 13', '8 : 2 = 4'],
+        wrongIdx: 2,
+        correct: '6 × 2 = 12'
+      },
+      {
+        items: ['18 : 3 = 6', '20 : 4 = 5', '14 : 2 = 6', '16 : 4 = 4'],
+        wrongIdx: 2,
+        correct: '14 : 2 = 7'
+      },
+      {
+        items: ['7 × 2 = 14', '4 × 5 = 20', '3 × 6 = 19', '9 × 2 = 18'],
+        wrongIdx: 2,
+        correct: '3 × 6 = 18'
+      },
+      {
+        items: ['21 : 3 = 7', '24 : 6 = 4', '15 : 5 = 2', '27 : 3 = 9'],
+        wrongIdx: 2,
+        correct: '15 : 5 = 3'
+      }
+    ]
+  },
+  // Финал
+  {
+    type: 'final',
+    fox: 'Ура! Мы прошли все испытания! Ты настоящий математик! 🏆'
+  }
+];
+
+let currentLevel = 0;
+let score = 0;
+let shuffledTasks = []; // Перемешанные задания
+
+function updateProgress() {
+  const percent = Math.round((currentLevel / levels.length) * 100);
+  const fill = document.getElementById('progress');
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  document.getElementById('score').innerHTML = `⭐ Очки: ${score}`;
+}
+
+function setFox(text) {
+  document.getElementById('foxSpeech').textContent = text;
+}
+
+function renderLevel() {
+  updateProgress();
+  const level = levels[currentLevel];
+  const area = document.getElementById('gameArea');
+  setFox(level.fox);
+
+  if (level.type === 'intro') {
+    area.innerHTML = level.html + `<button class="next-btn" onclick="nextLevel()">Начинаем! 🚀</button>`;
+  }
+  else if (level.type === 'missing') {
+    shuffledTasks = shuffle(level.tasks);
+    renderMissing(shuffledTasks);
+  }
+  else if (level.type === 'problem') {
+    shuffledTasks = shuffle(level.tasks);
+    renderProblem(shuffledTasks);
+  }
+  else if (level.type === 'chain') {
+    shuffledTasks = shuffle(level.tasks);
+    renderChain(shuffledTasks);
+  }
+  else if (level.type === 'error') {
+    shuffledTasks = shuffle(level.tasks);
+    renderError(shuffledTasks);
+  }
+  else if (level.type === 'final') renderFinal();
+}
+
+// === Уровень 1: Пропущенное число ===
+function renderMissing(tasks) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= tasks.length) {
+      score += 15;
+      setFox('Ты отлично находишь пропущенные числа! 🔍');
+      area.innerHTML = `<div class="feedback success show">Все числа найдены! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = tasks[taskIdx];
+    const shuffledOptions = shuffle(t.options);
+    let html = `<div class="level-title">🔍 Пример ${taskIdx+1} из ${tasks.length}</div>`;
+    html += `<div class="missing-box">${t.display.replace('?', '<span class="blank">?</span>')}</div>`;
+    html += `<p><b>Какое число пропущено?</b></p>`;
+    html += `<div class="buttons" id="missBtns">`;
+    shuffledOptions.forEach(opt => {
+      html += `<button class="btn" onclick="checkMissing(${opt}, ${t.answer})">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkMissing = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#missBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (parseInt(b.textContent) === correct) b.classList.add('correct');
+      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно! Пропущенное число — ${correct}`;
+      score += 3;
+      setTimeout(() => { taskIdx++; showTask(); }, 1200);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+      setTimeout(() => { taskIdx++; showTask(); }, 1800);
+    }
+  };
+  showTask();
+}
+
+// === Уровень 2: Задачки ===
+function renderProblem(tasks) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= tasks.length) {
+      score += 20;
+      setFox('Ты отлично решаешь задачи! Даже в два действия! 📖');
+      area.innerHTML = `<div class="feedback success show">Все задачи решены! +20 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = tasks[taskIdx];
+    const shuffledOptions = shuffle(t.options);
+    let html = `<div class="level-title">📖 Задача ${taskIdx+1} из ${tasks.length}</div>`;
+    html += `<div class="problem-box">
+      <span class="emoji">${t.emoji}</span>
+      ${t.text}
+    </div>`;
+    html += `<p><b>Выбери правильный ответ:</b></p>`;
+    html += `<div class="buttons" id="probBtns">`;
+    shuffledOptions.forEach(opt => {
+      html += `<button class="btn" onclick="checkProblem(${opt}, ${t.answer})">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkProblem = function(picked, correct) {
+    const t = tasks[taskIdx];
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#probBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (parseInt(b.textContent) === correct) b.classList.add('correct');
+      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.innerHTML = `✅ Верно!<br><small>Решение: ${t.solution}</small>`;
+      score += 4;
+      setTimeout(() => { taskIdx++; showTask(); }, 2000);
+    } else {
+      fb.className = 'feedback error show';
+      fb.innerHTML = `❌ Неверно.<br><small>Правильное решение: ${t.solution}</small>`;
+      setTimeout(() => { taskIdx++; showTask(); }, 2500);
+    }
+  };
+  showTask();
+}
+
+// === Уровень 3: Математическая цепочка ===
+function renderChain(tasks) {
+  let chainIdx = 0;
+  let stepIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showChain() {
+    if (chainIdx >= tasks.length) {
+      score += 20;
+      setFox('Ты прошёл все цепочки! Настоящий математик! 🔗');
+      area.innerHTML = `<div class="feedback success show">Все цепочки пройдены! +20 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    stepIdx = 0;
+    renderChainStep();
+  }
+
+  function renderChainStep() {
+    const chain = tasks[chainIdx];
+    let html = `<div class="level-title">🔗 Цепочка ${chainIdx+1} из ${tasks.length}</div>`;
+    html += `<div class="chain">`;
+    chain.steps.forEach((step, i) => {
+      if (i > 0) html += `<div class="chain-arrow">➜</div>`;
+      html += `<div class="chain-step">`;
+      html += `<span>${step.expr}</span>`;
+      html += `<span>=</span>`;
+      if (i < stepIdx) {
+        html += `<span class="chain-answer filled">${step.answer}</span>`;
+      } else if (i === stepIdx) {
+        html += `<span class="chain-answer">?</span>`;
+      } else {
+        html += `<span class="chain-answer" style="opacity:0.3;">?</span>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+    
+    const currentStep = chain.steps[stepIdx];
+    html += `<p><b>Сколько получится?</b></p>`;
+    html += `<div class="buttons" id="chainBtns">`;
+    const options = generateOptions(currentStep.answer, 1, 20);
+    options.forEach(opt => {
+      html += `<button class="btn" onclick="checkChain(${opt}, ${currentStep.answer})">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkChain = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#chainBtns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (parseInt(b.textContent) === correct) b.classList.add('correct');
+      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно!`;
+      score += 2;
+      stepIdx++;
+      const chain = tasks[chainIdx];
+      if (stepIdx >= chain.steps.length) {
+        setTimeout(() => { chainIdx++; showChain(); }, 1200);
+      } else {
+        setTimeout(() => renderChainStep(), 1000);
+      }
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+      setTimeout(() => renderChainStep(), 1500);
+    }
+  };
+  showChain();
+}
+
+// === Уровень 4: Найди ошибку ===
+function renderError(tasks) {
+  let taskIdx = 0;
+  const area = document.getElementById('gameArea');
+
+  function showTask() {
+    if (taskIdx >= tasks.length) {
+      score += 15;
+      setFox('Ты настоящий детектив! Все ошибки найдены! 🕵️');
+      area.innerHTML = `<div class="feedback success show">Все ошибки найдены! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const t = tasks[taskIdx];
+    // Перемешиваем примеры, сохраняя индекс правильного
+    const itemsWithIdx = t.items.map((item, idx) => ({ text: item, isWrong: idx === t.wrongIdx }));
+    const shuffledItems = shuffle(itemsWithIdx);
+    const newWrongIdx = shuffledItems.findIndex(item => item.isWrong);
+    
+    let html = `<div class="level-title">🕵️ Случай ${taskIdx+1} из ${tasks.length}</div>`;
+    html += `<div class="task">Я решил примеры, но в одном из них ошибся. Кликни на неверный пример!</div>`;
+    html += `<div class="error-list" id="errorList">`;
+    shuffledItems.forEach((item, i) => {
+      html += `<div class="error-item" onclick="checkError(${i}, ${newWrongIdx})">${item.text}</div>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkError = function(idx, wrongIdx) {
+    const t = tasks[taskIdx];
+    const fb = document.getElementById('fb');
+    const items = document.querySelectorAll('#errorList .error-item');
+    items.forEach(i => i.style.pointerEvents = 'none');
+    
+    if (idx === wrongIdx) {
+      items[idx].classList.add('right-found');
+      fb.className = 'feedback success show';
+      fb.innerHTML = `✅ Верно! Ошибка здесь!<br><small>Правильно: ${t.correct}</small>`;
+      score += 4;
+      setTimeout(() => { taskIdx++; showTask(); }, 2000);
+    } else {
+      items[idx].classList.add('found');
+      items[wrongIdx].classList.add('right-found');
+      fb.className = 'feedback error show';
+      fb.innerHTML = `❌ Не то. Ошибка была в: <b>${items[wrongIdx].textContent}</b><br><small>Правильно: ${t.correct}</small>`;
+      setTimeout(() => { taskIdx++; showTask(); }, 2500);
+    }
+  };
+  showTask();
+}
+
+// Генерация вариантов ответов
+function generateOptions(correct, min, max) {
+  const options = new Set([correct]);
+  while (options.size < 4) {
+    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (rand !== correct) options.add(rand);
+  }
+  return shuffle(Array.from(options));
+}
+
+// Финал
+function renderFinal() {
+  const area = document.getElementById('gameArea');
+  let medal = '🥉';
+  let comment = 'Хороший результат!';
+  if (score >= 60) { medal = '🥇'; comment = 'Превосходно! Ты настоящий математик!'; }
+  else if (score >= 40) { medal = '🥈'; comment = 'Отлично! Ты очень хорошо потрудился!'; }
+  
+  area.innerHTML = `
+    <div class="final-screen">
+      <div class="fox">🦊</div>
+      <div class="trophy">${medal}</div>
+      <h2 style="color:#C0392B;font-size:28px;">Тренировка окончена!</h2>
+      <p style="font-size:22px;margin:15px 0;">Ты набрал <b>${score}</b> ⭐ очков!</p>
+      <p style="font-size:18px;">${comment}</p>
+      <p style="font-size:16px;margin-top:15px;color:#C0392B;">
+        Лисёнок Рыжик готов к Новогодней олимпиаде!<br>
+        Спасибо за помощь! 🎄
+      </p>
+      <button class="next-btn" onclick="restart()" style="margin-top:20px;">🔄 Пройти ещё раз</button>
+    </div>
+  `;
+}
+
+function nextLevel() {
+  currentLevel++;
+  if (currentLevel >= levels.length) currentLevel = levels.length - 1;
+  renderLevel();
+}
+
+function restart() {
+  currentLevel = 0;
+  score = 0;
+  renderLevel();
+}
+
+renderLevel();
+</script>
+
+</body>
+</html>
