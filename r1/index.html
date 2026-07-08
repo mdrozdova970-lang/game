@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Летние приключения лисёнка Рыжика</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #90EE90 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  /* Солнце */
+  .sun {
+    position: fixed; top: 20px; right: 30px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #FFD700, #FFA500);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #FFD700;
+    animation: rotate 20s linear infinite;
+    z-index: 1;
+  }
+  @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+  /* Облака */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.9;
+    z-index: 1;
+  }
+  .cloud::before, .cloud::after {
+    content: ''; position: absolute; background: white; border-radius: 50%;
+  }
+  .cloud1 { width: 100px; height: 30px; top: 60px; left: 10%; animation: drift 30s linear infinite; }
+  .cloud1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+  .cloud1::after { width: 40px; height: 40px; top: -15px; right: 15px; }
+  .cloud2 { width: 80px; height: 25px; top: 120px; left: 50%; animation: drift 40s linear infinite reverse; }
+  .cloud2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+  .cloud2::after { width: 35px; height: 35px; top: -12px; right: 10px; }
+  @keyframes drift {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+  /* Цветочки на траве */
+  .flower {
+    position: fixed; bottom: 0; font-size: 30px; z-index: 1;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .game-card {
+    background: #FFF8DC;
+    border: 4px solid #FF8C00;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+  }
+
+  h1 {
+    color: #D2691E;
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0 #FFD700;
+  }
+
+  .progress-bar {
+    background: #FFE4B5;
+    height: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid #FF8C00;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #FFA500, #FFD700);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s;
+  }
+
+  .stars {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #FFD700;
+    text-shadow: 1px 1px 0 #D2691E;
+  }
+
+  .fox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .fox {
+    font-size: 70px;
+    animation: bounce 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .speech-bubble {
+    background: white;
+    border: 3px solid #FF8C00;
+    border-radius: 20px;
+    padding: 15px 20px;
+    position: relative;
+    font-size: 18px;
+    color: #333;
+    flex-grow: 1;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -15px; top: 20px;
+    border: 10px solid transparent;
+    border-right-color: #FF8C00;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    left: -10px; top: 22px;
+    border: 8px solid transparent;
+    border-right-color: white;
+  }
+
+  .level-title {
+    background: #FF8C00;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 15px;
+    font-size: 18px;
+  }
+
+  .task {
+    background: #FFFACD;
+    border: 2px dashed #FF8C00;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 17px;
+  }
+
+  .sentence {
+    background: white;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+    border-left: 5px solid #FF8C00;
+    font-size: 18px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .btn {
+    background: linear-gradient(to bottom, #FFA500, #FF8C00);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 0 #D2691E;
+    transition: all 0.1s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #D2691E; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #D2691E; }
+  .btn.correct { background: linear-gradient(to bottom, #90EE90, #32CD32); box-shadow: 0 4px 0 #228B22; }
+  .btn.wrong { background: linear-gradient(to bottom, #FFB6B6, #FF6B6B); box-shadow: 0 4px 0 #C0392B; animation: shake 0.5s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .word-chip {
+    display: inline-block;
+    background: white;
+    border: 2px solid #FF8C00;
+    padding: 8px 14px;
+    margin: 5px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 17px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .word-chip:hover { background: #FFE4B5; transform: scale(1.05); }
+  .word-chip.used { opacity: 0.3; pointer-events: none; }
+
+  .answer-area {
+    min-height: 60px;
+    background: white;
+    border: 3px dashed #90EE90;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+  .answer-area .word-chip { background: #FFE4B5; }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 17px;
+    border: 2px solid #FF8C00;
+    border-radius: 12px;
+    font-family: inherit;
+    margin: 10px 0;
+  }
+
+  .feedback {
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+  }
+  .feedback.show { display: block; animation: pop 0.5s; }
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .feedback.success { background: #90EE90; color: #006400; }
+  .feedback.error { background: #FFB6B6; color: #8B0000; }
+
+  .next-btn {
+    display: block;
+    margin: 20px auto 0;
+    background: linear-gradient(to bottom, #32CD32, #228B22);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 5px 0 #006400;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+  .hidden { display: none !important; }
+
+  .final-screen {
+    text-align: center;
+    padding: 30px;
+  }
+  .final-screen .fox { font-size: 100px; animation: jump 1s ease-in-out infinite; }
+  @keyframes jump {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  .trophy { font-size: 80px; margin: 20px 0; }
+
+  .hint-box {
+    background: #E6F3FF;
+    border: 2px solid #4A90E2;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 16px;
+  }
+  .hint-box b { color: #4A90E2; }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="flower" style="left: 5%;">🌼</div>
+<div class="flower" style="left: 20%;">🌸</div>
+<div class="flower" style="left: 40%;">🌻</div>
+<div class="flower" style="left: 60%;">🌺</div>
+<div class="flower" style="left: 80%;">🌷</div>
+<div class="flower" style="left: 92%;">🌼</div>
+
+<div class="container">
+  <div class="game-card">
+    <h1>🦊 Летние приключения лисёнка Рыжика 🌞</h1>
+    
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="stars" id="stars">⭐ ⭐ ⭐ ⭐ ⭐ ⭐</div>
+
+    <div class="fox-container">
+      <div class="fox">🦊</div>
+      <div class="speech-bubble" id="foxSpeech">Привет! Я лисёнок Рыжик! Давай вместе отправимся в летнее путешествие по стране Предложений! Готов?</div>
+    </div>
+
+    <div id="gameArea"></div>
+  </div>
+</div>
+
+<script>
+const levels = [
+  // Уровень 0: Памятка
+  {
+    type: 'info',
+    fox: 'Сначала запомни правило! Это поможет тебе пройти все испытания. 📚',
+    html: `
+      <div class="level-title">📖 Памятка путешественника</div>
+      <div class="hint-box">
+        <b>🗣 По цели высказывания (зачем говорим?):</b><br>
+        • <b>Повествовательное</b> — рассказываем. (.)<br>
+        • <b>Вопросительное</b> — спрашиваем. (?))<br>
+        • <b>Побудительное</b> — просим, приказываем. (. или !)<br><br>
+        <b>🎭 По интонации (как говорим?):</b><br>
+        • <b>Восклицательное</b> — с эмоциями! (!)<br>
+        • <b>Невосклицательное</b> — спокойно. (. или ?)
+      </div>
+    `
+  },
+  // Уровень 1: Определи тип
+  {
+    type: 'choose',
+    fox: 'Посмотри на предложения! Определи, какое они имеют цель высказывания. 🔍',
+    sentences: [
+      { text: 'Где зимуют раки?', answer: 'Вопросительное' },
+      { text: 'Белка спрятала орехи в дупло.', answer: 'Повествовательное' },
+      { text: 'Не шумите в лесу!', answer: 'Побудительное' },
+      { text: 'Сядь прямо и пиши красиво.', answer: 'Побудительное' }
+    ],
+    options: ['Повествовательное', 'Вопросительное', 'Побудительное']
+  },
+  // Уровень 2: Поставь знак
+  {
+    type: 'sign',
+    fox: 'Ой! Знаки потерялись! Помоги поставить точку (.) или восклицательный знак (!) 🎈',
+    sentences: [
+      { text: 'Наступила золотая осень', answer: '.' },
+      { text: 'Какая красивая бабочка', answer: '!' },
+      { text: 'Дети собирают жёлтые листья', answer: '.' },
+      { text: 'Ура, первый снег', answer: '!' }
+    ]
+  },
+  // Уровень 3: Найди лишнее
+  {
+    type: 'odd',
+    fox: 'В каждой строчке одно предложение лишнее. Найди его! 👀',
+    rows: [
+      { items: ['Который сейчас час?', 'Ты любишь кашу?', 'Закрой, пожалуйста, дверь.', 'Где ты был?'], answer: 'Закрой, пожалуйста, дверь.' },
+      { items: ['Не сори на улице!', 'Подайте мне мяч!', 'Помогите, пожалуйста!', 'На улице тепло.'], answer: 'На улице тепло.' }
+    ]
+  },
+  // Уровень 4: Двойной удар
+  {
+    type: 'double',
+    fox: 'Хитрые задания! У каждого предложения есть и ЦЕЛЬ, и ИНТОНАЦИЯ. Выбери оба! 🎯',
+    sentences: [
+      { text: 'Какая большая кошка!', goal: 'Повествовательное', intonation: 'Восклицательное' },
+      { text: 'Принеси мне книгу.', goal: 'Побудительное', intonation: 'Невосклицательное' },
+      { text: 'Когда начнётся дождь?', goal: 'Вопросительное', intonation: 'Невосклицательное' }
+    ],
+    goalOptions: ['Повествовательное', 'Вопросительное', 'Побудительное'],
+    intOptions: ['Восклицательное', 'Невосклицательное']
+  },
+  // Уровень 5: Собери предложение
+  {
+    type: 'build',
+    fox: 'Слова разбежались! Кликай на них по порядку, чтобы собрать предложение. 🔨',
+    sentences: [
+      { words: ['В', 'небе', 'летают', 'птицы.'], answer: 'В небе летают птицы.' },
+      { words: ['Не', 'ломай', 'ветки', 'деревьев!'], answer: 'Не ломай ветки деревьев!' },
+      { words: ['Который', 'сейчас', 'час?'], answer: 'Который сейчас час?' }
+    ]
+  },
+  // Уровень 6: Финал
+  {
+    type: 'final',
+    fox: 'Ура! Мы прошли все испытания! Ты настоящий знаток предложений! 🏆'
+  }
+];
+
+let currentLevel = 0;
+let stars = 0;
+let totalStars = 6;
+
+function updateProgress() {
+  const percent = (currentLevel / levels.length) * 100;
+  document.getElementById('progress').style.width = percent + '%';
+  let starsHtml = '';
+  for (let i = 0; i < totalStars; i++) {
+    starsHtml += i < stars ? '⭐ ' : '☆ ';
+  }
+  document.getElementById('stars').innerHTML = starsHtml;
+}
+
+function setFox(text) {
+  document.getElementById('foxSpeech').textContent = text;
+}
+
+function renderLevel() {
+  updateProgress();
+  const level = levels[currentLevel];
+  const area = document.getElementById('gameArea');
+  setFox(level.fox);
+
+  if (level.type === 'info') {
+    area.innerHTML = level.html + `<button class="next-btn" onclick="nextLevel()">Я запомнил! Вперёд! 🚀</button>`;
+  }
+  else if (level.type === 'choose') {
+    renderChooseLevel(level);
+  }
+  else if (level.type === 'sign') {
+    renderSignLevel(level);
+  }
+  else if (level.type === 'odd') {
+    renderOddLevel(level);
+  }
+  else if (level.type === 'double') {
+    renderDoubleLevel(level);
+  }
+  else if (level.type === 'build') {
+    renderBuildLevel(level);
+  }
+  else if (level.type === 'final') {
+    renderFinal();
+  }
+}
+
+function renderChooseLevel(level) {
+  let idx = 0;
+  const area = document.getElementById('gameArea');
+  
+  function showSentence() {
+    if (idx >= level.sentences.length) {
+      stars++;
+      setFox('Молодец! Ты отлично разбираешься в типах предложений! 🌟');
+      area.innerHTML = `<div class="feedback success show">Все ответы верные! +⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const s = level.sentences[idx];
+    let html = `<div class="level-title">🔍 Задание ${idx+1} из ${level.sentences.length}</div>`;
+    html += `<div class="sentence">${s.text}</div>`;
+    html += `<div class="buttons" id="btns">`;
+    level.options.forEach(opt => {
+      html += `<button class="btn" onclick="checkChoose('${opt}', '${s.answer}')">${opt}</button>`;
+    });
+    html += `</div><div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkChoose = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#btns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add('correct');
+      else if (b.textContent === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = '✅ Правильно!';
+      setTimeout(() => { idx++; showSentence(); }, 1000);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = '❌ Попробуй ещё раз!';
+      setTimeout(() => showSentence(), 1500);
+    }
+  };
+  showSentence();
+}
+
+function renderSignLevel(level) {
+  let idx = 0;
+  const area = document.getElementById('gameArea');
+  
+  function showSentence() {
+    if (idx >= level.sentences.length) {
+      stars++;
+      setFox('Отлично! Ты чувствуешь интонацию! 🎵');
+      area.innerHTML = `<div class="feedback success show">Все знаки на местах! +⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const s = level.sentences[idx];
+    let html = `<div class="level-title">🎈 Задание ${idx+1} из ${level.sentences.length}</div>`;
+    html += `<div class="sentence">${s.text} <span style="color:red;font-size:24px;">🟩</span></div>`;
+    html += `<div class="buttons" id="btns">`;
+    html += `<button class="btn" onclick="checkSign('.')" style="font-size:24px;">.</button>`;
+    html += `<button class="btn" onclick="checkSign('!')" style="font-size:24px;">!</button>`;
+    html += `</div><div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkSign = function(picked) {
+    const s = level.sentences[idx];
+    const fb = document.getElementById('fb');
+    if (picked === s.answer) {
+      fb.className = 'feedback success show';
+      fb.textContent = `✅ Верно! ${s.text}${s.answer}`;
+      setTimeout(() => { idx++; showSentence(); }, 1200);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = '❌ Подумай об интонации!';
+    }
+  };
+  showSentence();
+}
+
+function renderOddLevel(level) {
+  let rowIdx = 0;
+  const area = document.getElementById('gameArea');
+  
+  function showRow() {
+    if (rowIdx >= level.rows.length) {
+      stars++;
+      setFox('Ты настоящий детектив! 🔎');
+      area.innerHTML = `<div class="feedback success show">Все лишние найдены! +⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const row = level.rows[rowIdx];
+    let html = `<div class="level-title">👀 Строчка ${rowIdx+1}</div>`;
+    html += `<div class="buttons" id="btns" style="flex-direction:column;">`;
+    row.items.forEach(item => {
+      html += `<button class="btn" style="width:100%;text-align:left;" onclick="checkOdd('${item.replace(/'/g,"\\'")}', '${row.answer.replace(/'/g,"\\'")}')">${item}</button>`;
+    });
+    html += `</div><div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.checkOdd = function(picked, correct) {
+    const fb = document.getElementById('fb');
+    const btns = document.querySelectorAll('#btns .btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add('correct');
+      else if (b.textContent === picked && picked !== correct) b.classList.add('wrong');
+    });
+    if (picked === correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = '✅ Верно! Это предложение другого типа.';
+      setTimeout(() => { rowIdx++; showRow(); }, 1200);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = '❌ Не то. Подумай, чем они отличаются?';
+      setTimeout(() => showRow(), 1500);
+    }
+  };
+  showRow();
+}
+
+function renderDoubleLevel(level) {
+  let idx = 0;
+  const area = document.getElementById('gameArea');
+  let userGoal = null, userInt = null;
+  
+  function showSentence() {
+    if (idx >= level.sentences.length) {
+      stars++;
+      setFox('Ты видишь предложения насквозь! 👁✨');
+      area.innerHTML = `<div class="feedback success show">Все характеристики верны! +⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    userGoal = null; userInt = null;
+    const s = level.sentences[idx];
+    let html = `<div class="level-title">🎯 Предложение ${idx+1}</div>`;
+    html += `<div class="sentence">${s.text}</div>`;
+    html += `<p><b>Цель высказывания:</b></p><div class="buttons" id="goalBtns">`;
+    level.goalOptions.forEach(opt => {
+      html += `<button class="btn" onclick="pickGoal('${opt}')">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<p style="margin-top:15px;"><b>Интонация:</b></p><div class="buttons" id="intBtns">`;
+    level.intOptions.forEach(opt => {
+      html += `<button class="btn" onclick="pickInt('${opt}')">${opt}</button>`;
+    });
+    html += `</div>`;
+    html += `<button class="next-btn" onclick="checkDouble()" style="margin-top:15px;">Проверить ✓</button>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.pickGoal = function(opt) {
+    userGoal = opt;
+    document.querySelectorAll('#goalBtns .btn').forEach(b => {
+      b.classList.remove('correct');
+      if (b.textContent === opt) b.classList.add('correct');
+    });
+  };
+  window.pickInt = function(opt) {
+    userInt = opt;
+    document.querySelectorAll('#intBtns .btn').forEach(b => {
+      b.classList.remove('correct');
+      if (b.textContent === opt) b.classList.add('correct');
+    });
+  };
+  window.checkDouble = function() {
+    const s = level.sentences[idx];
+    const fb = document.getElementById('fb');
+    if (!userGoal || !userInt) {
+      fb.className = 'feedback error show';
+      fb.textContent = 'Выбери оба варианта!';
+      return;
+    }
+    if (userGoal === s.goal && userInt === s.intonation) {
+      fb.className = 'feedback success show';
+      fb.textContent = '✅ Всё верно!';
+      setTimeout(() => { idx++; showSentence(); }, 1200);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = `❌ Правильно: ${s.goal}, ${s.intonation}`;
+      setTimeout(() => showSentence(), 2000);
+    }
+  };
+  showSentence();
+}
+
+function renderBuildLevel(level) {
+  let idx = 0;
+  const area = document.getElementById('gameArea');
+  
+  function showSentence() {
+    if (idx >= level.sentences.length) {
+      stars++;
+      setFox('Ты настоящий строитель предложений! 🏗');
+      area.innerHTML = `<div class="feedback success show">Все предложения собраны! +⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
+      return;
+    }
+    const s = level.sentences[idx];
+    const shuffled = [...s.words].sort(() => Math.random() - 0.5);
+    let html = `<div class="level-title">🔨 Собери предложение ${idx+1}</div>`;
+    html += `<div id="source">`;
+    shuffled.forEach((w, i) => {
+      html += `<span class="word-chip" data-word="${w}" data-idx="${i}" onclick="pickWord(this)">${w}</span>`;
+    });
+    html += `</div>`;
+    html += `<p style="margin-top:10px;"><b>Твоё предложение:</b></p>`;
+    html += `<div class="answer-area" id="answer"></div>`;
+    html += `<button class="btn" onclick="clearAnswer()">Очистить 🗑</button>`;
+    html += `<button class="btn" onclick="checkBuild()">Проверить ✓</button>`;
+    html += `<div class="feedback" id="fb"></div>`;
+    area.innerHTML = html;
+  }
+
+  window.pickWord = function(el) {
+    const answer = document.getElementById('answer');
+    const chip = document.createElement('span');
+    chip.className = 'word-chip';
+    chip.textContent = el.dataset.word;
+    chip.onclick = function() {
+      el.classList.remove('used');
+      chip.remove();
+    };
+    answer.appendChild(chip);
+    el.classList.add('used');
+  };
+  window.clearAnswer = function() {
+    document.getElementById('answer').innerHTML = '';
+    document.querySelectorAll('#source .word-chip').forEach(c => c.classList.remove('used'));
+  };
+  window.checkBuild = function() {
+    const s = level.sentences[idx];
+    const answer = [...document.querySelectorAll('#answer .word-chip')].map(c => c.textContent).join(' ');
+    const fb = document.getElementById('fb');
+    if (answer === s.answer) {
+      fb.className = 'feedback success show';
+      fb.textContent = '✅ Отлично собрано!';
+      setTimeout(() => { idx++; showSentence(); }, 1200);
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = '❌ Попробуй другой порядок слов!';
+    }
+  };
+  showSentence();
+}
+
+function renderFinal() {
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="final-screen">
+      <div class="fox">🦊</div>
+      <div class="trophy">🏆</div>
+      <h2 style="color:#D2691E;font-size:26px;">Поздравляем!</h2>
+      <p style="font-size:20px;margin:15px 0;">Ты собрал <b>${stars}</b> из <b>${totalStars}</b> звёзд!</p>
+      <p style="font-size:18px;">Лисёнок Рыжик очень рад, что ты прошёл все испытания.<br>Теперь ты настоящий знаток предложений!</p>
+      <button class="next-btn" onclick="restart()" style="margin-top:20px;">🔄 Пройти ещё раз</button>
+    </div>
+  `;
+}
+
+function nextLevel() {
+  currentLevel++;
+  if (currentLevel >= levels.length) currentLevel = levels.length - 1;
+  renderLevel();
+}
+
+function restart() {
+  currentLevel = 0;
+  stars = 0;
+  renderLevel();
+}
+
+renderLevel();
+</script>
+
+</body>
+</html>
