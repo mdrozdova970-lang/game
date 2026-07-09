@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Принцы Секрет и Праздник</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif; }
+  body {
+    background: linear-gradient(180deg, #E6E6FA 0%, #FFE4E1 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fffaf0;
+    border: 5px solid #9370db;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  h1 {
+    text-align: center;
+    color: #6a0dad;
+    font-size: 2.2em;
+    text-shadow: 2px 2px 0 #dda0dd;
+    margin-bottom: 15px;
+  }
+  h2 {
+    color: #8b4513;
+    margin: 20px 0 10px;
+    font-size: 1.6em;
+  }
+  h3 { color: #556b2f; margin: 15px 0 8px; font-size: 1.3em; }
+  p { font-size: 1.15em; line-height: 1.6; margin: 10px 0; }
+  .screen { display: none; animation: fadeIn 0.6s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .princes {
+    text-align: center;
+    font-size: 4em;
+    margin: 20px 0;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+  .prince-card {
+    border: 3px dashed;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+  }
+  .prince-card.secret {
+    border-color: #708090;
+    background: linear-gradient(135deg, #f0f8ff, #dcdcdc);
+  }
+  .prince-card.party {
+    border-color: #ff69b4;
+    background: linear-gradient(135deg, #fff0f5, #ffb6c1);
+  }
+
+  .underline-one {
+    display: inline-block;
+    border-bottom: 3px solid #1e90ff;
+    padding: 2px 6px;
+    margin: 0 2px;
+  }
+  .underline-two {
+    display: inline-block;
+    border-bottom: 3px double #ff1493;
+    padding: 2px 6px;
+    margin: 0 2px;
+  }
+
+  .example-box {
+    background: #fffacd;
+    border: 2px solid #daa520;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 1.1em;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #dda0dd, #9370db);
+    color: #fff;
+    border: 3px solid #6a0dad;
+    padding: 12px 28px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 0 #4b0082;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #4b0082; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #4b0082; }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .nav-buttons { text-align: center; margin-top: 25px; }
+
+  /* Игры */
+  .game-section {
+    background: #f5f5dc;
+    border: 3px solid #8b4513;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+
+  .sentence-display {
+    background: #fff;
+    border: 2px solid #4682b4;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 1.4em;
+    text-align: center;
+    min-height: 60px;
+    line-height: 1.8;
+  }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+
+  .word-option {
+    background: linear-gradient(135deg, #98fb98, #90ee90);
+    border: 2px solid #32cd32;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.2s;
+  }
+  .word-option:hover { transform: scale(1.05); background: linear-gradient(135deg, #7cfc00, #7fff00); }
+  .word-option.used { opacity: 0.3; cursor: not-allowed; }
+
+  .clickable-word {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 3px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .clickable-word:hover { background: #fffacd; }
+  .clickable-word.selected-subject {
+    background: #b3d9ff;
+    border-bottom: 4px solid #1e90ff;
+    border-color: #1e90ff;
+  }
+  .clickable-word.selected-predicate {
+    background: #ffb3d1;
+    border-bottom: 4px double #ff1493;
+    border-color: #ff1493;
+  }
+  .clickable-word.correct { background: #90ee90 !important; }
+  .clickable-word.wrong { background: #ff9999 !important; animation: shake 0.4s; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  .quiz-option {
+    background: #fff;
+    border: 3px solid #4682b4;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { background: #e6f2ff; transform: translateX(5px); }
+  .quiz-option.correct { background: #90ee90; border-color: #32cd32; }
+  .quiz-option.wrong { background: #ff9999; border-color: #dc143c; }
+  .quiz-option.selected { border-width: 5px; }
+
+  .task-item {
+    background: #fff;
+    border: 2px solid #daa520;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+  }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 15px 0;
+    min-height: 40px;
+  }
+  .feedback.good { color: #228b22; }
+  .feedback.bad { color: #dc143c; }
+
+  .score {
+    text-align: center;
+    font-size: 1.3em;
+    color: #6a0dad;
+    font-weight: bold;
+    margin: 15px 0;
+  }
+
+  .selection-mode {
+    background: #e6f2ff;
+    border: 2px solid #4682b4;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 1.1em;
+  }
+  .selection-mode.active-subject { background: #b3d9ff; border-color: #1e90ff; }
+  .selection-mode.active-predicate { background: #ffb3d1; border-color: #ff1493; }
+
+  .final-screen {
+    text-align: center;
+  }
+  .final-screen .big-emoji { font-size: 6em; margin: 20px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ЭКРАН 1: ПРИВЕТСТВИЕ -->
+  <div class="screen active" id="screen-intro">
+    <h1>🏰 Принцы Секрет и Праздник 🏰</h1>
+    <div class="princes">🤴‍🦱🤴</div>
+    <p>В волшебной стране Грамматике жили-были два брата-принца: <b style="color:#708090">принц Секрет</b> и <b style="color:#ff69b4">принц Праздник</b>.</p>
+    <p>Они были очень разными, но оба любили строить предложения.</p>
+    <div class="nav-buttons">
+      <button class="btn" onclick="showScreen('screen-ch1')">📖 Начать сказку</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 2: ГЛАВА 1 -->
+  <div class="screen" id="screen-ch1">
+    <h1>🤴‍🦱 Глава 1: Короткие строчки принца Секрета</h1>
+    
+    <div class="prince-card secret">
+      <h3>🤴‍🦱 Принц Секрет</h3>
+      <p>Принц Секрет был очень молчаливым. Он всегда говорил только самое главное, без лишних деталей.</p>
+      <p>Из-за этого его предложения получались очень короткими. В них жили только двое слуг:</p>
+      <p>• <b>Подлежащее</b> (кто? или что?)</p>
+      <p>• <b>Сказуемое</b> (что делает?)</p>
+    </div>
+
+    <p>Когда принц Секрет строил предложения, они выглядели так:</p>
+    
+    <div class="example-box">
+      <p>• <span class="underline-one">Дождь</span> <span class="underline-two">идёт</span>.</p>
+      <p>• <span class="underline-one">Птицы</span> <span class="underline-two">поют</span>.</p>
+      <p>• <span class="underline-one">Солнце</span> <span class="underline-two">светит</span>.</p>
+    </div>
+
+    <p>Такие предложения в сказочной стране называют <b>НЕРАСПРОСТРАНЁННЫМИ</b>.</p>
+    <p>В них нет никаких лишних слов, только главные герои — грамматическая основа. Они хранят секрет и не рассказывают подробностей.</p>
+
+    <div class="nav-buttons">
+      <button class="btn" onclick="showScreen('screen-ch2')">📖 Глава 2 →</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 3: ГЛАВА 2 -->
+  <div class="screen" id="screen-ch2">
+    <h1>🤴 Глава 2: Пышные наряды принца Праздника</h1>
+    
+    <div class="prince-card party">
+      <h3>🤴 Принц Праздник</h3>
+      <p>Его брат, принц Праздник, обожал устраивать балы и украшать всё вокруг.</p>
+      <p>Ему казалось, что предложения брата слишком скучные.</p>
+      <p>«Нужно добавить красок!» — воскликнул принц Праздник.</p>
+    </div>
+
+    <p>Он пригласил в свои предложения живые слова-украшения (второстепенные члены). Они стали рассказывать:</p>
+    <p>• какой дождь идёт</p>
+    <p>• где поют птицы</p>
+    <p>• как светит солнце</p>
+
+    <p>Слова принца Праздника превратились в пышные <b>РАСПРОСТРАНЁННЫЕ</b> предложения:</p>
+    
+    <div class="example-box">
+      <p>• <b>Тёплый</b> <span class="underline-one">дождь</span> <span class="underline-two">идёт</span> <b>весело</b>.</p>
+      <p>• <b>Лесные</b> <span class="underline-one">птицы</span> <span class="underline-two">громко поют</span> <b>на ветках</b>.</p>
+      <p>• <b>Яркое</b> <span class="underline-one">солнце</span> <span class="underline-two">светит</span> <b>с утра</b>.</p>
+    </div>
+
+    <p>Эти предложения разрослись, распространились по всему листу и стали яркими!</p>
+
+    <div class="nav-buttons">
+      <button class="btn" onclick="showScreen('screen-games')">🎮 Играть!</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 4: ИГРЫ -->
+  <div class="screen" id="screen-games">
+    <h1>🎮 Игровые задания для юного рыцаря Грамматики</h1>
+    <div class="score" id="score">⭐ Очки: 0</div>
+
+    <!-- ИГРА 1 -->
+    <div class="game-section" id="game1">
+      <h2>🎨 Игра 1: «Добавь слова в предложения»</h2>
+      <p>Помоги принцу Празднику украсить скучные, короткие предложения Принца Секрета. Добавь к ним слова-украшения!</p>
+      
+      <div class="task-item">
+        <h3>Задание 1.1</h3>
+        <p><b>Нераспространённое:</b> <span class="underline-one">Кот</span> <span class="underline-two">спит</span>.</p>
+        <p>Выбери слова для распространённого предложения:</p>
+        <div class="word-bank" id="bank1">
+          <span class="word-option" onclick="selectWord(1, 'Маленький')">Маленький</span>
+          <span class="word-option" onclick="selectWord(1, 'на')">на</span>
+          <span class="word-option" onclick="selectWord(1, 'коврике')">коврике</span>
+          <span class="word-option" onclick="selectWord(1, 'громко')">громко</span>
+          <span class="word-option" onclick="selectWord(1, 'быстро')">быстро</span>
+        </div>
+        <div class="sentence-display" id="result1">Кот спит.</div>
+        <div class="feedback" id="feedback1"></div>
+        <button class="btn" id="check1-btn" onclick="checkGame1(1)">✓ Проверить</button>
+      </div>
+
+      <div class="task-item">
+        <h3>Задание 1.2</h3>
+        <p><b>Нераспространённое:</b> <span class="underline-one">Машина</span> <span class="underline-two">едет</span>.</p>
+        <p>Выбери слова для распространённого предложения:</p>
+        <div class="word-bank" id="bank2">
+          <span class="word-option" onclick="selectWord(2, 'Красная')">Красная</span>
+          <span class="word-option" onclick="selectWord(2, 'по')">по</span>
+          <span class="word-option" onclick="selectWord(2, 'дороге')">дороге</span>
+          <span class="word-option" onclick="selectWord(2, 'тихо')">тихо</span>
+          <span class="word-option" onclick="selectWord(2, 'в')">в</span>
+        </div>
+        <div class="sentence-display" id="result2">Машина едет.</div>
+        <div class="feedback" id="feedback2"></div>
+        <button class="btn" id="check2-btn" onclick="checkGame1(2)">✓ Проверить</button>
+      </div>
+    </div>
+
+    <!-- ИГРА 2 -->
+    <div class="game-section" id="game2">
+      <h2>✂️ Игра 2: «Убери лишний наряд»</h2>
+      <p>Принц Секрет просит тебя убрать все украшения и оставить только самую главную основу предложения (Подлежащее и Сказуемое).</p>
+      <p>Сначала выбери режим, затем кликай на слова!</p>
+
+      <div class="task-item">
+        <h3>Задание 2.1</h3>
+        <p>Маленький ёжик тихо шуршит в сухой траве.</p>
+        <div class="selection-mode" id="mode2-1">
+          <button class="btn" onclick="setMode(1, 'subject')" style="padding: 8px 16px; font-size: 1em;">🤴 Подлежащее</button>
+          <button class="btn" onclick="setMode(1, 'predicate')" style="padding: 8px 16px; font-size: 1em;">👸 Сказуемое</button>
+        </div>
+        <div class="sentence-display" id="sentence2-1">
+          <span class="clickable-word" data-task="1" data-index="0" onclick="clickWord2(1, 0, this)">Маленький</span>
+          <span class="clickable-word" data-task="1" data-index="1" onclick="clickWord2(1, 1, this)">ёжик</span>
+          <span class="clickable-word" data-task="1" data-index="2" onclick="clickWord2(1, 2, this)">тихо</span>
+          <span class="clickable-word" data-task="1" data-index="3" onclick="clickWord2(1, 3, this)">шуршит</span>
+          <span class="clickable-word" data-task="1" data-index="4" onclick="clickWord2(1, 4, this)">в</span>
+          <span class="clickable-word" data-task="1" data-index="5" onclick="clickWord2(1, 5, this)">сухой</span>
+          <span class="clickable-word" data-task="1" data-index="6" onclick="clickWord2(1, 6, this)">траве</span>
+        </div>
+        <div class="feedback" id="feedback2-1"></div>
+        <button class="btn" id="check2-1-btn" onclick="checkGame2(1)">✓ Проверить</button>
+      </div>
+
+      <div class="task-item">
+        <h3>Задание 2.2</h3>
+        <p>Вечером на небе зажглись яркие звёзды.</p>
+        <div class="selection-mode" id="mode2-2">
+          <button class="btn" onclick="setMode(2, 'subject')" style="padding: 8px 16px; font-size: 1em;">🤴 Подлежащее</button>
+          <button class="btn" onclick="setMode(2, 'predicate')" style="padding: 8px 16px; font-size: 1em;">👸 Сказуемое</button>
+        </div>
+        <div class="sentence-display" id="sentence2-2">
+          <span class="clickable-word" data-task="2" data-index="0" onclick="clickWord2(2, 0, this)">Вечером</span>
+          <span class="clickable-word" data-task="2" data-index="1" onclick="clickWord2(2, 1, this)">на</span>
+          <span class="clickable-word" data-task="2" data-index="2" onclick="clickWord2(2, 2, this)">небе</span>
+          <span class="clickable-word" data-task="2" data-index="3" onclick="clickWord2(2, 3, this)">зажглись</span>
+          <span class="clickable-word" data-task="2" data-index="4" onclick="clickWord2(2, 4, this)">яркие</span>
+          <span class="clickable-word" data-task="2" data-index="5" onclick="clickWord2(2, 5, this)">звёзды</span>
+        </div>
+        <div class="feedback" id="feedback2-2"></div>
+        <button class="btn" id="check2-2-btn" onclick="checkGame2(2)">✓ Проверить</button>
+      </div>
+    </div>
+
+    <!-- ИГРА 3 -->
+    <div class="game-section" id="game3">
+      <h2>🕵️ Игра 3: «Поймай шпиона»</h2>
+      <p>Найди среди этих предложений одно нераспространённое (где есть только основа):</p>
+
+      <div class="quiz-option" onclick="checkGame3('a', this)">А) Наступила золотая осень.</div>
+      <div class="quiz-option" onclick="checkGame3('b', this)">Б) Листья опадают.</div>
+      <div class="quiz-option" onclick="checkGame3('c', this)">В) Дети весело играют во дворе.</div>
+      
+      <div class="feedback" id="feedback3"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn" onclick="showScreen('screen-final')">🏆 Завершить</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 5: ФИНАЛ -->
+  <div class="screen" id="screen-final">
+    <div class="final-screen">
+      <h1>🎊 Поздравляем! 🎊</h1>
+      <div class="big-emoji">🏆</div>
+      <p style="font-size:1.3em;">Ты стал настоящим рыцарем Грамматики!</p>
+      <p style="font-size:1.2em; margin-top:20px;" id="final-score-text"></p>
+      <p style="margin-top:20px;">Теперь ты знаешь разницу между принцем Секретом и принцем Праздником!</p>
+      <div class="nav-buttons">
+        <button class="btn" onclick="restartAll()">🔁 Играть снова</button>
+        <button class="btn" onclick="showScreen('screen-intro')">🏠 В начало</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let score = 0;
+  let selectedWords1 = [];
+  let selectedWords2 = [];
+  let selectedWords2_1 = { subject: null, predicate: null };
+  let selectedWords2_2 = { subject: null, predicate: null };
+  let currentMode1 = null;
+  let currentMode2 = null;
+  let game1Completed = [false, false];
+  let game2Completed = [false, false];
+  let game3Completed = false;
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function updateScore(points) {
+    score += points;
+    document.getElementById('score').textContent = '⭐ Очки: ' + score;
+  }
+
+  // ИГРА 1
+  function selectWord(taskNum, word) {
+    const bank = document.getElementById('bank' + taskNum);
+    const options = bank.querySelectorAll('.word-option');
+    
+    if (taskNum === 1) {
+      if (!selectedWords1.includes(word)) {
+        selectedWords1.push(word);
+        options.forEach(opt => {
+          if (opt.textContent === word) opt.classList.add('used');
+        });
+      } else {
+        selectedWords1 = selectedWords1.filter(w => w !== word);
+        options.forEach(opt => {
+          if (opt.textContent === word) opt.classList.remove('used');
+        });
+      }
+      updateResult1();
+    } else if (taskNum === 2) {
+      if (!selectedWords2.includes(word)) {
+        selectedWords2.push(word);
+        options.forEach(opt => {
+          if (opt.textContent === word) opt.classList.add('used');
+        });
+      } else {
+        selectedWords2 = selectedWords2.filter(w => w !== word);
+        options.forEach(opt => {
+          if (opt.textContent === word) opt.classList.remove('used');
+        });
+      }
+      updateResult2();
+    }
+  }
+
+  function updateResult1() {
+    let result = '';
+    if (selectedWords1.includes('Маленький')) result += 'Маленький ';
+    result += 'кот ';
+    result += 'спит ';
+    if (selectedWords1.includes('на') && selectedWords1.includes('коврике')) result += 'на коврике';
+    document.getElementById('result1').textContent = result.trim() + '.';
+  }
+
+  function updateResult2() {
+    let result = '';
+    if (selectedWords2.includes('Красная')) result += 'Красная ';
+    result += 'машина ';
+    result += 'едет ';
+    if (selectedWords2.includes('по') && selectedWords2.includes('дороге')) result += 'по дороге';
+    document.getElementById('result2').textContent = result.trim() + '.';
+  }
+
+  function checkGame1(taskNum) {
+    if (game1Completed[taskNum - 1]) return;
+    
+    const feedback = document.getElementById('feedback' + taskNum);
+    if (taskNum === 1) {
+      if (selectedWords1.includes('Маленький') && selectedWords1.includes('на') && selectedWords1.includes('коврике')) {
+        feedback.textContent = '✅ Молодец! Маленький кот спит на коврике.';
+        feedback.className = 'feedback good';
+        updateScore(15);
+        game1Completed[0] = true;
+        document.getElementById('check1-btn').disabled = true;
+      } else {
+        feedback.textContent = '❌ Подумай ещё! Какой кот? Где спит?';
+        feedback.className = 'feedback bad';
+      }
+    } else if (taskNum === 2) {
+      if (selectedWords2.includes('Красная') && selectedWords2.includes('по') && selectedWords2.includes('дороге')) {
+        feedback.textContent = '✅ Отлично! Красная машина едет по дороге.';
+        feedback.className = 'feedback good';
+        updateScore(15);
+        game1Completed[1] = true;
+        document.getElementById('check2-btn').disabled = true;
+      } else {
+        feedback.textContent = '❌ Подумай ещё! Какая машина? Где едет?';
+        feedback.className = 'feedback bad';
+      }
+    }
+  }
+
+  // ИГРА 2
+  function setMode(taskNum, mode) {
+    const modeDiv = document.getElementById('mode2-' + taskNum);
+    modeDiv.classList.remove('active-subject', 'active-predicate');
+    
+    if (taskNum === 1) {
+      currentMode1 = mode;
+      if (mode === 'subject') modeDiv.classList.add('active-subject');
+      else modeDiv.classList.add('active-predicate');
+    } else {
+      currentMode2 = mode;
+      if (mode === 'subject') modeDiv.classList.add('active-subject');
+      else modeDiv.classList.add('active-predicate');
+    }
+  }
+
+  function clickWord2(taskNum, wordIndex, element) {
+    if (taskNum === 1 && game2Completed[0]) return;
+    if (taskNum === 2 && game2Completed[1]) return;
+    
+    const mode = taskNum === 1 ? currentMode1 : currentMode2;
+    if (!mode) {
+      alert('Сначала выбери режим: Подлежащее или Сказуемое!');
+      return;
+    }
+    
+    const selected = taskNum === 1 ? selectedWords2_1 : selectedWords2_2;
+    
+    if (mode === 'subject') {
+      if (selected.subject === wordIndex) {
+        selected.subject = null;
+        element.classList.remove('selected-subject');
+      } else {
+        if (selected.subject !== null) {
+          const prevEl = document.querySelector(`.clickable-word[data-task="${taskNum}"][data-index="${selected.subject}"]`);
+          if (prevEl) prevEl.classList.remove('selected-subject');
+        }
+        selected.subject = wordIndex;
+        element.classList.add('selected-subject');
+      }
+    } else {
+      if (selected.predicate === wordIndex) {
+        selected.predicate = null;
+        element.classList.remove('selected-predicate');
+      } else {
+        if (selected.predicate !== null) {
+          const prevEl = document.querySelector(`.clickable-word[data-task="${taskNum}"][data-index="${selected.predicate}"]`);
+          if (prevEl) prevEl.classList.remove('selected-predicate');
+        }
+        selected.predicate = wordIndex;
+        element.classList.add('selected-predicate');
+      }
+    }
+  }
+
+  function checkGame2(taskNum) {
+    if (game2Completed[taskNum - 1]) return;
+    
+    const feedback = document.getElementById('feedback2-' + taskNum);
+    const selected = taskNum === 1 ? selectedWords2_1 : selectedWords2_2;
+    
+    if (selected.subject === null || selected.predicate === null) {
+      feedback.textContent = '❌ Выбери подлежащее и сказуемое!';
+      feedback.className = 'feedback bad';
+      return;
+    }
+    
+    if (taskNum === 1) {
+      if (selected.subject === 1 && selected.predicate === 3) {
+        feedback.textContent = '✅ Верно! Ёжик (Кто?) шуршит (Что делает?)';
+        feedback.className = 'feedback good';
+        updateScore(20);
+        game2Completed[0] = true;
+        document.getElementById('check2-1-btn').disabled = true;
+      } else {
+        feedback.textContent = '❌ Найди подлежащее (Кто?) и сказуемое (Что делает?)';
+        feedback.className = 'feedback bad';
+      }
+    } else if (taskNum === 2) {
+      if (selected.subject === 5 && selected.predicate === 3) {
+        feedback.textContent = '✅ Отлично! Звёзды (Что?) зажглись (Что сделали?)';
+        feedback.className = 'feedback good';
+        updateScore(20);
+        game2Completed[1] = true;
+        document.getElementById('check2-2-btn').disabled = true;
+      } else {
+        feedback.textContent = '❌ Найди подлежащее (Что?) и сказуемое (Что сделали?)';
+        feedback.className = 'feedback bad';
+      }
+    }
+  }
+
+  // ИГРА 3
+  function checkGame3(answer, element) {
+    if (game3Completed) return;
+    
+    const feedback = document.getElementById('feedback3');
+    const options = document.querySelectorAll('#game3 .quiz-option');
+    
+    options.forEach(opt => {
+      opt.classList.remove('correct', 'wrong', 'selected');
+    });
+    
+    element.classList.add('selected');
+    
+    if (answer === 'b') {
+      element.classList.add('correct');
+      feedback.textContent = '✅ Правильно! "Листья опадают" — только основа, без украшений!';
+      feedback.className = 'feedback good';
+      updateScore(25);
+      game3Completed = true;
+    } else {
+      element.classList.add('wrong');
+      options[1].classList.add('correct');
+      feedback.textContent = '❌ Не совсем. Правильный ответ: Б) Листья опадают.';
+      feedback.className = 'feedback bad';
+    }
+  }
+
+  function restartAll() {
+    score = 0;
+    selectedWords1 = [];
+    selectedWords2 = [];
+    selectedWords2_1 = { subject: null, predicate: null };
+    selectedWords2_2 = { subject: null, predicate: null };
+    currentMode1 = null;
+    currentMode2 = null;
+    game1Completed = [false, false];
+    game2Completed = [false, false];
+    game3Completed = false;
+    
+    document.getElementById('score').textContent = '⭐ Очки: 0';
+    
+    // Сброс игры 1
+    document.querySelectorAll('.word-option').forEach(opt => opt.classList.remove('used'));
+    document.getElementById('result1').textContent = 'Кот спит.';
+    document.getElementById('result2').textContent = 'Машина едет.';
+    document.getElementById('feedback1').textContent = '';
+    document.getElementById('feedback2').textContent = '';
+    document.getElementById('check1-btn').disabled = false;
+    document.getElementById('check2-btn').disabled = false;
+    
+    // Сброс игры 2
+    document.querySelectorAll('.clickable-word').forEach(word => {
+      word.classList.remove('selected-subject', 'selected-predicate', 'correct', 'wrong');
+    });
+    document.getElementById('feedback2-1').textContent = '';
+    document.getElementById('feedback2-2').textContent = '';
+    document.getElementById('check2-1-btn').disabled = false;
+    document.getElementById('check2-2-btn').disabled = false;
+    document.getElementById('mode2-1').classList.remove('active-subject', 'active-predicate');
+    document.getElementById('mode2-2').classList.remove('active-subject', 'active-predicate');
+    
+    // Сброс игры 3
+    document.querySelectorAll('#game3 .quiz-option').forEach(opt => {
+      opt.classList.remove('correct', 'wrong', 'selected');
+    });
+    document.getElementById('feedback3').textContent = '';
+    
+    showScreen('screen-games');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🍰 Магические миссии в кондитерской гномов</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #e3f2fd 0%, #fff9c4 50%, #fce4ec 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #37474f;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  
+  h1 {
+    text-align: center;
+    font-size: 2em;
+    color: #d81b60;
+    text-shadow: 2px 2px 0 #fff;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 15px;
+  }
+  
+  .intro {
+    background: #fff;
+    border: 3px dashed #ff9800;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+    line-height: 1.5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  
+  .mission {
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-left: 10px solid;
+    position: relative;
+  }
+  .m1 { border-color: #e91e63; }
+  .m2 { border-color: #9c27b0; }
+  .m3 { border-color: #ff9800; }
+  .m4 { border-color: #00bcd4; }
+
+  .mission h2 { margin-bottom: 10px; color: #4a148c; }
+  .story { font-style: italic; color: #5d4037; margin-bottom: 15px; }
+  
+  .task {
+    background: #fffde7;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px dotted #fbc02d;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .action-block {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+  }
+  .step-title {
+    font-weight: bold;
+    color: #1565c0;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+  }
+
+  input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 2px solid #bdbdbd;
+    border-radius: 8px;
+    font-family: inherit;
+    transition: 0.3s;
+  }
+  input[type="number"]:focus {
+    border-color: #2196f3;
+    outline: none;
+    background: #e3f2fd;
+  }
+
+  select {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px solid #ba68c8;
+    background: white;
+    cursor: pointer;
+    max-width: 100%;
+  }
+  select:focus { outline: none; border-color: #8e24aa; }
+
+  .math-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  
+  .text-desc {
+    display: block;
+    margin-top: 5px;
+    color: #444;
+    font-size: 0.95em;
+  }
+
+  .answer-section {
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #66bb6a;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  .check-btn {
+    background: linear-gradient(to right, #ff4081, #f50057);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 10px rgba(245,0,87,0.3);
+    transition: transform 0.2s;
+    display: block;
+    margin: 20px auto 0;
+  }
+  .check-btn:hover { transform: scale(1.05); }
+
+  .feedback {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 10px;
+    display: none;
+  }
+  .fb-ok { background: #c8e6c9; color: #1b5e20; display: block; }
+  .fb-no { background: #ffcdd2; color: #b71c1c; display: block; }
+
+  .final-screen {
+    text-align: center;
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    border: 5px solid #ffd700;
+    margin-top: 30px;
+    display: none;
+    animation: popIn 0.5s ease;
+  }
+  @keyframes popIn { from{transform: scale(0.8); opacity:0} to{transform: scale(1); opacity:1} }
+  
+  .correct-input { background: #c8e6c9 !important; border-color: #2e7d32 !important; }
+  .wrong-input { background: #ffcdd2 !important; border-color: #c62828 !important; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🍰 Магические миссии в кондитерской гномов 🧁</h1>
+
+  <div class="intro">
+    🌟 <b>Правило игры:</b> «Ребята, чтобы приготовить волшебное угощение, гномам всегда нужно сделать два шага. 
+    Сначала заполни пропуски цифрами, а потом в выпадающем списке выбери, что ты нашел!»
+  </div>
+
+  <!-- МИССИЯ 1 -->
+  <div class="mission m1" id="mission1">
+    <h2>🍓 Миссия 1: Пироги гнома Пончика</h2>
+    <div class="story">Гном Пончик печёт ягодные пироги для лесных фей.</div>
+    <div class="task">
+      Гном взял <b>4 чашки</b>, в каждой по <b>5 ягод</b>. Для украшения пирога он взял <b>12 ягод</b>. Сколько ягод осталось?
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 1 (Найди общее количество):</span>
+      <div class="math-row">
+        <input type="number" id="m1_n1" placeholder="?"> × <input type="number" id="m1_n2" placeholder="?"> = <input type="number" id="m1_r1" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m1_s1">
+          <option value="">-- Выбери ответ --</option>
+          <option value="wrong1">Сколько ягод осталось</option>
+          <option value="correct">Сколько всего ягод было в чашках</option>
+          <option value="wrong2">Сколько чашек у гнома</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 2 (Найди остаток):</span>
+      <div class="math-row">
+        <input type="number" id="m1_n3" placeholder="?"> − <input type="number" id="m1_n4" placeholder="?"> = <input type="number" id="m1_r2" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m1_s2">
+          <option value="">-- Выбери ответ --</option>
+          <option value="correct">Сколько ягод осталось у гнома</option>
+          <option value="wrong1">Сколько всего ягод было сначала</option>
+          <option value="wrong2">Сколько ягод съел гном</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="answer-section">
+      🎯 Итоговый ответ: <input type="number" id="m1_ans" placeholder="?"> ягод
+    </div>
+
+    <button class="check-btn" onclick="checkMission(1)">✨ Проверить миссию</button>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- МИССИЯ 2 -->
+  <div class="mission m2" id="mission2">
+    <h2>🍬 Миссия 2: Леденцы гнома Сахарка</h2>
+    <div class="story">Гном Сахарок раскладывает леденцы по мешочкам.</div>
+    <div class="task">
+      Было <b>18 леденцов</b>. Разложил поровну в <b>2 мешочка</b>. Из одного мешочка съел <b>4 конфеты</b>. Сколько осталось в этом мешочке?
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 1 (Разложи по мешочкам):</span>
+      <div class="math-row">
+        <input type="number" id="m2_n1" placeholder="?"> ÷ <input type="number" id="m2_n2" placeholder="?"> = <input type="number" id="m2_r1" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m2_s1">
+          <option value="">-- Выбери ответ --</option>
+          <option value="correct">Сколько леденцов в одном мешочке</option>
+          <option value="wrong1">Сколько всего мешочков</option>
+          <option value="wrong2">Сколько леденцов съели</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 2 (Вычти съеденное):</span>
+      <div class="math-row">
+        <input type="number" id="m2_n3" placeholder="?"> − <input type="number" id="m2_n4" placeholder="?"> = <input type="number" id="m2_r2" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m2_s2">
+          <option value="">-- Выбери ответ --</option>
+          <option value="wrong1">Сколько всего леденцов было</option>
+          <option value="correct">Сколько леденцов осталось в открытом мешочке</option>
+          <option value="wrong2">Сколько леденцов во втором мешочке</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="answer-section">
+      🎯 Итоговый ответ: <input type="number" id="m2_ans" placeholder="?"> леденцов
+    </div>
+
+    <button class="check-btn" onclick="checkMission(2)">✨ Проверить миссию</button>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- МИССИЯ 3 -->
+  <div class="mission m3" id="mission3">
+    <h2>🍯 Миссия 3: Пыльца гнома Мёдика</h2>
+    <div class="story">Братья-гномы собирают пыльцу для сиропа.</div>
+    <div class="task">
+      Старший брат принёс <b>3 баночки</b> по <b>6 грамм</b>. Младший принёс ещё <b>7 грамм</b>. Сколько всего пыльцы?
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 1 (Посчитай старшего брата):</span>
+      <div class="math-row">
+        <input type="number" id="m3_n1" placeholder="?"> × <input type="number" id="m3_n2" placeholder="?"> = <input type="number" id="m3_r1" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m3_s1">
+          <option value="">-- Выбери ответ --</option>
+          <option value="wrong1">Сколько всего баночек</option>
+          <option value="correct">Сколько грамм пыльцы у старшего брата</option>
+          <option value="wrong2">Сколько грамм у младшего брата</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 2 (Сложи всё вместе):</span>
+      <div class="math-row">
+        <input type="number" id="m3_n3" placeholder="?"> + <input type="number" id="m3_n4" placeholder="?"> = <input type="number" id="m3_r2" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m3_s2">
+          <option value="">-- Выбери ответ --</option>
+          <option value="correct">Сколько всего грамм пыльцы принесли братья</option>
+          <option value="wrong1">На сколько больше у старшего</option>
+          <option value="wrong2">Сколько осталось в баночках</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="answer-section">
+      🎯 Итоговый ответ: <input type="number" id="m3_ans" placeholder="?"> г
+    </div>
+
+    <button class="check-btn" onclick="checkMission(3)">✨ Проверить миссию</button>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- МИССИЯ 4 -->
+  <div class="mission m4" id="mission4">
+    <h2>🧁 Миссия 4: Капкейки шефа Кекса</h2>
+    <div class="story">Шеф украшает капкейки мармеладками и дропсами.</div>
+    <div class="task">
+      Было <b>24 мармеладки</b> на <b>3 капкейка</b> (поровну). На один капкейк добавили ещё <b>5 дропсов</b>. Сколько украшений на нём стало?
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 1 (Раздели мармеладки):</span>
+      <div class="math-row">
+        <input type="number" id="m4_n1" placeholder="?"> ÷ <input type="number" id="m4_n2" placeholder="?"> = <input type="number" id="m4_r1" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m4_s1">
+          <option value="">-- Выбери ответ --</option>
+          <option value="correct">Сколько мармеладок на одном капкейке</option>
+          <option value="wrong1">Сколько всего капкейков</option>
+          <option value="wrong2">Сколько всего мармеладок</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="action-block">
+      <span class="step-title">🔹 Действие 2 (Добавь дропсы):</span>
+      <div class="math-row">
+        <input type="number" id="m4_n3" placeholder="?"> + <input type="number" id="m4_n4" placeholder="?"> = <input type="number" id="m4_r2" placeholder="?">
+      </div>
+      <label class="text-desc">Мы нашли: 
+        <select id="m4_s2">
+          <option value="">-- Выбери ответ --</option>
+          <option value="wrong1">Сколько мармеладок осталось</option>
+          <option value="correct">Сколько всего украшений на этом капкейке</option>
+          <option value="wrong2">Сколько дропсов на всех капкейках</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="answer-section">
+      🎯 Итоговый ответ: <input type="number" id="m4_ans" placeholder="?"> украшений
+    </div>
+
+    <button class="check-btn" onclick="checkMission(4)">✨ Проверить миссию</button>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <h2 style="color:#e65100; font-size:2.5em;">🏆 ПОБЕДА! 🏆</h2>
+    <p style="font-size:1.5em; margin:20px 0;">Ты помог всем гномам!</p>
+    <div style="font-size:3em;">🍰 🧁 🍩 🍪</div>
+    <p>Ты настоящий математик-кондитер!</p>
+  </div>
+
+</div>
+
+<script>
+  // Правильные ответы для каждой миссии
+  const solutions = {
+    1: {
+      nums: [5, 4, 20, 20, 12, 8], // 5 × 4 = 20, затем 20 − 12 = 8
+      selects: ['m1_s1', 'm1_s2'],
+      answer: 8
+    },
+    2: {
+      nums: [18, 2, 9, 9, 4, 5],
+      selects: ['m2_s1', 'm2_s2'],
+      answer: 5
+    },
+    3: {
+      nums: [6, 3, 18, 18, 7, 25], // 6 × 3 = 18, затем 18 + 7 = 25
+      selects: ['m3_s1', 'm3_s2'],
+      answer: 25
+    },
+    4: {
+      nums: [24, 3, 8, 8, 5, 13],
+      selects: ['m4_s1', 'm4_s2'],
+      answer: 13
+    }
+  };
+
+  let completedMissions = new Set();
+
+  function checkMission(id) {
+    const sol = solutions[id];
+    const fb = document.getElementById('fb' + id);
+    let isCorrect = true;
+    
+    const numInputs = [
+      document.getElementById(`m${id}_n1`),
+      document.getElementById(`m${id}_n2`),
+      document.getElementById(`m${id}_r1`),
+      document.getElementById(`m${id}_n3`),
+      document.getElementById(`m${id}_n4`),
+      document.getElementById(`m${id}_r2`)
+    ];
+
+    for(let i=0; i<numInputs.length; i++) {
+      if(parseInt(numInputs[i].value) !== sol.nums[i]) {
+        isCorrect = false;
+        numInputs[i].classList.add('wrong-input');
+        numInputs[i].classList.remove('correct-input');
+      } else {
+        numInputs[i].classList.add('correct-input');
+        numInputs[i].classList.remove('wrong-input');
+      }
+    }
+
+    const s1 = document.getElementById(sol.selects[0]);
+    const s2 = document.getElementById(sol.selects[1]);
+
+    if(s1.value !== 'correct') {
+      isCorrect = false;
+      s1.style.borderColor = '#c62828';
+      s1.style.background = '#ffcdd2';
+    } else {
+      s1.style.borderColor = '#2e7d32';
+      s1.style.background = '#c8e6c9';
+    }
+
+    if(s2.value !== 'correct') {
+      isCorrect = false;
+      s2.style.borderColor = '#c62828';
+      s2.style.background = '#ffcdd2';
+    } else {
+      s2.style.borderColor = '#2e7d32';
+      s2.style.background = '#c8e6c9';
+    }
+
+    const ansInput = document.getElementById(`m${id}_ans`);
+    if(parseInt(ansInput.value) !== sol.answer) {
+      isCorrect = false;
+      ansInput.classList.add('wrong-input');
+    } else {
+      ansInput.classList.add('correct-input');
+    }
+
+    if(isCorrect) {
+      fb.className = 'feedback fb-ok';
+      fb.innerHTML = '🎉 Отлично! Все шаги верны! Гном доволен!';
+      completedMissions.add(id);
+      
+      if(completedMissions.size === 4) {
+        setTimeout(() => {
+          document.getElementById('finalScreen').style.display = 'block';
+          document.getElementById('finalScreen').scrollIntoView({behavior: 'smooth'});
+        }, 1000);
+      }
+    } else {
+      fb.className = 'feedback fb-no';
+      fb.innerHTML = '🤔 Где-то ошибка. Проверь цифры и выбранные подписи к действиям.';
+    }
+  }
+</script>
+
+</body>
+</html>
