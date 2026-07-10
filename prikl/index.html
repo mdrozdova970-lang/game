@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🎮 Математическое приключение — 2 класс 🎮</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #a8e6ff 0%, #d4fc79 50%, #ffe9a8 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 5px dashed #4caf50;
+  }
+  h1 {
+    text-align: center;
+    color: #2e7d32;
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+  .score-bar {
+    background: #e8f5e9;
+    border: 3px solid #4caf50;
+    border-radius: 15px;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #1b5e20;
+  }
+  .task {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .task.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h2 {
+    color: #1565c0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+  }
+  .info-box {
+    background: #e3f2fd;
+    border-left: 6px solid #2196f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 1.05em;
+    line-height: 1.5;
+  }
+  .info-box b { color: #d32f2f; }
+
+  /* Общие кнопки */
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1.1em;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff6b9d, #feca57);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #c44569;
+    transition: all 0.15s;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(2px); box-shadow: 0 2px 0 #c44569; }
+  button.check-btn {
+    background: linear-gradient(135deg, #48dbfb, #0abde3);
+    box-shadow: 0 4px 0 #0097b2;
+  }
+  button.next-btn {
+    background: linear-gradient(135deg, #1dd1a1, #10ac84);
+    box-shadow: 0 4px 0 #0a7a5e;
+    font-size: 1.2em;
+    margin-top: 15px;
+  }
+  .feedback {
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 1.15em;
+    font-weight: bold;
+    display: none;
+  }
+  .feedback.correct {
+    background: #d4edda;
+    color: #155724;
+    border: 2px solid #28a745;
+    display: block;
+  }
+  .feedback.wrong {
+    background: #f8d7da;
+    color: #721c24;
+    border: 2px solid #dc3545;
+    display: block;
+  }
+
+  /* Drag-and-drop стили */
+  .drop-zones {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .drop-zone {
+    flex: 1;
+    min-width: 220px;
+    min-height: 200px;
+    border: 4px dashed;
+    border-radius: 15px;
+    padding: 15px;
+    transition: all 0.2s;
+  }
+  .drop-zone.drag-over {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  }
+  .drop-zone h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+  }
+  .zone-length { border-color: #ff9800; background: #fff3e0; }
+  .zone-length h3 { color: #e65100; }
+  .zone-time { border-color: #9c27b0; background: #f3e5f5; }
+  .zone-time h3 { color: #6a1b9a; }
+  .zone-mass { border-color: #2196f3; background: #e3f2fd; }
+  .zone-mass h3 { color: #0d47a1; }
+
+  .draggable {
+    display: block;
+    background: #fff;
+    border: 2px solid #673ab7;
+    border-radius: 12px;
+    padding: 10px;
+    margin: 6px 0;
+    cursor: grab;
+    font-size: 1.05em;
+    text-align: center;
+    user-select: none;
+    transition: all 0.2s;
+  }
+  .draggable:hover { background: #ede7f6; }
+  .draggable.dragging { opacity: 0.4; }
+  .draggable.correct-placed {
+    background: #c8e6c9;
+    border-color: #2e7d32;
+    cursor: default;
+  }
+  .draggable.wrong-placed {
+    background: #ffcdd2;
+    border-color: #c62828;
+  }
+  .pool {
+    background: #fce4ec;
+    border: 3px solid #e91e63;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    min-height: 60px;
+  }
+  .pool h3 {
+    text-align: center;
+    color: #880e4f;
+    margin-bottom: 10px;
+  }
+
+  /* Примеры */
+  .example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .example-card {
+    background: #fff;
+    border: 3px solid #ff9800;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.2em;
+  }
+  .example-card input {
+    width: 80px;
+    text-align: center;
+    font-size: 1.1em;
+    padding: 8px;
+    border: 3px solid #2196f3;
+    border-radius: 12px;
+    margin-top: 8px;
+    font-family: inherit;
+  }
+  .example-card.correct-input {
+    background: #e8f5e9;
+    border-color: #2e7d32;
+  }
+  .example-card.wrong-input {
+    background: #ffebee;
+    border-color: #c62828;
+  }
+
+  /* Задачи */
+  .word-problem {
+    background: #fff9c4;
+    border: 2px solid #fbc02d;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+    font-size: 1.1em;
+    line-height: 1.6;
+  }
+  .word-problem .emoji { font-size: 1.5em; }
+  .answer-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .answer-section input {
+    width: 100px;
+    text-align: center;
+    font-size: 1.2em;
+    padding: 10px;
+    border: 3px solid #9c27b0;
+    border-radius: 12px;
+    font-family: inherit;
+  }
+  .answer-section label {
+    font-size: 1.1em;
+    font-weight: bold;
+  }
+
+  /* Финал */
+  .final {
+    text-align: center;
+    padding: 30px;
+  }
+  .final h2 {
+    font-size: 2em;
+    color: #e91e63;
+  }
+  .stars {
+    font-size: 3em;
+    margin: 20px 0;
+  }
+
+  /* Выбор действия */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 15px 0;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 20px;
+    border: 3px solid;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  .action-btn:hover { transform: scale(1.05); }
+  .action-btn.chosen {
+    background: #2196f3;
+    color: white;
+    border-color: #0d47a1;
+  }
+  .action-btn.sum { border-color: #4caf50; color: #2e7d32; }
+  .action-btn.prod { border-color: #ff9800; color: #e65100; }
+  .action-btn.diff { border-color: #f44336; color: #c62828; }
+  .action-btn.quot { border-color: #9c27b0; color: #6a1b9a; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎲 Математическое приключение 🎲</h1>
+  <div class="score-bar">⭐ Звёздочки: <span id="score">0</span> / 10</div>
+
+  <!-- ЗАДАНИЕ 1: Сортировка единиц измерения -->
+  <div class="task active" id="task1">
+    <h2>📏 Задание 1. Разложи единицы измерения по коробкам</h2>
+    <div class="info-box">
+      <b>Длина</b> — измеряет расстояние (мм, см, дм, м, км)<br>
+      <b>Масса</b> — измеряет вес (г, кг, т)<br>
+      <b>Время</b> — измеряет длительность (с, мин, ч, сутки, неделя, месяц, год)
+    </div>
+
+    <div class="pool" id="pool1">
+      <h3>📦 Единицы измерения:</h3>
+      <div class="draggable" draggable="true" data-type="length" data-id="u1">сантиметр (см)</div>
+      <div class="draggable" draggable="true" data-type="mass" data-id="u2">килограмм (кг)</div>
+      <div class="draggable" draggable="true" data-type="time" data-id="u3">минута (мин)</div>
+      <div class="draggable" draggable="true" data-type="length" data-id="u4">метр (м)</div>
+      <div class="draggable" draggable="true" data-type="mass" data-id="u5">грамм (г)</div>
+      <div class="draggable" draggable="true" data-type="time" data-id="u6">час (ч)</div>
+      <div class="draggable" draggable="true" data-type="length" data-id="u7">миллиметр (мм)</div>
+      <div class="draggable" draggable="true" data-type="time" data-id="u8">сутки</div>
+      <div class="draggable" draggable="true" data-type="mass" data-id="u9">тонна (т)</div>
+    </div>
+
+    <div class="drop-zones">
+      <div class="drop-zone zone-length" id="zone-length">
+        <h3>📏 Длина</h3>
+      </div>
+      <div class="drop-zone zone-mass" id="zone-mass">
+        <h3>⚖️ Масса</h3>
+      </div>
+      <div class="drop-zone zone-time" id="zone-time">
+        <h3>⏰ Время</h3>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask1()">Проверить ✓</button>
+      <button onclick="resetTask1()">🔄 Сбросить</button>
+    </div>
+    <div class="feedback" id="fb1"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(2)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 2: Примеры на сложение и вычитание -->
+  <div class="task" id="task2">
+    <h2>➕➖ Задание 2. Реши примеры (сложение и вычитание)</h2>
+    <div class="info-box">
+      Реши все примеры. Числа в пределах 100.
+    </div>
+    <div class="example-grid">
+      <div class="example-card" data-answer="57">
+        <div>34 + 23 = ?</div>
+        <input type="number" id="ex2a">
+      </div>
+      <div class="example-card" data-answer="45">
+        <div>72 - 27 = ?</div>
+        <input type="number" id="ex2b">
+      </div>
+      <div class="example-card" data-answer="88">
+        <div>56 + 32 = ?</div>
+        <input type="number" id="ex2c">
+      </div>
+      <div class="example-card" data-answer="19">
+        <div>91 - 72 = ?</div>
+        <input type="number" id="ex2d">
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask2()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb2"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(3)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 3: Примеры на умножение и деление -->
+  <div class="task" id="task3">
+    <h2>✖️➗ Задание 3. Реши примеры (умножение и деление)</h2>
+    <div class="info-box">
+      Реши все примеры. Таблица умножения и деления в пределах 100.
+    </div>
+    <div class="example-grid">
+      <div class="example-card" data-answer="24">
+        <div>6 × 4 = ?</div>
+        <input type="number" id="ex3a">
+      </div>
+      <div class="example-card" data-answer="7">
+        <div>56 ÷ 8 = ?</div>
+        <input type="number" id="ex3b">
+      </div>
+      <div class="example-card" data-answer="45">
+        <div>9 × 5 = ?</div>
+        <input type="number" id="ex3c">
+      </div>
+      <div class="example-card" data-answer="6">
+        <div>42 ÷ 7 = ?</div>
+        <input type="number" id="ex3d">
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask3()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb3"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(4)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 4: Задача на сумму -->
+  <div class="task" id="task4">
+    <h2>🍎 Задание 4. Задача на нахождение суммы</h2>
+    <div class="info-box">
+      <b>Сумма</b> — это результат сложения. Чтобы найти сумму, нужно <b>складывать</b>.
+    </div>
+    <div class="word-problem">
+      <span class="emoji">🍎</span> В корзине лежат <b>25 красных яблок</b> и <b>18 зелёных яблок</b>.<br>
+      Сколько всего яблок в корзине?
+    </div>
+    <div class="answer-section">
+      <label>Ответ:</label>
+      <input type="number" id="ans4">
+      <label>яблок</label>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask4()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb4"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(5)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 5: Задача на разность -->
+  <div class="task" id="task5">
+    <h2>📚 Задание 5. Задача на нахождение разности</h2>
+    <div class="info-box">
+      <b>Разность</b> — это результат вычитания. Чтобы найти разность, нужно из большего числа <b>вычесть</b> меньшее.
+    </div>
+    <div class="word-problem">
+      <span class="emoji">📚</span> На полке стоит <b>64 книги</b>, а на столе лежит <b>29 книг</b>.<br>
+      На сколько больше книг на полке, чем на столе?
+    </div>
+    <div class="answer-section">
+      <label>Ответ:</label>
+      <input type="number" id="ans5">
+      <label>книг</label>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask5()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb5"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(6)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 6: Задача на произведение -->
+  <div class="task" id="task6">
+    <h2>🧁 Задание 6. Задача на нахождение произведения</h2>
+    <div class="info-box">
+      <b>Произведение</b> — это результат умножения. Если есть несколько одинаковых групп, нужно <b>умножать</b>.
+    </div>
+    <div class="word-problem">
+      <span class="emoji">🧁</span> Мама испекла <b>7 тарелок</b> пирожных. На каждой тарелке по <b>6 пирожных</b>.<br>
+      Сколько всего пирожных испекла мама?
+    </div>
+    <div class="answer-section">
+      <label>Ответ:</label>
+      <input type="number" id="ans6">
+      <label>пирожных</label>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask6()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb6"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(7)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 7: Задача на частное -->
+  <div class="task" id="task7">
+    <h2>🍬 Задание 7. Задача на нахождение частного</h2>
+    <div class="info-box">
+      <b>Частное</b> — это результат деления. Когда нужно разделить что-то поровну, используем <b>деление</b>.
+    </div>
+    <div class="word-problem">
+      <span class="emoji">🍬</span> У Пети есть <b>48 конфет</b>. Он хочет раздать их поровну <b>6 друзьям</b>.<br>
+      Сколько конфет получит каждый друг?
+    </div>
+    <div class="answer-section">
+      <label>Ответ:</label>
+      <input type="number" id="ans7">
+      <label>конфет</label>
+    </div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask7()">Проверить ✓</button>
+    </div>
+    <div class="feedback" id="fb7"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(8)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 8: Выбери действие -->
+  <div class="task" id="task8">
+    <h2>🤔 Задание 8. Какое действие нужно выполнить?</h2>
+    <div class="info-box">
+      Прочитай задачу и выбери правильное действие: сложение (+), вычитание (−), умножение (×) или деление (÷).
+    </div>
+
+    <div class="word-problem">
+      <span class="emoji">🐟</span> В аквариуме было <b>35 рыбок</b>. Купили ещё <b>12 рыбок</b>. Сколько рыбок стало в аквариуме?
+    </div>
+    <p>Какое действие нужно выполнить?</p>
+    <div class="action-buttons" id="act8">
+      <button class="action-btn sum" onclick="selectAction('act8', '+')">Сложение (+)</button>
+      <button class="action-btn diff" onclick="selectAction('act8', '-')">Вычитание (−)</button>
+      <button class="action-btn prod" onclick="selectAction('act8', '*')">Умножение (×)</button>
+      <button class="action-btn quot" onclick="selectAction('act8', '/')">Деление (÷)</button>
+    </div>
+    <div class="feedback" id="fb8"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="nextTask(9)">Дальше ▶</button>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 9: Ещё задача на выбор действия -->
+  <div class="task" id="task9">
+    <h2>🎯 Задание 9. Какое действие?</h2>
+
+    <div class="word-problem">
+      <span class="emoji">🎈</span> У Маши <b>42 воздушных шара</b>. Она хочет раздать их поровну <b>7 подругам</b>. Сколько шаров получит каждая подруга?
+    </div>
+    <p>Какое действие нужно выполнить?</p>
+    <div class="action-buttons" id="act9">
+      <button class="action-btn sum" onclick="selectAction('act9', '+')">Сложение (+)</button>
+      <button class="action-btn diff" onclick="selectAction('act9', '-')">Вычитание (−)</button>
+      <button class="action-btn prod" onclick="selectAction('act9', '*')">Умножение (×)</button>
+      <button class="action-btn quot" onclick="selectAction('act9', '/')">Деление (÷)</button>
+    </div>
+    <div class="feedback" id="fb9"></div>
+    <div style="text-align:center;">
+      <button class="next-btn" onclick="showFinal()">К результату 🏆</button>
+    </div>
+  </div>
+
+  <!-- ФИНАЛ -->
+  <div class="task" id="final">
+    <div class="final">
+      <h2>🎉 Молодец! 🎉</h2>
+      <div class="stars" id="stars"></div>
+      <p id="finalText" style="font-size:1.3em;margin:20px 0;"></p>
+      <button class="next-btn" onclick="restart()">🔄 Начать заново</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let score = 0;
+let answered = {};
+let actionChoices = {};
+
+function updateScore() {
+  document.getElementById('score').textContent = score;
+}
+
+function nextTask(n) {
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.getElementById('task' + n).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+  fb.innerHTML = msg;
+}
+
+function addScore(key, val) {
+  if (!answered[key]) {
+    answered[key] = true;
+    score += val;
+    updateScore();
+  }
+}
+
+// ===== Drag-and-drop механика =====
+let draggedEl = null;
+let selectedForDrop = null;
+
+document.querySelectorAll('.draggable').forEach(el => {
+  el.addEventListener('dragstart', e => {
+    draggedEl = el;
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', e => {
+    el.classList.remove('dragging');
+    draggedEl = null;
+  });
+  el.addEventListener('click', e => {
+    if (el.classList.contains('correct-placed')) return;
+    document.querySelectorAll('.draggable').forEach(d => d.style.outline = '');
+    selectedForDrop = el;
+    el.style.outline = '3px solid #e91e63';
+  });
+});
+
+document.querySelectorAll('.drop-zone, .pool').forEach(zone => {
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', e => {
+    zone.classList.remove('drag-over');
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (draggedEl && !draggedEl.classList.contains('correct-placed')) {
+      zone.appendChild(draggedEl);
+    }
+  });
+  zone.addEventListener('click', e => {
+    if (selectedForDrop && !selectedForDrop.classList.contains('correct-placed')) {
+      zone.appendChild(selectedForDrop);
+      selectedForDrop.style.outline = '';
+      selectedForDrop = null;
+    }
+  });
+});
+
+// ===== ЗАДАНИЕ 1: Сортировка =====
+function checkTask1() {
+  const zoneLength = document.getElementById('zone-length');
+  const zoneMass = document.getElementById('zone-mass');
+  const zoneTime = document.getElementById('zone-time');
+  const pool = document.getElementById('pool1');
+  let allCorrect = true;
+  let allPlaced = true;
+
+  document.querySelectorAll('.draggable').forEach(el => {
+    el.classList.remove('correct-placed', 'wrong-placed');
+  });
+
+  const zones = [
+    { zone: zoneLength, type: 'length' },
+    { zone: zoneMass, type: 'mass' },
+    { zone: zoneTime, type: 'time' }
+  ];
+
+  zones.forEach(({ zone, type }) => {
+    [...zone.children].forEach(el => {
+      if (el.classList && el.classList.contains('draggable')) {
+        if (el.dataset.type === type) el.classList.add('correct-placed');
+        else { el.classList.add('wrong-placed'); allCorrect = false; }
+      }
+    });
+  });
+
+  [...pool.children].forEach(el => {
+    if (el.classList && el.classList.contains('draggable')) allPlaced = false;
+  });
+
+  if (!allPlaced) {
+    showFeedback('fb1', false, '❌ Распредели все единицы измерения по коробкам!');
+    return;
+  }
+  if (allCorrect) {
+    showFeedback('fb1', true, '✅ Отлично! Все единицы разложены правильно! 📏⚖️⏰');
+    addScore('t1', 1);
+  } else {
+    showFeedback('fb1', false, '❌ Есть ошибки. Красные карточки стоят не в той коробке. Зелёные — верно.');
+  }
+}
+
+function resetTask1() {
+  const pool = document.getElementById('pool1');
+  document.querySelectorAll('.draggable').forEach(el => {
+    el.classList.remove('correct-placed', 'wrong-placed');
+    pool.appendChild(el);
+  });
+  document.getElementById('fb1').className = 'feedback';
+  document.getElementById('fb1').innerHTML = '';
+}
+
+// ===== ЗАДАНИЕ 2: Сложение и вычитание =====
+function checkTask2() {
+  const cards = document.querySelectorAll('#task2 .example-card');
+  let allCorrect = true;
+  let allFilled = true;
+
+  cards.forEach(card => {
+    const input = card.querySelector('input');
+    const answer = parseInt(card.dataset.answer);
+    const val = parseInt(input.value);
+    card.classList.remove('correct-input', 'wrong-input');
+
+    if (isNaN(val)) {
+      allFilled = false;
+      return;
+    }
+    if (val === answer) {
+      card.classList.add('correct-input');
+    } else {
+      card.classList.add('wrong-input');
+      allCorrect = false;
+    }
+  });
+
+  if (!allFilled) {
+    showFeedback('fb2', false, '❌ Реши все примеры!');
+    return;
+  }
+  if (allCorrect) {
+    showFeedback('fb2', true, '✅ Великолепно! Все примеры решены верно! ➕➖');
+    addScore('t2', 1);
+  } else {
+    showFeedback('fb2', false, '❌ Есть ошибки. Проверь красные карточки.');
+  }
+}
+
+// ===== ЗАДАНИЕ 3: Умножение и деление =====
+function checkTask3() {
+  const cards = document.querySelectorAll('#task3 .example-card');
+  let allCorrect = true;
+  let allFilled = true;
+
+  cards.forEach(card => {
+    const input = card.querySelector('input');
+    const answer = parseInt(card.dataset.answer);
+    const val = parseInt(input.value);
+    card.classList.remove('correct-input', 'wrong-input');
+
+    if (isNaN(val)) {
+      allFilled = false;
+      return;
+    }
+    if (val === answer) {
+      card.classList.add('correct-input');
+    } else {
+      card.classList.add('wrong-input');
+      allCorrect = false;
+    }
+  });
+
+  if (!allFilled) {
+    showFeedback('fb3', false, '❌ Реши все примеры!');
+    return;
+  }
+  if (allCorrect) {
+    showFeedback('fb3', true, '✅ Супер! Таблица умножения и деления освоена! ✖️➗');
+    addScore('t3', 1);
+  } else {
+    showFeedback('fb3', false, '❌ Есть ошибки. Проверь красные карточки.');
+  }
+}
+
+// ===== ЗАДАНИЕ 4: Сумма =====
+function checkTask4() {
+  const val = parseInt(document.getElementById('ans4').value);
+  if (isNaN(val)) {
+    showFeedback('fb4', false, '❌ Введи ответ!');
+    return;
+  }
+  if (val === 43) {
+    showFeedback('fb4', true, '✅ Правильно! 25 + 18 = 43. Мы нашли сумму! 🍎');
+    addScore('t4', 1);
+  } else {
+    showFeedback('fb4', false, '❌ Подсказка: чтобы найти сумму, сложи 25 и 18.');
+  }
+}
+
+// ===== ЗАДАНИЕ 5: Разность =====
+function checkTask5() {
+  const val = parseInt(document.getElementById('ans5').value);
+  if (isNaN(val)) {
+    showFeedback('fb5', false, '❌ Введи ответ!');
+    return;
+  }
+  if (val === 35) {
+    showFeedback('fb5', true, '✅ Верно! 64 − 29 = 35. Мы нашли разность! 📚');
+    addScore('t5', 1);
+  } else {
+    showFeedback('fb5', false, '❌ Подсказка: чтобы найти разность, вычти из 64 число 29.');
+  }
+}
+
+// ===== ЗАДАНИЕ 6: Произведение =====
+function checkTask6() {
+  const val = parseInt(document.getElementById('ans6').value);
+  if (isNaN(val)) {
+    showFeedback('fb6', false, '❌ Введи ответ!');
+    return;
+  }
+  if (val === 42) {
+    showFeedback('fb6', true, '✅ Отлично! 7 × 6 = 42. Мы нашли произведение! 🧁');
+    addScore('t6', 1);
+  } else {
+    showFeedback('fb6', false, '❌ Подсказка: 7 тарелок по 6 пирожных — умножь 7 на 6.');
+  }
+}
+
+// ===== ЗАДАНИЕ 7: Частное =====
+function checkTask7() {
+  const val = parseInt(document.getElementById('ans7').value);
+  if (isNaN(val)) {
+    showFeedback('fb7', false, '❌ Введи ответ!');
+    return;
+  }
+  if (val === 8) {
+    showFeedback('fb7', true, '✅ Правильно! 48 ÷ 6 = 8. Мы нашли частное! 🍬');
+    addScore('t7', 1);
+  } else {
+    showFeedback('fb7', false, '❌ Подсказка: раздели 48 конфет на 6 друзей.');
+  }
+}
+
+// ===== ЗАДАНИЯ 8 и 9: Выбор действия =====
+function selectAction(groupId, action) {
+  actionChoices[groupId] = action;
+  const container = document.getElementById(groupId);
+  container.querySelectorAll('.action-btn').forEach(btn => {
+    btn.classList.remove('chosen');
+  });
+  event.target.classList.add('chosen');
+}
+
+function checkTask8() {
+  if (!actionChoices['act8']) {
+    showFeedback('fb8', false, '❌ Выбери действие!');
+    return;
+  }
+  if (actionChoices['act8'] === '+') {
+    showFeedback('fb8', true, '✅ Верно! Нужно сложить: 35 + 12 = 47 рыбок. 🐟');
+    addScore('t8', 1);
+  } else {
+    showFeedback('fb8', false, '❌ Подумай: рыбок стало больше или меньше? Стало больше → значит складываем!');
+  }
+}
+
+function checkTask9() {
+  if (!actionChoices['act9']) {
+    showFeedback('fb9', false, '❌ Выбери действие!');
+    return;
+  }
+  if (actionChoices['act9'] === '/') {
+    showFeedback('fb9', true, '✅ Правильно! Нужно разделить: 42 ÷ 7 = 6 шаров каждой подруге. 🎈');
+    addScore('t9', 1);
+  } else {
+    showFeedback('fb9', false, '❌ Подумай: шары раздают поровну → значит делим!');
+  }
+}
+
+// Для заданий 8 и 9 проверяем при переходе дальше
+const origNextTask = nextTask;
+nextTask = function(n) {
+  // Проверяем текущее задание перед переходом
+  if (document.getElementById('task8').classList.contains('active') && !answered['t8']) {
+    checkTask8();
+  }
+  if (document.getElementById('task9').classList.contains('active') && !answered['t9']) {
+    checkTask9();
+  }
+  origNextTask(n);
+};
+
+function showFinal() {
+  // Проверяем последнее задание если не проверено
+  if (!answered['t9']) {
+    checkTask9();
+  }
+
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.getElementById('final').classList.add('active');
+  const stars = document.getElementById('stars');
+  const text = document.getElementById('finalText');
+  let s = '';
+  for (let i = 0; i < score; i++) s += '⭐';
+  for (let i = score; i < 10; i++) s += '☆';
+  stars.textContent = s;
+  if (score === 10) text.textContent = '🏆 Ты настоящий математик! Все ответы верные!';
+  else if (score >= 7) text.textContent = '🎖 Отличный результат! Ты хорошо знаешь математику!';
+  else if (score >= 4) text.textContent = '📚 Неплохо! Но стоит потренироваться ещё.';
+  else text.textContent = '💪 Не расстраивайся! Повтори правила и попробуй снова!';
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  score = 0;
+  answered = {};
+  actionChoices = {};
+  updateScore();
+
+  // Сброс drag-and-drop
+  resetTask1();
+
+  // Сброс примеров
+  document.querySelectorAll('.example-card').forEach(card => {
+    card.classList.remove('correct-input', 'wrong-input');
+    card.querySelector('input').value = '';
+  });
+
+  // Сброс задач
+  ['ans4','ans5','ans6','ans7'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  // Сброс feedback
+  document.querySelectorAll('.feedback').forEach(f => {
+    f.className = 'feedback';
+    f.innerHTML = '';
+  });
+
+  // Сброс выбора действий
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.classList.remove('chosen');
+  });
+
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.getElementById('task1').classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

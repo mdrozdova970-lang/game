@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🐻 Весёлый русский язык • 2 класс • Повторение</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f9e7b3 0%, #f5d78c 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Comic Sans MS', 'Arial Rounded', system-ui, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .game-container {
+      max-width: 750px;
+      width: 100%;
+      background: #fffef0;
+      border-radius: 70px 70px 50px 50px;
+      box-shadow: 0 25px 40px rgba(160, 100, 20, 0.25), inset 0 2px 10px rgba(255,255,200,0.8);
+      padding: 30px 30px 35px;
+      border: 4px solid #ffb347;
+      position: relative;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.3rem;
+      color: #b45f2a;
+      text-shadow: 2px 2px 0 #ffe484;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    h1 span {
+      background: #ffdd99;
+      border-radius: 50px;
+      padding: 5px 20px;
+      font-size: 1.8rem;
+    }
+
+    .bear-mascot {
+      font-size: 2.8rem;
+      filter: drop-shadow(0 6px 6px #aa6f3c);
+      margin-bottom: 5px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 3px dashed #f39c12;
+      border-radius: 45px;
+      padding: 20px 25px;
+      margin: 15px 0 20px;
+      background: #fffef7;
+      box-shadow: 0 12px 18px rgba(0,0,0,0.08);
+    }
+
+    .task-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #5c3b1a;
+      background: #fceeca;
+      display: inline-block;
+      padding: 8px 25px;
+      border-radius: 40px;
+      margin-bottom: 15px;
+      word-break: break-word;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0 10px;
+    }
+
+    .btn {
+      background: #ffd966;
+      border: 3px solid #cc8e35;
+      border-radius: 60px;
+      padding: 14px 22px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #4b2e1a;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #b47d44;
+      transition: all 0.08s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #ffea9f;
+      min-width: 110px;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b47d44;
+      background: #f7d44a;
+    }
+
+    .btn:hover {
+      background: #ffe084;
+      border-color: #b87333;
+    }
+
+    .feedback {
+      font-size: 1.3rem;
+      margin: 15px 0 5px;
+      min-height: 40px;
+      font-weight: bold;
+      color: #2e5c3b;
+      background: #e7f5da;
+      border-radius: 30px;
+      padding: 10px 20px;
+    }
+
+    .score-box {
+      background: #ffb554;
+      border-radius: 30px;
+      padding: 10px 25px;
+      display: inline-block;
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: white;
+      text-shadow: 2px 2px 0 #b45f2a;
+      margin: 10px 0 0;
+    }
+
+    .next-btn {
+      background: #7ed56f;
+      border-color: #2b7a3e;
+      color: white;
+      text-shadow: 1px 1px 0 #1e4a2c;
+      box-shadow: 0 6px 0 #2d6a3b;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .grammar-highlight {
+      background: #fceea7;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: bold;
+      color: #4b2c0e;
+    }
+
+    .small-note {
+      font-size: 1rem;
+      color: #a5672f;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 500px) {
+      .btn {
+        padding: 12px 16px;
+        font-size: 1rem;
+        min-width: 90px;
+      }
+      .task-text {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="bear-mascot">🐻‍❄️📚🐼</div>
+  <h1>Повторяем <span>предложения</span></h1>
+
+  <!-- область задания -->
+  <div class="card" id="questionCard">
+    <div class="task-text" id="questionDisplay">Загружаем игру...</div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackMessage" class="feedback">🌸 Выбирай вариант!</div>
+  </div>
+
+  <div>
+    <span class="score-box">🍯 <span id="scoreValue">0</span> / <span id="totalQuestions">0</span></span>
+  </div>
+
+  <button id="nextButton" class="btn next-btn hidden">✨ Дальше ✨</button>
+  <div class="small-note">🐿️ Цель высказывания • Интонация • Основа • Распростр./Нераспростр.</div>
+</div>
+
+<script>
+  (function() {
+    // ---------- БАНК ЗАДАНИЙ ----------
+    const questions = [
+      // --- Виды предложений по цели высказывания ---
+      {
+        text: "«Мама купила вкусный хлеб» – какое это предложение по цели?",
+        options: ["Повествовательное", "Вопросительное", "Побудительное"],
+        correct: 0,
+        type: "цель",
+        explanation: "Сообщает о чём-то – повествовательное."
+      },
+      {
+        text: "«Ты сделал уроки?» – какое предложение по цели высказывания?",
+        options: ["Повествовательное", "Вопросительное", "Побудительное"],
+        correct: 1,
+        type: "цель",
+        explanation: "Содержит вопрос – вопросительное."
+      },
+      {
+        text: "«Принеси, пожалуйста, мел» – определи цель высказывания.",
+        options: ["Побудительное", "Вопросительное", "Повествовательное"],
+        correct: 0,
+        type: "цель",
+        explanation: "Просьба, побуждение к действию – побудительное."
+      },
+      // --- Виды по интонации (восклицательное / невосклицательное) ---
+      {
+        text: "«Как красиво в осеннем лесу!» – какое это предложение по интонации?",
+        options: ["Восклицательное", "Невосклицательное"],
+        correct: 0,
+        type: "интонация",
+        explanation: "Есть восклицательный знак и сильное чувство – восклицательное."
+      },
+      {
+        text: "«Завтра будет дождь» – по интонации это предложение...",
+        options: ["Восклицательное", "Невосклицательное"],
+        correct: 1,
+        type: "интонация",
+        explanation: "Произносится спокойно, без восклицания."
+      },
+      {
+        text: "«Ура, мы едем на море!» – какое по интонации?",
+        options: ["Восклицательное", "Невосклицательное"],
+        correct: 0,
+        type: "интонация",
+        explanation: "Радостный возглас – восклицательное."
+      },
+      // --- Грамматическая основа ---
+      {
+        text: "Найди грамматическую основу: «Пушистый кот спит на коврике».",
+        options: ["кот спит", "пушистый кот", "спит на коврике", "кот"],
+        correct: 0,
+        type: "основа",
+        explanation: "Основа: кто? кот, что делает? спит."
+      },
+      {
+        text: "Где правильно выделена основа? «Светит яркое солнце».",
+        options: ["солнце светит", "яркое солнце", "светит яркое", "солнце"],
+        correct: 0,
+        type: "основа",
+        explanation: "Солнце (подлежащее) светит (сказуемое)."
+      },
+      {
+        text: "Какая основа в предложении: «Дети весело смеются»?",
+        options: ["дети смеются", "весело смеются", "дети весело", "смеются"],
+        correct: 0,
+        type: "основа",
+        explanation: "Кто? дети. Что делают? смеются."
+      },
+      // --- Распространённые / нераспространённые ---
+      {
+        text: "«Наступила золотая осень» – это предложение...",
+        options: ["Распространённое", "Нераспространённое"],
+        correct: 0,
+        type: "распр",
+        explanation: "Кроме основы (осень наступила) есть слово «золотая» – распространённое."
+      },
+      {
+        text: "«Светит солнце» – какое предложение?",
+        options: ["Нераспространённое", "Распространённое"],
+        correct: 0,
+        type: "распр",
+        explanation: "Только основа, нет второстепенных членов."
+      },
+      {
+        text: "«Маленький щенок громко лает» – распространённое или нет?",
+        options: ["Распространённое", "Нераспространённое"],
+        correct: 0,
+        type: "распр",
+        explanation: "Есть слова маленький, громко – распространённое."
+      }
+    ];
+
+    // ---------- СОСТОЯНИЕ ИГРЫ ----------
+    let currentQuestions = [];            // перемешанные вопросы
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+    let totalQ = 0;
+
+    // DOM элементы
+    const questionDisplay = document.getElementById('questionDisplay');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackEl = document.getElementById('feedbackMessage');
+    const scoreSpan = document.getElementById('scoreValue');
+    const totalSpan = document.getElementById('totalQuestions');
+    const nextBtn = document.getElementById('nextButton');
+
+    // ---------- ФУНКЦИИ ----------
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function loadQuestion(index) {
+      if (!currentQuestions.length || index >= currentQuestions.length) {
+        // если вдруг нет вопросов – перезапустим
+        startNewGame();
+        return;
+      }
+
+      const q = currentQuestions[index];
+      questionDisplay.textContent = q.text;
+      // Генерируем кнопки вариантов
+      optionsContainer.innerHTML = '';
+      q.options.forEach((optText, optIndex) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.textContent = optText;
+        btn.setAttribute('data-option-index', optIndex);
+        btn.addEventListener('click', optionClickHandler);
+        optionsContainer.appendChild(btn);
+      });
+
+      // Сброс состояния ответа
+      answered = false;
+      feedbackEl.textContent = '🌸 Выбирай вариант!';
+      feedbackEl.style.color = '#2e5c3b';
+      feedbackEl.style.background = '#e7f5da';
+      nextBtn.classList.add('hidden');
+      // убираем возможные старые выделения
+    }
+
+    function optionClickHandler(e) {
+      if (answered) return; // уже ответили
+      const selectedBtn = e.currentTarget;
+      const selectedIndex = parseInt(selectedBtn.getAttribute('data-option-index'), 10);
+      const currentQ = currentQuestions[currentIndex];
+      const isCorrect = (selectedIndex === currentQ.correct);
+
+      // Блокируем все кнопки и подсвечиваем правильную
+      answered = true;
+      const allOptions = document.querySelectorAll('#optionsContainer .btn');
+      allOptions.forEach(btn => {
+        btn.disabled = true;
+        btn.style.pointerEvents = 'none';
+        const optIdx = parseInt(btn.getAttribute('data-option-index'), 10);
+        if (optIdx === currentQ.correct) {
+          btn.style.background = '#b6e6a5';
+          btn.style.borderColor = '#2d6a3b';
+          btn.style.boxShadow = '0 6px 0 #3b6e3b';
+        } else if (optIdx === selectedIndex && !isCorrect) {
+          btn.style.background = '#f8aaaa';
+          btn.style.borderColor = '#b33a3a';
+        }
+      });
+
+      // Обновляем очки
+      if (isCorrect) {
+        score++;
+        feedbackEl.textContent = `✅ Верно! ${currentQ.explanation}`;
+        feedbackEl.style.color = '#1f5130';
+        feedbackEl.style.background = '#d4edc9';
+      } else {
+        feedbackEl.textContent = `❌ Ой! Правильно: ${currentQ.options[currentQ.correct]}. ${currentQ.explanation}`;
+        feedbackEl.style.color = '#8b2e2e';
+        feedbackEl.style.background = '#ffe0d0';
+      }
+
+      // Обновить счёт
+      scoreSpan.textContent = score;
+      // Показать кнопку "Дальше"
+      nextBtn.classList.remove('hidden');
+    }
+
+    function goToNextQuestion() {
+      if (!answered) return; // на всякий случай
+
+      if (currentIndex < currentQuestions.length - 1) {
+        currentIndex++;
+        loadQuestion(currentIndex);
+      } else {
+        // Игра завершена
+        finishGame();
+      }
+    }
+
+    function finishGame() {
+      questionDisplay.textContent = "🏆 Ты молодец! Игра пройдена!";
+      optionsContainer.innerHTML = '';
+      feedbackEl.innerHTML = `🎉 Ты набрал(а) ${score} из ${totalQ} очков! <br> 🧸 Повторить ещё раз?`;
+      feedbackEl.style.color = '#3b2e1a';
+      feedbackEl.style.background = '#ffddb0';
+      nextBtn.classList.add('hidden');
+      // Добавим кнопку «Играть снова»
+      const restartBtn = document.createElement('button');
+      restartBtn.className = 'btn next-btn';
+      restartBtn.textContent = '🔄 Сыграть ещё раз';
+      restartBtn.style.marginTop = '10px';
+      restartBtn.addEventListener('click', () => {
+        startNewGame();
+      });
+      optionsContainer.appendChild(restartBtn);
+      answered = true; // чтобы старые клики не мешали
+    }
+
+    function startNewGame() {
+      // Перемешиваем вопросы и берём все (или можно ограничить)
+      currentQuestions = shuffleArray([...questions]);
+      currentIndex = 0;
+      score = 0;
+      totalQ = currentQuestions.length;
+      scoreSpan.textContent = '0';
+      totalSpan.textContent = totalQ;
+      answered = false;
+
+      // очищаем возможные дополнительные кнопки
+      loadQuestion(0);
+    }
+
+    // Привязка кнопки "Дальше"
+    nextBtn.addEventListener('click', goToNextQuestion);
+
+    // Запуск
+    startNewGame();
+  })();
+</script>
+</body>
+</html>

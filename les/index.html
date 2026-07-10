@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🧮 Математический квест • 2 класс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8b0 30%, #56ab91 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Arial Rounded', system-ui, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .game-container {
+            max-width: 780px;
+            width: 100%;
+            background: #f6fff8;
+            border-radius: 70px 70px 50px 50px;
+            box-shadow: 0 25px 40px rgba(20, 80, 50, 0.3), inset 0 2px 15px rgba(200, 255, 220, 0.9);
+            padding: 25px 30px 35px;
+            border: 5px solid #2d8a6e;
+            position: relative;
+            text-align: center;
+        }
+
+        .header-icons {
+            font-size: 3rem;
+            filter: drop-shadow(0 6px 6px #1e5a3c);
+            margin-bottom: 5px;
+            letter-spacing: 8px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #1d5438;
+            text-shadow: 2px 2px 0 #c6f7c6;
+            margin-bottom: 10px;
+            background: #d4f0d4;
+            border-radius: 60px;
+            padding: 5px 20px;
+            display: inline-block;
+        }
+
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #c3e8d3;
+            border-radius: 40px;
+            padding: 10px 25px;
+            margin: 10px 0 18px;
+            font-weight: bold;
+            color: #1e4620;
+            font-size: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .stars {
+            color: #f7b731;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 4px dashed #2e8b57;
+            border-radius: 50px;
+            padding: 25px 20px;
+            margin: 10px 0 15px;
+            background: #fafff7;
+            box-shadow: 0 12px 20px rgba(0, 60, 30, 0.15);
+            min-height: 200px;
+        }
+
+        .task-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #1d4630;
+            background: #e6f7e6;
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            word-break: break-word;
+            border: 2px solid #6db17d;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin: 20px 0 10px;
+        }
+
+        .btn {
+            background: #ffdb7c;
+            border: 4px solid #c99a2b;
+            border-radius: 70px;
+            padding: 16px 24px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #3a2c0e;
+            cursor: pointer;
+            box-shadow: 0 7px 0 #b8862c;
+            transition: all 0.07s ease;
+            background: #ffe69b;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #b8862c;
+            background: #f7d44a;
+        }
+
+        .btn:hover {
+            background: #ffeca6;
+            border-color: #b8751e;
+        }
+
+        .btn:disabled {
+            pointer-events: none;
+            opacity: 0.8;
+            filter: grayscale(0.2);
+        }
+
+        .feedback {
+            font-size: 1.3rem;
+            margin: 15px 0 5px;
+            min-height: 45px;
+            font-weight: bold;
+            color: #1e5631;
+            background: #d4edda;
+            border-radius: 40px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .next-btn {
+            background: #63b88c;
+            border-color: #1a5b38;
+            color: white;
+            text-shadow: 1px 1px 0 #0d3d21;
+            box-shadow: 0 7px 0 #155432;
+            font-size: 1.4rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .sort-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .sort-bucket {
+            background: #f3fae8;
+            border: 3px solid #508d5e;
+            border-radius: 30px;
+            padding: 12px 18px;
+            min-width: 110px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .draggable-item {
+            background: #fde7b6;
+            border: 2px solid #ba8b3a;
+            border-radius: 30px;
+            padding: 8px 18px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            margin: 4px 0;
+        }
+
+        .draggable-item.selected {
+            background: #b3e0b0;
+            border-color: #1f6d2f;
+            box-shadow: 0 0 12px #7bb87b;
+        }
+
+        @media (max-width: 550px) {
+            .btn {
+                padding: 14px 18px;
+                font-size: 1.1rem;
+                min-width: 90px;
+            }
+            .task-text {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="header-icons">🐼➕🐻‍❄️➖🦊✖️🐨➗</div>
+    <h1>🔢 Математический лес</h1>
+
+    <div class="progress-area">
+        <span>⭐ <span id="starDisplay">0</span> звёзд</span>
+        <span>📋 Вопрос <span id="currentQ">1</span>/<span id="totalQ">0</span></span>
+    </div>
+
+    <div class="card" id="questionCard">
+        <div class="task-text" id="questionDisplay">Готовим приключение...</div>
+        <div id="dynamicArea" class="options"></div>
+        <div id="feedbackMessage" class="feedback">🐿️ Жми на правильный ответ!</div>
+    </div>
+
+    <button id="nextButton" class="btn next-btn hidden">🍀 Дальше 🍀</button>
+    <div style="margin-top: 10px; color: #2b5e3b;">📏 Длина • ⏰ Время • ⚖️ Масса • 🧮 + − × ÷</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- БАНК ЗАДАНИЙ (смешанные типы) ----------
+        const questions = [
+            // --- СОРТИРОВКА: единицы длины ---
+            {
+                type: "sort",
+                category: "длина",
+                text: "🐻 Рассортируй единицы длины и остальные слова:",
+                items: ["см", "кг", "дм", "час", "м", "мм", "минута", "км"],
+                buckets: [
+                    { label: "📏 Длина", match: ["см", "дм", "м", "мм", "км"] },
+                    { label: "❌ Не длина", match: ["кг", "час", "минута"] }
+                ],
+                explanation: "Длина: см, дм, м, мм, км. Остальные – масса и время."
+            },
+            // --- СОРТИРОВКА: единицы времени ---
+            {
+                type: "sort",
+                category: "время",
+                text: "⏰ Где единицы времени? Разложи правильно:",
+                items: ["час", "кг", "мин", "сутки", "см", "неделя", "грамм", "секунда"],
+                buckets: [
+                    { label: "⏳ Время", match: ["час", "мин", "сутки", "неделя", "секунда"] },
+                    { label: "🚫 Не время", match: ["кг", "см", "грамм"] }
+                ],
+                explanation: "Время: час, мин, сутки, неделя, секунда."
+            },
+            // --- СОРТИРОВКА: единицы массы ---
+            {
+                type: "sort",
+                category: "масса",
+                text: "⚖️ Найди единицы массы:",
+                items: ["кг", "г", "см", "т", "мин", "центнер", "дм", "грамм"],
+                buckets: [
+                    { label: "⚖️ Масса", match: ["кг", "г", "т", "центнер", "грамм"] },
+                    { label: "❌ Другое", match: ["см", "мин", "дм"] }
+                ],
+                explanation: "Масса: кг, г, т, центнер, грамм."
+            },
+            // --- ЗАДАЧА на произведение ---
+            {
+                type: "choice",
+                text: "🍎 В 4 коробках по 6 яблок. Сколько всего яблок? (произведение)",
+                options: ["24", "10", "20", "12"],
+                correct: 0,
+                explanation: "4 × 6 = 24 яблока."
+            },
+            // --- ЗАДАЧА на сумму ---
+            {
+                type: "choice",
+                text: "🐣 У Пети 27 марок, а у Кати 35. Сколько марок вместе? (сумма)",
+                options: ["62", "52", "8", "60"],
+                correct: 0,
+                explanation: "27 + 35 = 62 марки."
+            },
+            // --- ЗАДАЧА на частное ---
+            {
+                type: "choice",
+                text: "🍕 18 конфет раздали поровну 3 детям. Сколько у каждого? (частное)",
+                options: ["6", "15", "21", "9"],
+                correct: 0,
+                explanation: "18 : 3 = 6 конфет."
+            },
+            // --- ЗАДАЧА на разность ---
+            {
+                type: "choice",
+                text: "🎈 Было 50 шариков, 23 улетело. Сколько осталось? (разность)",
+                options: ["27", "33", "73", "17"],
+                correct: 0,
+                explanation: "50 – 23 = 27 шариков."
+            },
+            // --- ПРИМЕРЫ сложение / вычитание / умножение / деление в пределах 100 ---
+            {
+                type: "choice",
+                text: "🧮 Сколько будет 47 + 38?",
+                options: ["85", "75", "79", "95"],
+                correct: 0,
+                explanation: "47 + 38 = 85."
+            },
+            {
+                type: "choice",
+                text: "➖ Вычисли: 83 – 27",
+                options: ["56", "66", "54", "64"],
+                correct: 0,
+                explanation: "83 – 27 = 56."
+            },
+            {
+                type: "choice",
+                text: "✖️ Посчитай: 9 × 4",
+                options: ["36", "32", "40", "27"],
+                correct: 0,
+                explanation: "9 × 4 = 36."
+            },
+            {
+                type: "choice",
+                text: "➗ Чему равно 72 : 8?",
+                options: ["9", "8", "7", "6"],
+                correct: 0,
+                explanation: "72 : 8 = 9."
+            },
+            {
+                type: "choice",
+                text: "➕ 56 + 29 = ?",
+                options: ["85", "75", "95", "80"],
+                correct: 0,
+                explanation: "56 + 29 = 85."
+            },
+            {
+                type: "choice",
+                text: "➖ 90 – 45 = ?",
+                options: ["45", "55", "35", "40"],
+                correct: 0,
+                explanation: "90 – 45 = 45."
+            }
+        ];
+
+        // ---------- СОСТОЯНИЕ ИГРЫ ----------
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let stars = 0;
+        let answered = false;
+        let totalQuestionsCount = 0;
+
+        // DOM
+        const questionDisplay = document.getElementById('questionDisplay');
+        const dynamicArea = document.getElementById('dynamicArea');
+        const feedbackEl = document.getElementById('feedbackMessage');
+        const starDisplay = document.getElementById('starDisplay');
+        const currentQSpan = document.getElementById('currentQ');
+        const totalQSpan = document.getElementById('totalQ');
+        const nextBtn = document.getElementById('nextButton');
+
+        // Для сортировки
+        let selectedSortItem = null;
+        let sortItemsState = {}; // отслеживание распределения
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function resetSortState() {
+            selectedSortItem = null;
+            sortItemsState = {};
+        }
+
+        function loadQuestion(index) {
+            if (!currentQuestions.length || index >= currentQuestions.length) {
+                startNewGame();
+                return;
+            }
+
+            const q = currentQuestions[index];
+            questionDisplay.textContent = q.text;
+            dynamicArea.innerHTML = '';
+            feedbackEl.textContent = '🐿️ Думай внимательно!';
+            feedbackEl.style.color = '#1e5631';
+            feedbackEl.style.background = '#d4edda';
+            answered = false;
+            nextBtn.classList.add('hidden');
+            resetSortState();
+
+            if (q.type === 'sort') {
+                renderSortQuestion(q);
+            } else {
+                renderChoiceQuestion(q);
+            }
+        }
+
+        function renderChoiceQuestion(q) {
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = opt;
+                btn.setAttribute('data-option-index', idx);
+                btn.addEventListener('click', (e) => handleChoice(e, q));
+                dynamicArea.appendChild(btn);
+            });
+        }
+
+        function handleChoice(e, q) {
+            if (answered) return;
+            const selectedIdx = parseInt(e.currentTarget.getAttribute('data-option-index'), 10);
+            const isCorrect = (selectedIdx === q.correct);
+            answered = true;
+
+            const allBtns = dynamicArea.querySelectorAll('.btn');
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                const idx = parseInt(btn.getAttribute('data-option-index'), 10);
+                if (idx === q.correct) {
+                    btn.style.background = '#b6e6a5';
+                    btn.style.borderColor = '#1f6d2f';
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.style.background = '#f8aaaa';
+                    btn.style.borderColor = '#b33a3a';
+                }
+            });
+
+            updateScoreAndFeedback(isCorrect, q.explanation);
+        }
+
+        function renderSortQuestion(q) {
+            // Создаем контейнер с элементами и корзинами
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '20px';
+
+            // Перемешиваем элементы для отображения
+            const shuffledItems = shuffleArray([...q.items]);
+            const itemsRow = document.createElement('div');
+            itemsRow.className = 'options';
+            itemsRow.style.flexWrap = 'wrap';
+            shuffledItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'draggable-item';
+                itemEl.textContent = item;
+                itemEl.setAttribute('data-item', item);
+                itemEl.addEventListener('click', (e) => selectSortItem(e, itemEl, q));
+                itemsRow.appendChild(itemEl);
+                sortItemsState[item] = 'unassigned';
+            });
+            container.appendChild(itemsRow);
+
+            // Корзины
+            const bucketsRow = document.createElement('div');
+            bucketsRow.className = 'sort-zone';
+            q.buckets.forEach((bucket, bIndex) => {
+                const bucketDiv = document.createElement('div');
+                bucketDiv.className = 'sort-bucket';
+                bucketDiv.innerHTML = `<strong>${bucket.label}</strong>`;
+                bucketDiv.setAttribute('data-bucket-index', bIndex);
+                bucketDiv.addEventListener('click', (e) => placeItemInBucket(e, bucketDiv, q));
+                bucketsRow.appendChild(bucketDiv);
+            });
+            container.appendChild(bucketsRow);
+
+            // Кнопка проверки сортировки
+            const checkBtn = document.createElement('button');
+            checkBtn.className = 'btn';
+            checkBtn.textContent = '✅ Проверить сортировку';
+            checkBtn.style.marginTop = '10px';
+            checkBtn.addEventListener('click', () => checkSorting(q));
+            container.appendChild(checkBtn);
+
+            dynamicArea.appendChild(container);
+        }
+
+        function selectSortItem(e, element, q) {
+            if (answered) return;
+            // Убираем выделение со всех
+            document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSortItem = element.getAttribute('data-item');
+        }
+
+        function placeItemInBucket(e, bucketDiv, q) {
+            if (answered || !selectedSortItem) {
+                if (!selectedSortItem) feedbackEl.textContent = '👆 Сначала выбери слово сверху!';
+                return;
+            }
+            // Перемещаем элемент в корзину визуально
+            const itemValue = selectedSortItem;
+            // Удаляем старый элемент из строки предметов
+            const itemElements = document.querySelectorAll('.draggable-item');
+            itemElements.forEach(el => {
+                if (el.getAttribute('data-item') === itemValue) {
+                    el.remove();
+                }
+            });
+
+            // Добавляем в корзину
+            const newItemEl = document.createElement('div');
+            newItemEl.className = 'draggable-item';
+            newItemEl.textContent = itemValue;
+            newItemEl.style.background = '#d2ecb3';
+            newItemEl.setAttribute('data-item', itemValue);
+            // возможность вернуть обратно? упростим: запоминаем принадлежность
+            bucketDiv.appendChild(newItemEl);
+            sortItemsState[itemValue] = bucketDiv.getAttribute('data-bucket-index');
+
+            // Сброс выделения
+            document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('selected'));
+            selectedSortItem = null;
+        }
+
+        function checkSorting(q) {
+            if (answered) return;
+            // Проверяем распределение
+            let allCorrect = true;
+            for (let item of q.items) {
+                const bucketIdx = sortItemsState[item];
+                if (bucketIdx === 'unassigned') {
+                    allCorrect = false;
+                    break;
+                }
+                const bucket = q.buckets[parseInt(bucketIdx)];
+                if (!bucket || !bucket.match.includes(item)) {
+                    allCorrect = false;
+                    break;
+                }
+            }
+
+            // Проверяем, все ли элементы распределены
+            const unassigned = Object.values(sortItemsState).filter(v => v === 'unassigned').length;
+            if (unassigned > 0) {
+                feedbackEl.textContent = '⚠️ Распредели все слова по корзинам!';
+                return;
+            }
+
+            answered = true;
+            updateScoreAndFeedback(allCorrect, q.explanation);
+            // Подсвечиваем корзины
+            if (allCorrect) {
+                dynamicArea.querySelectorAll('.sort-bucket').forEach(b => b.style.background = '#c8f0c8');
+            }
+        }
+
+        function updateScoreAndFeedback(isCorrect, explanation) {
+            if (isCorrect) {
+                stars++;
+                starDisplay.textContent = stars;
+                feedbackEl.textContent = `⭐ Верно! ${explanation}`;
+                feedbackEl.style.color = '#1e5631';
+                feedbackEl.style.background = '#d4edda';
+            } else {
+                feedbackEl.textContent = `❌ Мимо! ${explanation}`;
+                feedbackEl.style.color = '#8b2e2e';
+                feedbackEl.style.background = '#ffe0d0';
+            }
+            nextBtn.classList.remove('hidden');
+        }
+
+        function goToNextQuestion() {
+            if (!answered) return;
+            if (currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                loadQuestion(currentIndex);
+                currentQSpan.textContent = currentIndex + 1;
+            } else {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            questionDisplay.textContent = "🎉 Ты прошёл математический лес!";
+            dynamicArea.innerHTML = '';
+            feedbackEl.innerHTML = `🏆 Ты заработал(а) ${stars} звёзд из ${totalQuestionsCount}! <br> 🌟 Настоящий математик!`;
+            feedbackEl.style.color = '#1e4620';
+            feedbackEl.style.background = '#ffdd99';
+            nextBtn.classList.add('hidden');
+
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'btn next-btn';
+            restartBtn.textContent = '🔄 Играть снова';
+            restartBtn.addEventListener('click', startNewGame);
+            dynamicArea.appendChild(restartBtn);
+            answered = true;
+        }
+
+        function startNewGame() {
+            currentQuestions = shuffleArray([...questions]);
+            currentIndex = 0;
+            stars = 0;
+            totalQuestionsCount = currentQuestions.length;
+            starDisplay.textContent = '0';
+            currentQSpan.textContent = '1';
+            totalQSpan.textContent = totalQuestionsCount;
+            answered = false;
+            loadQuestion(0);
+        }
+
+        nextBtn.addEventListener('click', goToNextQuestion);
+        startNewGame();
+    })();
+</script>
+</body>
+</html>

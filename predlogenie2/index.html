@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🌟 Увлекательный русский язык — 2 класс 🌟</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ffe9a8 0%, #ffc3e1 50%, #a8e6ff 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 5px dashed #ff9ec7;
+  }
+  h1 { text-align: center; color: #e91e63; font-size: 2em; margin-bottom: 10px; }
+  .score-bar {
+    background: #fff3cd;
+    border: 3px solid #ffc107;
+    border-radius: 15px;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #d67d00;
+  }
+  .task { display: none; animation: fadeIn 0.5s ease; }
+  .task.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  h2 { color: #4a148c; margin-bottom: 15px; font-size: 1.5em; }
+  .info-box {
+    background: #e3f2fd;
+    border-left: 6px solid #2196f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 1.05em;
+    line-height: 1.5;
+  }
+  .info-box b { color: #d32f2f; }
+  .sentence {
+    background: #fff9c4;
+    border: 2px solid #fbc02d;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 1.2em;
+    text-align: center;
+  }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 15px 0; }
+  button {
+    font-family: inherit;
+    font-size: 1.1em;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff6b9d, #feca57);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #c44569;
+    transition: all 0.15s;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(2px); box-shadow: 0 2px 0 #c44569; }
+  button.check-btn { background: linear-gradient(135deg, #48dbfb, #0abde3); box-shadow: 0 4px 0 #0097b2; }
+  button.next-btn { background: linear-gradient(135deg, #1dd1a1, #10ac84); box-shadow: 0 4px 0 #0a7a5e; font-size: 1.2em; margin-top: 15px; }
+  .feedback { padding: 12px; border-radius: 10px; margin-top: 15px; text-align: center; font-size: 1.15em; font-weight: bold; display: none; }
+  .feedback.correct { background: #d4edda; color: #155724; border: 2px solid #28a745; display: block; }
+  .feedback.wrong { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; display: block; }
+  .word { display: inline-block; padding: 8px 14px; margin: 5px; background: #fff; border: 2px solid #9c27b0; border-radius: 15px; cursor: pointer; font-size: 1.1em; transition: all 0.2s; user-select: none; }
+  .word:hover { background: #f3e5f5; }
+  .word.selected-subject { background: #ff5252; color: white; border-color: #c62828; }
+  .word.selected-predicate { background: #2196f3; color: white; border-color: #0d47a1; }
+  .word.disabled { opacity: 0.4; pointer-events: none; }
+  .legend { background: #f5f5f5; padding: 10px; border-radius: 10px; margin: 10px 0; font-size: 0.95em; }
+  .legend span { display: inline-block; padding: 3px 10px; border-radius: 10px; margin: 3px; color: white; font-weight: bold; }
+  .final { text-align: center; padding: 30px; }
+  .final h2 { font-size: 2em; color: #e91e63; }
+  .stars { font-size: 3em; margin: 20px 0; }
+  
+  /* Новые стили для заданий 9-11 */
+  .punct-panel { display: flex; gap: 15px; justify-content: center; margin: 10px 0; }
+  .punct-btn {
+    font-size: 1.8em;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 3px solid #6c5ce7;
+    color: #6c5ce7;
+    box-shadow: 0 4px 0 #4834d4;
+  }
+  .punct-btn:hover { background: #f0e6ff; }
+  .punct-btn.used { opacity: 0.3; pointer-events: none; border-color: #ccc; color: #999; box-shadow: none; }
+  #punctSlot { color: #d32f2f; font-weight: bold; }
+
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+  .card {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.05em;
+    transition: 0.2s;
+  }
+  .card:hover { background: #e9ecef; }
+  .card.selected { background: #4dabf7; color: white; border-color: #1971c2; }
+  .card.correct-mark { background: #69db7c; color: #2b8a3e; border-color: #38d9a9; }
+  .card.wrong-mark { background: #ffa8a8; color: #c92a2a; border-color: #f03e3e; }
+
+  .match-wrapper { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-item {
+    padding: 12px 18px;
+    background: #fff;
+    border: 2px solid #7950f2;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    transition: 0.2s;
+    min-width: 140px;
+  }
+  .match-item:hover { background: #f3f0ff; }
+  .match-item.active { background: #7950f2; color: white; }
+  .match-item.matched { background: #40c057; color: white; border-color: #2f9e44; cursor: default; }
+  .match-item.wrong-flash { animation: shake 0.4s; background: #ff6b6b; color: white; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌈 Весёлый русский язык 🌈</h1>
+  <div class="score-bar">⭐ Звёздочки: <span id="score">0</span> / 13</div>
+
+  <!-- ЗАДАНИЕ 1-8 (без изменений) -->
+  <div class="task active" id="task1">
+    <h2>🎯 Задание 1. Виды предложений по цели высказывания</h2>
+    <div class="info-box"><b>Повествовательное</b> — рассказывает. В конце <b>.</b><br><b>Вопросительное</b> — спрашивает. В конце <b>?</b><br><b>Побудительное</b> — просит. В конце <b>.</b> или <b>!</b></div>
+    <div class="sentence">🐱 Котик спит на окошке.</div>
+    <p>Какой это вид предложения?</p>
+    <div class="buttons">
+      <button onclick="checkTask1('повест')">Повествовательное</button>
+      <button onclick="checkTask1('вопр')">Вопросительное</button>
+      <button onclick="checkTask1('побуд')">Побудительное</button>
+    </div>
+    <div class="feedback" id="fb1"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(2)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task2">
+    <h2>🎵 Задание 2. Предложения по интонации</h2>
+    <div class="info-box"><b>Восклицательное</b> — произносится с чувством, в конце <b>!</b><br><b>Невосклицательное</b> — спокойно, в конце <b>.</b> <b>?</b></div>
+    <div class="sentence">🎉 Как красиво в лесу!</div>
+    <p>Какое это предложение по интонации?</p>
+    <div class="buttons">
+      <button onclick="checkTask2('воскл')">Восклицательное</button>
+      <button onclick="checkTask2('невоскл')">Невосклицательное</button>
+    </div>
+    <div class="feedback" id="fb2"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(3)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task3">
+    <h2>🔍 Задание 3. Грамматическая основа</h2>
+    <div class="info-box"><b>Подлежащее</b> (кто? что?) — <span style="background:#ff5252;color:white;padding:2px 8px;border-radius:8px;">красное</span><br><b>Сказуемое</b> (что делает? каков?) — <span style="background:#2196f3;color:white;padding:2px 8px;border-radius:8px;">синее</span></div>
+    <p>Нажми на <b>подлежащее</b>, потом на <b>сказуемое</b>:</p>
+    <div class="sentence" id="sentence3">
+      <span class="word" data-w="0">Птицы</span><span class="word" data-w="1">летают</span><span class="word" data-w="2">в</span><span class="word" data-w="3">небе</span><span class="word" data-w="4">.</span>
+    </div>
+    <div class="legend">Выбрано подлежащее: <span id="subjLabel" style="background:#ff5252;">—</span> | Сказуемое: <span id="predLabel" style="background:#2196f3;">—</span></div>
+    <div class="buttons"><button class="check-btn" onclick="checkTask3()">Проверить ✓</button></div>
+    <div class="feedback" id="fb3"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(4)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task4">
+    <h2>🌳 Задание 4. Распространённые и нераспространённые</h2>
+    <div class="info-box"><b>Нераспространённое</b> — только подлежащее и сказуемое.<br><b>Распространённое</b> есть второстепенные слова (какой? где? куда?).</div>
+    <div class="sentence">🌸 Цветы расцвели.</div>
+    <p>Какое это предложение?</p>
+    <div class="buttons">
+      <button onclick="checkTask4('распр')">Распространённое</button>
+      <button onclick="checkTask4('нераспр')">Нераспространённое</button>
+    </div>
+    <div class="feedback" id="fb4"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(5)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task5">
+    <h2>🧩 Задание 5. Составь предложение</h2>
+    <p>Собери из слов <b>побудительное восклицательное</b> предложение:</p>
+    <div class="sentence" id="sourceWords">
+      <span class="word" onclick="moveWord(this)">быстро</span><span class="word" onclick="moveWord(this)">домой</span><span class="word" onclick="moveWord(this)">Иди</span><span class="word" onclick="moveWord(this)">!</span>
+    </div>
+    <p>Твоё предложение:</p>
+    <div class="sentence" id="targetSentence" style="min-height:50px;background:#e8f5e9;border-color:#4caf50;"></div>
+    <div class="buttons">
+      <button class="check-btn" onclick="checkTask5()">Проверить ✓</button>
+      <button onclick="resetTask5()">🔄 Сбросить</button>
+    </div>
+    <div class="feedback" id="fb5"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(6)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task6">
+    <h2>🎓 Задание 6. Найди основу</h2>
+    <p>Кликни по словам — выдели <b style="color:#ff5252;">подлежащее</b> и <b style="color:#2196f3;">сказуемое</b>:</p>
+    <div class="sentence" id="sentence6">
+      <span class="word" data-w="0">Маленький</span><span class="word" data-w="1">зайчик</span><span class="word" data-w="2">прыгает</span><span class="word" data-w="3">по</span><span class="word" data-w="4">полянке</span><span class="word" data-w="5">.</span>
+    </div>
+    <div class="legend">Подлежащее: <span id="subjLabel6" style="background:#ff5252;">—</span> | Сказуемое: <span id="predLabel6" style="background:#2196f3;">—</span></div>
+    <div class="buttons"><button class="check-btn" onclick="checkTask6()">Проверить ✓</button></div>
+    <div class="feedback" id="fb6"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(7)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task7">
+    <h2>🏅 Задание 7. Знайка</h2>
+    <div class="sentence">🌞 Яркое солнышко светит!</div>
+    <p>Какое это предложение по <b>цели высказывания</b>?</p>
+    <div class="buttons">
+      <button onclick="checkTask7('повест')">Повествовательное</button>
+      <button onclick="checkTask7('вопр')">Вопросительное</button>
+      <button onclick="checkTask7('побуд')">Побудительное</button>
+    </div>
+    <div class="feedback" id="fb7"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(8)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task8">
+    <h2>🚂 Задание 8. Распространённое?</h2>
+    <div class="sentence">🚂 Быстрый поезд мчится по рельсам.</div>
+    <p>Это предложение...</p>
+    <div class="buttons">
+      <button onclick="checkTask8('распр')">Распространённое</button>
+      <button onclick="checkTask8('нераспр')">Нераспространённое</button>
+    </div>
+    <div class="feedback" id="fb8"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(9)">Дальше ▶</button></div>
+  </div>
+
+  <!-- НОВЫЕ ЗАДАНИЯ 9-11 -->
+  <div class="task" id="task9">
+    <h2>✨ Задание 9. Волшебный знак</h2>
+    <p>Выбери правильный знак препинания, чтобы закончить предложение:</p>
+    <div class="sentence" id="sent9">Ты уже сделал уроки <span id="punctSlot">_</span></div>
+    <div class="punct-panel">
+      <button class="punct-btn" onclick="placePunct('.')">.</button>
+      <button class="punct-btn" onclick="placePunct('?')">?</button>
+      <button class="punct-btn" onclick="placePunct('!')">!</button>
+    </div>
+    <div class="buttons"><button class="check-btn" onclick="checkTask9()">Проверить ✓</button></div>
+    <div class="feedback" id="fb9"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(10)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task10">
+    <h2>🃏 Задание 10. Выбери все верные</h2>
+    <p>Нажми на карточки, которые являются <b>нераспространёнными</b> предложениями:</p>
+    <div class="card-grid">
+      <div class="card" data-val="1" onclick="toggleCard(this)">Идёт дождь.</div>
+      <div class="card" data-val="2" onclick="toggleCard(this)">Сильный дождь стучит по крыше.</div>
+      <div class="card" data-val="3" onclick="toggleCard(this)">Котёнок спит.</div>
+      <div class="card" data-val="4" onclick="toggleCard(this)">Маленький котёнок спит на диване.</div>
+    </div>
+    <div class="buttons"><button class="check-btn" onclick="checkTask10()">Проверить ✓</button></div>
+    <div class="feedback" id="fb10"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="nextTask(11)">Дальше ▶</button></div>
+  </div>
+
+  <div class="task" id="task11">
+    <h2>🔗 Задание 11. Соедини пары</h2>
+    <p>Кликни сначала на <b>термин</b> слева, затем на его <b>определение</b> справа:</p>
+    <div class="match-wrapper">
+      <div class="match-col" id="leftCol">
+        <div class="match-item" data-id="subj" onclick="matchLeft(this)">Подлежащее</div>
+        <div class="match-item" data-id="pred" onclick="matchLeft(this)">Сказуемое</div>
+        <div class="match-item" data-id="nonexp" onclick="matchLeft(this)">Нераспространённое</div>
+      </div>
+      <div class="match-col" id="rightCol">
+        <div class="match-item" data-id="nonexp" onclick="matchRight(this)">Только подлежащее и сказуемое</div>
+        <div class="match-item" data-id="subj" onclick="matchRight(this)">Отвечает на вопрос Кто? Что?</div>
+        <div class="match-item" data-id="pred" onclick="matchRight(this)">Отвечает на вопрос Что делает?</div>
+      </div>
+    </div>
+    <div class="buttons"><button class="check-btn" onclick="checkTask11()">Проверить пары ✓</button></div>
+    <div class="feedback" id="fb11"></div>
+    <div style="text-align:center;"><button class="next-btn" onclick="showFinal()">К результату 🏆</button></div>
+  </div>
+
+  <!-- ФИНАЛ -->
+  <div class="task" id="final">
+    <div class="final">
+      <h2>🎉 Молодец! 🎉</h2>
+      <div class="stars" id="stars"></div>
+      <p id="finalText" style="font-size:1.3em;margin:20px 0;"></p>
+      <button class="next-btn" onclick="restart()">🔄 Начать заново</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let score = 0;
+let answered = {};
+function updateScore() { document.getElementById('score').textContent = score; }
+function nextTask(n) {
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.getElementById('task' + n).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(id);
+  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+  fb.innerHTML = msg;
+}
+function addScore(key, val) {
+  if (!answered[key]) { answered[key] = true; score += val; updateScore(); }
+}
+
+// 1-8 (оригинальные)
+function checkTask1(ans) { if(ans==='повест'){showFeedback('fb1',true,'✅ Верно!');addScore('t1',1);}else showFeedback('fb1',false,'❌ Подумай ещё.'); }
+function checkTask2(ans) { if(ans==='воскл'){showFeedback('fb2',true,'✅ Правильно!');addScore('t2',1);}else showFeedback('fb2',false,'❌ Посмотри на знак в конце.'); }
+let sel3={subj:null,pred:null};
+document.querySelectorAll('#sentence3 .word').forEach(w=>w.addEventListener('click',function(){const i=+this.dataset.w;if(i===4)return;if(sel3.subj===null){sel3.subj=i;this.classList.add('selected-subject');document.getElementById('subjLabel').textContent=this.textContent;}else if(sel3.pred===null&&i!==sel3.subj){sel3.pred=i;this.classList.add('selected-predicate');document.getElementById('predLabel').textContent=this.textContent;}}));
+function checkTask3(){if(sel3.subj===0&&sel3.pred===1){showFeedback('fb3',true,'✅ Отлично!');addScore('t3',1);}else showFeedback('fb3',false,'❌ Подлежащее: Птицы. Сказуемое: летают.');}
+function checkTask4(ans){if(ans==='нераспр'){showFeedback('fb4',true,'✅ Верно!');addScore('t4',1);}else showFeedback('fb4',false,'❌ Здесь нет второстепенных слов.');}
+function moveWord(el){const t=document.getElementById('targetSentence');if(el.parentElement.id==='sourceWords')t.appendChild(el);else document.getElementById('sourceWords').appendChild(el);}
+function resetTask5(){[...document.getElementById('targetSentence').children].forEach(c=>document.getElementById('sourceWords').appendChild(c));}
+function checkTask5(){const t=document.getElementById('targetSentence');const w=[...t.children].map(c=>c.textContent).join(' ');if(w==='Иди быстро домой !'||w==='Иди быстро домой!'){showFeedback('fb5',true,'✅ Супер!');addScore('t5',1);}else showFeedback('fb5',false,'❌ Подсказка: «Иди быстро домой !».');}
+let sel6={subj:null,pred:null};
+document.querySelectorAll('#sentence6 .word').forEach(w=>w.addEventListener('click',function(){const i=+this.dataset.w;if(i===5)return;if(sel6.subj===null){sel6.subj=i;this.classList.add('selected-subject');document.getElementById('subjLabel6').textContent=this.textContent;}else if(sel6.pred===null&&i!==sel6.subj){sel6.pred=i;this.classList.add('selected-predicate');document.getElementById('predLabel6').textContent=this.textContent;}}));
+function checkTask6(){if(sel6.subj===1&&sel6.pred===2){showFeedback('fb6',true,'✅ Молодец!');addScore('t6',1);}else showFeedback('fb6',false,'❌ Зайчик (кто?) — подлежащее, прыгает (что делает?) — сказуемое.');}
+function checkTask7(ans){if(ans==='повест'){showFeedback('fb7',true,'✅ Верно!');addScore('t7',1);}else showFeedback('fb7',false,'❌ Это повествовательное.');}
+function checkTask8(ans){if(ans==='распр'){showFeedback('fb8',true,'✅ Правильно!');addScore('t8',1);}else showFeedback('fb8',false,'❌ Есть второстепенные слова.');}
+
+// 9. Вставка знака
+let punct9 = null;
+function placePunct(sym) {
+  document.querySelectorAll('.punct-btn').forEach(b=>b.classList.remove('used'));
+  punct9 = sym;
+  document.getElementById('punctSlot').textContent = sym;
+  event.currentTarget.classList.add('used');
+}
+function checkTask9() {
+  if(punct9 === '?') { showFeedback('fb9', true, '✅ Верно! Это вопросительное предложение.'); addScore('t9', 1); }
+  else showFeedback('fb9', false, '❌ Здесь спрашивают. Какой знак ставится в конце вопроса?');
+}
+
+// 10. Мультиселект карточек
+function toggleCard(el) { el.classList.toggle('selected'); }
+function checkTask10() {
+  const selected = [...document.querySelectorAll('.card.selected')].map(c=>c.dataset.val);
+  const correct = selected.length===2 && selected.includes('1') && selected.includes('3');
+  [...document.querySelectorAll('.card')].forEach(c=>{
+    const v = c.dataset.val;
+    if(selected.includes(v) && (v==='1'||v==='3')) c.classList.add('correct-mark');
+    else if(selected.includes(v)) c.classList.add('wrong-mark');
+    c.style.pointerEvents='none';
+  });
+  if(correct) { showFeedback('fb10', true, '✅ Отлично! Выбраны только нераспространённые.'); addScore('t10', 1); }
+  else showFeedback('fb10', false, '❌ Нераспространённые: только подлежащее + сказуемое. Попробуй ещё раз или иди дальше.');
+}
+
+// 11. Соедини пары
+let matchLeftId = null;
+let matches11 = {};
+function matchLeft(el) {
+  document.querySelectorAll('#leftCol .match-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  matchLeftId = el.dataset.id;
+}
+function matchRight(el) {
+  if(!matchLeftId || el.classList.contains('matched')) return;
+  const rightId = el.dataset.id;
+  if(matchLeftId === rightId) {
+    matches11[matchLeftId] = true;
+    el.classList.add('matched');
+    el.previousElementSibling || document.querySelector(`#leftCol .match-item.active`).classList.add('matched');
+    // Find active left and mark it
+    document.querySelector(`#leftCol .match-item[data-id="${matchLeftId}"]`).classList.add('matched');
+    document.querySelector(`#leftCol .match-item.active`)?.classList.remove('active');
+    matchLeftId = null;
+    if(Object.keys(matches11).length === 3) {
+      showFeedback('fb11', true, '✅ Все пары собраны верно!');
+      addScore('t11', 1);
+    }
+  } else {
+    el.classList.add('wrong-flash');
+    setTimeout(()=>el.classList.remove('wrong-flash'), 400);
+  }
+}
+function checkTask11() {
+  if(Object.keys(matches11).length < 3) showFeedback('fb11', false, '❌ Соедини все 3 пары!');
+  else showFeedback('fb11', true, '✅ Всё верно!');
+}
+
+function showFinal() {
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.getElementById('final').classList.add('active');
+  const stars = document.getElementById('stars');
+  const text = document.getElementById('finalText');
+  let s = ''; for(let i=0;i<score;i++) s+='⭐'; for(let i=score;i<13;i++) s+='☆';
+  stars.textContent = s;
+  if(score>=12) text.textContent='🏆 Ты настоящий знаток русского языка! Почти идеально!';
+  else if(score>=9) text.textContent='🎖 Отличный результат! Ты хорошо знаешь тему!';
+  else if(score>=6) text.textContent='📚 Неплохо! Но стоит повторить правила.';
+  else text.textContent='💪 Не расстраивайся! Прочитай правила ещё раз и попробуй снова!';
+  window.scrollTo(0,0);
+}
+
+function restart() {
+  score = 0; answered = {}; updateScore();
+  sel3={subj:null,pred:null}; sel6={subj:null,pred:null};
+  punct9=null; matchLeftId=null; matches11={};
+  document.querySelectorAll('.word').forEach(w=>w.classList.remove('selected-subject','selected-predicate'));
+  document.querySelectorAll('.feedback').forEach(f=>{f.className='feedback';f.innerHTML='';});
+  ['subjLabel','predLabel','subjLabel6','predLabel6'].forEach(id=>document.getElementById(id).textContent='—');
+  resetTask5();
+  document.querySelectorAll('.card').forEach(c=>{c.classList.remove('selected','correct-mark','wrong-mark');c.style.pointerEvents='';});
+  document.querySelectorAll('.punct-btn').forEach(b=>b.classList.remove('used'));
+  document.getElementById('punctSlot').textContent='_';
+  document.querySelectorAll('.match-item').forEach(m=>{m.classList.remove('active','matched','wrong-flash');m.style.pointerEvents='';});
+  document.querySelectorAll('.task').forEach(t=>t.classList.remove('active'));
+  document.getElementById('task1').classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
