@@ -2,736 +2,607 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Математическое путешествие лисёнка Рыжика</title>
+<title>Математическая игра — 2 класс</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
-    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 55%, #90EE90 55%, #90EE90 100%);
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ffe0f0, #e0f7ff);
     min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
-  /* Солнце */
-  .sun {
-    position: fixed; top: 20px; right: 30px;
-    width: 80px; height: 80px;
-    background: radial-gradient(circle, #FFD700, #FFA500);
-    border-radius: 50%;
-    box-shadow: 0 0 40px #FFD700;
-    animation: rotate 20s linear infinite;
-    z-index: 1;
-  }
-  @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-  /* Облака */
-  .cloud {
-    position: fixed;
-    background: white;
-    border-radius: 50px;
-    opacity: 0.9;
-    z-index: 1;
-  }
-  .cloud::before, .cloud::after {
-    content: ''; position: absolute; background: white; border-radius: 50%;
-  }
-  .cloud1 { width: 100px; height: 30px; top: 60px; left: 10%; animation: drift 30s linear infinite; }
-  .cloud1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-  .cloud1::after { width: 40px; height: 40px; top: -15px; right: 15px; }
-  .cloud2 { width: 80px; height: 25px; top: 120px; left: 50%; animation: drift 40s linear infinite reverse; }
-  .cloud2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
-  .cloud2::after { width: 35px; height: 35px; top: -12px; right: 10px; }
-  @keyframes drift {
-    from { transform: translateX(-200px); }
-    to { transform: translateX(calc(100vw + 200px)); }
-  }
-  /* Деревья */
-  .tree {
-    position: fixed; bottom: 0; font-size: 60px; z-index: 1;
-  }
-
-  .container {
-    max-width: 850px;
-    margin: 30px auto;
     padding: 20px;
-    position: relative;
-    z-index: 10;
-  }
-
-  .game-card {
-    background: #FFF8DC;
-    border: 4px solid #FF8C00;
-    border-radius: 25px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
-
-  h1 {
-    color: #D2691E;
-    text-align: center;
-    font-size: 28px;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 0 #FFD700;
-  }
-
-  .progress-bar {
-    background: #FFE4B5;
-    height: 22px;
-    border-radius: 11px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    border: 2px solid #FF8C00;
-    position: relative;
-  }
-  .progress-fill {
-    background: linear-gradient(90deg, #FFA500, #FFD700);
-    height: 100%;
-    width: 0%;
-    transition: width 0.5s;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  .score {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 15px;
-    color: #D2691E;
-    font-weight: bold;
-  }
-
-  .fox-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  .fox {
-    font-size: 70px;
-    animation: bounce 2s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-  .speech-bubble {
-    background: white;
-    border: 3px solid #FF8C00;
-    border-radius: 20px;
-    padding: 15px 20px;
-    position: relative;
-    font-size: 17px;
     color: #333;
-    flex-grow: 1;
   }
-  .speech-bubble::before {
-    content: '';
-    position: absolute;
-    left: -15px; top: 20px;
-    border: 10px solid transparent;
-    border-right-color: #FF8C00;
+  h1 {
+    text-align: center;
+    color: #ff6b9d;
+    text-shadow: 2px 2px 0 #fff;
+    margin-bottom: 20px;
   }
-  .speech-bubble::after {
-    content: '';
-    position: absolute;
-    left: -10px; top: 22px;
-    border: 8px solid transparent;
-    border-right-color: white;
-  }
-
-  .level-title {
-    background: #FF8C00;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 15px;
-    display: inline-block;
-    margin-bottom: 15px;
-    font-size: 18px;
-  }
-
-  .task {
-    background: #FFFACD;
-    border: 2px dashed #FF8C00;
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 15px;
-    font-size: 17px;
-  }
-
-  .buttons {
+  .tabs {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
-    margin-top: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
   }
-  .btn {
-    background: linear-gradient(to bottom, #FFA500, #FF8C00);
-    color: white;
-    border: none;
-    padding: 12px 20px;
+  .tab {
+    padding: 12px 22px;
+    background: #fff;
+    border: 3px solid #ff6b9d;
     border-radius: 20px;
-    font-size: 18px;
     cursor: pointer;
-    font-family: inherit;
-    box-shadow: 0 4px 0 #D2691E;
-    transition: all 0.1s;
-    min-width: 70px;
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #D2691E; }
-  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #D2691E; }
-  .btn.correct { background: linear-gradient(to bottom, #90EE90, #32CD32); box-shadow: 0 4px 0 #228B22; }
-  .btn.wrong { background: linear-gradient(to bottom, #FFB6B6, #FF6B6B); box-shadow: 0 4px 0 #C0392B; animation: shake 0.5s; }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
-
-  .feedback {
-    padding: 12px;
-    border-radius: 12px;
-    margin: 15px 0;
-    text-align: center;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
+    color: #ff6b9d;
+    transition: 0.2s;
+  }
+  .tab.active, .tab:hover {
+    background: #ff6b9d;
+    color: #fff;
+  }
+  .screen {
     display: none;
-  }
-  .feedback.show { display: block; animation: pop 0.5s; }
-  @keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .feedback.success { background: #90EE90; color: #006400; }
-  .feedback.error { background: #FFB6B6; color: #8B0000; }
-
-  .next-btn {
-    display: block;
-    margin: 20px auto 0;
-    background: linear-gradient(to bottom, #32CD32, #228B22);
-    color: white;
-    border: none;
-    padding: 12px 30px;
+    background: #fff;
     border-radius: 25px;
-    font-size: 18px;
-    cursor: pointer;
-    font-family: inherit;
-    box-shadow: 0 5px 0 #006400;
+    padding: 30px;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   }
-  .next-btn:hover { transform: translateY(-2px); }
-
-  /* Визуализация: яблоки в корзинах */
-  .harvest-visual {
-    background: #FFFACD;
-    border: 3px solid #FF8C00;
-    border-radius: 20px;
-    padding: 20px;
-    margin: 15px 0;
+  .screen.active { display: block; }
+  .screen h2 {
+    color: #4a90e2;
+    margin-bottom: 20px;
     text-align: center;
   }
-  .harvest-title {
-    font-size: 18px;
-    margin-bottom: 15px;
-    color: #D2691E;
-    font-weight: bold;
-  }
-  .baskets-row {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin: 15px 0;
-  }
-  .basket-visual {
-    background: #DEB887;
-    border: 3px solid #8B4513;
-    border-radius: 15px;
-    padding: 10px;
-    min-width: 80px;
-    min-height: 100px;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: center;
-    gap: 3px;
-  }
-  .apple {
-    font-size: 24px;
-    animation: drop 0.5s ease-out;
-  }
-  @keyframes drop {
-    from { transform: translateY(-30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  .question-mark {
-    font-size: 40px;
-    color: #FF8C00;
-    font-weight: bold;
-    margin: 10px 0;
-  }
 
-  /* Примеры */
-  .example-box {
-    background: white;
-    padding: 25px;
-    margin: 15px 0;
-    border-radius: 15px;
-    border: 3px solid #FF8C00;
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    color: #D2691E;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-
-  /* Сравнение */
-  .compare-box {
-    background: white;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 15px;
-    border: 3px solid #FF8C00;
+  /* Механика 1 */
+  .pairs-container {
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: #D2691E;
+    align-items: flex-start;
+    gap: 30px;
+    flex-wrap: wrap;
   }
-  .compare-side {
-    background: #FFFACD;
-    padding: 15px 25px;
-    border-radius: 12px;
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
     min-width: 120px;
   }
-  .compare-sign {
-    font-size: 40px;
-    color: #FF8C00;
-  }
-
-  /* Таймер */
-  .timer {
-    background: #FF6B6B;
-    color: white;
-    padding: 8px 15px;
+  .pair-item {
+    padding: 15px;
+    background: #ffeaa7;
+    border: 3px solid #fdcb6e;
     border-radius: 15px;
-    display: inline-block;
+    text-align: center;
+    font-size: 20px;
     font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.2s;
   }
-  .timer.warning { background: #C0392B; animation: pulse 0.5s infinite; }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+  .pair-item.answer {
+    background: #a8e6cf;
+    border-color: #55c89b;
+  }
+  .pair-item.selected {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ff6b9d;
+    border-color: #ff6b9d;
+  }
+  .pair-item.matched {
+    opacity: 0.4;
+    pointer-events: none;
+    background: #dfe6e9;
+    border-color: #b2bec3;
+  }
+  .pair-item.wrong {
+    animation: shake 0.4s;
+    background: #fab1a0;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
   }
 
-  /* Таблица умножения */
-  .mult-table {
-    background: #E6F3FF;
-    border: 2px solid #4A90E2;
+  /* Механика 2 */
+  .task {
+    background: #fff9e6;
+    border: 2px dashed #f39c12;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    font-size: 22px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .task input {
+    width: 60px;
+    padding: 6px;
+    font-size: 20px;
+    text-align: center;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    margin: 0 4px;
+    font-family: inherit;
+  }
+  .task input.correct {
+    background: #d4edda;
+    border-color: #28a745;
+  }
+  .task input.wrong {
+    background: #f8d7da;
+    border-color: #dc3545;
+  }
+
+  /* Механика 3 */
+  .problem-text {
+    background: #e8f4fd;
+    border-left: 5px solid #4a90e2;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .step {
+    background: #fff9e6;
+    border: 2px dashed #f39c12;
     border-radius: 15px;
     padding: 15px;
-    margin: 15px 0;
+    margin-bottom: 15px;
+    font-size: 17px;
   }
-  .mult-table-title {
-    text-align: center;
-    font-size: 18px;
-    color: #4A90E2;
+  .step-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .step-row label {
     font-weight: bold;
-    margin-bottom: 10px;
   }
-  .mult-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
-    font-size: 14px;
-  }
-  .mult-cell {
-    background: white;
+  .step select, .step input[type="number"] {
     padding: 8px;
+    font-size: 17px;
+    border: 2px solid #4a90e2;
     border-radius: 8px;
+    font-family: inherit;
+  }
+  .step input[type="number"] {
+    width: 80px;
     text-align: center;
-    border: 1px solid #4A90E2;
+  }
+  .step select.correct, .step input.correct {
+    background: #d4edda;
+    border-color: #28a745;
+  }
+  .step select.wrong, .step input.wrong {
+    background: #f8d7da;
+    border-color: #dc3545;
+  }
+
+  .btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 12px 30px;
+    background: #4a90e2;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: 0.2s;
   }
-  .mult-cell:hover {
-    background: #4A90E2;
-    color: white;
-    transform: scale(1.05);
-  }
+  .btn:hover { background: #357abd; transform: scale(1.05); }
 
-  /* Финал */
-  .final-screen {
+  .message {
     text-align: center;
-    padding: 30px;
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 30px;
   }
-  .final-screen .fox { font-size: 100px; animation: jump 1s ease-in-out infinite; }
-  @keyframes jump {
-    0%, 100% { transform: translateY(0) rotate(-5deg); }
-    50% { transform: translateY(-20px) rotate(5deg); }
-  }
-  .trophy { font-size: 80px; margin: 20px 0; }
-
-  .hidden { display: none !important; }
+  .message.good { color: #28a745; }
+  .message.bad { color: #dc3545; }
 </style>
 </head>
 <body>
 
-<div class="sun"></div>
-<div class="cloud cloud1"></div>
-<div class="cloud cloud2"></div>
-<div class="tree" style="left: 2%;">🌳</div>
-<div class="tree" style="left: 15%;">🌲</div>
-<div class="tree" style="right: 2%;">🌳</div>
-<div class="tree" style="right: 15%;">🌲</div>
+<h1>🌟 Математика — 2 класс 🌟</h1>
 
-<div class="container">
-  <div class="game-card">
-    <h1>🦊 Математическое путешествие лисёнка Рыжика 🔢</h1>
-    
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress">0%</div>
-    </div>
-    <div class="score" id="score">⭐ Очки: 0</div>
+<div class="tabs">
+  <div class="tab active" data-screen="screen1">1. Соедини пары</div>
+  <div class="tab" data-screen="screen2">2. Пропущенные числа</div>
+  <div class="tab" data-screen="screen3">3. Реши задачу</div>
+</div>
 
-    <div class="fox-container">
-      <div class="fox">🦊</div>
-      <div class="speech-bubble" id="foxSpeech">Привет! Я лисёнок Рыжик! Сегодня мы отправимся в математическое путешествие. Будем собирать урожай, решать примеры и сравнивать числа! Готов? 🎒</div>
-    </div>
-
-    <div id="gameArea"></div>
+<!-- МЕХАНИКА 1 -->
+<div class="screen active" id="screen1">
+  <h2>Соедини пример и ответ</h2>
+  <p style="text-align:center; margin-bottom:15px;">Кликни на пример, потом на правильный ответ</p>
+  <div class="pairs-container">
+    <div class="column" id="leftCol"></div>
+    <div class="column" id="rightCol"></div>
   </div>
+  <div class="message" id="msg1"></div>
+  <button class="btn" onclick="initGame1()">Новая игра</button>
+</div>
+
+<!-- МЕХАНИКА 2 -->
+<div class="screen" id="screen2">
+  <h2>Вставь пропущенные числа</h2>
+  <div id="tasks2"></div>
+  <button class="btn" onclick="checkGame2()">Проверить</button>
+  <div class="message" id="msg2"></div>
+  <button class="btn" onclick="initGame2()" style="background:#55c89b;">Новые задания</button>
+</div>
+
+<!-- МЕХАНИКА 3 -->
+<div class="screen" id="screen3">
+  <h2>Реши задачу в два действия</h2>
+  <div class="problem-text" id="problemText"></div>
+  <div id="stepsContainer"></div>
+  <button class="btn" onclick="checkGame3()">Проверить</button>
+  <div class="message" id="msg3"></div>
+  <button class="btn" onclick="initGame3()" style="background:#f39c12;">Новая задача</button>
 </div>
 
 <script>
-const levels = [
-  // Уровень 0: Приветствие + памятка
+/* ===== Переключение вкладок ===== */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.screen).classList.add('active');
+  });
+});
+
+/* ===== МЕХАНИКА 1: Соедини пары ===== */
+let selectedLeft = null;
+let matchedCount = 0;
+const pairsPool = [
+  {q:"2 × 3", a:6}, {q:"4 × 2", a:8}, {q:"5 × 2", a:10},
+  {q:"3 × 3", a:9}, {q:"2 × 6", a:12}, {q:"6 ÷ 2", a:3},
+  {q:"8 ÷ 4", a:2}, {q:"10 ÷ 5", a:2}, {q:"12 ÷ 3", a:4},
+  {q:"15 ÷ 5", a:3}, {q:"2 × 5", a:10}, {q:"3 × 4", a:12},
+  {q:"9 ÷ 3", a:3}, {q:"14 ÷ 2", a:7}, {q:"2 × 7", a:14}
+];
+
+function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+function initGame1(){
+  const chosen = shuffle([...pairsPool]).slice(0,5);
+  const leftCol = document.getElementById('leftCol');
+  const rightCol = document.getElementById('rightCol');
+  leftCol.innerHTML = ''; rightCol.innerHTML = '';
+  document.getElementById('msg1').textContent = '';
+  matchedCount = 0; selectedLeft = null;
+
+  const leftItems = shuffle([...chosen]);
+  const rightItems = shuffle([...chosen]);
+
+  leftItems.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'pair-item';
+    div.textContent = p.q;
+    div.dataset.answer = p.a;
+    div.addEventListener('click', () => selectLeft(div));
+    leftCol.appendChild(div);
+  });
+  rightItems.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'pair-item answer';
+    div.textContent = p.a;
+    div.dataset.value = p.a;
+    div.addEventListener('click', () => selectRight(div));
+    rightCol.appendChild(div);
+  });
+}
+
+function selectLeft(el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#leftCol .pair-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedLeft = el;
+}
+
+function selectRight(el){
+  if(!selectedLeft || el.classList.contains('matched')) return;
+  if(selectedLeft.dataset.answer == el.dataset.value){
+    selectedLeft.classList.add('matched');
+    el.classList.add('matched');
+    selectedLeft.classList.remove('selected');
+    selectedLeft = null;
+    matchedCount++;
+    if(matchedCount === 5){
+      document.getElementById('msg1').textContent = '🎉 Молодец! Все пары найдены!';
+      document.getElementById('msg1').className = 'message good';
+    }
+  } else {
+    el.classList.add('wrong');
+    selectedLeft.classList.add('wrong');
+    const s = selectedLeft;
+    setTimeout(()=>{
+      el.classList.remove('wrong');
+      s.classList.remove('wrong','selected');
+    }, 500);
+    selectedLeft = null;
+  }
+}
+
+/* ===== МЕХАНИКА 2: Пропущенные числа ===== */
+function generateTask2(){
+  const types = [
+    () => {
+      const a = rand(2,5), b = rand(2,5), r = a*b;
+      const hide = Math.random()<0.5 ? 'a' : 'b';
+      if(hide==='a') return {html:`<input type="number"> × ${b} = ${r}`, answer:a};
+      else return {html:`${a} × <input type="number"> = ${r}`, answer:b};
+    },
+    () => {
+      const b = rand(2,5), r = rand(2,5), a = b*r;
+      return {html:`${a} ÷ ${b} = <input type="number">`, answer:r};
+    },
+    () => {
+      const a = rand(2,5), b = rand(2,5), r = a*b;
+      return {html:`${a} × ${b} = <input type="number">`, answer:r};
+    }
+  ];
+  return types[Math.floor(Math.random()*types.length)]();
+}
+
+function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function initGame2(){
+  const container = document.getElementById('tasks2');
+  container.innerHTML = '';
+  document.getElementById('msg2').textContent = '';
+  for(let i=0;i<5;i++){
+    const t = generateTask2();
+    const div = document.createElement('div');
+    div.className = 'task';
+    div.innerHTML = t.html;
+    div.dataset.answer = t.answer;
+    container.appendChild(div);
+  }
+}
+
+function checkGame2(){
+  const tasks = document.querySelectorAll('#tasks2 .task');
+  let correct = 0;
+  tasks.forEach(task => {
+    const inp = task.querySelector('input');
+    const val = parseInt(inp.value);
+    if(val == task.dataset.answer){
+      inp.classList.add('correct');
+      inp.classList.remove('wrong');
+      correct++;
+    } else {
+      inp.classList.add('wrong');
+      inp.classList.remove('correct');
+    }
+  });
+  const msg = document.getElementById('msg2');
+  if(correct === 5){
+    msg.textContent = `🎉 Отлично! Все ${correct} из 5 верно!`;
+    msg.className = 'message good';
+  } else {
+    msg.textContent = `Правильно: ${correct} из 5. Попробуй ещё!`;
+    msg.className = 'message bad';
+  }
+}
+
+/* ===== МЕХАНИКА 3: Задача в два действия ===== */
+const problems = [
   {
-    type: 'info',
-    fox: 'Сначала вспомним таблицу умножения! Можешь подглядеть, если забудешь. 📚',
-    html: `
-      <div class="level-title">📖 Таблица умножения</div>
-      <div class="mult-table">
-        <div class="mult-table-title">Нажми на пример — увидишь ответ!</div>
-        <div class="mult-grid" id="multGrid"></div>
-      </div>
-      <button class="next-btn" onclick="nextLevel()">Я готов! Вперёд! 🚀</button>
-    `
-  },
-  // Уровень 1: Сбор урожая (деление с визуализацией)
-  {
-    type: 'harvest',
-    fox: 'Задание 1! Помоги разложить яблоки в корзины поровну. Сколько яблок в каждой корзине? 🍎',
-    tasks: [
-      { apples: 12, baskets: 3, answer: 4 },
-      { apples: 15, baskets: 5, answer: 3 },
-      { apples: 18, baskets: 2, answer: 9 },
-      { apples: 20, baskets: 4, answer: 5 },
-      { apples: 16, baskets: 8, answer: 2 }
+    text: 'В магазине в первый день продали 18 килограммов яблок, а во второй — 12 килограммов. Все яблоки разложили в одинаковые корзины, по 6 килограммов в каждую. Сколько корзин понадобилось?',
+    steps: [
+      {
+        questions: ['Сколько всего килограммов яблок продали за два дня', 'Сколько корзин понадобилось', 'Сколько килограммов яблок продали во второй день'],
+        correctQuestion: 'Сколько всего килограммов яблок продали за два дня',
+        answer: 30
+      },
+      {
+        questions: ['Сколько всего килограммов яблок продали за два дня', 'Сколько корзин понадобилось', 'Сколько килограммов в одной корзине'],
+        correctQuestion: 'Сколько корзин понадобилось',
+        answer: 5
+      }
     ]
   },
-  // Уровень 2: Математический тир (примеры на умножение/деление)
   {
-    type: 'shooter',
-    fox: 'Задание 2! Реши примеры на умножение и деление. Выбери правильный ответ! 🎯',
-    tasks: [
-      { example: '3 × 4 = ?', answer: 12, options: [10, 12, 14, 15] },
-      { example: '5 × 2 = ?', answer: 10, options: [8, 10, 12, 15] },
-      { example: '18 : 3 = ?', answer: 6, options: [5, 6, 7, 9] },
-      { example: '4 × 5 = ?', answer: 20, options: [15, 18, 20, 25] },
-      { example: '16 : 4 = ?', answer: 4, options: [3, 4, 5, 6] },
-      { example: '6 × 3 = ?', answer: 18, options: [15, 16, 18, 21] },
-      { example: '20 : 5 = ?', answer: 4, options: [3, 4, 5, 6] },
-      { example: '7 × 2 = ?', answer: 14, options: [12, 14, 16, 18] },
-      { example: '14 : 2 = ?', answer: 7, options: [6, 7, 8, 9] },
-      { example: '8 × 3 = ?', answer: 24, options: [21, 24, 27, 30] }
+    text: 'У Маши было 20 конфет. Она раздала 4 конфеты подруге, а остальные разложила в 4 одинаковых пакетика. Сколько конфет получилось в каждом пакетике?',
+    steps: [
+      {
+        questions: ['Сколько конфет раздала Маша', 'Сколько конфет осталось у Маши', 'Сколько конфет в каждом пакетике'],
+        correctQuestion: 'Сколько конфет осталось у Маши',
+        answer: 16
+      },
+      {
+        questions: ['Сколько конфет раздала Маша', 'Сколько конфет осталось у Маши', 'Сколько конфет в каждом пакетике'],
+        correctQuestion: 'Сколько конфет в каждом пакетике',
+        answer: 4
+      }
     ]
   },
-  // Уровень 3: Сравняйка (сравнение выражений)
   {
-    type: 'compare',
-    fox: 'Задание 3! Сравни два выражения. Какой знак нужно поставить: >, < или =? ⚖️',
-    tasks: [
-      { left: '3 × 4', right: '15', answer: '<' },
-      { left: '5 × 2', right: '10', answer: '=' },
-      { left: '18 : 3', right: '5', answer: '>' },
-      { left: '4 × 5', right: '25', answer: '<' },
-      { left: '20 : 4', right: '5', answer: '=' },
-      { left: '6 × 3', right: '15', answer: '>' },
-      { left: '7 × 2', right: '14', answer: '=' }
+    text: 'В саду росло 3 ряда яблонь, по 5 яблонь в каждом ряду, и ещё 4 груши. Сколько всего деревьев росло в саду?',
+    steps: [
+      {
+        questions: ['Сколько было яблонь', 'Сколько было груш', 'Сколько всего деревьев'],
+        correctQuestion: 'Сколько было яблонь',
+        answer: 15
+      },
+      {
+        questions: ['Сколько было яблонь', 'Сколько было груш', 'Сколько всего деревьев'],
+        correctQuestion: 'Сколько всего деревьев',
+        answer: 19
+      }
     ]
   },
-  // Финал
   {
-    type: 'final',
-    fox: 'Ура! Мы прошли все испытания! Ты настоящий математик! 🏆'
+    text: 'Мама купила 2 пакета молока по 6 рублей и 1 батон за 8 рублей. Сколько рублей она заплатила за всю покупку?',
+    steps: [
+      {
+        questions: ['Сколько рублей стоил один пакет молока', 'Сколько рублей стоили 2 пакета молока', 'Сколько рублей стоил батон'],
+        correctQuestion: 'Сколько рублей стоили 2 пакета молока',
+        answer: 12
+      },
+      {
+        questions: ['Сколько рублей стоили 2 пакета молока', 'Сколько рублей стоил батон', 'Сколько рублей мама заплатила за всю покупку'],
+        correctQuestion: 'Сколько рублей мама заплатила за всю покупку',
+        answer: 20
+      }
+    ]
+  },
+  {
+    text: 'В классе 16 мальчиков и 14 девочек. Их разделили на 5 одинаковых команд для игры. Сколько детей в каждой команде?',
+    steps: [
+      {
+        questions: ['Сколько в классе мальчиков', 'Сколько всего детей в классе', 'Сколько детей в каждой команде'],
+        correctQuestion: 'Сколько всего детей в классе',
+        answer: 30
+      },
+      {
+        questions: ['Сколько в классе мальчиков', 'Сколько всего детей в классе', 'Сколько детей в каждой команде'],
+        correctQuestion: 'Сколько детей в каждой команде',
+        answer: 6
+      }
+    ]
+  },
+  {
+    text: 'У Пети было 24 марки. Он подарил 6 марок брату, а остальные наклеил в альбом по 3 марки на страницу. Сколько страниц заняли марки?',
+    steps: [
+      {
+        questions: ['Сколько марок подарил Петя', 'Сколько марок осталось у Пети', 'Сколько страниц заняли марки'],
+        correctQuestion: 'Сколько марок осталось у Пети',
+        answer: 18
+      },
+      {
+        questions: ['Сколько марок подарил Петя', 'Сколько марок осталось у Пети', 'Сколько страниц заняли марки'],
+        correctQuestion: 'Сколько страниц заняли марки',
+        answer: 6
+      }
+    ]
+  },
+  {
+    text: 'В библиотеке 3 полки с книгами, на каждой полке по 8 книг, и ещё 5 журналов. Сколько всего книг и журналов в библиотеке?',
+    steps: [
+      {
+        questions: ['Сколько книг на полках', 'Сколько журналов', 'Сколько всего книг и журналов'],
+        correctQuestion: 'Сколько книг на полках',
+        answer: 24
+      },
+      {
+        questions: ['Сколько книг на полках', 'Сколько журналов', 'Сколько всего книг и журналов'],
+        correctQuestion: 'Сколько всего книг и журналов',
+        answer: 29
+      }
+    ]
+  },
+  {
+    text: 'Для школьного праздника купили 4 коробки печенья по 6 штук в каждой и 10 пирожных. Сколько всего сладостей купили?',
+    steps: [
+      {
+        questions: ['Сколько купили коробок печенья', 'Сколько штук печенья купили всего', 'Сколько купили пирожных'],
+        correctQuestion: 'Сколько штук печенья купили всего',
+        answer: 24
+      },
+      {
+        questions: ['Сколько штук печенья купили всего', 'Сколько купили пирожных', 'Сколько всего сладостей купили'],
+        correctQuestion: 'Сколько всего сладостей купили',
+        answer: 34
+      }
+    ]
   }
 ];
 
-let currentLevel = 0;
-let score = 0;
+let currentProblem = null;
 
-function updateProgress() {
-  const percent = Math.round((currentLevel / levels.length) * 100);
-  const fill = document.getElementById('progress');
-  fill.style.width = percent + '%';
-  fill.textContent = percent + '%';
-  document.getElementById('score').innerHTML = `⭐ Очки: ${score}`;
-}
+function initGame3(){
+  currentProblem = problems[Math.floor(Math.random()*problems.length)];
+  document.getElementById('problemText').textContent = currentProblem.text;
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = '';
+  document.getElementById('msg3').textContent = '';
 
-function setFox(text) {
-  document.getElementById('foxSpeech').textContent = text;
-}
+  currentProblem.steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
 
-function renderLevel() {
-  updateProgress();
-  const level = levels[currentLevel];
-  const area = document.getElementById('gameArea');
-  setFox(level.fox);
+    const title = document.createElement('div');
+    title.innerHTML = `<b>Действие ${i+1}.</b>`;
+    div.appendChild(title);
 
-  if (level.type === 'info') {
-    area.innerHTML = level.html;
-    renderMultTable();
-  }
-  else if (level.type === 'harvest') renderHarvest(level);
-  else if (level.type === 'shooter') renderShooter(level);
-  else if (level.type === 'compare') renderCompare(level);
-  else if (level.type === 'final') renderFinal();
-}
-
-// Таблица умножения
-function renderMultTable() {
-  const grid = document.getElementById('multGrid');
-  let html = '';
-  for (let i = 2; i <= 9; i++) {
-    for (let j = 2; j <= 5; j++) {
-      const result = i * j;
-      html += `<div class="mult-cell" onclick="alert('${i} × ${j} = ${result}')">${i}×${j}</div>`;
-    }
-  }
-  grid.innerHTML = html;
-}
-
-// Уровень 1: Сбор урожая
-function renderHarvest(level) {
-  let taskIdx = 0;
-  const area = document.getElementById('gameArea');
-
-  function showTask() {
-    if (taskIdx >= level.tasks.length) {
-      score += 15;
-      setFox('Ты отлично справился со сбором урожая! 🍎');
-      area.innerHTML = `<div class="feedback success show">Все яблоки разложены! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
-      return;
-    }
-    const t = level.tasks[taskIdx];
-    let html = `<div class="level-title">🍎 Задача ${taskIdx+1} из ${level.tasks.length}</div>`;
-    html += `<div class="task">
-      <b>Условие:</b> У лисёнка <b>${t.apples} яблок</b>. Нужно разложить их в <b>${t.baskets} корзин</b> поровну.<br>
-      <b>Вопрос:</b> Сколько яблок будет в каждой корзине?
-    </div>`;
-    
-    html += `<div class="harvest-visual">
-      <div class="harvest-title">Визуализация:</div>
-      <div class="baskets-row">`;
-    for (let i = 0; i < t.baskets; i++) {
-      html += `<div class="basket-visual">`;
-      for (let j = 0; j < t.answer; j++) {
-        html += `<span class="apple">🍎</span>`;
-      }
-      html += `</div>`;
-    }
-    html += `</div>`;
-    html += `<div class="question-mark">? яблок в каждой корзине</div>`;
-    html += `</div>`;
-    
-    html += `<p><b>Выбери правильный ответ:</b></p>`;
-    html += `<div class="buttons" id="harvestBtns">`;
-    const options = generateOptions(t.answer, 2, 20);
-    options.forEach(opt => {
-      html += `<button class="btn" onclick="checkHarvest(${opt}, ${t.answer})">${opt}</button>`;
+    // Строка 1: что нашли (выпадающий список)
+    const row1 = document.createElement('div');
+    row1.className = 'step-row';
+    row1.innerHTML = '<label>Нашли:</label>';
+    const sel = document.createElement('select');
+    sel.className = 'question-select';
+    sel.innerHTML = '<option value="">— выбери —</option>';
+    shuffle([...step.questions]).forEach(q => {
+      sel.innerHTML += `<option value="${q}">${q}?</option>`;
     });
-    html += `</div>`;
-    html += `<div class="feedback" id="fb"></div>`;
-    area.innerHTML = html;
+    row1.appendChild(sel);
+    div.appendChild(row1);
+
+    // Строка 2: число
+    const row2 = document.createElement('div');
+    row2.className = 'step-row';
+    row2.innerHTML = '<label>Ответ:</label>';
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'answer-input';
+    row2.appendChild(inp);
+    div.appendChild(row2);
+
+    container.appendChild(div);
+  });
+}
+
+function checkGame3(){
+  const steps = document.querySelectorAll('#stepsContainer .step');
+  let allCorrect = true;
+
+  steps.forEach((stepDiv, i) => {
+    const step = currentProblem.steps[i];
+    const sel = stepDiv.querySelector('.question-select');
+    const inp = stepDiv.querySelector('.answer-input');
+
+    const userQuestion = sel.value;
+    const userAnswer = parseInt(inp.value);
+
+    const questionOk = userQuestion === step.correctQuestion;
+    const answerOk = userAnswer === step.answer;
+
+    sel.classList.remove('correct','wrong');
+    inp.classList.remove('correct','wrong');
+
+    if(questionOk) sel.classList.add('correct'); else { sel.classList.add('wrong'); allCorrect = false; }
+    if(answerOk) inp.classList.add('correct'); else { inp.classList.add('wrong'); allCorrect = false; }
+  });
+
+  const msg = document.getElementById('msg3');
+  if(allCorrect){
+    msg.textContent = '🎉 Правильно! Задача решена!';
+    msg.className = 'message good';
+  } else {
+    msg.textContent = 'Есть ошибки. Подумай ещё раз!';
+    msg.className = 'message bad';
   }
-
-  window.checkHarvest = function(picked, correct) {
-    const fb = document.getElementById('fb');
-    const btns = document.querySelectorAll('#harvestBtns .btn');
-    btns.forEach(b => {
-      b.disabled = true;
-      if (parseInt(b.textContent) === correct) b.classList.add('correct');
-      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
-    });
-    if (picked === correct) {
-      fb.className = 'feedback success show';
-      fb.textContent = `✅ Верно! В каждой корзине по ${correct} яблок!`;
-      score += 3;
-      setTimeout(() => { taskIdx++; showTask(); }, 1500);
-    } else {
-      fb.className = 'feedback error show';
-      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
-      setTimeout(() => { taskIdx++; showTask(); }, 2000);
-    }
-  };
-  showTask();
 }
 
-// Генерация вариантов ответов
-function generateOptions(correct, min, max) {
-  const options = new Set([correct]);
-  while (options.size < 4) {
-    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
-    if (rand !== correct) options.add(rand);
-  }
-  return Array.from(options).sort(() => Math.random() - 0.5);
-}
-
-// Уровень 2: Математический тир
-function renderShooter(level) {
-  let taskIdx = 0;
-  const area = document.getElementById('gameArea');
-
-  function showTask() {
-    if (taskIdx >= level.tasks.length) {
-      score += 20;
-      setFox('Ты молниеносно решаешь примеры! ⚡');
-      area.innerHTML = `<div class="feedback success show">Все примеры решены! +20 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
-      return;
-    }
-    const t = level.tasks[taskIdx];
-    let html = `<div class="level-title">🎯 Пример ${taskIdx+1} из ${level.tasks.length}</div>`;
-    html += `<div class="example-box">${t.example}</div>`;
-    html += `<p><b>Выбери правильный ответ:</b></p>`;
-    html += `<div class="buttons" id="shooterBtns">`;
-    t.options.forEach(opt => {
-      html += `<button class="btn" onclick="checkShooter(${opt}, ${t.answer})">${opt}</button>`;
-    });
-    html += `</div>`;
-    html += `<div class="feedback" id="fb"></div>`;
-    area.innerHTML = html;
-  }
-
-  window.checkShooter = function(picked, correct) {
-    const fb = document.getElementById('fb');
-    const btns = document.querySelectorAll('#shooterBtns .btn');
-    btns.forEach(b => {
-      b.disabled = true;
-      if (parseInt(b.textContent) === correct) b.classList.add('correct');
-      else if (parseInt(b.textContent) === picked && picked !== correct) b.classList.add('wrong');
-    });
-    if (picked === correct) {
-      fb.className = 'feedback success show';
-      fb.textContent = `✅ Верно!`;
-      score += 2;
-      setTimeout(() => { taskIdx++; showTask(); }, 1000);
-    } else {
-      fb.className = 'feedback error show';
-      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
-      setTimeout(() => { taskIdx++; showTask(); }, 1500);
-    }
-  };
-  showTask();
-}
-
-// Уровень 3: Сравняйка
-function renderCompare(level) {
-  let taskIdx = 0;
-  const area = document.getElementById('gameArea');
-
-  function showTask() {
-    if (taskIdx >= level.tasks.length) {
-      score += 15;
-      setFox('Ты отлично умеешь сравнивать! ⚖️');
-      area.innerHTML = `<div class="feedback success show">Все сравнения верны! +15 ⭐</div><button class="next-btn" onclick="nextLevel()">Дальше! 🚀</button>`;
-      return;
-    }
-    const t = level.tasks[taskIdx];
-    let html = `<div class="level-title">⚖️ Сравнение ${taskIdx+1} из ${level.tasks.length}</div>`;
-    html += `<div class="compare-box">
-      <div class="compare-side">${t.left}</div>
-      <div class="compare-sign">?</div>
-      <div class="compare-side">${t.right}</div>
-    </div>`;
-    html += `<p><b>Какой знак нужно поставить?</b></p>`;
-    html += `<div class="buttons" id="compareBtns">`;
-    html += `<button class="btn" onclick="checkCompare('>', '${t.answer}')" style="font-size:28px;">&gt;</button>`;
-    html += `<button class="btn" onclick="checkCompare('<', '${t.answer}')" style="font-size:28px;">&lt;</button>`;
-    html += `<button class="btn" onclick="checkCompare('=', '${t.answer}')" style="font-size:28px;">=</button>`;
-    html += `</div>`;
-    html += `<div class="feedback" id="fb"></div>`;
-    area.innerHTML = html;
-  }
-
-  window.checkCompare = function(picked, correct) {
-    const fb = document.getElementById('fb');
-    const btns = document.querySelectorAll('#compareBtns .btn');
-    btns.forEach(b => {
-      b.disabled = true;
-      const sign = b.textContent.trim();
-      if (sign === correct) b.classList.add('correct');
-      else if (sign === picked && picked !== correct) b.classList.add('wrong');
-    });
-    if (picked === correct) {
-      fb.className = 'feedback success show';
-      fb.textContent = `✅ Верно!`;
-      score += 2;
-      setTimeout(() => { taskIdx++; showTask(); }, 1000);
-    } else {
-      fb.className = 'feedback error show';
-      fb.textContent = `❌ Неверно. Правильный знак: ${correct}`;
-      setTimeout(() => { taskIdx++; showTask(); }, 1500);
-    }
-  };
-  showTask();
-}
-
-// Финал
-function renderFinal() {
-  const area = document.getElementById('gameArea');
-  let medal = '🥉';
-  let comment = 'Хороший результат!';
-  if (score >= 40) { medal = '🥇'; comment = 'Превосходно! Ты настоящий математик!'; }
-  else if (score >= 25) { medal = '🥈'; comment = 'Отлично! Ты очень хорошо потрудился!'; }
-  
-  area.innerHTML = `
-    <div class="final-screen">
-      <div class="fox">🦊</div>
-      <div class="trophy">${medal}</div>
-      <h2 style="color:#D2691E;font-size:28px;">Путешествие окончено!</h2>
-      <p style="font-size:22px;margin:15px 0;">Ты набрал <b>${score}</b> ⭐ очков!</p>
-      <p style="font-size:18px;">${comment}</p>
-      <p style="font-size:16px;margin-top:15px;color:#D2691E;">
-        Лисёнок Рыжик гордится тобой!<br>
-        Ты теперь отлично знаешь таблицу умножения и деления!
-      </p>
-      <button class="next-btn" onclick="restart()" style="margin-top:20px;">🔄 Пройти ещё раз</button>
-    </div>
-  `;
-}
-
-function nextLevel() {
-  currentLevel++;
-  if (currentLevel >= levels.length) currentLevel = levels.length - 1;
-  renderLevel();
-}
-
-function restart() {
-  currentLevel = 0;
-  score = 0;
-  renderLevel();
-}
-
-renderLevel();
+/* ===== Запуск ===== */
+initGame1();
+initGame2();
+initGame3();
 </script>
-
 </body>
 </html>

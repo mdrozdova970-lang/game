@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Игра по русскому языку — 2 класс</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    color: #d63384;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 12px 22px;
+    background: #fff;
+    border: 3px solid #d63384;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #d63384;
+    transition: 0.2s;
+  }
+  .tab.active {
+    background: #d63384;
+    color: #fff;
+    transform: scale(1.05);
+  }
+  .screen {
+    display: none;
+    background: #fff;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .screen.active { display: block; }
+  .task-title {
+    font-size: 1.4em;
+    color: #6f42c1;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .score {
+    text-align: center;
+    font-size: 1.2em;
+    color: #198754;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  /* ===== ЗАДАНИЕ 1 ===== */
+  #task1 .game-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .sentences {
+    flex: 1;
+    min-width: 250px;
+    background: #fff3cd;
+    border-radius: 15px;
+    padding: 15px;
+  }
+  .zones {
+    flex: 2;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .zone {
+    background: #d1e7dd;
+    border: 3px dashed #198754;
+    border-radius: 15px;
+    padding: 12px;
+    min-height: 70px;
+  }
+  .zone h3 {
+    color: #0f5132;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+  }
+  .sentence-card {
+    background: #fff;
+    border: 2px solid #6f42c1;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 6px 0;
+    cursor: grab;
+    font-size: 1.05em;
+    transition: 0.2s;
+    user-select: none;
+  }
+  .sentence-card:hover { transform: translateX(4px); background: #f8f9fa; }
+  .sentence-card.dragging { opacity: 0.5; }
+  .sentence-card.placed {
+    background: #d1e7dd;
+    border-color: #198754;
+  }
+  .sentence-card.wrong {
+    background: #f8d7da;
+    border-color: #dc3545;
+    animation: shake 0.4s;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .intonation-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .intonation-modal.show { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 400px;
+    text-align: center;
+  }
+  .modal-box h3 { color: #6f42c1; margin-bottom: 15px; }
+  .modal-box p { margin-bottom: 15px; font-size: 1.1em; }
+  .modal-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-excl { background: #ffc107; color: #333; }
+  .btn-noexcl { background: #0dcaf0; color: #fff; }
+
+  /* ===== ЗАДАНИЕ 2 ===== */
+  .words-pool {
+    background: #cfe2ff;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    min-height: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .word {
+    background: #fff;
+    border: 2px solid #0d6efd;
+    border-radius: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: 0.2s;
+  }
+  .word:hover { background: #0d6efd; color: #fff; }
+  .word.used { opacity: 0.3; pointer-events: none; }
+  .word.punct {
+    background: #fff3cd;
+    border-color: #ffc107;
+    font-weight: bold;
+    font-size: 1.3em;
+    color: #d63384;
+  }
+  .word.punct:hover { background: #ffc107; color: #333; }
+  .answer-line {
+    background: #f8f9fa;
+    border: 3px solid #6f42c1;
+    border-radius: 15px;
+    padding: 15px;
+    min-height: 60px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .answer-line .word {
+    background: #e7d6ff;
+    border-color: #6f42c1;
+  }
+  .answer-line .word:hover { background: #dc3545; color: #fff; border-color: #dc3545; }
+  .answer-line .word.punct {
+    background: #fff3cd;
+    border-color: #d63384;
+    margin-left: -2px;
+  }
+  .subtask {
+    background: #fff;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+  .subtask h4 {
+    color: #d63384;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    background: #198754;
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-reset { background: #6c757d; }
+  .btn-check { background: #0d6efd; }
+
+  /* ===== ЗАДАНИЕ 3 ===== */
+  .sentence-display {
+    background: #fff3cd;
+    border-radius: 15px;
+    padding: 20px;
+    font-size: 1.3em;
+    text-align: center;
+    margin-bottom: 15px;
+    line-height: 2;
+  }
+  .sentence-display span {
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 6px;
+    transition: 0.2s;
+    display: inline-block;
+    margin: 2px;
+  }
+  .sentence-display span:hover { background: #ffe69c; }
+  .sentence-display span.selected-subject {
+    background: #dc3545;
+    color: #fff;
+  }
+  .sentence-display span.selected-predicate {
+    background: #0d6efd;
+    color: #fff;
+  }
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+  .legend-subject { background: #dc3545; color: #fff; }
+  .legend-predicate { background: #0d6efd; color: #fff; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 15px 0;
+    min-height: 30px;
+  }
+  .feedback.good { color: #198754; }
+  .feedback.bad { color: #dc3545; }
+
+  .stars {
+    text-align: center;
+    font-size: 2em;
+    margin-top: 15px;
+  }
+
+  .hint {
+    background: #e2e3e5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 0.95em;
+    color: #495057;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌟 Игра по русскому языку — 2 класс 🌟</h1>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTask(1)">Задание 1: Сортировка</div>
+  <div class="tab" onclick="showTask(2)">Задание 2: Составь предложение</div>
+  <div class="tab" onclick="showTask(3)">Задание 3: Главные члены</div>
+</div>
+
+<!-- ===== ЗАДАНИЕ 1 ===== -->
+<div class="screen active" id="task1">
+  <div class="task-title">Перетащи предложения в нужную группу</div>
+  <div class="hint">💡 Подсказка: повествовательное — рассказывает, побудительное — просит или приказывает, вопросительное — спрашивает.</div>
+  <div class="score" id="score1">Очки: 0</div>
+  <div class="game-area">
+    <div class="sentences" id="sentencesPool">
+      <h3>📜 Предложения:</h3>
+    </div>
+    <div class="zones">
+      <div class="zone" data-type="повествовательное">
+        <h3>📘 Повествовательное</h3>
+      </div>
+      <div class="zone" data-type="побудительное">
+        <h3>📗 Побудительное</h3>
+      </div>
+      <div class="zone" data-type="вопросительное">
+        <h3>📙 Вопросительное</h3>
+      </div>
+    </div>
+  </div>
+  <div class="feedback" id="feedback1"></div>
+  <div class="stars" id="stars1"></div>
+</div>
+
+<!-- ===== ЗАДАНИЕ 2 ===== -->
+<div class="screen" id="task2">
+  <div class="task-title">Составь предложения из слов</div>
+  <div class="hint">💡 Кликай по словам сверху, чтобы собрать предложение. Не забудь поставить в конце нужный знак препинания: <b style="color:#d63384">.</b> <b style="color:#d63384">?</b> или <b style="color:#d63384">!</b>. Клик по слову в ответе — убирает его.</div>
+  <div class="score" id="score2">Очки: 0</div>
+  <div id="subtasks2"></div>
+</div>
+
+<!-- ===== ЗАДАНИЕ 3 ===== -->
+<div class="screen" id="task3">
+  <div class="task-title">Найди главные члены предложения</div>
+  <div class="hint">💡 Подлежащее — кто? что? (красная кнопка). Сказуемое — что делает? (синяя кнопка). Сначала выбери режим, потом кликай по словам.</div>
+  <div class="score" id="score3">Очки: 0</div>
+  <div class="legend">
+    <div class="legend-item legend-subject" id="modeSubject" onclick="setMode('subject')" style="cursor:pointer;opacity:0.5;">Режим: ПОДЛЕЖАЩЕЕ</div>
+    <div class="legend-item legend-predicate" id="modePredicate" onclick="setMode('predicate')" style="cursor:pointer;">Режим: СКАЗУЕМОЕ</div>
+  </div>
+  <div id="subtasks3"></div>
+</div>
+
+<!-- Модальное окно для интонации -->
+<div class="intonation-modal" id="intonationModal">
+  <div class="modal-box">
+    <h3>🎵 А какая интонация?</h3>
+    <p id="modalSentence"></p>
+    <button class="modal-btn btn-excl" onclick="answerIntonation(true)">Восклицательное 😃!</button>
+    <button class="modal-btn btn-noexcl" onclick="answerIntonation(false)">Невосклицательное 🙂</button>
+  </div>
+</div>
+
+<script>
+/* ============ ОБЩЕЕ ============ */
+let scores = {1:0, 2:0, 3:0};
+function showTask(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('task'+n).classList.add('active');
+  document.querySelectorAll('.tab')[n-1].classList.add('active');
+}
+function updateScore(n) {
+  document.getElementById('score'+n).textContent = 'Очки: ' + scores[n];
+}
+
+/* ============ ЗАДАНИЕ 1 ============ */
+const sentences1 = [
+  {text: 'Наступила золотая осень.', type: 'повествовательное', excl: false},
+  {text: 'Ребята пошли в лес.', type: 'повествовательное', excl: false},
+  {text: 'Открой дверь!', type: 'побудительное', excl: true},
+  {text: 'Сядь за стол.', type: 'побудительное', excl: false},
+  {text: 'Который сейчас час?', type: 'вопросительное', excl: false},
+  {text: 'Ты любишь читать книги?', type: 'вопросительное', excl: false},
+  {text: 'Какое красивое платье!', type: 'повествовательное', excl: true},
+  {text: 'Ура, каникулы!', type: 'повествовательное', excl: true}
+];
+
+let currentSentenceForIntonation = null;
+let task1Done = new Set();
+
+function initTask1() {
+  const pool = document.getElementById('sentencesPool');
+  sentences1.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'sentence-card';
+    card.draggable = true;
+    card.dataset.idx = i;
+    card.textContent = s.text;
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('idx', i);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    card.addEventListener('click', () => {
+      if (card.classList.contains('placed')) return;
+      document.querySelectorAll('.sentence-card').forEach(c => c.style.outline = '');
+      card.style.outline = '3px solid #d63384';
+      window._selectedCard = card;
+    });
+    pool.appendChild(card);
+  });
+
+  document.querySelectorAll('.zone').forEach(zone => {
+    zone.addEventListener('dragover', e => e.preventDefault());
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      const idx = e.dataTransfer.getData('idx');
+      handleDrop(idx, zone);
+    });
+    zone.addEventListener('click', () => {
+      if (window._selectedCard) {
+        handleDrop(window._selectedCard.dataset.idx, zone);
+        window._selectedCard.style.outline = '';
+        window._selectedCard = null;
+      }
+    });
+  });
+}
+
+function handleDrop(idx, zone) {
+  if (task1Done.has(idx)) return;
+  const s = sentences1[idx];
+  const card = document.querySelector(`.sentence-card[data-idx="${idx}"]`);
+  const zoneType = zone.dataset.type;
+  if (s.type === zoneType) {
+    zone.appendChild(card);
+    card.classList.add('placed');
+    card.draggable = false;
+    scores[1] += 1;
+    updateScore(1);
+    task1Done.add(idx);
+    currentSentenceForIntonation = {idx, card, correct: s.excl};
+    document.getElementById('modalSentence').textContent = s.text;
+    document.getElementById('intonationModal').classList.add('show');
+  } else {
+    card.classList.add('wrong');
+    setTimeout(() => card.classList.remove('wrong'), 500);
+    document.getElementById('feedback1').textContent = '❌ Попробуй ещё раз!';
+    document.getElementById('feedback1').className = 'feedback bad';
+  }
+}
+
+function answerIntonation(isExcl) {
+  document.getElementById('intonationModal').classList.remove('show');
+  const s = currentSentenceForIntonation;
+  if (isExcl === s.correct) {
+    scores[1] += 1;
+    updateScore(1);
+    document.getElementById('feedback1').textContent = '✅ Верно! +2 очка';
+    document.getElementById('feedback1').className = 'feedback good';
+  } else {
+    document.getElementById('feedback1').textContent = '❌ Интонация другая. Правильно: ' + (s.correct ? 'восклицательное' : 'невосклицательное');
+    document.getElementById('feedback1').className = 'feedback bad';
+  }
+  if (task1Done.size === sentences1.length) {
+    document.getElementById('stars1').textContent = '🏆 Молодец! Все предложения разобраны!';
+  }
+}
+
+/* ============ ЗАДАНИЕ 2 (ИСПРАВЛЕНО) ============ */
+const subtasks2 = [
+  {
+    title: '1. Составь ПОВЕСТВОВАТЕЛЬНОЕ предложение (рассказ).',
+    words: ['На', 'дереве', 'сидит', 'пушистая', 'белка'],
+    answer: ['На', 'дереве', 'сидит', 'пушистая', 'белка', '.'],
+    punctuation: '.'
+  },
+  {
+    title: '2. Составь ВОПРОСИТЕЛЬНОЕ предложение (вопрос).',
+    words: ['Ты', 'любишь', 'читать', 'интересные', 'книги'],
+    answer: ['Ты', 'любишь', 'читать', 'интересные', 'книги', '?'],
+    punctuation: '?'
+  },
+  {
+    title: '3. Составь ВОСКЛИЦАТЕЛЬНОЕ предложение (эмоция).',
+    words: ['Как', 'весело', 'играть', 'во', 'дворе'],
+    answer: ['Как', 'весело', 'играть', 'во', 'дворе', '!'],
+    punctuation: '!'
+  }
+];
+
+const punctuations = ['.', '?', '!'];
+
+function initTask2() {
+  const container = document.getElementById('subtasks2');
+  subtasks2.forEach((st, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'subtask';
+    wrap.innerHTML = `
+      <h4>${st.title}</h4>
+      <div class="words-pool" id="pool2-${i}"></div>
+      <div class="answer-line" id="answer2-${i}"></div>
+      <div class="controls">
+        <button class="btn btn-check" onclick="checkTask2(${i})">Проверить</button>
+        <button class="btn btn-reset" onclick="resetTask2(${i})">Сбросить</button>
+      </div>
+      <div class="feedback" id="fb2-${i}"></div>
+    `;
+    container.appendChild(wrap);
+    const pool = wrap.querySelector(`#pool2-${i}`);
+    
+    const allWords = [...st.words];
+    const shuffledWords = allWords.sort(() => Math.random() - 0.5);
+    const shuffledPunct = [...punctuations].sort(() => Math.random() - 0.5);
+    
+    const allItems = [
+      ...shuffledWords.map(w => ({text: w, isPunct: false})),
+      ...shuffledPunct.map(p => ({text: p, isPunct: true}))
+    ].sort(() => Math.random() - 0.5);
+
+    allItems.forEach((item) => {
+      const el = document.createElement('div');
+      el.className = 'word' + (item.isPunct ? ' punct' : '');
+      el.textContent = item.text;
+      el.dataset.orig = item.text;
+      el.dataset.isPunct = item.isPunct;
+      el.onclick = () => {
+        if (el.classList.contains('used')) return;
+        const answer = wrap.querySelector(`#answer2-${i}`);
+        const clone = el.cloneNode(true);
+        clone.onclick = () => {
+          clone.remove();
+          el.classList.remove('used');
+        };
+        answer.appendChild(clone);
+        el.classList.add('used');
+      };
+      pool.appendChild(el);
+    });
+  });
+}
+
+function checkTask2(i) {
+  const st = subtasks2[i];
+  const answer = document.querySelectorAll(`#answer2-${i} .word`);
+  const userArr = Array.from(answer).map(w => w.textContent);
+  const fb = document.getElementById(`fb2-${i}`);
+  
+  if (JSON.stringify(userArr) === JSON.stringify(st.answer)) {
+    const wordsOnly = userArr.slice(0, -1);
+    const punct = userArr[userArr.length - 1];
+    const prettySentence = wordsOnly.join(' ') + punct;
+    fb.textContent = `✅ Отлично! ${prettySentence}`;
+    fb.className = 'feedback good';
+    scores[2] += 3;
+    updateScore(2);
+  } else {
+    let msg = '❌ Неверно. ';
+    if (userArr.length < st.answer.length) {
+      msg += 'Предложение не собрано до конца. Не забудь все слова и знак в конце!';
+    } else if (userArr[userArr.length - 1] !== st.punctuation) {
+      msg += `Неправильный знак в конце. Нужен знак: ${st.punctuation}`;
+    } else {
+      msg += 'Проверь порядок слов.';
+    }
+    fb.textContent = msg;
+    fb.className = 'feedback bad';
+  }
+}
+
+function resetTask2(i) {
+  const wrap = document.getElementById(`subtasks2`).children[i];
+  wrap.querySelector(`#answer2-${i}`).innerHTML = '';
+  wrap.querySelectorAll('.words-pool .word').forEach(w => w.classList.remove('used'));
+  document.getElementById(`fb2-${i}`).textContent = '';
+}
+
+/* ============ ЗАДАНИЕ 3 ============ */
+const subtasks3 = [
+  {
+    words: ['Маленький', 'зайчик', 'быстро', 'бежит', 'по', 'белому', 'снегу'],
+    subject: 'зайчик',
+    predicate: 'бежит'
+  },
+  {
+    words: ['Весёлые', 'ребята', 'играют', 'в', 'снежки', 'на', 'дворе'],
+    subject: 'ребята',
+    predicate: 'играют'
+  },
+  {
+    words: ['Яркое', 'солнце', 'светит', 'в', 'окно', 'классной', 'комнаты'],
+    subject: 'солнце',
+    predicate: 'светит'
+  }
+];
+
+let currentMode = 'predicate';
+let task3State = [];
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeSubject').style.opacity = mode === 'subject' ? '1' : '0.5';
+  document.getElementById('modePredicate').style.opacity = mode === 'predicate' ? '1' : '0.5';
+}
+
+function initTask3() {
+  const container = document.getElementById('subtasks3');
+  subtasks3.forEach((st, i) => {
+    task3State.push({subject: null, predicate: null});
+    const wrap = document.createElement('div');
+    wrap.className = 'subtask';
+    wrap.innerHTML = `
+      <h4>Предложение ${i+1}:</h4>
+      <div class="sentence-display" id="sent3-${i}"></div>
+      <div class="controls">
+        <button class="btn btn-check" onclick="checkTask3(${i})">Проверить</button>
+        <button class="btn btn-reset" onclick="resetTask3(${i})">Сбросить</button>
+      </div>
+      <div class="feedback" id="fb3-${i}"></div>
+    `;
+    container.appendChild(wrap);
+    renderSentence3(i);
+  });
+  setMode('predicate');
+}
+
+function renderSentence3(i) {
+  const st = subtasks3[i];
+  const disp = document.getElementById(`sent3-${i}`);
+  disp.innerHTML = '';
+  st.words.forEach((w, wi) => {
+    const span = document.createElement('span');
+    span.textContent = w;
+    span.onclick = () => {
+      const state = task3State[i];
+      if (currentMode === 'subject') {
+        disp.querySelectorAll('.selected-subject').forEach(s => s.classList.remove('selected-subject'));
+        span.classList.add('selected-subject');
+        state.subject = w;
+      } else {
+        disp.querySelectorAll('.selected-predicate').forEach(s => s.classList.remove('selected-predicate'));
+        span.classList.add('selected-predicate');
+        state.predicate = w;
+      }
+    };
+    disp.appendChild(span);
+  });
+}
+
+function checkTask3(i) {
+  const st = subtasks3[i];
+  const state = task3State[i];
+  const fb = document.getElementById(`fb3-${i}`);
+  if (state.subject === st.subject && state.predicate === st.predicate) {
+    fb.textContent = `✅ Верно! Подлежащее: ${st.subject}, сказуемое: ${st.predicate}`;
+    fb.className = 'feedback good';
+    scores[3] += 3;
+    updateScore(3);
+  } else {
+    let msg = '❌ Неверно. ';
+    if (state.subject !== st.subject) msg += `Подлежащее — это "${st.subject}" (кто? что?). `;
+    if (state.predicate !== st.predicate) msg += `Сказуемое — это "${st.predicate}" (что делает?).`;
+    fb.textContent = msg;
+    fb.className = 'feedback bad';
+  }
+}
+
+function resetTask3(i) {
+  task3State[i] = {subject: null, predicate: null};
+  renderSentence3(i);
+  document.getElementById(`fb3-${i}`).textContent = '';
+}
+
+/* ============ ЗАПУСК ============ */
+initTask1();
+initTask2();
+initTask3();
+</script>
+</body>
+</html>

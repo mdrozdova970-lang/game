@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Рабочий лист — Словосочетания (2 класс)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    color: #6f42c1;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+  .sheet {
+    background: #fff;
+    border-radius: 25px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: 0 auto 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  .section-title {
+    font-size: 1.5em;
+    color: #d63384;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 3px dashed #d63384;
+    padding-bottom: 8px;
+  }
+
+  /* ===== ИНСТРУКЦИЯ-СХЕМА ===== */
+  .scheme {
+    background: #fff9db;
+    border: 3px solid #ffc107;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .scheme h2 {
+    color: #d63384;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+  }
+  .scheme-step {
+    background: #fff;
+    border-left: 6px solid #6f42c1;
+    padding: 12px 18px;
+    margin: 10px 0;
+    border-radius: 10px;
+    font-size: 1.05em;
+  }
+  .scheme-step b { color: #d63384; }
+  .scheme-example {
+    background: #e7d6ff;
+    border-radius: 15px;
+    padding: 18px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 1.2em;
+    line-height: 2;
+  }
+  .scheme-example .subj {
+    background: #dc3545;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 2px;
+  }
+  .scheme-example .pred {
+    background: #0d6efd;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 2px;
+  }
+  .scheme-example .member {
+    background: #198754;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 2px;
+  }
+  .arrow {
+    color: #d63384;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 0 5px;
+  }
+  .warning-box {
+    background: #f8d7da;
+    border: 2px dashed #dc3545;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: #842029;
+  }
+  .pair-box {
+    background: #d1e7dd;
+    border: 2px solid #198754;
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 1.1em;
+  }
+  .pair-box b { color: #0f5132; }
+
+  /* ===== ЗАДАНИЯ ===== */
+  .task {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid #6f42c1;
+  }
+  .task h3 {
+    color: #6f42c1;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+  }
+  .sentence-box {
+    background: #fff3cd;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    line-height: 2;
+  }
+  .sentence-box span {
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 2px;
+    transition: 0.2s;
+    user-select: none;
+  }
+  .sentence-box span:hover { background: #ffe69c; }
+  .sentence-box span.is-subj { background: #dc3545; color: #fff; }
+  .sentence-box span.is-pred { background: #0d6efd; color: #fff; }
+  .sentence-box span.is-member { background: #198754; color: #fff; }
+  .sentence-box span.wrong-click {
+    animation: shake 0.4s;
+    background: #f8d7da;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    padding: 8px 16px;
+    border: 3px solid;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1em;
+    transition: 0.2s;
+  }
+  .mode-btn.subj { border-color: #dc3545; color: #dc3545; background: #fff; }
+  .mode-btn.subj.active { background: #dc3545; color: #fff; }
+  .mode-btn.pred { border-color: #0d6efd; color: #0d6efd; background: #fff; }
+  .mode-btn.pred.active { background: #0d6efd; color: #fff; }
+  .mode-btn.mem { border-color: #198754; color: #198754; background: #fff; }
+  .mode-btn.mem.active { background: #198754; color: #fff; }
+
+  .question-selector {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .question-selector.show { display: block; }
+  .question-selector p { margin-bottom: 10px; font-weight: bold; color: #6f42c1; }
+  .question-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .q-opt {
+    padding: 8px 14px;
+    background: #cfe2ff;
+    border: 2px solid #0d6efd;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: 0.2s;
+  }
+  .q-opt:hover { background: #0d6efd; color: #fff; }
+  .q-opt.selected { background: #198754; color: #fff; border-color: #198754; }
+
+  .result-box {
+    background: #d1e7dd;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #0f5132;
+    display: none;
+  }
+  .result-box.show { display: block; }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    background: #198754;
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-reset { background: #6c757d; }
+  .btn-check { background: #0d6efd; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.15em;
+    font-weight: bold;
+    margin-top: 12px;
+    min-height: 25px;
+  }
+  .feedback.good { color: #198754; }
+  .feedback.bad { color: #dc3545; }
+
+  /* ===== ЗАДАНИЕ 2 — ВЫПАДАЮЩИЕ СПИСКИ ===== */
+  .pair-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    border: 2px solid #e9ecef;
+  }
+  .pair-row label {
+    font-weight: bold;
+    color: #6f42c1;
+    min-width: 180px;
+  }
+  .pair-row select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 2px solid #6f42c1;
+    font-size: 1em;
+    background: #fff;
+    cursor: pointer;
+    flex: 1;
+    min-width: 200px;
+  }
+  .pair-row.correct { border-color: #198754; background: #d1e7dd; }
+  .pair-row.wrong { border-color: #dc3545; background: #f8d7da; }
+
+  .score {
+    text-align: center;
+    font-size: 1.2em;
+    color: #198754;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  .hint {
+    background: #e2e3e5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 0.95em;
+    color: #495057;
+  }
+</style>
+</head>
+<body>
+
+<h1>📝 Рабочий лист: Словосочетания (2 класс)</h1>
+
+<!-- ===== ИНСТРУКЦИЯ-СХЕМА ===== -->
+<div class="sheet">
+  <div class="section-title">📘 Как найти словосочетание в предложении</div>
+  <div class="scheme">
+    <h2>🔍 Пошаговая схема</h2>
+
+    <div class="scheme-step">
+      <b>Шаг 1.</b> Найди в предложении <b>подлежащее</b> (кто? что?) и <b>сказуемое</b> (что делает?).
+    </div>
+
+    <div class="scheme-step">
+      <b>Шаг 2.</b> Помни: <b>подлежащее + сказуемое — это НЕ словосочетание!</b> Это грамматическая основа предложения.
+    </div>
+
+    <div class="scheme-step">
+      <b>Шаг 3.</b> Задай <b>вопрос</b> от главного слова к зависимому.
+    </div>
+
+    <div class="scheme-step">
+      <b>Шаг 4.</b> <b>Главное слово + зависимое слово</b> = словосочетание! ✨
+    </div>
+
+    <div class="scheme-example">
+      <b>Пример:</b><br>
+      <span class="member">Пушистая</span>
+      <span class="subj">белка</span>
+      <span class="pred">бежит</span>
+      <span class="member">по</span>
+      <span class="member">лесу</span>.
+      <br><br>
+      <span class="subj">белка</span> <span class="arrow">← какая? →</span> <span class="member">пушистая</span>
+      <br>
+      <span class="pred">бежит</span> <span class="arrow">← где? →</span> <span class="member">по лесу</span>
+    </div>
+
+    <div class="warning-box">
+      ⚠️ Запомни: <u>белка бежит</u> — это основа предложения, а НЕ словосочетание!
+    </div>
+
+    <div class="pair-box">
+      В этом предложении <b>2 словосочетания</b>:<br>
+      🌟 <b>белка (какая?) пушистая</b><br>
+      🌟 <b>бежит (где?) по лесу</b>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЗАДАНИЕ 1 ===== -->
+<div class="sheet">
+  <div class="section-title">✏️ Задание 1. Найди главные и второстепенные члены</div>
+  <div class="hint">💡 Сначала выбери режим (кнопки сверху), потом кликай по словам в предложении. Если выбрал второстепенный член — укажи, какой вопрос к нему задаётся.</div>
+  <div class="score" id="score1">Очки: 0</div>
+
+  <div class="task">
+    <h3>Предложение 1:</h3>
+    <div class="sentence-box" id="sent1-1"></div>
+    <div class="mode-buttons">
+      <div class="mode-btn subj active" data-mode="subj" data-sent="1" onclick="setMode(1, 'subj')">🔴 Подлежащее</div>
+      <div class="mode-btn pred" data-mode="pred" data-sent="1" onclick="setMode(1, 'pred')">🔵 Сказуемое</div>
+      <div class="mode-btn mem" data-mode="mem" data-sent="1" onclick="setMode(1, 'mem')">🟢 Второст. член</div>
+    </div>
+    <div class="question-selector" id="qsel-1">
+      <p>Какой вопрос задаётся к этому слову?</p>
+      <div class="question-options" id="qopts-1"></div>
+    </div>
+    <div class="result-box" id="result-1"></div>
+    <div class="feedback" id="fb1-1"></div>
+    <div class="controls">
+      <button class="btn btn-reset" onclick="resetTask1(1)">Сбросить</button>
+    </div>
+  </div>
+
+  <div class="task">
+    <h3>Предложение 2:</h3>
+    <div class="sentence-box" id="sent1-2"></div>
+    <div class="mode-buttons">
+      <div class="mode-btn subj active" data-mode="subj" data-sent="2" onclick="setMode(2, 'subj')">🔴 Подлежащее</div>
+      <div class="mode-btn pred" data-mode="pred" data-sent="2" onclick="setMode(2, 'pred')">🔵 Сказуемое</div>
+      <div class="mode-btn mem" data-mode="mem" data-sent="2" onclick="setMode(2, 'mem')">🟢 Второст. член</div>
+    </div>
+    <div class="question-selector" id="qsel-2">
+      <p>Какой вопрос задаётся к этому слову?</p>
+      <div class="question-options" id="qopts-2"></div>
+    </div>
+    <div class="result-box" id="result-2"></div>
+    <div class="feedback" id="fb1-2"></div>
+    <div class="controls">
+      <button class="btn btn-reset" onclick="resetTask1(2)">Сбросить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЗАДАНИЕ 2 ===== -->
+<div class="sheet">
+  <div class="section-title">📋 Задание 2. Выбери словосочетания из предложения</div>
+  <div class="hint">💡 В каждом выпадающем списке выбери ПРАВИЛЬНОЕ словосочетание, которое есть в предложении. Помни: подлежащее + сказуемое — НЕ словосочетание!</div>
+  <div class="score" id="score2">Очки: 0</div>
+
+  <div class="task">
+    <h3>Предложение 1:</h3>
+    <div class="sentence-box" id="sent2-1" style="cursor:default;"></div>
+    <div id="pairs2-1"></div>
+    <div class="controls">
+      <button class="btn btn-check" onclick="checkTask2(1)">Проверить</button>
+      <button class="btn btn-reset" onclick="resetTask2(1)">Сбросить</button>
+    </div>
+    <div class="feedback" id="fb2-1"></div>
+  </div>
+
+  <div class="task">
+    <h3>Предложение 2:</h3>
+    <div class="sentence-box" id="sent2-2" style="cursor:default;"></div>
+    <div id="pairs2-2"></div>
+    <div class="controls">
+      <button class="btn btn-check" onclick="checkTask2(2)">Проверить</button>
+      <button class="btn btn-reset" onclick="resetTask2(2)">Сбросить</button>
+    </div>
+    <div class="feedback" id="fb2-2"></div>
+  </div>
+</div>
+
+<script>
+/* ============ ДАННЫЕ ============ */
+let score1 = 0, score2 = 0;
+
+// Для каждого второстепенного члена указано:
+// - from: главное слово, от которого задаётся вопрос
+// - question: вопрос
+const sentences1 = [
+  {
+    id: 1,
+    words: ['Рыжая', 'лиса', 'ест', 'сладкую', 'ягоду'],
+    subject: 'лиса',
+    predicate: 'ест',
+    members: [
+      { word: 'Рыжая', question: 'какая?', from: 'лиса' },
+      { word: 'ягоду', question: 'что?', from: 'ест' },
+      { word: 'сладкую', question: 'какую?', from: 'ягоду' }
+    ]
+  },
+  {
+    id: 2,
+    words: ['Маленький', 'ёжик', 'несёт', 'красное', 'яблоко'],
+    subject: 'ёжик',
+    predicate: 'несёт',
+    members: [
+      { word: 'Маленький', question: 'какой?', from: 'ёжик' },
+      { word: 'яблоко', question: 'что?', from: 'несёт' },
+      { word: 'красное', question: 'какое?', from: 'яблоко' }
+    ]
+  }
+];
+
+const sentences2 = [
+  {
+    id: 1,
+    text: 'Яркое солнце светит в окно.',
+    words: ['Яркое', 'солнце', 'светит', 'в', 'окно'],
+    correctPairs: ['яркое солнце', 'светит в окно'],
+    wrongPairs: ['солнце светит', 'яркое светит', 'солнце в окно']
+  },
+  {
+    id: 2,
+    text: 'Синяя птица сидит на ветке.',
+    words: ['Синяя', 'птица', 'сидит', 'на', 'ветке'],
+    correctPairs: ['синяя птица', 'сидит на ветке'],
+    wrongPairs: ['птица сидит', 'синяя сидит', 'птица на ветке']
+  }
+];
+
+/* ============ ЗАДАНИЕ 1 ============ */
+const task1State = {
+  1: { mode: 'subj', subj: null, pred: null, member: null, memberQ: null },
+  2: { mode: 'subj', subj: null, pred: null, member: null, memberQ: null }
+};
+
+function renderSent1(id) {
+  const st = sentences1[id-1];
+  const box = document.getElementById('sent1-' + id);
+  box.innerHTML = '';
+  st.words.forEach(w => {
+    const span = document.createElement('span');
+    span.textContent = w;
+    span.dataset.word = w;
+    span.onclick = () => handleClick1(id, span, w);
+    box.appendChild(span);
+  });
+}
+
+function setMode(id, mode) {
+  task1State[id].mode = mode;
+  document.querySelectorAll(`.mode-btn[data-sent="${id}"]`).forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  if (mode !== 'mem') {
+    document.getElementById('qsel-' + id).classList.remove('show');
+  }
+}
+
+function handleClick1(id, span, word) {
+  const state = task1State[id];
+  const st = sentences1[id-1];
+  const mode = state.mode;
+  const fb = document.getElementById('fb1-' + id);
+
+  const box = document.getElementById('sent1-' + id);
+  if (mode === 'subj') {
+    box.querySelectorAll('.is-subj').forEach(s => s.classList.remove('is-subj'));
+  } else if (mode === 'pred') {
+    box.querySelectorAll('.is-pred').forEach(s => s.classList.remove('is-pred'));
+  } else if (mode === 'mem') {
+    box.querySelectorAll('.is-member').forEach(s => s.classList.remove('is-member'));
+  }
+
+  if (mode === 'subj') {
+    if (word === st.subject) {
+      span.classList.add('is-subj');
+      state.subj = word;
+      fb.textContent = '✅ Верно! Это подлежащее.';
+      fb.className = 'feedback good';
+      score1 += 1;
+      updateScore1();
+    } else {
+      span.classList.add('wrong-click');
+      setTimeout(() => span.classList.remove('wrong-click'), 500);
+      fb.textContent = '❌ Это не подлежащее. Подлежащее отвечает на вопрос КТО? ЧТО?';
+      fb.className = 'feedback bad';
+    }
+  } else if (mode === 'pred') {
+    if (word === st.predicate) {
+      span.classList.add('is-pred');
+      state.pred = word;
+      fb.textContent = '✅ Верно! Это сказуемое.';
+      fb.className = 'feedback good';
+      score1 += 1;
+      updateScore1();
+    } else {
+      span.classList.add('wrong-click');
+      setTimeout(() => span.classList.remove('wrong-click'), 500);
+      fb.textContent = '❌ Это не сказуемое. Сказуемое отвечает на вопрос ЧТО ДЕЛАЕТ?';
+      fb.className = 'feedback bad';
+    }
+  } else if (mode === 'mem') {
+    const member = st.members.find(m => m.word === word);
+    if (member) {
+      span.classList.add('is-member');
+      state.member = word;
+      showQuestionSelector(id, member.question);
+      fb.textContent = '👍 Хорошо! Теперь выбери вопрос к этому слову.';
+      fb.className = 'feedback good';
+    } else {
+      span.classList.add('wrong-click');
+      setTimeout(() => span.classList.remove('wrong-click'), 500);
+      fb.textContent = '❌ Это главный член предложения, а не второстепенный.';
+      fb.className = 'feedback bad';
+    }
+  }
+  checkResult1(id);
+}
+
+function showQuestionSelector(id, correctQ) {
+  const qsel = document.getElementById('qsel-' + id);
+  const qopts = document.getElementById('qopts-' + id);
+  qopts.innerHTML = '';
+  // Все возможные вопросы для 2 класса
+  const allQ = ['кто?', 'что?', 'какой?', 'какая?', 'какое?', 'какие?', 'какую?', 'какого?', 'как?', 'куда?', 'где?', 'когда?'];
+  // Гарантированно добавляем правильный вопрос и берём ещё 4 случайных
+  const others = allQ.filter(q => q !== correctQ).sort(() => Math.random() - 0.5).slice(0, 4);
+  const shuffled = [correctQ, ...others].sort(() => Math.random() - 0.5);
+  
+  shuffled.forEach(q => {
+    const div = document.createElement('div');
+    div.className = 'q-opt';
+    div.textContent = q;
+    div.onclick = () => {
+      qopts.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+      div.classList.add('selected');
+      task1State[id].memberQ = q;
+      if (q === correctQ) {
+        score1 += 1;
+        updateScore1();
+      }
+      checkResult1(id);
+    };
+    qopts.appendChild(div);
+  });
+  qsel.classList.add('show');
+}
+
+function checkResult1(id) {
+  const state = task1State[id];
+  const st = sentences1[id-1];
+  const res = document.getElementById('result-' + id);
+  if (state.subj && state.pred && state.member && state.memberQ) {
+    const member = st.members.find(m => m.word === state.member);
+    if (member && state.memberQ === member.question) {
+      // Формируем словосочетание правильно: from (question) member
+      res.innerHTML = `🌟 Отлично! Словосочетание: <b>${member.from} (${state.memberQ}) ${state.member}</b>`;
+      res.classList.add('show');
+    } else {
+      res.innerHTML = `❌ Вопрос выбран неверно. Попробуй ещё!`;
+      res.classList.add('show');
+    }
+  } else {
+    res.classList.remove('show');
+  }
+}
+
+function resetTask1(id) {
+  task1State[id] = { mode: 'subj', subj: null, pred: null, member: null, memberQ: null };
+  renderSent1(id);
+  setMode(id, 'subj');
+  document.getElementById('qsel-' + id).classList.remove('show');
+  document.getElementById('result-' + id).classList.remove('show');
+  document.getElementById('fb1-' + id).textContent = '';
+}
+
+function updateScore1() {
+  document.getElementById('score1').textContent = 'Очки: ' + score1;
+}
+
+/* ============ ЗАДАНИЕ 2 ============ */
+function renderSent2(id) {
+  const st = sentences2[id-1];
+  const box = document.getElementById('sent2-' + id);
+  box.innerHTML = st.words.join(' ');
+}
+
+function initTask2() {
+  sentences2.forEach((st, idx) => {
+    const id = idx + 1;
+    const container = document.getElementById('pairs2-' + id);
+    container.innerHTML = '';
+    const allOptions = [...st.correctPairs, ...st.wrongPairs].sort(() => Math.random() - 0.5);
+    st.correctPairs.forEach((cp, i) => {
+      const row = document.createElement('div');
+      row.className = 'pair-row';
+      row.dataset.correct = cp;
+      row.innerHTML = `
+        <label>Словосочетание ${i+1}:</label>
+        <select>
+          <option value="">— выбери —</option>
+          ${allOptions.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+      `;
+      container.appendChild(row);
+    });
+  });
+}
+
+function checkTask2(id) {
+  const rows = document.querySelectorAll(`#pairs2-${id} .pair-row`);
+  const fb = document.getElementById('fb2-' + id);
+  let allCorrect = true;
+  let answered = true;
+  rows.forEach(row => {
+    const sel = row.querySelector('select');
+    const correct = row.dataset.correct;
+    row.classList.remove('correct', 'wrong');
+    if (sel.value === "") answered = false;
+    if (sel.value === correct) {
+      row.classList.add('correct');
+    } else {
+      row.classList.add('wrong');
+      allCorrect = false;
+    }
+  });
+  if (!answered) {
+    fb.textContent = '⚠️ Выбери варианты во всех списках!';
+    fb.className = 'feedback bad';
+    return;
+  }
+  if (allCorrect) {
+    fb.textContent = '✅ Молодец! Все словосочетания найдены верно!';
+    fb.className = 'feedback good';
+    score2 += 3;
+    updateScore2();
+  } else {
+    fb.textContent = '❌ Есть ошибки. Подсказка: подлежащее + сказуемое — НЕ словосочетание!';
+    fb.className = 'feedback bad';
+  }
+}
+
+function resetTask2(id) {
+  const rows = document.querySelectorAll(`#pairs2-${id} .pair-row`);
+  rows.forEach(row => {
+    row.classList.remove('correct', 'wrong');
+    row.querySelector('select').value = '';
+  });
+  document.getElementById('fb2-' + id).textContent = '';
+}
+
+function updateScore2() {
+  document.getElementById('score2').textContent = 'Очки: ' + score2;
+}
+
+/* ============ ЗАПУСК ============ */
+renderSent1(1);
+renderSent1(2);
+renderSent2(1);
+renderSent2(2);
+initTask2();
+</script>
+</body>
+</html>
