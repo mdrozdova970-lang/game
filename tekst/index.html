@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чтение и работа с текстом — 2 класс</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2d3436;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        /* Блок с текстом */
+        .text-block {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border-left: 6px solid #6c5ce7;
+            position: relative;
+        }
+
+        .text-block::before {
+            content: '📖';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            font-size: 2em;
+            background: #fff;
+            border-radius: 50%;
+            padding: 5px;
+        }
+
+        .text-block h2 {
+            color: #6c5ce7;
+            margin-bottom: 15px;
+            margin-top: 10px;
+            font-size: 1.4em;
+        }
+
+        .text-block p {
+            font-size: 1.15em;
+            line-height: 1.8;
+            color: #2d3436;
+        }
+
+        /* Карточки заданий */
+        .task-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .task-card:nth-child(1)::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+        .task-card:nth-child(2)::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+        .task-card:nth-child(3)::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .task-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.2em;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .task-card:nth-child(1) .task-number { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .task-card:nth-child(2) .task-number { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .task-card:nth-child(3) .task-number { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+        .task-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .task-description {
+            color: #636e72;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* ===== ЗАДАНИЕ 1: Выпадающие списки ===== */
+        .quiz-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quiz-item select {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            padding: 6px 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            background: #fff;
+            color: #6c5ce7;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .quiz-item select:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.2);
+        }
+
+        .quiz-item select.correct {
+            border-color: #00b894;
+            background: #d4fce8;
+            color: #00b894;
+        }
+
+        .quiz-item select.wrong {
+            border-color: #e17055;
+            background: #ffeaa7;
+            color: #e17055;
+        }
+
+        /* ===== ЗАДАНИЕ 2: Правда или ложь ===== */
+        .tf-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .tf-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tf-btn {
+            padding: 8px 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            background: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tf-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .tf-btn.selected-true {
+            background: #00b894;
+            color: #fff;
+            border-color: #00b894;
+        }
+
+        .tf-btn.selected-false {
+            background: #e17055;
+            color: #fff;
+            border-color: #e17055;
+        }
+
+        .tf-item.correct-answer {
+            border-color: #00b894;
+            background: #d4fce8;
+        }
+
+        .tf-item.wrong-answer {
+            border-color: #e17055;
+            background: #ffeaa7;
+        }
+
+        /* ===== ЗАДАНИЕ 3: Найди пары ===== */
+        .pairs-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .pair-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 160px;
+        }
+
+        .pair-column-title {
+            font-weight: 800;
+            text-align: center;
+            color: #636e72;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .pair-word {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 3px solid #dfe6e9;
+            border-radius: 14px;
+            font-size: 1.05em;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .pair-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pair-word.selected-left {
+            border-color: #6c5ce7;
+            background: #e8e4ff;
+            color: #6c5ce7;
+            transform: scale(1.05);
+        }
+
+        .pair-word.selected-right {
+            border-color: #00b894;
+            background: #d4fce8;
+            color: #00b894;
+            transform: scale(1.05);
+        }
+
+        .pair-word.matched {
+            border-color: #fdcb6e;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+            cursor: default;
+            transform: scale(1);
+            opacity: 0.9;
+        }
+
+        .pair-word.wrong-flash {
+            animation: shake 0.5s ease;
+            border-color: #e17055;
+            background: #ffeaa7;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .matched-pairs-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef9f0;
+            border-radius: 12px;
+            border: 2px dashed #ffeaa7;
+            min-height: 50px;
+            display: none;
+        }
+
+        .matched-pair-item {
+            display: inline-block;
+            padding: 6px 14px;
+            margin: 4px;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 20px;
+            font-weight: 700;
+            color: #2d3436;
+            font-size: 0.95em;
+        }
+
+        /* ===== Кнопки и результаты ===== */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-pink { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .btn-blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .btn-green { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #2d3436; }
+
+        .reset-btn {
+            background: #fff;
+            border: 2px solid #dfe6e9;
+            border-radius: 14px;
+            padding: 12px 20px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            color: #636e72;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            border-color: #e17055;
+            color: #e17055;
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05em;
+            display: none;
+        }
+
+        .result-box.show { display: block; }
+        .result-box.success { background: #d4fce8; color: #00b894; border: 2px solid #00b894; }
+        .result-box.partial { background: #ffeaa7; color: #d63031; border: 2px solid #fdcb6e; }
+
+        .emoji-big { font-size: 1.5em; vertical-align: middle; }
+
+        .connector-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .pair-word { position: relative; z-index: 1; }
+        .connector-line { stroke: #fdcb6e; stroke-width: 3; stroke-dasharray: 8 4; }
+
+        /* Анимация звёзд */
+        .stars-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+        .star {
+            position: absolute;
+            font-size: 2em;
+            animation: starFall 1.5s ease-out forwards;
+        }
+        @keyframes starFall {
+            0% { opacity: 1; transform: translateY(0) scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: translateY(-100px) scale(1.5) rotate(180deg); }
+            100% { opacity: 0; transform: translateY(100px) scale(0) rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .task-card { padding: 20px 15px; }
+            h1 { font-size: 1.6em; }
+            .quiz-item { font-size: 1em; }
+            .pairs-container { gap: 15px; }
+            .pair-word { padding: 10px 12px; font-size: 0.95em; }
+            .tf-item { flex-direction: column; align-items: flex-start; }
+            .tf-buttons { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 Работаем с текстом</h1>
+    <p class="subtitle">Прочитай рассказ и выполни три задания. Удачи! 🍀</p>
+
+    <!-- ТЕКСТ ДЛЯ ЧТЕНИЯ -->
+    <div class="text-block">
+        <h2>Осенние заботы ёжика Пыха</h2>
+        <p>
+            Осенью в лесу стало прохладно. Ёжик по имени Пых готовился к зимней спячке. Он собирал сухие листья и жёлтую траву, чтобы сделать свою норку тёплой. 
+            <br><br>
+            Однажды Пых нашёл под старым дубом большое красное яблоко. Он аккуратно <b>наколол</b> его на свои иголки и понёс домой. По дороге ёжик встретил белку по имени Рыжуля. Белка собирала орехи для своих запасов. Они поздоровались и разошлись по своим важным делам. 
+            <br><br>
+            Теперь Пых спокойно спит в своей тёплой норке и видит сладкие сны.
+        </p>
+    </div>
+
+    <!-- ЗАДАНИЕ 1 -->
+    <div class="task-card">
+        <div class="task-header">
+            <span class="task-number">1</span>
+            <h2 class="task-title">Викторина по тексту</h2>
+        </div>
+        <p class="task-description">Выбери правильный ответ из выпадающего списка для каждого вопроса.</p>
+
+        <div class="quiz-item">
+            1. Как звали ёжика из рассказа?
+            <select data-answer="Пых">
+                <option value="">Выбери...</option>
+                <option value="Шуршик">Шуршик</option>
+                <option value="Пых">Пых</option>
+                <option value="Колючкин">Колючкин</option>
+            </select>
+        </div>
+
+        <div class="quiz-item">
+            2. Что нашёл ёжик под старым дубом?
+            <select data-answer="Яблоко">
+                <option value="">Выбери...</option>
+                <option value="Гриб">Гриб</option>
+                <option value="Орех">Орех</option>
+                <option value="Яблоко">Яблоко</option>
+            </select>
+        </div>
+
+        <div class="quiz-item">
+            3. Кого встретил ёжик по дороге домой?
+            <select data-answer="Белку">
+                <option value="">Выбери...</option>
+                <option value="Зайца">Зайца</option>
+                <option value="Белку">Белку</option>
+                <option value="Лису">Лису</option>
+            </select>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-pink" onclick="checkTask1()">✨ Проверить</button>
+            <button class="reset-btn" onclick="resetTask1()">🔄 Сбросить</button>
+        </div>
+        <div class="result-box" id="result1"></div>
+    </div>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <div class="task-card">
+        <div class="task-header">
+            <span class="task-number">2</span>
+            <h2 class="task-title">Правда или ложь?</h2>
+        </div>
+        <p class="task-description">Прочитай утверждение и нажми «Правда» или «Ложь», опираясь на текст.</p>
+
+        <div class="tf-item" data-answer="false">
+            <span class="tf-text">Ёжик собирал мох для своей норки.</span>
+            <div class="tf-buttons">
+                <button class="tf-btn" onclick="selectTF(this, 'true')">✅ Правда</button>
+                <button class="tf-btn" onclick="selectTF(this, 'false')">❌ Ложь</button>
+            </div>
+        </div>
+
+        <div class="tf-item" data-answer="true">
+            <span class="tf-text">Белку, которую встретил ёжик, звали Рыжуля.</span>
+            <div class="tf-buttons">
+                <button class="tf-btn" onclick="selectTF(this, 'true')">✅ Правда</button>
+                <button class="tf-btn" onclick="selectTF(this, 'false')">❌ Ложь</button>
+            </div>
+        </div>
+
+        <div class="tf-item" data-answer="false">
+            <span class="tf-text">Ёжик и белка решили зимовать в одной норке.</span>
+            <div class="tf-buttons">
+                <button class="tf-btn" onclick="selectTF(this, 'true')">✅ Правда</button>
+                <button class="tf-btn" onclick="selectTF(this, 'false')">❌ Ложь</button>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-blue" onclick="checkTask2()">✨ Проверить</button>
+            <button class="reset-btn" onclick="resetTask2()">🔄 Сбросить</button>
+        </div>
+        <div class="result-box" id="result2"></div>
+    </div>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <div class="task-card">
+        <div class="task-header">
+            <span class="task-number">3</span>
+            <h2 class="task-title">Найди пары</h2>
+        </div>
+        <p class="task-description">Нажми на слово слева, а затем на подходящее по смыслу слово справа. Соедини их!</p>
+
+        <div class="pairs-container" id="pairsContainer">
+            <div class="pair-column" id="leftCol">
+                <div class="pair-column-title">Кто / Что</div>
+            </div>
+            <svg class="connector-svg" id="connectorSvg"></svg>
+            <div class="pair-column" id="rightCol">
+                <div class="pair-column-title">Действие / Признак</div>
+            </div>
+        </div>
+
+        <div class="matched-pairs-display" id="matchedDisplay">
+            <strong>Найденные пары:</strong><br>
+            <span id="matchedList"></span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-green" onclick="checkTask3()">✨ Проверить</button>
+            <button class="reset-btn" onclick="resetTask3()">🔄 Сбросить</button>
+        </div>
+        <div class="result-box" id="result3"></div>
+    </div>
+</div>
+
+<div class="stars-container" id="starsContainer"></div>
+
+<script>
+    // ===========================
+    // ЗАДАНИЕ 1: Викторина (выпадающие списки)
+    // ===========================
+    function checkTask1() {
+        const selects = document.querySelectorAll('.quiz-item select');
+        let correct = 0;
+        let total = selects.length;
+
+        selects.forEach(select => {
+            const answer = select.dataset.answer;
+            select.classList.remove('correct', 'wrong');
+
+            if (select.value === answer) {
+                select.classList.add('correct');
+                correct++;
+            } else if (select.value !== '') {
+                select.classList.add('wrong');
+            }
+        });
+
+        const resultBox = document.getElementById('result1');
+        resultBox.classList.add('show');
+
+        if (correct === total) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🎉</span> Отлично! Все ${total} ответа верные!`;
+            showStars();
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">🤔</span> Правильно: ${correct} из ${total}. Почитай текст ещё раз и попробуй снова!`;
+        }
+    }
+
+    function resetTask1() {
+        const selects = document.querySelectorAll('.quiz-item select');
+        selects.forEach(s => {
+            s.value = '';
+            s.classList.remove('correct', 'wrong');
+        });
+        document.getElementById('result1').className = 'result-box';
+    }
+
+    // ===========================
+    // ЗАДАНИЕ 2: Правда или ложь
+    // ===========================
+    function selectTF(btn, value) {
+        const parent = btn.closest('.tf-item');
+        // Снимаем выделение с кнопок в этом вопросе
+        parent.querySelectorAll('.tf-btn').forEach(b => {
+            b.classList.remove('selected-true', 'selected-false');
+        });
+        // Добавляем выделение нажатой кнопке
+        btn.classList.add(value === 'true' ? 'selected-true' : 'selected-false');
+        // Сохраняем выбор пользователя в дата-атрибут родителя
+        parent.dataset.userChoice = value;
+        
+        // Сбрасываем визуальную подсветку правильности при новом выборе
+        parent.classList.remove('correct-answer', 'wrong-answer');
+    }
+
+    function checkTask2() {
+        const items = document.querySelectorAll('.tf-item');
+        let correct = 0;
+        let total = items.length;
+        let answered = 0;
+
+        items.forEach(item => {
+            const userChoice = item.dataset.userChoice;
+            const correctAnswer = item.dataset.answer;
+            
+            item.classList.remove('correct-answer', 'wrong-answer');
+
+            if (userChoice) {
+                answered++;
+                if (userChoice === correctAnswer) {
+                    item.classList.add('correct-answer');
+                    correct++;
+                } else {
+                    item.classList.add('wrong-answer');
+                }
+            }
+        });
+
+        const resultBox = document.getElementById('result2');
+        resultBox.classList.add('show');
+
+        if (answered < total) {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">⚠️</span> Ты ответил не на все вопросы!`;
+            return;
+        }
+
+        if (correct === total) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🌟</span> Великолепно! Всё верно!`;
+            showStars();
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">💡</span> Правильно: ${correct} из ${total}. Внимательнее читай детали в тексте!`;
+        }
+    }
+
+    function resetTask2() {
+        const items = document.querySelectorAll('.tf-item');
+        items.forEach(item => {
+            item.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false'));
+            item.classList.remove('correct-answer', 'wrong-answer');
+            delete item.dataset.userChoice;
+        });
+        document.getElementById('result2').className = 'result-box';
+    }
+
+    // ===========================
+    // ЗАДАНИЕ 3: Найди пары
+    // ===========================
+    const pairsData = [
+        { left: 'Ёжик Пых', right: 'несёт яблоко на иголках' },
+        { left: 'Белка Рыжуля', right: 'собирает орехи' },
+        { left: 'Старый дуб', right: 'место, где нашли яблоко' },
+        { left: 'Тёплая норка', right: 'место для зимней спячки' }
+    ];
+
+    let selectedLeft = null;
+    let matchedPairs = [];
+
+    function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function renderPairs() {
+        const leftCol = document.getElementById('leftCol');
+        const rightCol = document.getElementById('rightCol');
+        leftCol.innerHTML = '<div class="pair-column-title">Кто / Что</div>';
+        rightCol.innerHTML = '<div class="pair-column-title">Действие / Признак</div>';
+
+        const shuffledRight = shuffleArray(pairsData.map(p => p.right));
+
+        pairsData.forEach(pair => {
+            const div = document.createElement('div');
+            div.className = 'pair-word';
+            div.textContent = pair.left;
+            div.dataset.word = pair.left;
+            div.dataset.side = 'left';
+            div.onclick = () => selectPairWord(div, 'left');
+            leftCol.appendChild(div);
+        });
+
+        shuffledRight.forEach(word => {
+            const div = document.createElement('div');
+            div.className = 'pair-word';
+            div.textContent = word;
+            div.dataset.word = word;
+            div.dataset.side = 'right';
+            div.onclick = () => selectPairWord(div, 'right');
+            rightCol.appendChild(div);
+        });
+
+        selectedLeft = null;
+        matchedPairs = [];
+        document.getElementById('connectorSvg').innerHTML = '';
+        document.getElementById('matchedDisplay').style.display = 'none';
+        document.getElementById('matchedList').innerHTML = '';
+    }
+
+    function selectPairWord(div, side) {
+        if (div.classList.contains('matched')) return;
+
+        if (side === 'left') {
+            document.querySelectorAll('.pair-word.selected-left').forEach(el => el.classList.remove('selected-left'));
+            div.classList.add('selected-left');
+            selectedLeft = div;
+        } else if (side === 'right' && selectedLeft) {
+            const leftWord = selectedLeft.dataset.word;
+            const rightWord = div.dataset.word;
+            const correctPair = pairsData.find(p => p.left === leftWord && p.right === rightWord);
+
+            if (correctPair) {
+                selectedLeft.classList.remove('selected-left');
+                selectedLeft.classList.add('matched');
+                div.classList.add('matched');
+
+                matchedPairs.push({ left: leftWord, right: rightWord });
+                drawLine(selectedLeft, div);
+
+                const display = document.getElementById('matchedDisplay');
+                display.style.display = 'block';
+                const item = document.createElement('span');
+                item.className = 'matched-pair-item';
+                item.textContent = `${leftWord} ↔ ${rightWord}`;
+                document.getElementById('matchedList').appendChild(item);
+
+                selectedLeft = null;
+
+                if (matchedPairs.length === pairsData.length) {
+                    setTimeout(() => showStars(), 300);
+                }
+            } else {
+                div.classList.add('wrong-flash');
+                selectedLeft.classList.add('wrong-flash');
+                setTimeout(() => {
+                    div.classList.remove('wrong-flash');
+                    if(selectedLeft) selectedLeft.classList.remove('wrong-flash', 'selected-left');
+                    selectedLeft = null;
+                }, 600);
+            }
+        }
+    }
+
+    function drawLine(el1, el2) {
+        const svg = document.getElementById('connectorSvg');
+        const container = document.getElementById('pairsContainer');
+        const containerRect = container.getBoundingClientRect();
+
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+
+        const x1 = r1.right - containerRect.left;
+        const y1 = r1.top + r1.height / 2 - containerRect.top;
+        const x2 = r2.left - containerRect.left;
+        const y2 = r2.top + r2.height / 2 - containerRect.top;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('class', 'connector-line');
+        svg.appendChild(line);
+    }
+
+    function checkTask3() {
+        const resultBox = document.getElementById('result3');
+        resultBox.classList.add('show');
+
+        if (matchedPairs.length === pairsData.length) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🏆</span> Супер! Все пары найдены правильно!`;
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">🧩</span> Найдено пар: ${matchedPairs.length} из ${pairsData.length}. Продолжай искать!`;
+        }
+    }
+
+    function resetTask3() {
+        document.getElementById('result3').className = 'result-box';
+        renderPairs();
+    }
+
+    // ===========================
+    // Анимация звёзд
+    // ===========================
+    function showStars() {
+        const container = document.getElementById('starsContainer');
+        container.style.display = 'block';
+        container.innerHTML = '';
+        const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊'];
+
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 0.8 + 's';
+            container.appendChild(star);
+        }
+
+        setTimeout(() => { container.style.display = 'none'; }, 2500);
+    }
+
+    // Инициализация
+    renderPairs();
+</script>
+
+</body>
+</html>

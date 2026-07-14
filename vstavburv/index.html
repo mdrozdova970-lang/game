@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Русский язык — 2 класс</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .task-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .task-card:nth-child(1)::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+        .task-card:nth-child(2)::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+        .task-card:nth-child(3)::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+
+        .task-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.2em;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        .task-card:nth-child(1) .task-number { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .task-card:nth-child(2) .task-number { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .task-card:nth-child(3) .task-number { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+        .task-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #2d3436;
+            display: inline;
+            vertical-align: middle;
+        }
+
+        .task-description {
+            color: #636e72;
+            margin: 12px 0 20px 52px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* ===== ЗАДАНИЕ 1: Пропущенные буквы ===== */
+        .story-text {
+            font-size: 1.25em;
+            line-height: 2.4;
+            color: #2d3436;
+            padding: 15px;
+            background: #fef9f0;
+            border-radius: 12px;
+            border: 2px dashed #ffeaa7;
+        }
+
+        .story-text select {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.85em;
+            font-weight: 700;
+            padding: 2px 8px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            background: #fff;
+            color: #6c5ce7;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+            vertical-align: middle;
+            margin: 0 2px;
+            min-width: 50px;
+        }
+
+        .story-text select:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.2);
+        }
+
+        .story-text select.correct {
+            border-color: #00b894;
+            background: #d4fce8;
+            color: #00b894;
+        }
+
+        .story-text select.wrong {
+            border-color: #e17055;
+            background: #ffeaa7;
+            color: #e17055;
+        }
+
+        /* ===== ЗАДАНИЕ 2: Грамматическая основа ===== */
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 3px solid #dfe6e9;
+            border-radius: 12px;
+            background: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active-subject {
+            border-color: #0984e3;
+            background: #74b9ff;
+            color: #fff;
+        }
+
+        .mode-btn.active-predicate {
+            border-color: #e17055;
+            background: #fab1a0;
+            color: #fff;
+        }
+
+        .sentence {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 1.15em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .sentence .word {
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            border: 2px solid transparent;
+            font-weight: 600;
+        }
+
+        .sentence .word:hover {
+            background: #dfe6e9;
+        }
+
+        .sentence .word.subject {
+            background: #74b9ff;
+            color: #fff;
+            border-color: #0984e3;
+            text-decoration: underline;
+            text-decoration-style: solid;
+            text-underline-offset: 4px;
+        }
+
+        .sentence .word.predicate {
+            background: #fab1a0;
+            color: #fff;
+            border-color: #e17055;
+            text-decoration: underline;
+            text-decoration-style: double;
+            text-underline-offset: 4px;
+        }
+
+        .sentence .word.subject:hover,
+        .sentence .word.predicate:hover {
+            opacity: 0.85;
+        }
+
+        .sentence-label {
+            font-weight: 800;
+            color: #b2bec3;
+            margin-right: 8px;
+            min-width: 28px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+        }
+
+        /* ===== ЗАДАНИЕ 3: Пары словосочетаний ===== */
+        .pairs-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .pair-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 140px;
+        }
+
+        .pair-column-title {
+            font-weight: 800;
+            text-align: center;
+            color: #636e72;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .pair-word {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border: 3px solid #dfe6e9;
+            border-radius: 14px;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .pair-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pair-word.selected-left {
+            border-color: #6c5ce7;
+            background: #e8e4ff;
+            color: #6c5ce7;
+            transform: scale(1.05);
+        }
+
+        .pair-word.selected-right {
+            border-color: #00b894;
+            background: #d4fce8;
+            color: #00b894;
+            transform: scale(1.05);
+        }
+
+        .pair-word.matched {
+            border-color: #fdcb6e;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #6c5ce7;
+            cursor: default;
+            transform: scale(1);
+            opacity: 0.8;
+        }
+
+        .pair-word.wrong-flash {
+            animation: shake 0.5s ease;
+            border-color: #e17055;
+            background: #ffeaa7;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .matched-pairs-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef9f0;
+            border-radius: 12px;
+            border: 2px dashed #ffeaa7;
+            min-height: 50px;
+        }
+
+        .matched-pairs-display .matched-pair-item {
+            display: inline-block;
+            padding: 6px 14px;
+            margin: 4px;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 20px;
+            font-weight: 700;
+            color: #6c5ce7;
+            font-size: 1em;
+        }
+
+        /* ===== Кнопки ===== */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-pink { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .btn-blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .btn-green { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #2d3436; }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05em;
+            display: none;
+        }
+
+        .result-box.show { display: block; }
+
+        .result-box.success {
+            background: #d4fce8;
+            color: #00b894;
+            border: 2px solid #00b894;
+        }
+
+        .result-box.partial {
+            background: #ffeaa7;
+            color: #e17055;
+            border: 2px solid #fdcb6e;
+        }
+
+        .emoji-big {
+            font-size: 1.5em;
+            vertical-align: middle;
+        }
+
+        .reset-btn {
+            background: none;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            padding: 8px 18px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            color: #636e72;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .reset-btn:hover {
+            border-color: #e17055;
+            color: #e17055;
+        }
+
+        .connector-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pair-word {
+            position: relative;
+            z-index: 1;
+        }
+
+        .connector-line {
+            stroke: #fdcb6e;
+            stroke-width: 3;
+            stroke-dasharray: 8 4;
+        }
+
+        /* Stars animation */
+        .stars-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 2em;
+            animation: starFall 1.5s ease-out forwards;
+        }
+
+        @keyframes starFall {
+            0% { opacity: 1; transform: translateY(0) scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: translateY(-100px) scale(1.5) rotate(180deg); }
+            100% { opacity: 0; transform: translateY(100px) scale(0) rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .task-card { padding: 20px 15px; }
+            h1 { font-size: 1.6em; }
+            .story-text { font-size: 1.05em; }
+            .pairs-container { gap: 15px; }
+            .pair-word { padding: 10px 14px; font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 Русский язык — 2 класс</h1>
+    <p class="subtitle">Выполни все три задания! Ты справишься! 💪</p>
+
+    <!-- ==================== ЗАДАНИЕ 1 ==================== -->
+    <div class="task-card">
+        <span class="task-number">1</span>
+        <h2 class="task-title">Вставь пропущенные буквы</h2>
+        <p class="task-description">Выбери правильную букву из списка, чтобы получилось правильное слово.</p>
+
+        <div class="story-text" id="storyText">
+            Наступила х<span class="gap" data-answer="о">
+                <select><option value="">?</option><option value="а">а</option><option value="о">о</option><option value="у">у</option></select>
+            </span>лодная з<span class="gap" data-answer="и">
+                <select><option value="">?</option><option value="е">е</option><option value="и">и</option><option value="я">я</option></select>
+            </span>ма. Выпал белый сн<span class="gap" data-answer="е">
+                <select><option value="">?</option><option value="е">е</option><option value="и">и</option><option value="я">я</option></select>
+            </span>г. На д<span class="gap" data-answer="е">
+                <select><option value="">?</option><option value="и">и</option><option value="е">е</option><option value="я">я</option></select>
+            </span>ревьях лежат пуш<span class="gap" data-answer="и">
+                <select><option value="">?</option><option value="е">е</option><option value="и">и</option><option value="ы">ы</option></select>
+            </span>стые шапки. В лесу спит м<span class="gap" data-answer="е">
+                <select><option value="">?</option><option value="а">а</option><option value="е">е</option><option value="и">и</option></select>
+            </span>дведь. На в<span class="gap" data-answer="е">
+                <select><option value="">?</option><option value="и">и</option><option value="е">е</option><option value="я">я</option></select>
+            </span>тках сидят сне<span class="gap" data-answer="г">
+                <select><option value="">?</option><option value="к">к</option><option value="г">г</option><option value="х">х</option></select>
+            </span>ири. Сол<span class="gap" data-answer="н">
+                <select><option value="">?</option><option value="н">н</option><option value="л">л</option><option value="м">м</option></select>
+            </span>це светит я<span class="gap" data-answer="р">
+                <select><option value="">?</option><option value="р">р</option><option value="л">л</option><option value="н">н</option></select>
+            </span>ко. Ребята катаются на кон<span class="gap" data-answer="ь">
+                <select><option value="">?</option><option value="ь">ь</option><option value="ъ">ъ</option><option value="">—</option></select>
+            </span>ках. Как х<span class="gap" data-answer="о">
+                <select><option value="">?</option><option value="а">а</option><option value="о">о</option><option value="е">е</option></select>
+            </span>рошо зимой!
+        </div>
+
+        <button class="btn btn-pink" onclick="checkTask1()">✨ Проверить</button>
+        <button class="reset-btn" onclick="resetTask1()">🔄 Сбросить</button>
+        <div class="result-box" id="result1"></div>
+    </div>
+
+    <!-- ==================== ЗАДАНИЕ 2 ==================== -->
+    <div class="task-card">
+        <span class="task-number">2</span>
+        <h2 class="task-title">Выдели грамматическую основу</h2>
+        <p class="task-description">
+            Сначала выбери режим — <b>подлежащее</b> (одна черта) или <b>сказуемое</b> (две черты), потом нажимай на нужное слово в предложении. Нажми ещё раз, чтобы снять выделение.
+        </p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background:#74b9ff; border: 2px solid #0984e3;"></div>
+                Подлежащее (кто? что?) — одна черта
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background:#fab1a0; border: 2px solid #e17055;"></div>
+                Сказуемое (что делает?) — две черты
+            </div>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active-subject" id="modeSubject" onclick="setMode('subject')">🔵 Подлежащее</button>
+            <button class="mode-btn" id="modePredicate" onclick="setMode('predicate')">🔴 Сказуемое</button>
+        </div>
+
+        <div id="sentences">
+            <!-- Предложения генерируются через JS -->
+        </div>
+
+        <button class="btn btn-blue" onclick="checkTask2()">✨ Проверить</button>
+        <button class="reset-btn" onclick="resetTask2()">🔄 Сбросить</button>
+        <div class="result-box" id="result2"></div>
+    </div>
+
+    <!-- ==================== ЗАДАНИЕ 3 ==================== -->
+    <div class="task-card">
+        <span class="task-number">3</span>
+        <h2 class="task-title">Найди пары словосочетаний</h2>
+        <p class="task-description">
+            Нажми на слово слева, затем на подходящее слово справа. Составь словосочетания! 🧩
+        </p>
+
+        <div class="pairs-container" id="pairsContainer">
+            <div class="pair-column" id="leftCol">
+                <div class="pair-column-title">Слово 1</div>
+            </div>
+            <svg class="connector-svg" id="connectorSvg"></svg>
+            <div class="pair-column" id="rightCol">
+                <div class="pair-column-title">Слово 2</div>
+            </div>
+        </div>
+
+        <div class="matched-pairs-display" id="matchedDisplay" style="display:none;">
+            <strong>Найденные пары:</strong><br>
+            <span id="matchedList"></span>
+        </div>
+
+        <button class="btn btn-green" onclick="checkTask3()">✨ Проверить</button>
+        <button class="reset-btn" onclick="resetTask3()">🔄 Сбросить</button>
+        <div class="result-box" id="result3"></div>
+    </div>
+</div>
+
+<div class="stars-container" id="starsContainer"></div>
+
+<script>
+    // ===========================
+    // ЗАДАНИЕ 1: Пропущенные буквы
+    // ===========================
+    function checkTask1() {
+        const gaps = document.querySelectorAll('#storyText .gap');
+        let correct = 0;
+        let total = gaps.length;
+
+        gaps.forEach(gap => {
+            const select = gap.querySelector('select');
+            const answer = gap.dataset.answer;
+            select.classList.remove('correct', 'wrong');
+
+            if (select.value === answer) {
+                select.classList.add('correct');
+                correct++;
+            } else if (select.value !== '') {
+                select.classList.add('wrong');
+            }
+        });
+
+        const resultBox = document.getElementById('result1');
+        resultBox.classList.add('show');
+
+        if (correct === total) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🎉</span> Отлично! Все ${total} букв правильные! Ты молодец!`;
+            showStars();
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">🤔</span> Правильно: ${correct} из ${total}. Попробуй исправить ошибки!`;
+        }
+    }
+
+    function resetTask1() {
+        const gaps = document.querySelectorAll('#storyText .gap select');
+        gaps.forEach(s => {
+            s.value = '';
+            s.classList.remove('correct', 'wrong');
+        });
+        document.getElementById('result1').className = 'result-box';
+    }
+
+    // ===========================
+    // ЗАДАНИЕ 2: Грамматическая основа
+    // ===========================
+    let currentMode = 'subject';
+
+    const sentencesData = [
+        {
+            words: ['На', 'диване', 'спит', 'пушистый', 'кот.'],
+            subject: [4],
+            predicate: [2]
+        },
+        {
+            words: ['Вкусный', 'обед', 'готовит', 'мама', 'на', 'кухне.'],
+            subject: [3],
+            predicate: [2]
+        },
+        {
+            words: ['Ярко', 'светит', 'в', 'окно', 'весеннее', 'солнце.'],
+            subject: [5],
+            predicate: [1]
+        },
+        {
+            words: ['Во', 'дворе', 'весело', 'играют', 'ребятишки.'],
+            subject: [4],
+            predicate: [3]
+        },
+        {
+            words: ['На', 'ветке', 'звонко', 'поёт', 'маленькая', 'птица.'],
+            subject: [5],
+            predicate: [3]
+        }
+    ];
+
+    function renderSentences() {
+        const container = document.getElementById('sentences');
+        container.innerHTML = '';
+
+        sentencesData.forEach((sent, i) => {
+            const div = document.createElement('div');
+            div.className = 'sentence';
+            div.innerHTML = `<span class="sentence-label">${i + 1}.</span>`;
+
+            sent.words.forEach((word, j) => {
+                const span = document.createElement('span');
+                span.className = 'word';
+                span.textContent = word;
+                span.dataset.sentIndex = i;
+                span.dataset.wordIndex = j;
+                span.onclick = () => toggleWord(span, i, j);
+                div.appendChild(span);
+            });
+
+            container.appendChild(div);
+        });
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeSubject').className = mode === 'subject' ? 'mode-btn active-subject' : 'mode-btn';
+        document.getElementById('modePredicate').className = mode === 'predicate' ? 'mode-btn active-predicate' : 'mode-btn';
+    }
+
+    function toggleWord(span, sentIndex, wordIndex) {
+        if (currentMode === 'subject') {
+            if (span.classList.contains('subject')) {
+                span.classList.remove('subject');
+            } else {
+                span.classList.remove('predicate');
+                span.classList.add('subject');
+            }
+        } else {
+            if (span.classList.contains('predicate')) {
+                span.classList.remove('predicate');
+            } else {
+                span.classList.remove('subject');
+                span.classList.add('predicate');
+            }
+        }
+    }
+
+    function checkTask2() {
+        let correct = 0;
+        let total = sentencesData.length;
+
+        sentencesData.forEach((sent, i) => {
+            const sentenceEl = document.querySelectorAll('.sentence')[i];
+            const words = sentenceEl.querySelectorAll('.word');
+
+            let subjectOk = true;
+            let predicateOk = true;
+
+            // Проверяем подлежащее
+            sent.subject.forEach(idx => {
+                if (!words[idx].classList.contains('subject')) subjectOk = false;
+            });
+
+            // Проверяем сказуемое
+            sent.predicate.forEach(idx => {
+                if (!words[idx].classList.contains('predicate')) predicateOk = false;
+            });
+
+            // Проверяем, что нет лишних выделений
+            words.forEach((w, j) => {
+                if (!sent.subject.includes(j) && w.classList.contains('subject')) subjectOk = false;
+                if (!sent.predicate.includes(j) && w.classList.contains('predicate')) predicateOk = false;
+            });
+
+            if (subjectOk && predicateOk) correct++;
+        });
+
+        const resultBox = document.getElementById('result2');
+        resultBox.classList.add('show');
+
+        if (correct === total) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🌟</span> Великолепно! Все ${total} предложений правильные!`;
+            showStars();
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">💡</span> Правильно: ${correct} из ${total}. Вспомни: подлежащее — это кто/что, сказуемое — что делает.`;
+        }
+    }
+
+    function resetTask2() {
+        document.querySelectorAll('.sentence .word').forEach(w => {
+            w.classList.remove('subject', 'predicate');
+        });
+        document.getElementById('result2').className = 'result-box';
+    }
+
+    // ===========================
+    // ЗАДАНИЕ 3: Пары словосочетаний
+    // ===========================
+    const pairsData = [
+        { left: 'красный', right: 'мяч' },
+        { left: 'гуляет', right: 'собака' },
+        { left: 'читает', right: 'книгу' },
+        { left: 'вкусный', right: 'суп' },
+        { left: 'высокая', right: 'гора' }
+    ];
+
+    let selectedLeft = null;
+    let matchedPairs = [];
+    let lines = [];
+
+    function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    let shuffledRight = [];
+
+    function renderPairs() {
+        const leftCol = document.getElementById('leftCol');
+        const rightCol = document.getElementById('rightCol');
+        leftCol.innerHTML = '<div class="pair-column-title">Слово 1</div>';
+        rightCol.innerHTML = '<div class="pair-column-title">Слово 2</div>';
+
+        shuffledRight = shuffleArray(pairsData.map(p => p.right));
+
+        pairsData.forEach((pair, i) => {
+            const div = document.createElement('div');
+            div.className = 'pair-word';
+            div.textContent = pair.left;
+            div.dataset.word = pair.left;
+            div.dataset.side = 'left';
+            div.onclick = () => selectPairWord(div, 'left');
+            leftCol.appendChild(div);
+        });
+
+        shuffledRight.forEach(word => {
+            const div = document.createElement('div');
+            div.className = 'pair-word';
+            div.textContent = word;
+            div.dataset.word = word;
+            div.dataset.side = 'right';
+            div.onclick = () => selectPairWord(div, 'right');
+            rightCol.appendChild(div);
+        });
+
+        selectedLeft = null;
+        matchedPairs = [];
+        lines = [];
+        updateConnectorLines();
+    }
+
+    function selectPairWord(div, side) {
+        if (div.classList.contains('matched')) return;
+
+        if (side === 'left') {
+            document.querySelectorAll('.pair-word.selected-left').forEach(el => el.classList.remove('selected-left'));
+            div.classList.add('selected-left');
+            selectedLeft = div;
+        } else if (side === 'right' && selectedLeft) {
+            // Проверяем пару
+            const leftWord = selectedLeft.dataset.word;
+            const rightWord = div.dataset.word;
+
+            const correctPair = pairsData.find(p => p.left === leftWord && p.right === rightWord);
+
+            if (correctPair) {
+                selectedLeft.classList.remove('selected-left');
+                selectedLeft.classList.add('matched');
+                div.classList.add('matched');
+
+                matchedPairs.push({ left: leftWord, right: rightWord, leftEl: selectedLeft, rightEl: div });
+
+                drawLine(selectedLeft, div);
+
+                const display = document.getElementById('matchedDisplay');
+                display.style.display = 'block';
+                const list = document.getElementById('matchedList');
+                const item = document.createElement('span');
+                item.className = 'matched-pair-item';
+                item.textContent = `${leftWord} + ${rightWord}`;
+                list.appendChild(item);
+
+                selectedLeft = null;
+
+                if (matchedPairs.length === pairsData.length) {
+                    setTimeout(() => showStars(), 300);
+                }
+            } else {
+                div.classList.add('wrong-flash');
+                selectedLeft.classList.add('wrong-flash');
+                setTimeout(() => {
+                    div.classList.remove('wrong-flash');
+                    selectedLeft.classList.remove('wrong-flash', 'selected-left');
+                    selectedLeft = null;
+                }, 600);
+            }
+        }
+    }
+
+    function drawLine(el1, el2) {
+        const svg = document.getElementById('connectorSvg');
+        const container = document.getElementById('pairsContainer');
+        const containerRect = container.getBoundingClientRect();
+
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+
+        const x1 = r1.right - containerRect.left;
+        const y1 = r1.top + r1.height / 2 - containerRect.top;
+        const x2 = r2.left - containerRect.left;
+        const y2 = r2.top + r2.height / 2 - containerRect.top;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('class', 'connector-line');
+        svg.appendChild(line);
+        lines.push(line);
+    }
+
+    function updateConnectorLines() {
+        const svg = document.getElementById('connectorSvg');
+        svg.innerHTML = '';
+    }
+
+    function checkTask3() {
+        const resultBox = document.getElementById('result3');
+        resultBox.classList.add('show');
+
+        if (matchedPairs.length === pairsData.length) {
+            resultBox.className = 'result-box show success';
+            resultBox.innerHTML = `<span class="emoji-big">🏆</span> Супер! Все пары найдены правильно!`;
+        } else {
+            resultBox.className = 'result-box show partial';
+            resultBox.innerHTML = `<span class="emoji-big">🧩</span> Найдено пар: ${matchedPairs.length} из ${pairsData.length}. Продолжай искать!`;
+        }
+    }
+
+    function resetTask3() {
+        document.getElementById('matchedDisplay').style.display = 'none';
+        document.getElementById('matchedList').innerHTML = '';
+        document.getElementById('result3').className = 'result-box';
+        renderPairs();
+    }
+
+    // ===========================
+    // Анимация звёзд
+    // ===========================
+    function showStars() {
+        const container = document.getElementById('starsContainer');
+        container.style.display = 'block';
+        container.innerHTML = '';
+
+        const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊'];
+
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 0.8 + 's';
+            container.appendChild(star);
+        }
+
+        setTimeout(() => {
+            container.style.display = 'none';
+        }, 2500);
+    }
+
+    // ===========================
+    // Инициализация
+    // ===========================
+    renderSentences();
+    renderPairs();
+</script>
+
+</body>
+</html>
