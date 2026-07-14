@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Летняя математика: 2 класс -> 3 класс</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a90e2;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #ffd700;
+            display: inline-block;
+            margin-top: 40px;
+            padding-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .task-block {
+            background: #fff;
+            border: 2px solid #e1e8ed;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .task-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #4a90e2;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .instruction {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input[type="number"], input[type="text"] {
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 1.1em;
+            font-family: 'Nunito', sans-serif;
+            width: 80px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+        }
+
+        input.correct {
+            border-color: #2ecc71;
+            background-color: #eafaf1;
+            color: #27ae60;
+        }
+
+        input.wrong {
+            border-color: #e74c3c;
+            background-color: #fdedec;
+            color: #c0392b;
+        }
+
+        select {
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 1.1em;
+            font-family: 'Nunito', sans-serif;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        select:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+        }
+
+        select.correct {
+            border-color: #2ecc71;
+            background-color: #eafaf1;
+            color: #27ae60;
+        }
+
+        select.wrong {
+            border-color: #e74c3c;
+            background-color: #fdedec;
+            color: #c0392b;
+        }
+
+        .number-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .number-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .original-num {
+            font-weight: bold;
+            font-size: 1.2em;
+            min-width: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        td input {
+            width: 50px;
+            padding: 4px;
+            font-size: 0.95em;
+        }
+
+        .word-problem {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #f1c40f;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .word-answer {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 40px;
+        }
+
+        .check-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .check-btn:active {
+            transform: scale(0.98);
+        }
+
+        #result-area {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 1.5em;
+        }
+
+        .success-msg { color: #2ecc71; }
+        .error-msg { color: #e74c3c; }
+
+        @media (max-width: 600px) {
+            .number-list { flex-direction: column; }
+            table { font-size: 0.8em; }
+            td input { width: 40px; padding: 3px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>МАТЕМАТИКА</h1>
+    <p class="subtitle"></p>
+
+    <!-- ЗАДАНИЕ 1 -->
+    <div class="task-block">
+        <div class="task-number">1</div>
+        <p class="instruction">Увеличь на 15 числа. Запиши полученные выражения.</p>
+        <div class="number-list">
+            <div class="number-item"><span class="original-num">30</span> + 15 = <input type="number" data-ans="45"></div>
+            <div class="number-item"><span class="original-num">45</span> + 15 = <input type="number" data-ans="60"></div>
+            <div class="number-item"><span class="original-num">27</span> + 15 = <input type="number" data-ans="42"></div>
+            <div class="number-item"><span class="original-num">36</span> + 15 = <input type="number" data-ans="51"></div>
+            <div class="number-item"><span class="original-num">49</span> + 15 = <input type="number" data-ans="64"></div>
+        </div>
+
+        <p class="instruction">Уменьши на 13 числа:</p>
+        <div class="number-list">
+            <div class="number-item"><span class="original-num">27</span> - 13 = <input type="number" data-ans="14"></div>
+            <div class="number-item"><span class="original-num">18</span> - 13 = <input type="number" data-ans="5"></div>
+            <div class="number-item"><span class="original-num">81</span> - 13 = <input type="number" data-ans="68"></div>
+            <div class="number-item"><span class="original-num">90</span> - 13 = <input type="number" data-ans="77"></div>
+            <div class="number-item"><span class="original-num">23</span> - 13 = <input type="number" data-ans="10"></div>
+        </div>
+
+        <p class="instruction">Запиши выражение и найди его значение:</p>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                <strong>а)</strong> от 93 отнять сумму чисел 18 и 6:<br>
+                <span style="margin-left: 30px; color: #7f8c8d;">93 - (18 + 6) = </span>
+                <select data-ans="69">
+                    <option value="">Выбери ответ</option>
+                    <option value="69">69</option>
+                    <option value="75">75</option>
+                    <option value="81">81</option>
+                    <option value="63">63</option>
+                </select>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                <strong>б)</strong> к разности чисел 71 и 5 прибавить 19:<br>
+                <span style="margin-left: 30px; color: #7f8c8d;">(71 - 5) + 19 = </span>
+                <select data-ans="85">
+                    <option value="">Выбери ответ</option>
+                    <option value="85">85</option>
+                    <option value="79">79</option>
+                    <option value="91">91</option>
+                    <option value="73">73</option>
+                </select>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                <strong>в)</strong> к 29 прибавить разность чисел 38 и 19:<br>
+                <span style="margin-left: 30px; color: #7f8c8d;">29 + (38 - 19) = </span>
+                <select data-ans="48">
+                    <option value="">Выбери ответ</option>
+                    <option value="48">48</option>
+                    <option value="54">54</option>
+                    <option value="42">42</option>
+                    <option value="38">38</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="word-problem">
+            В парке был 61 скворечник. 20 из них сломались. Ребята починили 5. Сколько сейчас в парке несломанных скворечников?
+            <div class="word-answer">
+                <span>Ответ:</span>
+                <input type="number" placeholder="Ответ" data-ans="46" style="width: 100px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <div class="task-block">
+        <div class="task-number">2</div>
+        <p class="instruction">Начертите в тетради таблицы и заполните их.</p>
+        
+        <p><strong>Таблица сложения:</strong></p>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Слагаемое</th>
+                        <td>36</td>
+                        <td><input type="number" data-ans="4"></td>
+                        <td>32</td>
+                        <td>63</td>
+                        <td>53</td>
+                        <td>42</td>
+                        <td>16</td>
+                        <td><input type="number" data-ans="25"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Слагаемое</th>
+                        <td><input type="number" data-ans="12"></td>
+                        <td>42</td>
+                        <td><input type="number" data-ans="17"></td>
+                        <td><input type="number" data-ans="5"></td>
+                        <td><input type="number" data-ans="4"></td>
+                        <td><input type="number" data-ans="7"></td>
+                        <td><input type="number" data-ans="10"></td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <th>Сумма</th>
+                        <td>48</td>
+                        <td>46</td>
+                        <td>49</td>
+                        <td>68</td>
+                        <td>57</td>
+                        <td>49</td>
+                        <td>26</td>
+                        <td>28</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p><strong>Таблица вычитания:</strong></p>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Уменьшаемое</th>
+                        <td>79</td>
+                        <td>67</td>
+                        <td><input type="number" data-ans="79"></td>
+                        <td><input type="number" data-ans="46"></td>
+                        <td>11</td>
+                        <td>13</td>
+                        <td><input type="number" data-ans="15"></td>
+                        <td>25</td>
+                        <td>38</td>
+                        <td>13</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Вычитаемое</th>
+                        <td><input type="number" data-ans="8"></td>
+                        <td><input type="number" data-ans="32"></td>
+                        <td>52</td>
+                        <td>46</td>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>5</td>
+                        <td><input type="number" data-ans="11"></td>
+                        <td>8</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <th>Разность</th>
+                        <td>71</td>
+                        <td>35</td>
+                        <td>27</td>
+                        <td>0</td>
+                        <td><input type="number" data-ans="5"></td>
+                        <td><input type="number" data-ans="5"></td>
+                        <td>10</td>
+                        <td>14</td>
+                        <td><input type="number" data-ans="30"></td>
+                        <td><input type="number" data-ans="5"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="word-problem">
+            Для детского сада привезли 4 кг масла, а творога на 10 кг больше. Сколько килограммов масла и творога привезли для детского сада?
+            <div class="word-answer">
+                <span>Ответ:</span>
+                <input type="number" placeholder="Ответ" data-ans="18" style="width: 100px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <div class="task-block">
+        <div class="task-number">3</div>
+        <p class="instruction">Реши примеры:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                38 - 30 + 6 = <input type="number" data-ans="14"><br><br>
+                7 + 9 + 50 = <input type="number" data-ans="66"><br><br>
+                54 - 40 - 8 = <input type="number" data-ans="6">
+            </div>
+            <div>
+                86 + 4 - 50 = <input type="number" data-ans="40"><br><br>
+                70 - 3 - 26 = <input type="number" data-ans="41"><br><br>
+                29 - 8 + 9 = <input type="number" data-ans="30">
+            </div>
+        </div>
+    </div>
+
+    <button class="check-btn" onclick="checkAnswers()">ПРОВЕРИТЬ ВСЕ ОТВЕТЫ ✨</button>
+    <div id="result-area"></div>
+
+</div>
+
+<script>
+    function checkAnswers() {
+        const inputs = document.querySelectorAll('input[type="number"], input[type="text"], select');
+        let correctCount = 0;
+        let total = inputs.length;
+
+        inputs.forEach(input => {
+            input.classList.remove('correct', 'wrong');
+            const userVal = input.value.trim();
+            const correctVal = input.dataset.ans;
+
+            if (userVal !== '') {
+                if (userVal === correctVal) {
+                    input.classList.add('correct');
+                    correctCount++;
+                } else {
+                    input.classList.add('wrong');
+                }
+            }
+        });
+
+        const resultArea = document.getElementById('result-area');
+        
+        if (correctCount === total) {
+            resultArea.innerHTML = "<span class='success-msg'>🎉 Ура! Всё верно! Ты молодец! 🎉</span>";
+            launchConfetti();
+        } else {
+            resultArea.innerHTML = `<span class='error-msg'>Пока есть ошибки или пустые поля. Правильно: ${correctCount} из ${total}. Исправь красные поля!</span>`;
+        }
+    }
+
+    function launchConfetti() {
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
+        for(let i=0; i<50; i++) {
+            const conf = document.createElement('div');
+            conf.style.position = 'fixed';
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.top = '-10px';
+            conf.style.width = '10px';
+            conf.style.height = '10px';
+            conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            conf.style.transition = 'top 2s ease-in, transform 2s linear';
+            conf.style.zIndex = '9999';
+            document.body.appendChild(conf);
+
+            setTimeout(() => {
+                conf.style.top = '110vh';
+                conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+            }, 100);
+
+            setTimeout(() => {
+                conf.remove();
+            }, 2100);
+        }
+    }
+</script>
+
+</body>
+</html>
