@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Словарные слова. Птицы</title>
+<style>
+  body {
+    font-family: 'Comic Sans MS', Arial, sans-serif;
+    background: #fff8e1;
+    margin: 20px;
+    color: #333;
+  }
+  h1 { text-align: center; color: #d84315; }
+  h2 { color: #1565c0; }
+  .task {
+    background: #ffffff;
+    border: 2px dashed #ff9800;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .word {
+    font-size: 22px;
+    margin: 10px 0;
+  }
+  input[type="text"] {
+    width: 25px;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+    border: 2px solid #4caf50;
+    border-radius: 5px;
+  }
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-right: 10px;
+  }
+  button:hover { background: #388e3c; }
+  .result {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .correct { color: green; }
+  .wrong { color: red; }
+  .sentence-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .word-btn {
+    background: #bbdefb;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    border: 2px solid #1976d2;
+    user-select: none;
+  }
+  .word-btn.used { 
+    opacity: 0.3; 
+    cursor: default;
+    background: #e3f2fd;
+  }
+  .built {
+    min-height: 40px;
+    background: #fff9c4;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 20px;
+    margin: 10px 0;
+    border: 1px solid #fbc02d;
+  }
+  .radio-option {
+    display: block;
+    margin: 8px 0;
+    font-size: 18px;
+    padding: 8px;
+    background: #f1f8e9;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .score {
+    text-align: center;
+    font-size: 24px;
+    color: #d84315;
+    margin-top: 20px;
+    padding: 15px;
+    background: #ffe0b2;
+    border-radius: 15px;
+  }
+  .sentence-block {
+    background: #f9fbe7;
+    border: 1px solid #c5e1a5;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .sentence-block h3 {
+    margin-top: 0;
+    color: #558b2f;
+  }
+</style>
+</head>
+<body>
+
+<h1>🐦 Словарные слова. Птицы 🐦</h1>
+<p style="text-align:center; font-size:18px;">Выполни три задания и узнай свой результат!</p>
+
+<!-- ЗАДАНИЕ 1 -->
+<div class="task">
+  <h2>Задание 1. Вставь пропущенную букву</h2>
+  <p>Впиши букву, которую нужно запомнить в словарном слове:</p>
+
+  <div class="word">в<input type="text" id="w1" maxlength="1">р<input type="text" id="w2" maxlength="1">бей</div>
+  <div class="word">в<input type="text" id="w3" maxlength="1">р<input type="text" id="w4" maxlength="1">на</div>
+  <div class="word">сн<input type="text" id="w5" maxlength="1">гирь</div>
+  <div class="word">с<input type="text" id="w6" maxlength="1">р<input type="text" id="w7" maxlength="1">ка</div>
+  <div class="word">с<input type="text" id="w8" maxlength="1">л<input type="text" id="w9" maxlength="1">вей</div>
+
+  <button onclick="checkTask1()">Проверить</button>
+  <div class="result" id="res1"></div>
+</div>
+
+<!-- ЗАДАНИЕ 2 -->
+<div class="task">
+  <h2>Задание 2. Составь предложения</h2>
+  <p>Собери четыре предложения. <b>Помни:</b> предложение начинается с большой буквы и заканчивается знаком препинания (точкой, ! или ?).</p>
+  <p style="font-size: 16px; color: #666;"><i>(Слова перемешаны! Нажимай на них в правильном порядке.)</i></p>
+
+  <!-- Предложение 1 -->
+  <div class="sentence-block">
+    <h3>Предложение 1</h3>
+    <div class="sentence-words" id="words2-1"></div>
+    <div class="built" id="built2-1"></div>
+    <button onclick="resetSentence(1)">Сбросить</button>
+    <button onclick="checkSentence(1)">Проверить</button>
+    <div class="result" id="res2-1"></div>
+  </div>
+
+  <!-- Предложение 2 -->
+  <div class="sentence-block">
+    <h3>Предложение 2</h3>
+    <div class="sentence-words" id="words2-2"></div>
+    <div class="built" id="built2-2"></div>
+    <button onclick="resetSentence(2)">Сбросить</button>
+    <button onclick="checkSentence(2)">Проверить</button>
+    <div class="result" id="res2-2"></div>
+  </div>
+
+  <!-- Предложение 3 -->
+  <div class="sentence-block">
+    <h3>Предложение 3</h3>
+    <div class="sentence-words" id="words2-3"></div>
+    <div class="built" id="built2-3"></div>
+    <button onclick="resetSentence(3)">Сбросить</button>
+    <button onclick="checkSentence(3)">Проверить</button>
+    <div class="result" id="res2-3"></div>
+  </div>
+
+  <!-- Предложение 4 -->
+  <div class="sentence-block">
+    <h3>Предложение 4</h3>
+    <div class="sentence-words" id="words2-4"></div>
+    <div class="built" id="built2-4"></div>
+    <button onclick="resetSentence(4)">Сбросить</button>
+    <button onclick="checkSentence(4)">Проверить</button>
+    <div class="result" id="res2-4"></div>
+  </div>
+</div>
+
+<!-- ЗАДАНИЕ 3 -->
+<div class="task">
+  <h2>Задание 3. Выбери правильное предложение</h2>
+  <p>Какое предложение является распространённым?</p>
+  <label class="radio-option"><input type="radio" name="q3" value="1"> Птицы прилетели.</label>
+  <label class="radio-option"><input type="radio" name="q3" value="2"> В лесу звонко поёт красивый соловей.</label>
+  <label class="radio-option"><input type="radio" name="q3" value="3"> Снег идёт.</label>
+  <label class="radio-option"><input type="radio" name="q3" value="4"> Ворона каркнула.</label>
+  <button onclick="checkTask3()">Проверить</button>
+  <div class="result" id="res3"></div>
+</div>
+
+<div class="score" id="totalScore">🌟 Твой результат: 0 из 9 баллов</div>
+
+<script>
+  let score = 0;
+  let checked = {t1: false, t3: false};
+  let checkedSentences = {1: false, 2: false, 3: false, 4: false};
+  let builtSentences = {1: [], 2: [], 3: [], 4: []};
+
+  // Правильные слова для каждого предложения (без знака препинания)
+  const sentencesData = {
+    1: ["На", "ветке", "сидит", "пёстрый", "воробей"],
+    2: ["Чёрная", "ворона", "села", "на", "забор"],
+    3: ["Красный", "снегирь", "клюёт", "рябину"],
+    4: ["В", "лесу", "поёт", "звонкий", "соловей"]
+  };
+
+  // Функция перемешивания массива (алгоритм Фишера-Йетса)
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Инициализация второго задания (перемешиваем слова при загрузке)
+  function initTask2() {
+    for (let i = 1; i <= 4; i++) {
+      const container = document.getElementById('words2-' + i);
+      container.innerHTML = '';
+      
+      // Берём слова, перемешиваем их, добавляем знаки препинания и перемешиваем всё вместе
+      const words = [...sentencesData[i]];
+      const pool = shuffle([...words, '.', '!', '?']);
+      
+      pool.forEach(word => {
+        const span = document.createElement('span');
+        span.className = 'word-btn';
+        span.textContent = word;
+        span.onclick = function() { addWord(i, this); };
+        container.appendChild(span);
+      });
+    }
+  }
+
+  // Добавление слова в поле сборки
+  function addWord(num, el) {
+    if (el.classList.contains('used') || checkedSentences[num]) return;
+    el.classList.add('used');
+    builtSentences[num].push(el.textContent);
+    renderBuilt(num);
+  }
+
+  // Красивое отображение собранного предложения (знаки препинания приклеиваются к слову)
+  function renderBuilt(num) {
+    const built = builtSentences[num];
+    let text = '';
+    for (let i = 0; i < built.length; i++) {
+      const cur = built[i];
+      if (cur === '.' || cur === '!' || cur === '?') {
+        text += cur;
+      } else {
+        if (text.length > 0 && !text.endsWith(' ') && !text.endsWith('.') && !text.endsWith('!') && !text.endsWith('?')) {
+          text += ' ';
+        }
+        text += cur;
+      }
+    }
+    document.getElementById('built2-' + num).textContent = text;
+  }
+
+  // Сброс конкретного предложения
+  function resetSentence(num) {
+    if (checkedSentences[num]) return;
+    builtSentences[num] = [];
+    document.getElementById('built2-' + num).textContent = '';
+    document.querySelectorAll('#words2-' + num + ' .word-btn').forEach(b => b.classList.remove('used'));
+    document.getElementById('res2-' + num).textContent = '';
+  }
+
+  // Проверка конкретного предложения
+  function checkSentence(num) {
+    if (checkedSentences[num]) return;
+    
+    const built = builtSentences[num];
+    const correct = sentencesData[num];
+    const punctuations = [".", "!", "?"];
+    const resEl = document.getElementById('res2-' + num);
+    
+    // Должно быть выбрано правильное количество слов + 1 знак препинания
+    if (built.length === correct.length + 1) {
+      const wordsMatch = built.slice(0, -1).every((val, index) => val === correct[index]);
+      const punctMatch = punctuations.includes(built[built.length - 1]);
+      
+      if (wordsMatch && punctMatch) {
+        resEl.innerHTML = '✅ Отлично! Предложение собрано верно!';
+        resEl.className = 'result correct';
+        score += 1;
+        checkedSentences[num] = true; // Блокируем после правильного ответа
+      } else {
+        resEl.innerHTML = '✏ Почти! Проверь порядок слов и знак препинания в конце.';
+        resEl.className = 'result wrong';
+      }
+    } else {
+      resEl.innerHTML = '✏ Используй все слова и обязательно один знак препинания.';
+      resEl.className = 'result wrong';
+    }
+    updateScore();
+  }
+
+  // Задание 1
+  const answers1 = ['о','о','о','о','е','о','о','о','о'];
+  const ids = ['w1','w2','w3','w4','w5','w6','w7','w8','w9'];
+
+  function checkTask1() {
+    if (checked.t1) return;
+    let correct = 0;
+    for (let i = 0; i < ids.length; i++) {
+      const v = document.getElementById(ids[i]).value.toLowerCase();
+      if (v === answers1[i]) correct++;
+    }
+    checked.t1 = true;
+    const resEl = document.getElementById('res1');
+    if (correct === 9) {
+      resEl.innerHTML = '✅ Молодец! Все буквы верные! (9/9)';
+      resEl.className = 'result correct';
+      score += 3;
+    } else {
+      resEl.innerHTML = '✏ Правильно: ' + correct + ' из 9. Проверь слова: воробей, ворона, снегирь, сорока, соловей.';
+      resEl.className = 'result wrong';
+      if (correct >= 6) score += 1;
+    }
+    updateScore();
+  }
+
+  // Задание 3
+  function checkTask3() {
+    if (checked.t3) return;
+    const sel = document.querySelector('input[name="q3"]:checked');
+    const resEl = document.getElementById('res3');
+    
+    if (!sel) {
+      resEl.innerHTML = '✏ Выбери один вариант!';
+      resEl.className = 'result wrong';
+      return;
+    }
+    
+    checked.t3 = true;
+    if (sel.value === '2') {
+      resEl.innerHTML = '✅ Верно! Это распространённое предложение.';
+      resEl.className = 'result correct';
+      score += 2;
+    } else {
+      resEl.innerHTML = '✏ Неправильно. Верный ответ: «В лесу звонко поёт красивый соловей.»';
+      resEl.className = 'result wrong';
+    }
+    updateScore();
+  }
+
+  function updateScore() {
+    document.getElementById('totalScore').innerHTML = '🌟 Твой результат: ' + score + ' из 9 баллов';
+  }
+
+  // Запускаем перемешивание при загрузке страницы
+  initTask2();
+</script>
+
+</body>
+</html>

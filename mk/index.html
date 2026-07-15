@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математический квест · 2 класс</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(145deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-card {
+            max-width: 780px;
+            width: 100%;
+            background: #fefefe;
+            border-radius: 64px 64px 48px 48px;
+            padding: 30px 30px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: 0.25s;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0b2a4a;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 1rem;
+            background: #ffb74d;
+            padding: 4px 18px;
+            border-radius: 40px;
+            color: #1e2b3c;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .level-badge {
+            background: #1e3c72;
+            color: white;
+            border-radius: 60px;
+            padding: 6px 22px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 0 #0b1f3b;
+        }
+        .task-block {
+            background: #eef4ff;
+            border-radius: 40px;
+            padding: 24px 28px;
+            margin-bottom: 25px;
+            border: 2px solid #b7cef0;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .task-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #0b2a4a;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .task-text .highlight {
+            background: #f9e79f;
+            padding: 2px 10px;
+            border-radius: 30px;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px 20px;
+            margin-top: 8px;
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #1f3b5c;
+        }
+        .input-group input {
+            flex: 1 1 160px;
+            padding: 14px 18px;
+            border: 2px solid #b0c8e9;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            background: white;
+            outline: none;
+            transition: 0.2s;
+            font-weight: 500;
+            color: #0a1e33;
+        }
+        .input-group input:focus {
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 4px rgba(30, 60, 114, 0.2);
+        }
+        .input-group input.correct {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .input-group input.wrong {
+            border-color: #b71c1c;
+            background: #ffebee;
+        }
+        .btn {
+            background: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1e3c72;
+            border: 2px solid #1e3c72;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 0 #0b1f3b;
+            background: #dce6f7;
+        }
+        .btn:hover {
+            background: #c2d4f0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #0b1f3b;
+        }
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0b1f3b;
+        }
+        .btn-primary {
+            background: #ffb74d;
+            border-color: #b45f1a;
+            color: #2b3a4b;
+            box-shadow: 0 4px 0 #8d4e1a;
+        }
+        .btn-primary:hover {
+            background: #ffa726;
+        }
+        .btn-success {
+            background: #66bb6a;
+            border-color: #1e5f23;
+            color: white;
+            box-shadow: 0 4px 0 #1e5f23;
+        }
+        .btn-success:hover {
+            background: #4caf50;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 18px;
+        }
+        .feedback {
+            margin-top: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            min-height: 2.2rem;
+            color: #1f3b5c;
+        }
+        .feedback .ok {
+            color: #1f6b2b;
+        }
+        .feedback .err {
+            color: #b71c1c;
+        }
+        .grid-examples {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px 10px;
+            margin: 10px 0 6px;
+        }
+        .example-item {
+            background: white;
+            border-radius: 30px;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: 2px solid #b7cef0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .example-item input {
+            width: 80px;
+            padding: 8px 6px;
+            border-radius: 40px;
+            border: 2px solid #b7cef0;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            outline: none;
+        }
+        .example-item input:focus {
+            border-color: #1e3c72;
+        }
+        .example-item input.correct {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+        }
+        .example-item input.wrong {
+            background: #ffebee;
+            border-color: #b71c1c;
+        }
+        .comparison-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px 10px;
+            margin: 15px 0 5px;
+        }
+        .comp-item {
+            background: white;
+            border-radius: 60px;
+            padding: 12px 20px;
+            border: 2px solid #b7cef0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .comp-item select {
+            padding: 8px 12px;
+            border-radius: 40px;
+            border: 2px solid #b7cef0;
+            font-weight: 600;
+            font-size: 1.2rem;
+            background: white;
+        }
+        .comp-item select:focus {
+            border-color: #1e3c72;
+        }
+        .draw-area {
+            background: #fcf9e6;
+            border-radius: 40px;
+            padding: 18px 15px;
+            border: 2px dashed #aabcde;
+            text-align: center;
+            margin: 14px 0 6px;
+        }
+        .draw-area .bunny-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px 25px;
+            font-size: 2.8rem;
+            line-height: 1.2;
+        }
+        .draw-area .bunny-row span {
+            background: #f3efe0;
+            padding: 4px 14px 8px;
+            border-radius: 100px;
+            box-shadow: 0 4px 0 #b3a68c;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 28px;
+            color: #45628b;
+            font-weight: 500;
+            border-top: 2px solid #cfdef5;
+            padding-top: 18px;
+            font-size: 0.95rem;
+        }
+        .reset-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        @media (max-width: 550px) {
+            .game-card { padding: 20px; }
+            .grid-examples { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="game-card" id="app">
+    <h1>
+        ⚓ Морской квест
+        <small>2 класс</small>
+    </h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+        <span class="level-badge">🏆 уровень 1 / 5</span>
+        <span style="background: #d0dff0; padding: 4px 16px; border-radius: 30px; font-weight: 600;">⭐ 0 / 5</span>
+    </div>
+
+    <!-- ЗАДАЧА 1 -->
+    <div class="task-block" data-task="1">
+        <div class="task-text">🚢 <span class="highlight">Задача 1.</span> В порту 74 яхты. Утром вышли 27, после обеда ещё 13. Сколько осталось?</div>
+        <div class="input-group">
+            <label>Ответ:</label>
+            <input type="number" id="task1" placeholder="?">
+            <button class="btn btn-primary" onclick="checkTask1()">Проверить</button>
+        </div>
+        <div id="feedback1" class="feedback"></div>
+    </div>
+
+    <!-- ЗАДАЧА 2: примеры столбиком (6 штук) -->
+    <div class="task-block" data-task="2">
+        <div class="task-text">📐 <span class="highlight">Задача 2.</span> Реши примеры (запиши ответ)</div>
+        <div class="grid-examples" id="exampleGrid">
+            <div class="example-item">46+24 <input type="number" id="ex1" placeholder="?"></div>
+            <div class="example-item">82-25 <input type="number" id="ex2" placeholder="?"></div>
+            <div class="example-item">47+36 <input type="number" id="ex3" placeholder="?"></div>
+            <div class="example-item">82-37 <input type="number" id="ex4" placeholder="?"></div>
+            <div class="example-item">37+36 <input type="number" id="ex5" placeholder="?"></div>
+            <div class="example-item">60-43 <input type="number" id="ex6" placeholder="?"></div>
+        </div>
+        <div class="flex-row">
+            <button class="btn btn-primary" onclick="checkExamples()">Проверить примеры</button>
+        </div>
+        <div id="feedback2" class="feedback"></div>
+    </div>
+
+    <!-- ЗАДАЧА 3: уравнения -->
+    <div class="task-block" data-task="3">
+        <div class="task-text">✖️ <span class="highlight">Задача 3.</span> Реши уравнения</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 20px 40px; justify-content: center; margin: 8px 0;">
+            <div><span style="font-weight:600;">x + 17 = 90</span>  <input type="number" id="eq1" style="width:80px; padding:10px; border-radius:40px; border:2px solid #b7cef0; text-align:center; font-weight:600;"></div>
+            <div><span style="font-weight:600;">y - 16 = 4</span>  <input type="number" id="eq2" style="width:80px; padding:10px; border-radius:40px; border:2px solid #b7cef0; text-align:center; font-weight:600;"></div>
+        </div>
+        <div class="flex-row">
+            <button class="btn btn-primary" onclick="checkEquations()">Проверить уравнения</button>
+        </div>
+        <div id="feedback3" class="feedback"></div>
+    </div>
+
+    <!-- ЗАДАЧА 4: рисунок зайцы -->
+    <div class="task-block" data-task="4">
+        <div class="task-text">🐇 <span class="highlight">Задача 4.</span> У одного зайца 2 уха. Сколько ушей у 4 зайцев?</div>
+        <div class="draw-area">
+            <div class="bunny-row">
+                <span>🐰🐰</span> <span>🐰🐰</span> <span>🐰🐰</span> <span>🐰🐰</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 1.1rem;">→ 4 зайца, у каждого по 2 уха</div>
+        </div>
+        <div class="input-group">
+            <label>Ответ (ушей):</label>
+            <input type="number" id="task4" placeholder="?">
+            <button class="btn btn-primary" onclick="checkTask4()">Проверить</button>
+        </div>
+        <div id="feedback4" class="feedback"></div>
+    </div>
+
+    <!-- ЗАДАЧА 5: сравнение -->
+    <div class="task-block" data-task="5">
+        <div class="task-text">⚖️ <span class="highlight">Задача 5.</span> Сравни (выбери знак)</div>
+        <div class="comparison-grid">
+            <div class="comp-item">94 см <select id="comp1"><option value=">"> &gt; </option><option value="<"> &lt; </option><option value="="> = </option></select> 4 дм 9 см</div>
+            <div class="comp-item">1 ч <select id="comp2"><option value=">"> &gt; </option><option value="<"> &lt; </option><option value="="> = </option></select> 66 мин</div>
+            <div class="comp-item">3 см 3 мм <select id="comp3"><option value=">"> &gt; </option><option value="<"> &lt; </option><option value="="> = </option></select> 36 мм</div>
+            <div class="comp-item">1 м <select id="comp4"><option value=">"> &gt; </option><option value="<"> &lt; </option><option value="="> = </option></select> 50 см</div>
+        </div>
+        <div class="flex-row">
+            <button class="btn btn-primary" onclick="checkComparisons()">Проверить сравнения</button>
+        </div>
+        <div id="feedback5" class="feedback"></div>
+    </div>
+
+    <div class="reset-area">
+        <button class="btn btn-success" onclick="resetAll()">🔄 Сбросить всё</button>
+    </div>
+    <div class="footer-note">⭐ Нажми «Проверить» — получи звёзды за правильные ответы!</div>
+</div>
+
+<script>
+    // Храним статусы звёзд
+    let stars = 0;
+    const totalTasks = 5;
+    const taskStatus = [false, false, false, false, false];
+
+    function updateStars() {
+        const badge = document.querySelector('.level-badge + span');
+        if (badge) badge.textContent = `⭐ ${stars} / ${totalTasks}`;
+        // уровень (просто для красоты)
+        const lvl = document.querySelector('.level-badge');
+        if (lvl) lvl.textContent = `🏆 уровень ${Math.min(stars+1, totalTasks)} / ${totalTasks}`;
+    }
+
+    function markTask(taskId, ok) {
+        if (ok && !taskStatus[taskId-1]) {
+            taskStatus[taskId-1] = true;
+            stars++;
+        } else if (!ok && taskStatus[taskId-1]) {
+            taskStatus[taskId-1] = false;
+            stars--;
+        }
+        if (stars < 0) stars = 0;
+        updateStars();
+    }
+
+    // Задача 1
+    window.checkTask1 = function() {
+        const input = document.getElementById('task1');
+        const fb = document.getElementById('feedback1');
+        const val = parseInt(input.value);
+        const correct = (74 - 27 - 13) === 34;
+        const ok = (val === 34);
+        if (ok) {
+            input.className = 'correct';
+            fb.innerHTML = '<span class="ok">✅ Верно! Осталось 34 яхты.</span>';
+        } else {
+            input.className = 'wrong';
+            fb.innerHTML = '<span class="err">❌ Попробуй ещё: 74 − 27 − 13 = ?</span>';
+        }
+        markTask(1, ok);
+    };
+
+    // Примеры (задача 2)
+    window.checkExamples = function() {
+        const answers = [70, 57, 83, 45, 73, 17];
+        const ids = ['ex1','ex2','ex3','ex4','ex5','ex6'];
+        let allOk = true;
+        let anyWrong = false;
+        ids.forEach((id, idx) => {
+            const inp = document.getElementById(id);
+            const val = parseInt(inp.value);
+            const ok = (val === answers[idx]);
+            inp.className = ok ? 'correct' : (val !== undefined && !isNaN(val) ? 'wrong' : '');
+            if (!ok) { allOk = false; anyWrong = true; }
+        });
+        const fb = document.getElementById('feedback2');
+        if (allOk) {
+            fb.innerHTML = '<span class="ok">✅ Все примеры решены верно! </span>';
+        } else {
+            fb.innerHTML = '<span class="err">❌ Есть ошибки. Проверь вычисления.</span>';
+        }
+        markTask(2, allOk);
+    };
+
+    // Уравнения
+    window.checkEquations = function() {
+        const eq1 = parseInt(document.getElementById('eq1').value);
+        const eq2 = parseInt(document.getElementById('eq2').value);
+        const ok1 = (eq1 === 73);
+        const ok2 = (eq2 === 20);
+        const e1 = document.getElementById('eq1');
+        const e2 = document.getElementById('eq2');
+        e1.className = ok1 ? 'correct' : (isNaN(eq1) ? '' : 'wrong');
+        e2.className = ok2 ? 'correct' : (isNaN(eq2) ? '' : 'wrong');
+        const fb = document.getElementById('feedback3');
+        if (ok1 && ok2) {
+            fb.innerHTML = '<span class="ok">✅ Уравнения решены! x=73, y=20</span>';
+        } else {
+            fb.innerHTML = '<span class="err">❌ Проверь: x = 90-17, y = 4+16</span>';
+        }
+        markTask(3, ok1 && ok2);
+    };
+
+    // Задача 4 зайцы
+    window.checkTask4 = function() {
+        const inp = document.getElementById('task4');
+        const val = parseInt(inp.value);
+        const ok = (val === 8);
+        inp.className = ok ? 'correct' : (isNaN(val) ? '' : 'wrong');
+        const fb = document.getElementById('feedback4');
+        if (ok) {
+            fb.innerHTML = '<span class="ok">✅ Да! 4 зайца × 2 уха = 8 ушей.</span>';
+        } else {
+            fb.innerHTML = '<span class="err">❌ Посчитай: 4 × 2 = ?</span>';
+        }
+        markTask(4, ok);
+    };
+
+    // Сравнения
+    window.checkComparisons = function() {
+        const correct = ['>', '<', '<', '>']; // 94см > 49см; 1ч=60мин <66; 33мм <36мм; 100см >50см
+        const selects = ['comp1','comp2','comp3','comp4'];
+        let allOk = true;
+        selects.forEach((id, idx) => {
+            const sel = document.getElementById(id);
+            const val = sel.value;
+            if (val !== correct[idx]) allOk = false;
+        });
+        const fb = document.getElementById('feedback5');
+        if (allOk) {
+            fb.innerHTML = '<span class="ok">✅ Все сравнения верны!</span>';
+        } else {
+            fb.innerHTML = '<span class="err">❌ Проверь: 94см > 4дм9см (49см); 1ч<66мин; 3см3мм<36мм; 1м>50см</span>';
+        }
+        markTask(5, allOk);
+    };
+
+    // Сброс
+    window.resetAll = function() {
+        // очищаем поля
+        document.querySelectorAll('input[type="number"]').forEach(inp => {
+            inp.value = '';
+            inp.className = '';
+        });
+        document.querySelectorAll('select').forEach(sel => {
+            sel.value = '>';
+        });
+        // сброс фидбеков
+        document.querySelectorAll('.feedback').forEach(el => el.innerHTML = '');
+        // сброс звёзд
+        stars = 0;
+        for (let i=0; i<totalTasks; i++) taskStatus[i] = false;
+        updateStars();
+        // дополнительные сбросы классов
+        document.querySelectorAll('.example-item input').forEach(inp => inp.className = '');
+    };
+
+    // инициализация
+    updateStars();
+</script>
+</body>
+</html>

@@ -1,934 +1,805 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>🎮 Математическое приключение — 2 класс 🎮</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Comic Sans MS', 'Arial', sans-serif;
-    background: linear-gradient(135deg, #a8e6ff 0%, #d4fc79 50%, #ffe9a8 100%);
-    min-height: 100vh;
-    padding: 20px;
-    color: #333;
-  }
-  .container {
-    max-width: 850px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 25px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    border: 5px dashed #4caf50;
-  }
-  h1 {
-    text-align: center;
-    color: #2e7d32;
-    font-size: 2em;
-    margin-bottom: 10px;
-  }
-  .score-bar {
-    background: #e8f5e9;
-    border: 3px solid #4caf50;
-    border-radius: 15px;
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 1.3em;
-    margin-bottom: 20px;
-    font-weight: bold;
-    color: #1b5e20;
-  }
-  .task {
-    display: none;
-    animation: fadeIn 0.5s ease;
-  }
-  .task.active { display: block; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  h2 {
-    color: #1565c0;
-    margin-bottom: 15px;
-    font-size: 1.5em;
-  }
-  .info-box {
-    background: #e3f2fd;
-    border-left: 6px solid #2196f3;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 1.05em;
-    line-height: 1.5;
-  }
-  .info-box b { color: #d32f2f; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математическое Приключение</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  /* Общие кнопки */
-  .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin: 15px 0;
-  }
-  button {
-    font-family: inherit;
-    font-size: 1.1em;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    background: linear-gradient(135deg, #ff6b9d, #feca57);
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 0 #c44569;
-    transition: all 0.15s;
-  }
-  button:hover { transform: translateY(-2px); }
-  button:active { transform: translateY(2px); box-shadow: 0 2px 0 #c44569; }
-  button.check-btn {
-    background: linear-gradient(135deg, #48dbfb, #0abde3);
-    box-shadow: 0 4px 0 #0097b2;
-  }
-  button.next-btn {
-    background: linear-gradient(135deg, #1dd1a1, #10ac84);
-    box-shadow: 0 4px 0 #0a7a5e;
-    font-size: 1.2em;
-    margin-top: 15px;
-  }
-  .feedback {
-    padding: 12px;
-    border-radius: 10px;
-    margin-top: 15px;
-    text-align: center;
-    font-size: 1.15em;
-    font-weight: bold;
-    display: none;
-  }
-  .feedback.correct {
-    background: #d4edda;
-    color: #155724;
-    border: 2px solid #28a745;
-    display: block;
-  }
-  .feedback.wrong {
-    background: #f8d7da;
-    color: #721c24;
-    border: 2px solid #dc3545;
-    display: block;
-  }
+        body {
+            font-family: 'Comic Sans MS', 'Arial', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-  /* Drag-and-drop стили */
-  .drop-zones {
-    display: flex;
-    gap: 15px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-  }
-  .drop-zone {
-    flex: 1;
-    min-width: 220px;
-    min-height: 200px;
-    border: 4px dashed;
-    border-radius: 15px;
-    padding: 15px;
-    transition: all 0.2s;
-  }
-  .drop-zone.drag-over {
-    transform: scale(1.03);
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-  }
-  .drop-zone h3 {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1.1em;
-  }
-  .zone-length { border-color: #ff9800; background: #fff3e0; }
-  .zone-length h3 { color: #e65100; }
-  .zone-time { border-color: #9c27b0; background: #f3e5f5; }
-  .zone-time h3 { color: #6a1b9a; }
-  .zone-mass { border-color: #2196f3; background: #e3f2fd; }
-  .zone-mass h3 { color: #0d47a1; }
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
 
-  .draggable {
-    display: block;
-    background: #fff;
-    border: 2px solid #673ab7;
-    border-radius: 12px;
-    padding: 10px;
-    margin: 6px 0;
-    cursor: grab;
-    font-size: 1.05em;
-    text-align: center;
-    user-select: none;
-    transition: all 0.2s;
-  }
-  .draggable:hover { background: #ede7f6; }
-  .draggable.dragging { opacity: 0.4; }
-  .draggable.correct-placed {
-    background: #c8e6c9;
-    border-color: #2e7d32;
-    cursor: default;
-  }
-  .draggable.wrong-placed {
-    background: #ffcdd2;
-    border-color: #c62828;
-  }
-  .pool {
-    background: #fce4ec;
-    border: 3px solid #e91e63;
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 15px;
-    min-height: 60px;
-  }
-  .pool h3 {
-    text-align: center;
-    color: #880e4f;
-    margin-bottom: 10px;
-  }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
 
-  /* Примеры */
-  .example-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-  }
-  .example-card {
-    background: #fff;
-    border: 3px solid #ff9800;
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-    font-size: 1.2em;
-  }
-  .example-card input {
-    width: 80px;
-    text-align: center;
-    font-size: 1.1em;
-    padding: 8px;
-    border: 3px solid #2196f3;
-    border-radius: 12px;
-    margin-top: 8px;
-    font-family: inherit;
-  }
-  .example-card.correct-input {
-    background: #e8f5e9;
-    border-color: #2e7d32;
-  }
-  .example-card.wrong-input {
-    background: #ffebee;
-    border-color: #c62828;
-  }
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-  /* Задачи */
-  .word-problem {
-    background: #fff9c4;
-    border: 2px solid #fbc02d;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 15px 0;
-    font-size: 1.1em;
-    line-height: 1.6;
-  }
-  .word-problem .emoji { font-size: 1.5em; }
-  .answer-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .answer-section input {
-    width: 100px;
-    text-align: center;
-    font-size: 1.2em;
-    padding: 10px;
-    border: 3px solid #9c27b0;
-    border-radius: 12px;
-    font-family: inherit;
-  }
-  .answer-section label {
-    font-size: 1.1em;
-    font-weight: bold;
-  }
+        .score-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
 
-  /* Финал */
-  .final {
-    text-align: center;
-    padding: 30px;
-  }
-  .final h2 {
-    font-size: 2em;
-    color: #e91e63;
-  }
-  .stars {
-    font-size: 3em;
-    margin: 20px 0;
-  }
+        .problem-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
 
-  /* Выбор действия */
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 15px 0;
-    flex-wrap: wrap;
-  }
-  .action-btn {
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 20px;
-    border: 3px solid;
-    background: white;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s;
-  }
-  .action-btn:hover { transform: scale(1.05); }
-  .action-btn.chosen {
-    background: #2196f3;
-    color: white;
-    border-color: #0d47a1;
-  }
-  .action-btn.sum { border-color: #4caf50; color: #2e7d32; }
-  .action-btn.prod { border-color: #ff9800; color: #e65100; }
-  .action-btn.diff { border-color: #f44336; color: #c62828; }
-  .action-btn.quot { border-color: #9c27b0; color: #6a1b9a; }
-</style>
+        .problem-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .problem-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 12px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            width: 100%;
+            max-width: 300px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            padding: 10px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: white;
+            cursor: pointer;
+            margin: 0 5px;
+            min-width: 60px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background: #e9ecef;
+            color: #333;
+            padding: 10px 20px;
+            border: 2px solid #dee2e6;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .hint {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            color: #856404;
+        }
+
+        .equation-row {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .number {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8em; }
+            .game-container { padding: 15px; }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1>🎲 Математическое приключение 🎲</h1>
-  <div class="score-bar">⭐ Звёздочки: <span id="score">0</span> / 10</div>
+    <div class="game-container">
+        <h1>🎮 Математическое Приключение</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
 
-  <!-- ЗАДАНИЕ 1: Сортировка единиц измерения -->
-  <div class="task active" id="task1">
-    <h2>📏 Задание 1. Разложи единицы измерения по коробкам</h2>
-    <div class="info-box">
-      <b>Длина</b> — измеряет расстояние (мм, см, дм, м, км)<br>
-      <b>Масса</b> — измеряет вес (г, кг, т)<br>
-      <b>Время</b> — измеряет длительность (с, мин, ч, сутки, неделя, месяц, год)
+        <div class="score-board">
+            <div class="score-item">⭐ Очки: <span id="score">0</span></div>
+            <div class="score-item"> Задание: <span id="currentProblem">1</span>/7</div>
+            <div class="score-item">❤️ Жизни: <span id="lives">3</span></div>
+        </div>
+
+        <div id="gameArea">
+            <!-- Problems will be inserted here -->
+        </div>
+
+        <div id="finalScreen" class="hidden" style="text-align: center;">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🎉 Поздравляем!</h2>
+            <p style="font-size: 1.3em; margin-bottom: 20px;">
+                Вы完成了 все задания!<br>
+                Ваш результат: <span id="finalScore" style="font-weight: bold; color: #764ba2;"></span>
+            </p>
+            <button onclick="location.reload()">🔄 Начать заново</button>
+        </div>
     </div>
 
-    <div class="pool" id="pool1">
-      <h3>📦 Единицы измерения:</h3>
-      <div class="draggable" draggable="true" data-type="length" data-id="u1">сантиметр (см)</div>
-      <div class="draggable" draggable="true" data-type="mass" data-id="u2">килограмм (кг)</div>
-      <div class="draggable" draggable="true" data-type="time" data-id="u3">минута (мин)</div>
-      <div class="draggable" draggable="true" data-type="length" data-id="u4">метр (м)</div>
-      <div class="draggable" draggable="true" data-type="mass" data-id="u5">грамм (г)</div>
-      <div class="draggable" draggable="true" data-type="time" data-id="u6">час (ч)</div>
-      <div class="draggable" draggable="true" data-type="length" data-id="u7">миллиметр (мм)</div>
-      <div class="draggable" draggable="true" data-type="time" data-id="u8">сутки</div>
-      <div class="draggable" draggable="true" data-type="mass" data-id="u9">тонна (т)</div>
-    </div>
+    <script>
+        let currentProblem = 1;
+        let score = 0;
+        let lives = 3;
+        const totalProblems = 7;
 
-    <div class="drop-zones">
-      <div class="drop-zone zone-length" id="zone-length">
-        <h3>📏 Длина</h3>
-      </div>
-      <div class="drop-zone zone-mass" id="zone-mass">
-        <h3>⚖️ Масса</h3>
-      </div>
-      <div class="drop-zone zone-time" id="zone-time">
-        <h3>⏰ Время</h3>
-      </div>
-    </div>
+        const problems = [
+            {
+                type: 'word',
+                question: 'Для ремонта квартиры купили 20 рулонов жёлтых обоев и 15 рулонов коричневых обоев. Сколько рулонов обоев осталось наклеить, если уже наклеили 25 рулонов?',
+                answer: 10,
+                hint: 'Сначала сложи все рулоны, потом вычти наклеенные'
+            },
+            {
+                type: 'calculation',
+                questions: [
+                    { expr: '60 + (30 - 6)', answer: 84 },
+                    { expr: '45 + 28', answer: 73 },
+                    { expr: '14 : 2 × 3', answer: 21 },
+                    { expr: '(40 - 13) + 9', answer: 36 },
+                    { expr: '63 - 37', answer: 26 },
+                    { expr: '60 - 6 × 3', answer: 42 }
+                ]
+            },
+            {
+                type: 'compare',
+                questions: [
+                    { expr1: '3 × 6', expr2: '3 × 9', correct: '<' },
+                    { expr1: '18 : 2', expr2: '27 : 3', correct: '=' },
+                    { expr1: '5 × 7', expr2: '81 : 9', correct: '>' }
+                ]
+            },
+            {
+                type: 'equation',
+                questions: [
+                    { expr: '6 × y = 12', answer: 2, variable: 'y' },
+                    { expr: 'x : 3 = 8', answer: 24, variable: 'x' }
+                ]
+            },
+            {
+                type: 'drawing',
+                question: 'Начертите отрезок длиной 5см 8мм',
+                answer: '5.8'
+            },
+            {
+                type: 'logic',
+                question: 'Катя старше Юли и моложе Димы. Кто из детей моложе всех?',
+                options: ['Катя', 'Юля', 'Дима'],
+                correct: 'Юля',
+                hint: 'Катя > Юля, Дима > Катя. Значит: Дима > Катя > Юля'
+            },
+            {
+                type: 'signs',
+                questions: [
+                    { 
+                        numbers: [9, 7, 9, 6, 9], 
+                        result: 63,
+                        correct: ['×', '=', '+', '×']
+                    },
+                    { 
+                        numbers: [5, 8, 5, 7, 5], 
+                        result: 13,
+                        correct: ['+', '=', '+', '+']
+                    }
+                ]
+            }
+        ];
 
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask1()">Проверить ✓</button>
-      <button onclick="resetTask1()">🔄 Сбросить</button>
-    </div>
-    <div class="feedback" id="fb1"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(2)">Дальше ▶</button>
-    </div>
-  </div>
+        function updateProgress() {
+            const progress = ((currentProblem - 1) / totalProblems) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('currentProblem').textContent = currentProblem;
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+        }
 
-  <!-- ЗАДАНИЕ 2: Примеры на сложение и вычитание -->
-  <div class="task" id="task2">
-    <h2>➕➖ Задание 2. Реши примеры (сложение и вычитание)</h2>
-    <div class="info-box">
-      Реши все примеры. Числа в пределах 100.
-    </div>
-    <div class="example-grid">
-      <div class="example-card" data-answer="57">
-        <div>34 + 23 = ?</div>
-        <input type="number" id="ex2a">
-      </div>
-      <div class="example-card" data-answer="45">
-        <div>72 - 27 = ?</div>
-        <input type="number" id="ex2b">
-      </div>
-      <div class="example-card" data-answer="88">
-        <div>56 + 32 = ?</div>
-        <input type="number" id="ex2c">
-      </div>
-      <div class="example-card" data-answer="19">
-        <div>91 - 72 = ?</div>
-        <input type="number" id="ex2d">
-      </div>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask2()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb2"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(3)">Дальше ▶</button>
-    </div>
-  </div>
+        function showFeedback(isCorrect, message) {
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+            
+            const gameArea = document.getElementById('gameArea');
+            gameArea.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.remove();
+            }, 3000);
+        }
 
-  <!-- ЗАДАНИЕ 3: Примеры на умножение и деление -->
-  <div class="task" id="task3">
-    <h2>✖️➗ Задание 3. Реши примеры (умножение и деление)</h2>
-    <div class="info-box">
-      Реши все примеры. Таблица умножения и деления в пределах 100.
-    </div>
-    <div class="example-grid">
-      <div class="example-card" data-answer="24">
-        <div>6 × 4 = ?</div>
-        <input type="number" id="ex3a">
-      </div>
-      <div class="example-card" data-answer="7">
-        <div>56 ÷ 8 = ?</div>
-        <input type="number" id="ex3b">
-      </div>
-      <div class="example-card" data-answer="45">
-        <div>9 × 5 = ?</div>
-        <input type="number" id="ex3c">
-      </div>
-      <div class="example-card" data-answer="6">
-        <div>42 ÷ 7 = ?</div>
-        <input type="number" id="ex3d">
-      </div>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask3()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb3"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(4)">Дальше ▶</button>
-    </div>
-  </div>
+        function nextProblem() {
+            currentProblem++;
+            if (currentProblem > totalProblems) {
+                showFinalScreen();
+            } else {
+                loadProblem();
+            }
+            updateProgress();
+        }
 
-  <!-- ЗАДАНИЕ 4: Задача на сумму -->
-  <div class="task" id="task4">
-    <h2>🍎 Задание 4. Задача на нахождение суммы</h2>
-    <div class="info-box">
-      <b>Сумма</b> — это результат сложения. Чтобы найти сумму, нужно <b>складывать</b>.
-    </div>
-    <div class="word-problem">
-      <span class="emoji">🍎</span> В корзине лежат <b>25 красных яблок</b> и <b>18 зелёных яблок</b>.<br>
-      Сколько всего яблок в корзине?
-    </div>
-    <div class="answer-section">
-      <label>Ответ:</label>
-      <input type="number" id="ans4">
-      <label>яблок</label>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask4()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb4"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(5)">Дальше ▶</button>
-    </div>
-  </div>
+        function showFinalScreen() {
+            document.getElementById('gameArea').classList.add('hidden');
+            document.getElementById('finalScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = score + ' из ' + (totalProblems * 10);
+            
+            if (score >= totalProblems * 8) {
+                createCelebration();
+            }
+        }
 
-  <!-- ЗАДАНИЕ 5: Задача на разность -->
-  <div class="task" id="task5">
-    <h2>📚 Задание 5. Задача на нахождение разности</h2>
-    <div class="info-box">
-      <b>Разность</b> — это результат вычитания. Чтобы найти разность, нужно из большего числа <b>вычесть</b> меньшее.
-    </div>
-    <div class="word-problem">
-      <span class="emoji">📚</span> На полке стоит <b>64 книги</b>, а на столе лежит <b>29 книг</b>.<br>
-      На сколько больше книг на полке, чем на столе?
-    </div>
-    <div class="answer-section">
-      <label>Ответ:</label>
-      <input type="number" id="ans5">
-      <label>книг</label>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask5()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb5"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(6)">Дальше ▶</button>
-    </div>
-  </div>
+        function createCelebration() {
+            const colors = ['#f093fb', '#f5576c', '#667eea', '#764ba2', '#4facfe', '#00f2fe'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-10px';
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.pointerEvents = 'none';
+                    document.body.appendChild(confetti);
+                    
+                    const duration = Math.random() * 3 + 2;
+                    confetti.animate([
+                        { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                        { transform: `translateY(100vh) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                    ], {
+                        duration: duration * 1000,
+                        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    }).onfinish = () => confetti.remove();
+                }, i * 50);
+            }
+        }
 
-  <!-- ЗАДАНИЕ 6: Задача на произведение -->
-  <div class="task" id="task6">
-    <h2>🧁 Задание 6. Задача на нахождение произведения</h2>
-    <div class="info-box">
-      <b>Произведение</b> — это результат умножения. Если есть несколько одинаковых групп, нужно <b>умножать</b>.
-    </div>
-    <div class="word-problem">
-      <span class="emoji">🧁</span> Мама испекла <b>7 тарелок</b> пирожных. На каждой тарелке по <b>6 пирожных</b>.<br>
-      Сколько всего пирожных испекла мама?
-    </div>
-    <div class="answer-section">
-      <label>Ответ:</label>
-      <input type="number" id="ans6">
-      <label>пирожных</label>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask6()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb6"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(7)">Дальше ▶</button>
-    </div>
-  </div>
+        function loadProblem() {
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '';
+            
+            const problem = problems[currentProblem - 1];
+            const container = document.createElement('div');
+            container.className = 'problem-container floating';
+            
+            const number = document.createElement('div');
+            number.className = 'problem-number';
+            number.textContent = currentProblem;
+            container.appendChild(number);
+            
+            if (problem.type === 'word') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = problem.question;
+                container.appendChild(text);
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.placeholder = 'Ваш ответ';
+                container.appendChild(input);
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Проверить';
+                btn.onclick = () => {
+                    const userAnswer = parseInt(input.value);
+                    if (userAnswer === problem.answer) {
+                        score += 10;
+                        showFeedback(true, 'Правильно! Молодец! ');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, `Неправильно. Правильный ответ: ${problem.answer}`);
+                        updateProgress();
+                        if (lives <= 0) {
+                            setTimeout(showFinalScreen, 1500);
+                        }
+                    }
+                };
+                container.appendChild(btn);
+                
+                const hintBtn = document.createElement('button');
+                hintBtn.textContent = '💡 Подсказка';
+                hintBtn.onclick = () => {
+                    const hint = document.createElement('div');
+                    hint.className = 'hint';
+                    hint.textContent = problem.hint;
+                    container.appendChild(hint);
+                };
+                container.appendChild(hintBtn);
+                
+            } else if (problem.type === 'calculation') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = 'Выполните вычисления:';
+                container.appendChild(text);
+                
+                problem.questions.forEach((q, index) => {
+                    const div = document.createElement('div');
+                    div.style.margin = '10px 0';
+                    div.innerHTML = `<strong>${q.expr}</strong> = `;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.style.width = '100px';
+                    input.dataset.answer = q.answer;
+                    input.dataset.index = index;
+                    div.appendChild(input);
+                    
+                    container.appendChild(div);
+                });
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Проверить все';
+                btn.onclick = () => {
+                    let correct = 0;
+                    const inputs = container.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        if (parseInt(input.value) === parseInt(input.dataset.answer)) {
+                            input.style.borderColor = '#28a745';
+                            correct++;
+                        } else {
+                            input.style.borderColor = '#dc3545';
+                        }
+                    });
+                    
+                    if (correct === problem.questions.length) {
+                        score += 10;
+                        showFeedback(true, 'Все правильно! Отлично! 🌟');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, `Правильно ${correct} из ${problem.questions.length}`);
+                        updateProgress();
+                    }
+                };
+                container.appendChild(btn);
+                
+            } else if (problem.type === 'compare') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = 'Сравните выражения (выберите <, > или =):';
+                container.appendChild(text);
+                
+                problem.questions.forEach((q, index) => {
+                    const div = document.createElement('div');
+                    div.style.margin = '15px 0';
+                    div.innerHTML = `
+                        <span style="font-weight: bold">${q.expr1}</span> 
+                        <select data-index="${index}" data-correct="${q.correct}" style="padding: 5px; margin: 0 10px; font-size: 1.1em;">
+                            <option value="">?</option>
+                            <option value="<">&lt;</option>
+                            <option value=">">&gt;</option>
+                            <option value="=">=</option>
+                        </select>
+                        <span style="font-weight: bold">${q.expr2}</span>
+                    `;
+                    container.appendChild(div);
+                });
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Проверить';
+                btn.onclick = () => {
+                    let correct = 0;
+                    const selects = container.querySelectorAll('select');
+                    selects.forEach(select => {
+                        if (select.value === select.dataset.correct) {
+                            select.style.borderColor = '#28a745';
+                            correct++;
+                        } else {
+                            select.style.borderColor = '#dc3545';
+                        }
+                    });
+                    
+                    if (correct === problem.questions.length) {
+                        score += 10;
+                        showFeedback(true, 'Все сравнения верны! ✅');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, `Правильно ${correct} из ${problem.questions.length}`);
+                        updateProgress();
+                    }
+                };
+                container.appendChild(btn);
+                
+            } else if (problem.type === 'equation') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = 'Решите уравнения:';
+                container.appendChild(text);
+                
+                problem.questions.forEach((q, index) => {
+                    const div = document.createElement('div');
+                    div.style.margin = '15px 0';
+                    div.innerHTML = `
+                        <strong>${q.expr}</strong><br>
+                        ${q.variable} = 
+                        <input type="number" data-answer="${q.answer}" style="width: 100px; margin-left: 10px;">
+                    `;
+                    container.appendChild(div);
+                });
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Проверить';
+                btn.onclick = () => {
+                    let correct = 0;
+                    const inputs = container.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        if (parseInt(input.value) === parseInt(input.dataset.answer)) {
+                            input.style.borderColor = '#28a745';
+                            correct++;
+                        } else {
+                            input.style.borderColor = '#dc3545';
+                        }
+                    });
+                    
+                    if (correct === problem.questions.length) {
+                        score += 10;
+                        showFeedback(true, 'Уравнения решены верно! ');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, `Правильно ${correct} из ${problem.questions.length}`);
+                        updateProgress();
+                    }
+                };
+                container.appendChild(btn);
+                
+            } else if (problem.type === 'drawing') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = problem.question;
+                container.appendChild(text);
+                
+                const info = document.createElement('div');
+                info.style.background = '#e3f2fd';
+                info.style.padding = '10px';
+                info.style.borderRadius = '10px';
+                info.style.marginBottom = '10px';
+                info.textContent = '💡 Подсказка: 5см 8мм = 5.8см';
+                container.appendChild(info);
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Я начертил(а)';
+                btn.onclick = () => {
+                    score += 10;
+                    showFeedback(true, 'Молодец! Не забудь проверить линейкой! 📏');
+                    setTimeout(nextProblem, 1500);
+                };
+                container.appendChild(btn);
+                
+            } else if (problem.type === 'logic') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = problem.question;
+                container.appendChild(text);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                problem.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        btn.dataset.selected = opt;
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+                container.appendChild(optionsDiv);
+                
+                const checkBtn = document.createElement('button');
+                checkBtn.textContent = 'Проверить';
+                checkBtn.onclick = () => {
+                    const selected = document.querySelector('.option-btn.selected');
+                    if (!selected) {
+                        alert('Выберите вариант ответа!');
+                        return;
+                    }
+                    
+                    if (selected.dataset.selected === problem.correct) {
+                        score += 10;
+                        showFeedback(true, 'Логическое мышление на высоте! ');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, `Неправильно. Правильный ответ: ${problem.correct}`);
+                        updateProgress();
+                    }
+                };
+                container.appendChild(checkBtn);
+                
+                const hintBtn = document.createElement('button');
+                hintBtn.textContent = '💡 Подсказка';
+                hintBtn.onclick = () => {
+                    const hint = document.createElement('div');
+                    hint.className = 'hint';
+                    hint.textContent = problem.hint;
+                    container.appendChild(hint);
+                };
+                container.appendChild(hintBtn);
+                
+            } else if (problem.type === 'signs') {
+                const text = document.createElement('div');
+                text.className = 'problem-text';
+                text.textContent = 'Вставьте знаки действий, чтобы равенство стало верным:';
+                container.appendChild(text);
+                
+                problem.questions.forEach((q, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'equation-row';
+                    
+                    // Create equation with dropdowns
+                    // Format: num1 op1 num2 = num3 op2 num4 op3 num5
+                    // For example: 9 [×] 7 [=] 9 [+] 6 [×] 9
+                    
+                    const ops = ['+', '-', '×', ':'];
+                    
+                    // First number
+                    row.innerHTML += `<span class="number">${q.numbers[0]}</span>`;
+                    
+                    // First operator dropdown
+                    row.innerHTML += `
+                        <select data-q="${index}" data-pos="0">
+                            <option value="">?</option>
+                            ${ops.map(op => `<option value="${op}">${op}</option>`).join('')}
+                        </select>
+                    `;
+                    
+                    // Second number
+                    row.innerHTML += `<span class="number">${q.numbers[1]}</span>`;
+                    
+                    // Equals sign
+                    row.innerHTML += `<span>=</span>`;
+                    
+                    // Third number
+                    row.innerHTML += `<span class="number">${q.numbers[2]}</span>`;
+                    
+                    // Second operator dropdown
+                    row.innerHTML += `
+                        <select data-q="${index}" data-pos="1">
+                            <option value="">?</option>
+                            ${ops.map(op => `<option value="${op}">${op}</option>`).join('')}
+                        </select>
+                    `;
+                    
+                    // Fourth number
+                    row.innerHTML += `<span class="number">${q.numbers[3]}</span>`;
+                    
+                    // Third operator dropdown
+                    row.innerHTML += `
+                        <select data-q="${index}" data-pos="2">
+                            <option value="">?</option>
+                            ${ops.map(op => `<option value="${op}">${op}</option>`).join('')}
+                        </select>
+                    `;
+                    
+                    // Fifth number
+                    row.innerHTML += `<span class="number">${q.numbers[4]}</span>`;
+                    
+                    container.appendChild(row);
+                });
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Проверить';
+                btn.onclick = () => {
+                    let allCorrect = true;
+                    
+                    problem.questions.forEach((q, qIndex) => {
+                        const selects = container.querySelectorAll(`select[data-q="${qIndex}"]`);
+                        let userAnswers = [];
+                        
+                        selects.forEach(select => {
+                            userAnswers.push(select.value);
+                            if (select.value !== q.correct[select.dataset.pos]) {
+                                select.style.borderColor = '#dc3545';
+                                allCorrect = false;
+                            } else {
+                                select.style.borderColor = '#28a745';
+                            }
+                        });
+                    });
+                    
+                    if (allCorrect) {
+                        score += 10;
+                        showFeedback(true, 'Знаки расставлены верно! ✨');
+                        setTimeout(nextProblem, 1500);
+                    } else {
+                        lives--;
+                        showFeedback(false, 'Есть ошибки. Попробуйте ещё раз!');
+                        updateProgress();
+                    }
+                };
+                container.appendChild(btn);
+                
+                const hintBtn = document.createElement('button');
+                hintBtn.textContent = '💡 Подсказка';
+                hintBtn.onclick = () => {
+                    const hint = document.createElement('div');
+                    hint.className = 'hint';
+                    hint.textContent = 'Попробуйте разные комбинации знаков: +, -, ×, :';
+                    container.appendChild(hint);
+                };
+                container.appendChild(hintBtn);
+            }
+            
+            gameArea.appendChild(container);
+        }
 
-  <!-- ЗАДАНИЕ 7: Задача на частное -->
-  <div class="task" id="task7">
-    <h2>🍬 Задание 7. Задача на нахождение частного</h2>
-    <div class="info-box">
-      <b>Частное</b> — это результат деления. Когда нужно разделить что-то поровну, используем <b>деление</b>.
-    </div>
-    <div class="word-problem">
-      <span class="emoji">🍬</span> У Пети есть <b>48 конфет</b>. Он хочет раздать их поровну <b>6 друзьям</b>.<br>
-      Сколько конфет получит каждый друг?
-    </div>
-    <div class="answer-section">
-      <label>Ответ:</label>
-      <input type="number" id="ans7">
-      <label>конфет</label>
-    </div>
-    <div class="buttons">
-      <button class="check-btn" onclick="checkTask7()">Проверить ✓</button>
-    </div>
-    <div class="feedback" id="fb7"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(8)">Дальше ▶</button>
-    </div>
-  </div>
-
-  <!-- ЗАДАНИЕ 8: Выбери действие -->
-  <div class="task" id="task8">
-    <h2>🤔 Задание 8. Какое действие нужно выполнить?</h2>
-    <div class="info-box">
-      Прочитай задачу и выбери правильное действие: сложение (+), вычитание (−), умножение (×) или деление (÷).
-    </div>
-
-    <div class="word-problem">
-      <span class="emoji">🐟</span> В аквариуме было <b>35 рыбок</b>. Купили ещё <b>12 рыбок</b>. Сколько рыбок стало в аквариуме?
-    </div>
-    <p>Какое действие нужно выполнить?</p>
-    <div class="action-buttons" id="act8">
-      <button class="action-btn sum" onclick="selectAction('act8', '+')">Сложение (+)</button>
-      <button class="action-btn diff" onclick="selectAction('act8', '-')">Вычитание (−)</button>
-      <button class="action-btn prod" onclick="selectAction('act8', '*')">Умножение (×)</button>
-      <button class="action-btn quot" onclick="selectAction('act8', '/')">Деление (÷)</button>
-    </div>
-    <div class="feedback" id="fb8"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="nextTask(9)">Дальше ▶</button>
-    </div>
-  </div>
-
-  <!-- ЗАДАНИЕ 9: Ещё задача на выбор действия -->
-  <div class="task" id="task9">
-    <h2>🎯 Задание 9. Какое действие?</h2>
-
-    <div class="word-problem">
-      <span class="emoji">🎈</span> У Маши <b>42 воздушных шара</b>. Она хочет раздать их поровну <b>7 подругам</b>. Сколько шаров получит каждая подруга?
-    </div>
-    <p>Какое действие нужно выполнить?</p>
-    <div class="action-buttons" id="act9">
-      <button class="action-btn sum" onclick="selectAction('act9', '+')">Сложение (+)</button>
-      <button class="action-btn diff" onclick="selectAction('act9', '-')">Вычитание (−)</button>
-      <button class="action-btn prod" onclick="selectAction('act9', '*')">Умножение (×)</button>
-      <button class="action-btn quot" onclick="selectAction('act9', '/')">Деление (÷)</button>
-    </div>
-    <div class="feedback" id="fb9"></div>
-    <div style="text-align:center;">
-      <button class="next-btn" onclick="showFinal()">К результату 🏆</button>
-    </div>
-  </div>
-
-  <!-- ФИНАЛ -->
-  <div class="task" id="final">
-    <div class="final">
-      <h2>🎉 Молодец! 🎉</h2>
-      <div class="stars" id="stars"></div>
-      <p id="finalText" style="font-size:1.3em;margin:20px 0;"></p>
-      <button class="next-btn" onclick="restart()">🔄 Начать заново</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let score = 0;
-let answered = {};
-let actionChoices = {};
-
-function updateScore() {
-  document.getElementById('score').textContent = score;
-}
-
-function nextTask(n) {
-  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-  document.getElementById('task' + n).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-function showFeedback(id, correct, msg) {
-  const fb = document.getElementById(id);
-  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
-  fb.innerHTML = msg;
-}
-
-function addScore(key, val) {
-  if (!answered[key]) {
-    answered[key] = true;
-    score += val;
-    updateScore();
-  }
-}
-
-// ===== Drag-and-drop механика =====
-let draggedEl = null;
-let selectedForDrop = null;
-
-document.querySelectorAll('.draggable').forEach(el => {
-  el.addEventListener('dragstart', e => {
-    draggedEl = el;
-    el.classList.add('dragging');
-  });
-  el.addEventListener('dragend', e => {
-    el.classList.remove('dragging');
-    draggedEl = null;
-  });
-  el.addEventListener('click', e => {
-    if (el.classList.contains('correct-placed')) return;
-    document.querySelectorAll('.draggable').forEach(d => d.style.outline = '');
-    selectedForDrop = el;
-    el.style.outline = '3px solid #e91e63';
-  });
-});
-
-document.querySelectorAll('.drop-zone, .pool').forEach(zone => {
-  zone.addEventListener('dragover', e => {
-    e.preventDefault();
-    zone.classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave', e => {
-    zone.classList.remove('drag-over');
-  });
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    if (draggedEl && !draggedEl.classList.contains('correct-placed')) {
-      zone.appendChild(draggedEl);
-    }
-  });
-  zone.addEventListener('click', e => {
-    if (selectedForDrop && !selectedForDrop.classList.contains('correct-placed')) {
-      zone.appendChild(selectedForDrop);
-      selectedForDrop.style.outline = '';
-      selectedForDrop = null;
-    }
-  });
-});
-
-// ===== ЗАДАНИЕ 1: Сортировка =====
-function checkTask1() {
-  const zoneLength = document.getElementById('zone-length');
-  const zoneMass = document.getElementById('zone-mass');
-  const zoneTime = document.getElementById('zone-time');
-  const pool = document.getElementById('pool1');
-  let allCorrect = true;
-  let allPlaced = true;
-
-  document.querySelectorAll('.draggable').forEach(el => {
-    el.classList.remove('correct-placed', 'wrong-placed');
-  });
-
-  const zones = [
-    { zone: zoneLength, type: 'length' },
-    { zone: zoneMass, type: 'mass' },
-    { zone: zoneTime, type: 'time' }
-  ];
-
-  zones.forEach(({ zone, type }) => {
-    [...zone.children].forEach(el => {
-      if (el.classList && el.classList.contains('draggable')) {
-        if (el.dataset.type === type) el.classList.add('correct-placed');
-        else { el.classList.add('wrong-placed'); allCorrect = false; }
-      }
-    });
-  });
-
-  [...pool.children].forEach(el => {
-    if (el.classList && el.classList.contains('draggable')) allPlaced = false;
-  });
-
-  if (!allPlaced) {
-    showFeedback('fb1', false, '❌ Распредели все единицы измерения по коробкам!');
-    return;
-  }
-  if (allCorrect) {
-    showFeedback('fb1', true, '✅ Отлично! Все единицы разложены правильно! 📏⚖️⏰');
-    addScore('t1', 1);
-  } else {
-    showFeedback('fb1', false, '❌ Есть ошибки. Красные карточки стоят не в той коробке. Зелёные — верно.');
-  }
-}
-
-function resetTask1() {
-  const pool = document.getElementById('pool1');
-  document.querySelectorAll('.draggable').forEach(el => {
-    el.classList.remove('correct-placed', 'wrong-placed');
-    pool.appendChild(el);
-  });
-  document.getElementById('fb1').className = 'feedback';
-  document.getElementById('fb1').innerHTML = '';
-}
-
-// ===== ЗАДАНИЕ 2: Сложение и вычитание =====
-function checkTask2() {
-  const cards = document.querySelectorAll('#task2 .example-card');
-  let allCorrect = true;
-  let allFilled = true;
-
-  cards.forEach(card => {
-    const input = card.querySelector('input');
-    const answer = parseInt(card.dataset.answer);
-    const val = parseInt(input.value);
-    card.classList.remove('correct-input', 'wrong-input');
-
-    if (isNaN(val)) {
-      allFilled = false;
-      return;
-    }
-    if (val === answer) {
-      card.classList.add('correct-input');
-    } else {
-      card.classList.add('wrong-input');
-      allCorrect = false;
-    }
-  });
-
-  if (!allFilled) {
-    showFeedback('fb2', false, '❌ Реши все примеры!');
-    return;
-  }
-  if (allCorrect) {
-    showFeedback('fb2', true, '✅ Великолепно! Все примеры решены верно! ➕➖');
-    addScore('t2', 1);
-  } else {
-    showFeedback('fb2', false, '❌ Есть ошибки. Проверь красные карточки.');
-  }
-}
-
-// ===== ЗАДАНИЕ 3: Умножение и деление =====
-function checkTask3() {
-  const cards = document.querySelectorAll('#task3 .example-card');
-  let allCorrect = true;
-  let allFilled = true;
-
-  cards.forEach(card => {
-    const input = card.querySelector('input');
-    const answer = parseInt(card.dataset.answer);
-    const val = parseInt(input.value);
-    card.classList.remove('correct-input', 'wrong-input');
-
-    if (isNaN(val)) {
-      allFilled = false;
-      return;
-    }
-    if (val === answer) {
-      card.classList.add('correct-input');
-    } else {
-      card.classList.add('wrong-input');
-      allCorrect = false;
-    }
-  });
-
-  if (!allFilled) {
-    showFeedback('fb3', false, '❌ Реши все примеры!');
-    return;
-  }
-  if (allCorrect) {
-    showFeedback('fb3', true, '✅ Супер! Таблица умножения и деления освоена! ✖️➗');
-    addScore('t3', 1);
-  } else {
-    showFeedback('fb3', false, '❌ Есть ошибки. Проверь красные карточки.');
-  }
-}
-
-// ===== ЗАДАНИЕ 4: Сумма =====
-function checkTask4() {
-  const val = parseInt(document.getElementById('ans4').value);
-  if (isNaN(val)) {
-    showFeedback('fb4', false, '❌ Введи ответ!');
-    return;
-  }
-  if (val === 43) {
-    showFeedback('fb4', true, '✅ Правильно! 25 + 18 = 43. Мы нашли сумму! 🍎');
-    addScore('t4', 1);
-  } else {
-    showFeedback('fb4', false, '❌ Подсказка: чтобы найти сумму, сложи 25 и 18.');
-  }
-}
-
-// ===== ЗАДАНИЕ 5: Разность =====
-function checkTask5() {
-  const val = parseInt(document.getElementById('ans5').value);
-  if (isNaN(val)) {
-    showFeedback('fb5', false, '❌ Введи ответ!');
-    return;
-  }
-  if (val === 35) {
-    showFeedback('fb5', true, '✅ Верно! 64 − 29 = 35. Мы нашли разность! 📚');
-    addScore('t5', 1);
-  } else {
-    showFeedback('fb5', false, '❌ Подсказка: чтобы найти разность, вычти из 64 число 29.');
-  }
-}
-
-// ===== ЗАДАНИЕ 6: Произведение =====
-function checkTask6() {
-  const val = parseInt(document.getElementById('ans6').value);
-  if (isNaN(val)) {
-    showFeedback('fb6', false, '❌ Введи ответ!');
-    return;
-  }
-  if (val === 42) {
-    showFeedback('fb6', true, '✅ Отлично! 7 × 6 = 42. Мы нашли произведение! 🧁');
-    addScore('t6', 1);
-  } else {
-    showFeedback('fb6', false, '❌ Подсказка: 7 тарелок по 6 пирожных — умножь 7 на 6.');
-  }
-}
-
-// ===== ЗАДАНИЕ 7: Частное =====
-function checkTask7() {
-  const val = parseInt(document.getElementById('ans7').value);
-  if (isNaN(val)) {
-    showFeedback('fb7', false, '❌ Введи ответ!');
-    return;
-  }
-  if (val === 8) {
-    showFeedback('fb7', true, '✅ Правильно! 48 ÷ 6 = 8. Мы нашли частное! 🍬');
-    addScore('t7', 1);
-  } else {
-    showFeedback('fb7', false, '❌ Подсказка: раздели 48 конфет на 6 друзей.');
-  }
-}
-
-// ===== ЗАДАНИЯ 8 и 9: Выбор действия =====
-function selectAction(groupId, action) {
-  actionChoices[groupId] = action;
-  const container = document.getElementById(groupId);
-  container.querySelectorAll('.action-btn').forEach(btn => {
-    btn.classList.remove('chosen');
-  });
-  event.target.classList.add('chosen');
-}
-
-function checkTask8() {
-  if (!actionChoices['act8']) {
-    showFeedback('fb8', false, '❌ Выбери действие!');
-    return;
-  }
-  if (actionChoices['act8'] === '+') {
-    showFeedback('fb8', true, '✅ Верно! Нужно сложить: 35 + 12 = 47 рыбок. 🐟');
-    addScore('t8', 1);
-  } else {
-    showFeedback('fb8', false, '❌ Подумай: рыбок стало больше или меньше? Стало больше → значит складываем!');
-  }
-}
-
-function checkTask9() {
-  if (!actionChoices['act9']) {
-    showFeedback('fb9', false, '❌ Выбери действие!');
-    return;
-  }
-  if (actionChoices['act9'] === '/') {
-    showFeedback('fb9', true, '✅ Правильно! Нужно разделить: 42 ÷ 7 = 6 шаров каждой подруге. 🎈');
-    addScore('t9', 1);
-  } else {
-    showFeedback('fb9', false, '❌ Подумай: шары раздают поровну → значит делим!');
-  }
-}
-
-// Для заданий 8 и 9 проверяем при переходе дальше
-const origNextTask = nextTask;
-nextTask = function(n) {
-  // Проверяем текущее задание перед переходом
-  if (document.getElementById('task8').classList.contains('active') && !answered['t8']) {
-    checkTask8();
-  }
-  if (document.getElementById('task9').classList.contains('active') && !answered['t9']) {
-    checkTask9();
-  }
-  origNextTask(n);
-};
-
-function showFinal() {
-  // Проверяем последнее задание если не проверено
-  if (!answered['t9']) {
-    checkTask9();
-  }
-
-  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-  document.getElementById('final').classList.add('active');
-  const stars = document.getElementById('stars');
-  const text = document.getElementById('finalText');
-  let s = '';
-  for (let i = 0; i < score; i++) s += '⭐';
-  for (let i = score; i < 10; i++) s += '☆';
-  stars.textContent = s;
-  if (score === 10) text.textContent = '🏆 Ты настоящий математик! Все ответы верные!';
-  else if (score >= 7) text.textContent = '🎖 Отличный результат! Ты хорошо знаешь математику!';
-  else if (score >= 4) text.textContent = '📚 Неплохо! Но стоит потренироваться ещё.';
-  else text.textContent = '💪 Не расстраивайся! Повтори правила и попробуй снова!';
-  window.scrollTo(0, 0);
-}
-
-function restart() {
-  score = 0;
-  answered = {};
-  actionChoices = {};
-  updateScore();
-
-  // Сброс drag-and-drop
-  resetTask1();
-
-  // Сброс примеров
-  document.querySelectorAll('.example-card').forEach(card => {
-    card.classList.remove('correct-input', 'wrong-input');
-    card.querySelector('input').value = '';
-  });
-
-  // Сброс задач
-  ['ans4','ans5','ans6','ans7'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-
-  // Сброс feedback
-  document.querySelectorAll('.feedback').forEach(f => {
-    f.className = 'feedback';
-    f.innerHTML = '';
-  });
-
-  // Сброс выбора действий
-  document.querySelectorAll('.action-btn').forEach(btn => {
-    btn.classList.remove('chosen');
-  });
-
-  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-  document.getElementById('task1').classList.add('active');
-  window.scrollTo(0, 0);
-}
-</script>
+        // Initialize game
+        updateProgress();
+        loadProblem();
+    </script>
 </body>
 </html>
