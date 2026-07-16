@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Академия Юных Волшебников: Зелье Каникул</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --magic-purple: #9b59b6;
+            --magic-blue: #3498db;
+            --gold: #f1c40f;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --text-light: #ecf0f1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent),
+                radial-gradient(1px 1px at 33% 80%, white, transparent),
+                radial-gradient(1px 1px at 15% 90%, white, transparent);
+            background-size: 200% 200%;
+            animation: stars 100s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes stars {
+            0% { background-position: 0 0; }
+            100% { background-position: 200% 200%; }
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: var(--gold);
+        }
+
+        h2 {
+            font-size: 26px;
+            margin: 20px 0;
+            color: var(--gold);
+        }
+
+        p {
+            font-size: 20px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .dragon {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--magic-purple), var(--magic-blue));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 35px;
+            font-size: 22px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--gold);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--gold));
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .feedback {
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 40px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .feedback.success {
+            background: rgba(46, 204, 113, 0.3);
+            border: 2px solid var(--success);
+        }
+
+        .feedback.error {
+            background: rgba(231, 76, 60, 0.3);
+            border: 2px solid var(--error);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .math-problem {
+            font-size: 36px;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .answer-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid var(--gold);
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .answer-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .answer-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .answer-btn.wrong {
+            background: var(--error);
+            border-color: var(--error);
+        }
+
+        .task-text {
+            font-size: 22px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .task-input {
+            width: 200px;
+            padding: 15px;
+            font-size: 24px;
+            border: 3px solid var(--gold);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .sequence {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .seq-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            border: 2px solid var(--gold);
+            transition: all 0.5s;
+        }
+
+        .seq-item.missing {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: var(--error);
+            color: var(--error);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .seq-item.filled {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .spell-container {
+            margin: 30px 0;
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            min-height: 60px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .word-chip {
+            background: var(--magic-purple);
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .word-chip:hover {
+            transform: scale(1.05);
+            border-color: var(--gold);
+        }
+
+        .word-chip.used {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .spell-result {
+            min-height: 80px;
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px dashed var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--magic-purple), var(--magic-blue));
+            border: 3px solid var(--gold);
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.flipped {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        .memory-card.matched {
+            background: var(--success);
+            border-color: var(--success);
+            pointer-events: none;
+        }
+
+        .memory-card .card-back {
+            font-size: 50px;
+        }
+
+        .memory-card .card-front {
+            display: none;
+        }
+
+        .memory-card.flipped .card-back {
+            display: none;
+        }
+
+        .memory-card.flipped .card-front {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .math-problem {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <div class="dragon">🐉</div>
+        <h1>Академия Юных Волшебников</h1>
+        <h2>Зелье Каникул</h2>
+        <p>Привет, юный маг! Я — Зелёный Дракончик Искра.</p>
+        <p>Чтобы получить <strong>Зелье Отличных Каникул</strong>, нужно собрать 5 волшебных ингредиентов.</p>
+        <p>Каждый ингредиент охраняется магическим заданием. Готов пройти испытания?</p>
+        <br>
+        <button class="btn" onclick="startGame()">Начать приключение! ✨</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="dragon" id="dragon-emoji">🐉</div>
+        <div class="feedback" id="feedback-text">Давай начнём!</div>
+        
+        <div class="progress-container">
+            <div class="progress-label">Собрано ингредиентов: <span id="ingredients-count">0</span>/5</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+        </div>
+
+        <h2 id="level-title">Задание 1</h2>
+        <div id="level-content"></div>
+        <button class="btn hidden" id="next-btn" onclick="nextLevel()">Следующее задание ➡️</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <div class="dragon">🏆</div>
+        <h1>Зелье Каникул готово!</h1>
+        <p>Поздравляем, юный маг! Ты успешно прошёл все испытания!</p>
+        <p>Все 5 ингредиентов собраны, и Зелье Отличных Каникул теперь твоё!</p>
+        <p style="font-size: 50px;">🧪✨🌟</p>
+        <p>Желаем тебе wonderful летних каникул!</p>
+        <button class="btn" onclick="location.reload()">Начать заново 🔄</button>
+    </div>
+</div>
+
+<script>
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'flip') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+    }
+
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    let currentLevel = 0;
+    const totalLevels = 5;
+    let ingredientsCollected = 0;
+
+    const levels = [
+        {
+            title: "Уровень 1: Сундук Умножения",
+            instruction: "Реши все примеры на умножение, чтобы открыть сундук с первым ингредиентом!",
+            type: "multiplication"
+        },
+        {
+            title: "Уровень 2: Задача Дракона",
+            instruction: "Реши задачу в два действия, чтобы получить второй ингредиент!",
+            type: "word-problem"
+        },
+        {
+            title: "Уровень 3: Числовой Ряд",
+            instruction: "Найди закономерность и вставь пропущенное число!",
+            type: "sequence"
+        },
+        {
+            title: "Уровень 4: Заклинание Мудрости",
+            instruction: "Составь правильное заклинание, расставив слова по порядку!",
+            type: "spell"
+        },
+        {
+            title: "Уровень 5: Мемори Мага",
+            instruction: "Найди все пары одинаковых карточек!",
+            type: "memory"
+        }
+    ];
+
+    let levelState = {};
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        currentLevel = 0;
+        ingredientsCollected = 0;
+        renderLevel();
+    }
+
+    function updateProgress() {
+        const pct = (ingredientsCollected / 5) * 100;
+        document.getElementById('progress').style.width = pct + '%';
+        document.getElementById('progress').textContent = Math.round(pct) + '%';
+        document.getElementById('ingredients-count').textContent = ingredientsCollected;
+    }
+
+    function setFeedback(msg, type) {
+        const fb = document.getElementById('feedback-text');
+        fb.textContent = msg;
+        fb.className = 'feedback ' + type;
+        
+        const dragon = document.getElementById('dragon-emoji');
+        if (type === 'success') {
+            dragon.textContent = '🎉';
+            playSound('success');
+        } else {
+            dragon.textContent = '🤔';
+            playSound('error');
+        }
+    }
+
+    function collectIngredient() {
+        ingredientsCollected++;
+        updateProgress();
+        if (ingredientsCollected === 5) {
+            setTimeout(() => {
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('end-screen').classList.remove('hidden');
+                playSound('success');
+            }, 1500);
+        }
+    }
+
+    function renderLevel() {
+        const level = levels[currentLevel];
+        document.getElementById('level-title').textContent = level.title;
+        document.getElementById('feedback-text').textContent = level.instruction;
+        document.getElementById('feedback-text').className = 'feedback';
+        document.getElementById('dragon-emoji').textContent = '🐉';
+        document.getElementById('next-btn').classList.add('hidden');
+        
+        const content = document.getElementById('level-content');
+        content.innerHTML = '';
+        levelState = {};
+
+        if (level.type === 'multiplication') {
+            renderMultiplicationLevel(content);
+        } else if (level.type === 'word-problem') {
+            renderWordProblemLevel(content);
+        } else if (level.type === 'sequence') {
+            renderSequenceLevel(content);
+        } else if (level.type === 'spell') {
+            renderSpellLevel(content);
+        } else if (level.type === 'memory') {
+            renderMemoryLevel(content);
+        }
+    }
+
+    function renderMultiplicationLevel(content) {
+        levelState.currentProblem = 0;
+        levelState.correctAnswers = 0;
+        
+        const problems = [
+            { q: "7 × 8", a: 56, options: [54, 56, 63, 48] },
+            { q: "6 × 9", a: 54, options: [56, 54, 48, 63] },
+            { q: "8 × 7", a: 56, options: [48, 56, 64, 54] },
+            { q: "9 × 6", a: 54, options: [56, 48, 54, 63] },
+            { q: "7 × 7", a: 49, options: [47, 49, 56, 42] },
+            { q: "8 × 8", a: 64, options: [56, 64, 72, 48] },
+            { q: "9 × 9", a: 81, options: [72, 81, 90, 63] },
+            { q: "6 × 7", a: 42, options: [42, 48, 36, 56] },
+            { q: "8 × 9", a: 72, options: [63, 72, 81, 64] },
+            { q: "7 × 6", a: 42, options: [48, 42, 36, 54] }
+        ];
+        
+        levelState.problems = shuffleArray(problems);
+        showMultiplicationProblem(content);
+    }
+
+    function showMultiplicationProblem(content) {
+        if (levelState.currentProblem >= levelState.problems.length) {
+            setFeedback('Сундук открыт! Первый ингредиент твой!', 'success');
+            collectIngredient();
+            document.getElementById('next-btn').classList.remove('hidden');
+            return;
+        }
+
+        const problem = levelState.problems[levelState.currentProblem];
+        const shuffledOptions = shuffleArray(problem.options);
+        
+        content.innerHTML = `
+            <div class="math-problem">${problem.q} = ?</div>
+            <div class="answer-options"></div>
+        `;
+
+        const optionsDiv = content.querySelector('.answer-options');
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkMultiplicationAnswer(opt, problem.a, btn, content);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkMultiplicationAnswer(selected, correct, btn, content) {
+        if (selected === correct) {
+            btn.classList.add('correct');
+            levelState.correctAnswers++;
+            levelState.currentProblem++;
+            
+            const progress = (levelState.correctAnswers / levelState.problems.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            setTimeout(() => showMultiplicationProblem(content), 500);
+        } else {
+            btn.classList.add('wrong');
+            setFeedback('Попробуй ещё раз!', 'error');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+    }
+
+    function renderWordProblemLevel(content) {
+        content.innerHTML = `
+            <div class="task-text">
+                <strong>Задача:</strong><br><br>
+                В волшебном саду росло 12 яблонь и 8 груш. Садовник посадил ещё 5 деревьев.<br><br>
+                Сколько всего деревьев стало в саду?
+            </div>
+            <input type="number" class="task-input" id="task-answer" placeholder="Ответ">
+            <br><br>
+            <button class="btn" onclick="checkWordProblem()">Проверить ✨</button>
+        `;
+    }
+
+    function checkWordProblem() {
+        const answer = parseInt(document.getElementById('task-answer').value);
+        if (answer === 25) {
+            setFeedback('Верно! Второй ингредиент получен!', 'success');
+            collectIngredient();
+            document.getElementById('next-btn').classList.remove('hidden');
+        } else {
+            setFeedback('Неверно. Подумай ещё раз: сколько было деревьев сначала, сколько добавили?', 'error');
+        }
+    }
+
+    function renderSequenceLevel(content) {
+        const sequences = [
+            { seq: [2, 4, 6, 8, '?', 12], missing: 10, missingIndex: 4 },
+            { seq: [5, 10, 15, '?', 25], missing: 20, missingIndex: 3 },
+            { seq: [3, 6, 9, 12, '?', 18], missing: 15, missingIndex: 4 }
+        ];
+        
+        levelState.sequences = shuffleArray(sequences);
+        levelState.currentSeq = 0;
+        showSequence(content);
+    }
+
+    function showSequence(content) {
+        if (levelState.currentSeq >= levelState.sequences.length) {
+            setFeedback('Все закономерности разгаданы! Третий ингредиент твой!', 'success');
+            collectIngredient();
+            document.getElementById('next-btn').classList.remove('hidden');
+            return;
+        }
+
+        const seq = levelState.sequences[levelState.currentSeq];
+        content.innerHTML = `
+            <p>Найди пропущенное число:</p>
+            <div class="sequence"></div>
+            <div class="answer-options"></div>
+        `;
+
+        const seqDiv = content.querySelector('.sequence');
+        seq.seq.forEach((num, idx) => {
+            const item = document.createElement('div');
+            item.className = 'seq-item' + (num === '?' ? ' missing' : '');
+            item.textContent = num;
+            item.dataset.index = idx;
+            seqDiv.appendChild(item);
+        });
+
+        const optionsDiv = content.querySelector('.answer-options');
+        const options = [seq.missing - 2, seq.missing, seq.missing + 1, seq.missing + 3];
+        const shuffledOptions = shuffleArray(options);
+        
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkSequenceAnswer(opt, seq.missing, seq.missingIndex, content);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkSequenceAnswer(selected, correct, missingIndex, content) {
+        if (selected === correct) {
+            // Заменяем "?" на правильное число
+            const seqItems = content.querySelectorAll('.seq-item');
+            const missingItem = seqItems[missingIndex];
+            missingItem.textContent = correct;
+            missingItem.classList.remove('missing');
+            missingItem.classList.add('filled');
+            
+            levelState.currentSeq++;
+            setFeedback('Верно! Пропуск заполнен!', 'success');
+            
+            // Переход к следующему заданию через 1.5 секунды
+            setTimeout(() => showSequence(content), 1500);
+        } else {
+            setFeedback('Неверно. Посмотри на разницу между числами!', 'error');
+        }
+    }
+
+    function renderSpellLevel(content) {
+        const spells = [
+            { 
+                words: ["Ученье", "—", "свет,", "а", "неученье", "—", "тьма."], 
+                correct: "Ученье — свет, а неученье — тьма." 
+            },
+            { 
+                words: ["Делу", "время,", "а", "потехе", "час."], 
+                correct: "Делу время, а потехе час." 
+            },
+            { 
+                words: ["Семь", "раз", "отмерь,", "а", "один", "раз", "отрежь."], 
+                correct: "Семь раз отмерь, а один раз отрежь." 
+            }
+        ];
+        
+        levelState.spells = shuffleArray(spells);
+        levelState.currentSpell = 0;
+        levelState.selectedWords = [];
+        showSpell(content);
+    }
+
+    function showSpell(content) {
+        if (levelState.currentSpell >= levelState.spells.length) {
+            setFeedback('Все заклинания составлены! Четвёртый ингредиент твой!', 'success');
+            collectIngredient();
+            document.getElementById('next-btn').classList.remove('hidden');
+            return;
+        }
+
+        const spell = levelState.spells[levelState.currentSpell];
+        levelState.selectedWords = [];
+        
+        content.innerHTML = `
+            <div class="spell-container">
+                <p>Расставь слова в правильном порядке:</p>
+                <div class="spell-result" id="spell-result"></div>
+                <div class="word-bank" id="word-bank"></div>
+                <button class="btn" onclick="checkSpell()">Проверить заклинание ✨</button>
+                <button class="btn" onclick="resetSpell()">Сбросить 🔄</button>
+            </div>
+        `;
+
+        const bankDiv = document.getElementById('word-bank');
+        const shuffled = shuffleArray(spell.words);
+        
+        shuffled.forEach((word, idx) => {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.textContent = word;
+            chip.dataset.word = word;
+            chip.dataset.idx = idx;
+            chip.onclick = () => selectWord(word, chip);
+            bankDiv.appendChild(chip);
+        });
+    }
+
+    function selectWord(word, chip) {
+        if (chip.classList.contains('used')) return;
+        
+        chip.classList.add('used');
+        levelState.selectedWords.push(word);
+        
+        const resultDiv = document.getElementById('spell-result');
+        const chipClone = document.createElement('div');
+        chipClone.className = 'word-chip';
+        chipClone.textContent = word;
+        chipClone.style.background = 'var(--gold)';
+        chipClone.style.color = '#333';
+        chipClone.dataset.idx = chip.dataset.idx;
+        resultDiv.appendChild(chipClone);
+    }
+
+    function resetSpell() {
+        levelState.selectedWords = [];
+        document.getElementById('spell-result').innerHTML = '';
+        document.querySelectorAll('#word-bank .word-chip').forEach(chip => chip.classList.remove('used'));
+    }
+
+    function checkSpell() {
+        const spell = levelState.spells[levelState.currentSpell];
+        const userSpell = levelState.selectedWords.join(' ');
+        
+        if (userSpell === spell.correct) {
+            levelState.currentSpell++;
+            setFeedback('Заклинание работает!', 'success');
+            setTimeout(() => showSpell(document.getElementById('level-content')), 1000);
+        } else {
+            setFeedback('Заклинание не работает. Попробуй другой порядок слов!', 'error');
+        }
+    }
+
+    function renderMemoryLevel(content) {
+        const symbols = ['🌟', '🔮', '📚', '⚗️', '🗝️', '🧪', '✨', '🎓'];
+        const cards = shuffleArray([...symbols, ...symbols]);
+        
+        levelState.cards = cards;
+        levelState.flipped = [];
+        levelState.matched = 0;
+        levelState.canFlip = true;
+        
+        content.innerHTML = `
+            <p>Найди все пары одинаковых карточек!</p>
+            <div class="memory-grid" id="memory-grid"></div>
+        `;
+
+        const grid = document.getElementById('memory-grid');
+        cards.forEach((symbol, idx) => {
+            const card = document.createElement('div');
+            card.className = 'memory-card';
+            card.dataset.idx = idx;
+            card.dataset.symbol = symbol;
+            card.innerHTML = `
+                <div class="card-back">❓</div>
+                <div class="card-front">${symbol}</div>
+            `;
+            card.onclick = () => flipCard(card);
+            grid.appendChild(card);
+        });
+    }
+
+    function flipCard(card) {
+        if (!levelState.canFlip) return;
+        if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+        
+        playSound('flip');
+        card.classList.add('flipped');
+        levelState.flipped.push(card);
+        
+        if (levelState.flipped.length === 2) {
+            levelState.canFlip = false;
+            const [card1, card2] = levelState.flipped;
+            
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                setTimeout(() => {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    levelState.matched++;
+                    levelState.flipped = [];
+                    levelState.canFlip = true;
+                    
+                    if (levelState.matched === 8) {
+                        setFeedback('Все пары найдены! Пятый ингредиент твой!', 'success');
+                        collectIngredient();
+                        document.getElementById('next-btn').classList.remove('hidden');
+                    }
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    levelState.flipped = [];
+                    levelState.canFlip = true;
+                }, 1000);
+            }
+        }
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        if (currentLevel < totalLevels) {
+            renderLevel();
+        }
+    }
+</script>
+
+</body>
+</html>
