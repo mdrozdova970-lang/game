@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Спасение данных в Библиотеке</title>
+    <style>
+        :root {
+            --bg-color: #fdf6e3;
+            --primary-color: #87ceeb;
+            --success-color: #98fb98;
+            --error-color: #ffd700;
+            --text-color: #333;
+            --btn-hover: #6bb6d9;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Verdana', 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 { color: #2c3e50; font-size: 28px; margin-bottom: 10px; }
+        h2 { color: #34495e; font-size: 24px; }
+        p { font-size: 20px; line-height: 1.5; }
+
+        .owl {
+            font-size: 60px;
+            margin: 10px 0;
+            transition: transform 0.3s;
+        }
+        .owl.shake { animation: shake 0.5s; }
+        .owl.pop { animation: pop 0.5s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 22px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.2s, transform 0.1s;
+            font-family: inherit;
+        }
+        .btn:hover { background-color: var(--btn-hover); }
+        .btn:active { transform: scale(0.95); }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .feedback {
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 30px;
+            margin: 15px 0;
+        }
+        .feedback.success { color: #27ae60; }
+        .feedback.error { color: #e67e22; }
+
+        .hidden { display: none !important; }
+
+        .word-option {
+            display: inline-block;
+            background: #eef;
+            padding: 10px 20px;
+            margin: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            font-size: 20px;
+        }
+        .word-option:hover { border-color: var(--primary-color); }
+        .word-option.correct { background: var(--success-color); border-color: #27ae60; }
+        .word-option.wrong { background: var(--error-color); border-color: #e67e22; }
+
+        .sortable-item {
+            background: #fff3cd;
+            padding: 12px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #ffeeba;
+            font-size: 18px;
+        }
+        .sortable-item.placed { opacity: 0.5; pointer-events: none; background: #d4edda; }
+        
+        .pair-col { 
+            display: flex; 
+            justify-content: space-between; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+        }
+        .pair-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 48%;
+        }
+        .pair-item {
+            background: #e2e8f0;
+            padding: 12px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border: 3px solid transparent;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .pair-item:hover { background: #d1dce6; }
+        .pair-item.active { border-color: var(--primary-color); background: #bee3f8; }
+        .pair-item.matched { background: var(--success-color); border-color: #27ae60; pointer-events: none; color: #155724; }
+
+        .fill-blank {
+            display: inline-block;
+            min-width: 100px;
+            border-bottom: 2px dashed #333;
+            color: #2980b9;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Стартовый экран -->
+    <div id="start-screen">
+        <div class="owl">🦉</div>
+        <h1>Спасение данных в Библиотеке</h1>
+        <p>Привет! Я — мудрый Филин.</p>
+        <p>В нашей библиотеке случилась беда: компьютер всё перепутал. Помоги мне навести порядок!</p>
+        <ul style="text-align: left; display: inline-block; font-size: 18px;">
+            <li>1. Читай задания внимательно.</li>
+            <li>2. Выбирай правильные ответы кликом мышки.</li>
+            <li>3. Если ошибёшься — не страшно, попробуй ещё раз.</li>
+        </ul>
+        <br>
+        <button class="btn" onclick="startGame()">Начать спасение!</button>
+    </div>
+
+    <!-- Экран игры -->
+    <div id="game-screen" class="hidden">
+        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+        <div class="owl" id="owl-emoji">🦉</div>
+        <div class="feedback" id="feedback-text">Давай начнём!</div>
+        <h2 id="level-title">Задание 1</h2>
+        <div id="level-content"></div>
+        <button class="btn hidden" id="next-btn" onclick="nextLevel()">Дальше ➡️</button>
+    </div>
+
+    <!-- Финальный экран -->
+    <div id="end-screen" class="hidden">
+        <div class="owl">🏆</div>
+        <h1>Библиотека спасена!</h1>
+        <p>Ты отлично справился с работой с информацией!</p>
+        <p>Все книги и данные теперь на своих местах.</p>
+        <p style="font-size: 40px;">🌟🌟🌟</p>
+        <button class="btn" onclick="location.reload()">Начать заново 🔄</button>
+    </div>
+</div>
+
+<script>
+    // --- Аудио система (Web Audio API) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    // --- Данные игры ---
+    let currentLevel = 0;
+    const totalLevels = 6;
+
+    const levels = [
+        {
+            title: "Уровень 1: Лишнее слово",
+            instruction: "Найди слово, которое не подходит к остальным по смыслу.",
+            type: "odd-one-out",
+            options: ["Яблоко", "Груша", "Морковь", "Слива"],
+            correct: "Морковь"
+        },
+        {
+            title: "Уровень 2: Заполни пропуск",
+            instruction: "Нажми на пропуск, чтобы выбрать правильное слово.",
+            type: "fill-blank",
+            text: "У сосны иголки ",
+            blank1: { options: ["мягкие", "колючие"], correct: "колючие" },
+            text2: ", а у берёзы листья ",
+            blank2: { options: ["узкие", "широкие"], correct: "широкие" },
+            text3: "."
+        },
+        {
+            title: "Уровень 3: Сортировка книг",
+            instruction: "Нажми на книгу, а затем на правильную полку.",
+            type: "sorting",
+            items: [
+                { name: "Колобок", category: "Сказки" },
+                { name: "Жизнь животных", category: "Энциклопедии" },
+                { name: "Аленький цветочек", category: "Сказки" },
+                { name: "Атлас мира", category: "Энциклопедии" }
+            ]
+        },
+        {
+            title: "Уровень 4: Верно или Неверно",
+            instruction: "Прочитай факт и выбери правильный ответ.",
+            type: "true-false",
+            statement: "Пингвины живут на Северном полюсе.",
+            correct: false
+        },
+        {
+            title: "Уровень 5: Расставь по порядку",
+            instruction: "Нажимай на действия в правильном порядке: как ты собираешь портфель на завтра.",
+            type: "ordering",
+            items: [
+                "Открыть дневник",
+                "Достать учебник",
+                "Положить учебник в портфель",
+                "Поставить портфель у двери"
+            ],
+        },
+        {
+            title: "Уровень 6: Блиц-опрос «Найди пару»",
+            instruction: "Нажми на вопрос (или начало фразы), а затем на правильный ответ.",
+            type: "matching",
+            pairs: [
+                { q: "Сколько букв в русском алфавите?", a: "33" },
+                { q: "Знак в конце вопроса", a: "?" },
+                { q: "Медведь спит.", a: "Нераспространённое предложение" },
+                { q: "Звонко поют птицы.", a: "Распространённое предложение" },
+                { q: "Звуков в слове «яма»", a: "4 звука" },
+                { q: "Звуков в слове «ёж»", a: "3 звука" }
+            ]
+        }
+    ];
+
+    // --- Состояния для уровней ---
+    let levelState = {};
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        currentLevel = 0;
+        renderLevel();
+    }
+
+    function updateProgress() {
+        const pct = (currentLevel / totalLevels) * 100;
+        document.getElementById('progress').style.width = pct + '%';
+    }
+
+    function setFeedback(msg, type) {
+        const fb = document.getElementById('feedback-text');
+        const owl = document.getElementById('owl-emoji');
+        fb.textContent = msg;
+        fb.className = 'feedback ' + type;
+        
+        owl.classList.remove('shake', 'pop');
+        void owl.offsetWidth; // trigger reflow
+        if (type === 'success') {
+            owl.textContent = '🎉';
+            owl.classList.add('pop');
+            playSound('success');
+        } else {
+            owl.textContent = '🤔';
+            owl.classList.add('shake');
+            playSound('error');
+        }
+    }
+
+    function renderLevel() {
+        updateProgress();
+        const level = levels[currentLevel];
+        document.getElementById('level-title').textContent = level.title;
+        document.getElementById('feedback-text').textContent = level.instruction;
+        document.getElementById('feedback-text').className = 'feedback';
+        document.getElementById('owl-emoji').textContent = '🦉';
+        document.getElementById('next-btn').classList.add('hidden');
+        
+        const content = document.getElementById('level-content');
+        content.innerHTML = '';
+        levelState = {};
+
+        if (level.type === 'odd-one-out') {
+            level.options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'word-option';
+                btn.textContent = opt;
+                btn.onclick = () => {
+                    if (opt === level.correct) {
+                        btn.classList.add('correct');
+                        setFeedback('Отлично! Морковь — это овощ, а остальные — фрукты.', 'success');
+                        document.getElementById('next-btn').classList.remove('hidden');
+                    } else {
+                        btn.classList.add('wrong');
+                        setTimeout(() => btn.classList.remove('wrong'), 500);
+                        setFeedback('Подумай ещё раз. Что из этого овощ?', 'error');
+                    }
+                };
+                content.appendChild(btn);
+            });
+        } 
+        else if (level.type === 'fill-blank') {
+            let html = `<p style="font-size:24px; margin: 30px 0;">${level.text}`;
+            html += `<span class="fill-blank" id="blank1" onclick="cycleBlank(1)">...</span>`;
+            html += `${level.text2}`;
+            html += `<span class="fill-blank" id="blank2" onclick="cycleBlank(2)">...</span>`;
+            html += `${level.text3}</p>`;
+            content.innerHTML = html;
+            
+            levelState.blank1Idx = -1;
+            levelState.blank2Idx = -1;
+            levelState.b1Correct = false;
+            levelState.b2Correct = false;
+            cycleBlank(1);
+        }
+        else if (level.type === 'sorting') {
+            levelState.selectedItem = null;
+            levelState.solvedCount = 0;
+            
+            const itemsDiv = document.createElement('div');
+            itemsDiv.style.marginBottom = '20px';
+            level.items.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'sortable-item';
+                div.textContent = item.name;
+                div.id = 'sort-item-' + idx;
+                div.onclick = () => selectSortItem(idx, item.name);
+                itemsDiv.appendChild(div);
+            });
+            content.appendChild(itemsDiv);
+
+            const bucketsDiv = document.createElement('div');
+            bucketsDiv.style.display = 'flex';
+            bucketsDiv.style.justifyContent = 'center';
+            bucketsDiv.style.gap = '20px';
+            
+            ['Сказки', 'Энциклопедии'].forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = (cat === 'Сказки' ? '📖 ' : '🦁 ') + cat;
+                btn.onclick = () => placeItem(cat);
+                bucketsDiv.appendChild(btn);
+            });
+            content.appendChild(bucketsDiv);
+        }
+        else if (level.type === 'true-false') {
+            const stmt = document.createElement('p');
+            stmt.style.fontSize = '26px';
+            stmt.style.fontWeight = 'bold';
+            stmt.style.margin = '30px 0';
+            stmt.textContent = `«${level.statement}»`;
+            content.appendChild(stmt);
+
+            const btnTrue = document.createElement('button');
+            btnTrue.className = 'btn';
+            btnTrue.textContent = '✅ Верно';
+            btnTrue.onclick = () => checkTF(true, level.correct);
+
+            const btnFalse = document.createElement('button');
+            btnFalse.className = 'btn';
+            btnFalse.textContent = '❌ Неверно';
+            btnFalse.onclick = () => checkTF(false, level.correct);
+
+            content.appendChild(btnTrue);
+            content.appendChild(btnFalse);
+        }
+        else if (level.type === 'ordering') {
+            levelState.order = [];
+            levelState.shuffled = [...level.items].sort(() => Math.random() - 0.5);
+            
+            const pool = document.createElement('div');
+            pool.id = 'order-pool';
+            levelState.shuffled.forEach((item, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'sortable-item';
+                btn.textContent = item;
+                btn.dataset.idx = idx;
+                btn.onclick = () => pickOrderItem(idx, item, btn);
+                pool.appendChild(btn);
+            });
+            content.appendChild(pool);
+
+            const result = document.createElement('div');
+            result.id = 'order-result';
+            result.style.marginTop = '20px';
+            result.style.minHeight = '60px';
+            result.style.border = '2px dashed #ccc';
+            result.style.borderRadius = '10px';
+            result.style.padding = '10px';
+            content.appendChild(result);
+        }
+        else if (level.type === 'matching') {
+            levelState.selectedQ = null;
+            levelState.selectedA = null;
+            levelState.matchedCount = 0;
+
+            const container = document.createElement('div');
+            container.className = 'pair-col';
+            
+            const qCol = document.createElement('div');
+            qCol.className = 'pair-column';
+            const aCol = document.createElement('div');
+            aCol.className = 'pair-column';
+            
+            // Перемешиваем ответы для сложности
+            const shuffledAnswers = [...level.pairs].sort(() => Math.random() - 0.5);
+
+            level.pairs.forEach((pair, idx) => {
+                // Левая колонка (вопросы)
+                const qDiv = document.createElement('div');
+                qDiv.className = 'pair-item';
+                qDiv.textContent = pair.q;
+                qDiv.dataset.id = idx;
+                qDiv.onclick = () => selectPair('q', idx, qDiv);
+                qCol.appendChild(qDiv);
+
+                // Правая колонка (ответы)
+                const aDiv = document.createElement('div');
+                aDiv.className = 'pair-item';
+                aDiv.textContent = shuffledAnswers[idx].a;
+                aDiv.dataset.val = shuffledAnswers[idx].a;
+                aDiv.onclick = () => selectPair('a', shuffledAnswers[idx].a, aDiv);
+                aCol.appendChild(aDiv);
+            });
+
+            container.appendChild(qCol);
+            container.appendChild(aCol);
+            content.appendChild(container);
+        }
+    }
+
+    // --- Логика уровней ---
+
+    // Уровень 2: Заполни пропуск
+    function cycleBlank(num) {
+        const level = levels[currentLevel];
+        const opts = num === 1 ? level.blank1.options : level.blank2.options;
+        const idxName = num === 1 ? 'blank1Idx' : 'blank2Idx';
+        
+        levelState[idxName] = (levelState[idxName] + 1) % opts.length;
+        const val = opts[levelState[idxName]];
+        
+        const el = document.getElementById('blank' + num);
+        el.textContent = val;
+        
+        const isCorrect = (val === (num === 1 ? level.blank1.correct : level.blank2.correct));
+        el.style.color = isCorrect ? '#27ae60' : '#e67e22';
+        
+        if (num === 1) levelState.b1Correct = isCorrect;
+        else levelState.b2Correct = isCorrect;
+
+        if (levelState.b1Correct && levelState.b2Correct) {
+            setFeedback('Молодец! Всё верно!', 'success');
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+    }
+
+    // Уровень 3: Сортировка
+    function selectSortItem(idx, name) {
+        if (document.getElementById('sort-item-' + idx).classList.contains('placed')) return;
+        
+        document.querySelectorAll('.sortable-item').forEach(el => el.style.borderColor = '#ffeeba');
+        document.getElementById('sort-item-' + idx).style.borderColor = '#87ceeb';
+        levelState.selectedItem = { idx, name };
+    }
+
+    function placeItem(category) {
+        if (!levelState.selectedItem) {
+            setFeedback('Сначала нажми на название книги!', 'error');
+            return;
+        }
+        const item = levels[currentLevel].items[levelState.selectedItem.idx];
+        if (item.category === category) {
+            const el = document.getElementById('sort-item-' + levelState.selectedItem.idx);
+            el.classList.add('placed');
+            el.style.background = '#d4edda';
+            el.style.borderColor = '#27ae60';
+            setFeedback('Верно!', 'success');
+            levelState.solvedCount++;
+            levelState.selectedItem = null;
+            
+            if (levelState.solvedCount === levels[currentLevel].items.length) {
+                setFeedback('Все книги на своих местах!', 'success');
+                document.getElementById('next-btn').classList.remove('hidden');
+            }
+        } else {
+            setFeedback('Эта книга не подходит для этой полки. Подумай ещё!', 'error');
+        }
+    }
+
+    // Уровень 4: Верно/Неверно
+    function checkTF(answer, correct) {
+        if (answer === correct) {
+            setFeedback('Правильно! Пингвины живут в Антарктиде (на Южном полюсе).', 'success');
+            document.getElementById('next-btn').classList.remove('hidden');
+        } else {
+            setFeedback('Не совсем так. Вспомни, где холодно и живут пингвины.', 'error');
+        }
+    }
+
+    // Уровень 5: Порядок
+    function pickOrderItem(idx, text, btnElement) {
+        if (btnElement.classList.contains('placed')) return;
+        
+        btnElement.classList.add('placed');
+        levelState.order.push(text);
+        
+        const resDiv = document.getElementById('order-result');
+        const step = document.createElement('div');
+        step.style.padding = '5px';
+        step.style.margin = '5px 0';
+        step.style.background = '#e2e8f0';
+        step.style.borderRadius = '5px';
+        step.textContent = `${levelState.order.length}. ${text}`;
+        resDiv.appendChild(step);
+
+        if (levelState.order.length === 4) {
+            const correctOrder = [
+                "Открыть дневник",
+                "Достать учебник",
+                "Положить учебник в портфель",
+                "Поставить портфель у двери"
+            ];
+            const isCorrect = levelState.order.every((val, index) => val === correctOrder[index]);
+            
+            if (isCorrect) {
+                setFeedback('Идеальный порядок! Портфель готов.', 'success');
+                document.getElementById('next-btn').classList.remove('hidden');
+            } else {
+                setFeedback('Что-то перепуталось. Давай попробуем снова!', 'error');
+                setTimeout(() => {
+                    levelState.order = [];
+                    resDiv.innerHTML = '';
+                    document.querySelectorAll('#order-pool .sortable-item').forEach(el => {
+                        el.classList.remove('placed');
+                    });
+                }, 1500);
+            }
+        }
+    }
+
+    // Уровень 6: Пары (Блиц-опрос)
+    function selectPair(type, id, element) {
+        if (element.classList.contains('matched')) return;
+
+        if (type === 'q') {
+            document.querySelectorAll('.pair-column:first-child .pair-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            levelState.selectedQ = { id, el: element };
+        } else {
+            document.querySelectorAll('.pair-column:last-child .pair-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            levelState.selectedA = { val: id, el: element };
+        }
+
+        if (levelState.selectedQ && levelState.selectedA) {
+            const correctAnswer = levels[currentLevel].pairs[levelState.selectedQ.id].a;
+            if (correctAnswer === levelState.selectedA.val) {
+                levelState.selectedQ.el.classList.add('matched');
+                levelState.selectedA.el.classList.add('matched');
+                levelState.selectedQ.el.classList.remove('active');
+                levelState.selectedA.el.classList.remove('active');
+                setFeedback('Пара найдена!', 'success');
+                levelState.matchedCount++;
+                levelState.selectedQ = null;
+                levelState.selectedA = null;
+
+                if (levelState.matchedCount === levels[currentLevel].pairs.length) {
+                    setFeedback('Все пары собраны! Блиц пройден!', 'success');
+                    document.getElementById('next-btn').classList.remove('hidden');
+                }
+            } else {
+                setFeedback('Эта пара не подходит. Попробуй другую.', 'error');
+                setTimeout(() => {
+                    if(levelState.selectedQ) levelState.selectedQ.el.classList.remove('active');
+                    if(levelState.selectedA) levelState.selectedA.el.classList.remove('active');
+                    levelState.selectedQ = null;
+                    levelState.selectedA = null;
+                }, 800);
+            }
+        }
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        if (currentLevel < totalLevels) {
+            renderLevel();
+        } else {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            playSound('success');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Математический Экспресс · Большие вагоны</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #a8d8ea 0%, #c9e4de 100%);
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .game-container {
+            max-width: 650px;
+            width: 100%;
+            background: #fcf7f0;
+            border-radius: 60px 60px 40px 40px;
+            padding: 20px 16px 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid #fff3d6;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3e40;
+            margin: -4px 0 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        h1 span {
+            background: #ffd966;
+            padding: 0 18px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #1e2b2c;
+            border: 2px solid #e6b84c;
+        }
+
+        /* Перрон */
+        .platform {
+            background: #b9a58b;
+            height: 12px;
+            width: 100%;
+            border-radius: 20px;
+            margin: 4px 0 20px 0;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .platform::after {
+            content: "🚉";
+            position: absolute;
+            right: -8px;
+            top: -30px;
+            font-size: 2.6rem;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+
+        /* Прогресс - БОЛЬШИЕ ВАГОНЫ */
+        .train-progress {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2px;
+            margin-top: -32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .wagon-dot {
+            width: 58px;
+            height: 58px;
+            background: #dbd0c0;
+            border: 4px solid #8a7a66;
+            border-radius: 16px 16px 8px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #4d3e2b;
+            transition: 0.2s;
+            box-shadow: 0 6px 0 #6b5d4b;
+            position: relative;
+        }
+
+        .wagon-dot::before {
+            content: "🚃";
+            font-size: 2rem;
+            line-height: 1;
+            margin-top: -4px;
+        }
+
+        .wagon-dot .wagon-num {
+            font-size: 11px;
+            background: rgba(0,0,0,0.15);
+            padding: 0 8px;
+            border-radius: 20px;
+            margin-top: -2px;
+        }
+
+        .wagon-dot.done {
+            background: #6fcf97;
+            border-color: #219653;
+            color: white;
+            box-shadow: 0 6px 0 #1a6e3a;
+        }
+
+        .wagon-dot.done::before {
+            content: "✅";
+            font-size: 1.8rem;
+        }
+
+        .wagon-dot.active {
+            background: #f2c94c;
+            border-color: #b47d1f;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 8px rgba(242, 201, 76, 0.3), 0 6px 0 #b47d1f;
+        }
+
+        .wagon-dot.active::before {
+            content: "🚂";
+            font-size: 2.2rem;
+        }
+
+        /* БОЛЬШОЙ ВАГОН с заданием */
+        .wagon-area {
+            background: #e5d7c1;
+            border-radius: 80px 80px 40px 40px;
+            padding: 28px 20px 24px;
+            margin: 16px 0 18px 0;
+            border: 5px solid #c6b094;
+            box-shadow: inset 0 -8px 0 #ab947a, 0 12px 24px rgba(0,0,0,0.15);
+            min-height: 190px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .wagon-area::before {
+            content: "🚃";
+            position: absolute;
+            left: -22px;
+            top: -20px;
+            font-size: 3.6rem;
+            transform: rotate(-12deg);
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.2));
+        }
+
+        .wagon-area::after {
+            content: "🚃";
+            position: absolute;
+            right: -22px;
+            top: -20px;
+            font-size: 3.6rem;
+            transform: rotate(12deg);
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.2));
+        }
+
+        /* БОЛЬШОЙ пример */
+        .example-box {
+            background: white;
+            padding: 18px 24px;
+            border-radius: 80px;
+            font-size: 3.4rem;
+            font-weight: 700;
+            color: #1f2e3a;
+            box-shadow: 0 8px 0 #b8a386, 0 8px 20px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            letter-spacing: 4px;
+            border: 3px solid #f5e7d4;
+            width: 100%;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .example-box small {
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: #6a5b48;
+        }
+
+        /* БОЛЬШИЕ кнопки ответов */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 14px 0 6px;
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .option-btn {
+            background: #fcf3e4;
+            border: 5px solid #b79b7c;
+            border-radius: 80px;
+            padding: 24px 8px;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #1f2a36;
+            box-shadow: 0 10px 0 #7b6550, 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: 0.04s linear;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            background: #fff7ea;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #7b6550;
+        }
+
+        .option-btn.disabled {
+            opacity: 0.6;
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #7b6550;
+            pointer-events: none;
+        }
+
+        .option-btn.correct-glow {
+            background: #8fdfa5;
+            border-color: #1f7a3b;
+            box-shadow: 0 0 0 6px #b7f0c7, 0 8px 0 #1f7a3b;
+        }
+
+        .option-btn.wrong-glow {
+            background: #f7b2b2;
+            border-color: #b13b3b;
+        }
+
+        .feedback-area {
+            min-height: 3.2rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 50px;
+            text-align: center;
+            width: 100%;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .feedback-area.success {
+            color: #1b6d3b;
+            background: #d4edda;
+        }
+
+        .feedback-area.error {
+            color: #a13d3d;
+            background: #f8dddd;
+        }
+
+        .feedback-area.neutral {
+            color: #3f3324;
+            background: transparent;
+        }
+
+        /* ФИНАЛ - большой перрон */
+        .finish-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 10px 12px;
+            background: #d9d0be;
+            border-radius: 80px 80px 40px 40px;
+            border: 5px solid #b19778;
+            box-shadow: inset 0 -8px 0 #8f7a62;
+            margin-top: 10px;
+        }
+
+        .finish-screen.active {
+            display: flex;
+        }
+
+        .finish-platform {
+            font-size: 4.8rem;
+            line-height: 1.2;
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.2));
+        }
+
+        .finish-screen h2 {
+            color: #1e3f2b;
+            font-size: 2.2rem;
+            margin: 6px 0 2px;
+        }
+
+        .finish-stats {
+            background: #e1d3bd;
+            padding: 14px 40px;
+            border-radius: 80px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #142012;
+            margin: 8px 0 16px;
+            border: 3px solid #b19778;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .restart-btn {
+            background: #ffb347;
+            border: none;
+            border-radius: 80px;
+            padding: 20px 40px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #211b12;
+            box-shadow: 0 10px 0 #b16f1a;
+            transition: 0.04s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            border: 3px solid #f5d39c;
+            margin-top: 4px;
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .restart-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #b16f1a;
+        }
+
+        @media (max-width: 550px) {
+            .game-container { padding: 14px 10px 20px; border-radius: 40px; }
+            h1 { font-size: 1.6rem; }
+            .example-box { font-size: 2.6rem; padding: 14px 12px; min-height: 76px; }
+            .option-btn { font-size: 2.2rem; padding: 18px 4px; min-height: 80px; }
+            .wagon-dot { width: 48px; height: 48px; }
+            .wagon-dot::before { font-size: 1.6rem; }
+            .wagon-area::before, .wagon-area::after { font-size: 2.8rem; left: -14px; right: -14px; top: -14px; }
+            .wagon-area { padding: 20px 14px 18px; }
+        }
+
+        @media (max-width: 400px) {
+            .option-btn { font-size: 1.8rem; min-height: 68px; padding: 12px 4px; }
+            .example-box { font-size: 2rem; min-height: 64px; }
+            .wagon-dot { width: 40px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" role="main">
+    <h1>
+        🚂 Математический
+        <span>Экспресс</span>
+    </h1>
+
+    <div class="platform"></div>
+
+    <!-- Прогресс: большие вагоны -->
+    <div class="train-progress" id="trainProgress">
+        <div class="wagon-dot active" data-index="0"><span class="wagon-num">1</span></div>
+        <div class="wagon-dot" data-index="1"><span class="wagon-num">2</span></div>
+        <div class="wagon-dot" data-index="2"><span class="wagon-num">3</span></div>
+        <div class="wagon-dot" data-index="3"><span class="wagon-num">4</span></div>
+        <div class="wagon-dot" data-index="4"><span class="wagon-num">5</span></div>
+    </div>
+
+    <!-- Большой вагон с заданием -->
+    <div id="gamePlayArea" class="wagon-area">
+        <div class="example-box" id="questionDisplay">34 + 27 = <small>?</small></div>
+        <div class="feedback-area neutral" id="feedbackMessage">🚩 Выбери билет с ответом</div>
+
+        <div class="options-grid" id="optionsContainer">
+            <button class="option-btn" data-value="0">61</button>
+            <button class="option-btn" data-value="1">51</button>
+            <button class="option-btn" data-value="2">71</button>
+        </div>
+    </div>
+
+    <!-- Финальный экран -->
+    <div id="finishScreen" class="finish-screen">
+        <div class="finish-platform">🚉 🚆 🎉</div>
+        <h2>Поезд прибыл!</h2>
+        <div class="finish-stats" id="finishStars">⭐⭐⭐⭐⭐</div>
+        <div style="font-size: 1.3rem; color: #2b3a2b; margin-bottom: 8px; text-align: center;">
+            Ты решил все примеры до 100!
+        </div>
+        <button class="restart-btn" id="restartBtn">🔄 Пройти ещё раз</button>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ----- УРОВНИ (счёт до 100) + правильные ответы -----
+        const LEVELS_BASE = [
+            { question: '34 + 27', correct: 61, hint: 'Складываем единицы: 4+7=11, пишем 1, десяток в уме' },
+            { question: '82 - 45', correct: 37, hint: 'Вычитаем: 12-5=7, 7-4=3 → 37' },
+            { question: '56 + 38', correct: 94, hint: '6+8=14, 5+3+1=9 → 94' },
+            { question: '73 - 28', correct: 45, hint: '13-8=5, 6-2=4 → 45' },
+            { question: '47 + 46', correct: 93, hint: '7+6=13, 4+4+1=9 → 93' }
+        ];
+
+        // ----- ФУНКЦИЯ: перемешивает массив и возвращает новый -----
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // ----- ГЕНЕРАЦИЯ УРОВНЯ с рандомными ответами -----
+        function buildLevel(base, correctAnswer) {
+            // Генерируем два "шумовых" ответа: +/- 5..20, но не равных правильному и друг другу
+            let distractor1, distractor2;
+            const attempts = 50;
+            for (let i = 0; i < attempts; i++) {
+                const offset = (Math.floor(Math.random() * 15) + 5) * (Math.random() > 0.5 ? 1 : -1);
+                const candidate = correctAnswer + offset;
+                if (candidate !== correctAnswer && candidate >= 0 && candidate <= 200) {
+                    if (distractor1 === undefined) {
+                        distractor1 = candidate;
+                    } else if (candidate !== distractor1) {
+                        distractor2 = candidate;
+                        break;
+                    }
+                }
+            }
+            // Если не нашли два разных — подстраховка
+            if (distractor1 === undefined) distractor1 = correctAnswer + 10;
+            if (distractor2 === undefined || distractor2 === distractor1) distractor2 = correctAnswer - 7;
+            if (distractor2 === correctAnswer) distractor2 = correctAnswer + 5;
+
+            const optionsRaw = [correctAnswer, distractor1, distractor2];
+            // Перемешиваем!
+            const shuffled = shuffleArray(optionsRaw);
+            // Находим индекс правильного ответа в перемешанном массиве
+            const correctIndex = shuffled.indexOf(correctAnswer);
+
+            return {
+                question: base.question,
+                hint: base.hint,
+                options: shuffled.map(String), // строки для отображения
+                correct: correctIndex
+            };
+        }
+
+        // ----- СОСТОЯНИЕ ИГРЫ -----
+        let currentLevel = 0;
+        let levelCompleted = [false, false, false, false, false];
+        let isWaitingForNext = false;
+        let finishShown = false;
+
+        // Сгенерированные уровни (храним объекты)
+        let gameLevels = [];
+
+        // DOM-элементы
+        const questionDisplay = document.getElementById('questionDisplay');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackEl = document.getElementById('feedbackMessage');
+        const wagonDots = document.querySelectorAll('.wagon-dot');
+        const gamePlayArea = document.getElementById('gamePlayArea');
+        const finishScreen = document.getElementById('finishScreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const finishStars = document.getElementById('finishStars');
+
+        // ----- ИНИЦИАЛИЗАЦИЯ уровней (с рандомными ответами) -----
+        function generateGameLevels() {
+            gameLevels = LEVELS_BASE.map(base => buildLevel(base, base.correct));
+        }
+
+        // ----- ОБНОВЛЕНИЕ ИНДИКАТОРОВ (вагоны) -----
+        function updateWagons() {
+            wagonDots.forEach((dot, idx) => {
+                dot.classList.remove('done', 'active');
+                if (levelCompleted[idx]) {
+                    dot.classList.add('done');
+                } else if (idx === currentLevel && !finishShown) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        // ----- РЕНДЕР ТЕКУЩЕГО УРОВНЯ -----
+        function renderLevel() {
+            if (finishShown) return;
+
+            const level = gameLevels[currentLevel];
+            if (!level) return;
+
+            questionDisplay.innerHTML = `${level.question} <small>?</small>`;
+
+            const btns = optionsContainer.querySelectorAll('.option-btn');
+            btns.forEach((btn, idx) => {
+                btn.textContent = level.options[idx] || '?';
+                btn.dataset.value = idx;
+                btn.className = 'option-btn';
+                btn.disabled = false;
+                btn.style.pointerEvents = 'auto';
+            });
+
+            feedbackEl.className = 'feedback-area neutral';
+            feedbackEl.innerHTML = '🚩 Выбери билет с ответом';
+            updateWagons();
+            isWaitingForNext = false;
+        }
+
+        // ----- ФИНАЛ -----
+        function showFinish() {
+            finishShown = true;
+            gamePlayArea.style.display = 'none';
+            finishScreen.classList.add('active');
+            const allDone = levelCompleted.every(v => v === true);
+            finishStars.textContent = allDone ? '⭐ 5 из 5' : '⭐ 4 из 5';
+            const platform = document.querySelector('.finish-platform');
+            platform.textContent = allDone ? '🚉 🚆 🎉' : '🚉 🚆 ✨';
+        }
+
+        // ----- ОБРАБОТКА ОТВЕТА -----
+        function handleAnswer(btn, selectedIndex) {
+            if (isWaitingForNext || finishShown) return;
+            if (levelCompleted[currentLevel]) return;
+
+            const level = gameLevels[currentLevel];
+            const isCorrect = (selectedIndex === level.correct);
+            const btns = optionsContainer.querySelectorAll('.option-btn');
+
+            // Блокируем все кнопки
+            btns.forEach(b => {
+                b.disabled = true;
+                b.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                feedbackEl.className = 'feedback-area success';
+                feedbackEl.innerHTML = `✅ Верно! ${level.hint} 🚂 +1 балл!`;
+                btn.classList.add('correct-glow');
+
+                levelCompleted[currentLevel] = true;
+                wagonDots[currentLevel].classList.add('done');
+                wagonDots[currentLevel].classList.remove('active');
+
+                if (currentLevel === gameLevels.length - 1) {
+                    isWaitingForNext = true;
+                    setTimeout(() => showFinish(), 1200);
+                    return;
+                }
+
+                isWaitingForNext = true;
+                setTimeout(() => {
+                    currentLevel++;
+                    renderLevel();
+                }, 1200);
+
+            } else {
+                feedbackEl.className = 'feedback-area error';
+                feedbackEl.innerHTML = `❌ Попробуй ещё! ${level.hint}`;
+                btn.classList.add('wrong-glow');
+
+                setTimeout(() => {
+                    btn.classList.remove('wrong-glow');
+                    const allBtns = optionsContainer.querySelectorAll('.option-btn');
+                    allBtns.forEach(b => {
+                        b.disabled = false;
+                        b.style.pointerEvents = 'auto';
+                        b.classList.remove('wrong-glow');
+                    });
+                    feedbackEl.className = 'feedback-area neutral';
+                    feedbackEl.innerHTML = '🚩 Выбери билет с ответом';
+                }, 900);
+            }
+        }
+
+        // ----- КЛИК-ОБРАБОТЧИК -----
+        function clickHandler(e) {
+            const btn = e.currentTarget;
+            const val = parseInt(btn.dataset.value, 10);
+            if (isNaN(val)) return;
+            handleAnswer(btn, val);
+        }
+
+        function initEvents() {
+            const btns = optionsContainer.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                btn.removeEventListener('click', clickHandler);
+                btn.addEventListener('click', clickHandler);
+            });
+        }
+
+        // ----- СБРОС ИГРЫ -----
+        function resetGame() {
+            // Генерируем новые уровни с новыми случайными ответами
+            generateGameLevels();
+
+            currentLevel = 0;
+            levelCompleted = [false, false, false, false, false];
+            finishShown = false;
+            isWaitingForNext = false;
+
+            finishScreen.classList.remove('active');
+            gamePlayArea.style.display = 'flex';
+
+            renderLevel();
+            initEvents();
+        }
+
+        // ----- СТАРТ -----
+        restartBtn.addEventListener('click', resetGame);
+        resetGame();
+
+        console.log('🚂 Математический Экспресс (до 100, большие кнопки, рандом)');
+    })();
+</script>
+
+</body>
+</html>

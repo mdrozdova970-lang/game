@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Словосочетания · 2 уровня</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(145deg, #f9f3e6 0%, #fff4e0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            padding: 16px;
+        }
+        .game-container {
+            max-width: 760px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 60px 60px 40px 40px;
+            padding: 28px 24px 36px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.08);
+            border: 2px solid #fbcb7b;
+            transition: 0.3s;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #5e3a1c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .title span {
+            background: #fbbe6b;
+            padding: 0 14px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            color: #2d1d0e;
+        }
+        .level-badge {
+            background: #2d1d0e;
+            color: #ffddb0;
+            padding: 6px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .score-area {
+            background: #2d1d0e;
+            color: #ffddb0;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: inset 0 -3px 0 #7a5d3d;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #ecdfcf;
+            border-radius: 20px;
+            margin: 6px 0 18px;
+            overflow: hidden;
+            border: 1px solid #dbbd9a;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f9b84a, #f58b2e);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        .sentence-area {
+            background: #fef5e8;
+            padding: 28px 20px;
+            border-radius: 60px;
+            box-shadow: inset 0 4px 8px rgba(255, 215, 150, 0.4);
+            border: 1px solid #f7d9b0;
+            margin-bottom: 18px;
+            min-height: 120px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px 10px;
+        }
+        .word-token {
+            font-size: 1.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #f7ede1;
+            border: 3px solid #dcc2a8;
+            cursor: pointer;
+            transition: 0.15s;
+            user-select: none;
+            line-height: 1.4;
+            color: #2d1d0b;
+        }
+        .word-token:hover:not(.disabled-token) {
+            background: #f5ddc0;
+            transform: scale(1.04);
+        }
+        .word-token.selected {
+            background: #8bc98e;
+            border-color: #2b7530;
+            box-shadow: 0 0 0 2px #1f5a23;
+        }
+        .word-token.wrong-token {
+            background: #f5a3a3;
+            border-color: #b13e3e;
+            animation: shake 0.3s ease;
+        }
+        .word-token.correct-token {
+            background: #8bc98e;
+            border-color: #2b7530;
+        }
+        .word-token.disabled-token {
+            cursor: default;
+            opacity: 0.8;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .task-hint {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #73593b;
+            margin: 4px 0 12px;
+            font-style: italic;
+        }
+        .phrase-counter {
+            text-align: center;
+            font-size: 1rem;
+            color: #5e3f22;
+            background: #edddc8;
+            padding: 4px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 0 auto 10px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 12px 0 10px;
+        }
+        .option-btn {
+            background: #f3e3d0;
+            border: 3px solid #d8b58b;
+            border-radius: 80px;
+            padding: 18px 12px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #291e11;
+            cursor: pointer;
+            transition: 0.18s;
+            box-shadow: 0 6px 0 #b28b67;
+            text-align: center;
+            font-family: inherit;
+            line-height: 1.2;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            background: #fae8d4;
+            border-color: #c6975e;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b28b67;
+        }
+        .option-btn:disabled {
+            opacity: 0.7;
+            transform: scale(0.98);
+            cursor: not-allowed;
+        }
+        .option-btn.correct {
+            background: #8bc98e;
+            border-color: #2b7530;
+            box-shadow: 0 4px 0 #1f5a23;
+            color: #1b3d1e;
+        }
+        .option-btn.wrong {
+            background: #f5a3a3;
+            border-color: #b13e3e;
+            box-shadow: 0 4px 0 #7f2b2b;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .feedback {
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px 10px 4px;
+            min-height: 4rem;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .feedback.ok { color: #1e7a2b; }
+        .feedback.fail { color: #ac3a3a; }
+
+        .mascot-area {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 3rem;
+            line-height: 1;
+            filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .finish-screen {
+            background: #fdf5ea;
+            border-radius: 70px;
+            padding: 28px 20px 30px;
+            text-align: center;
+            border: 3px solid #f5b86b;
+            box-shadow: 0 8px 0 #ca904a;
+        }
+        .finish-screen h2 {
+            font-size: 2.5rem;
+            color: #402c18;
+            margin-bottom: 8px;
+        }
+        .finish-screen .big-score {
+            font-size: 4.2rem;
+            font-weight: 800;
+            background: #fbbe6b;
+            display: inline-block;
+            padding: 4px 40px;
+            border-radius: 80px;
+            margin: 12px 0;
+            color: #241707;
+        }
+        .finish-screen .msg {
+            font-size: 1.4rem;
+            background: #edddc8;
+            padding: 14px 20px;
+            border-radius: 60px;
+            margin: 18px 0;
+        }
+        .finish-screen .restart-btn {
+            background: #f5a94b;
+            border: none;
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 16px 48px;
+            border-radius: 60px;
+            color: #231607;
+            box-shadow: 0 8px 0 #b1722b;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        .finish-screen .restart-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #b1722b;
+        }
+
+        .hidden { display: none !important; }
+
+        .intro-screen {
+            padding: 12px 8px 8px;
+        }
+        .intro-screen h1 {
+            font-size: 2.4rem;
+            color: #3e2a12;
+            text-align: center;
+        }
+        .intro-screen .owl {
+            font-size: 5rem;
+            text-align: center;
+            margin: 6px 0;
+        }
+        .intro-screen p {
+            font-size: 1.2rem;
+            background: #f3e3cf;
+            padding: 20px;
+            border-radius: 60px;
+            line-height: 1.5;
+            color: #2d1d0b;
+            border: 1px solid #dbbd99;
+        }
+        .level-select {
+            display: flex;
+            gap: 16px;
+            margin: 18px 0 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .level-btn {
+            background: #f3d5b0;
+            border: 3px solid #caa06b;
+            border-radius: 60px;
+            padding: 16px 28px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2d1a08;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #a88051;
+            transition: 0.1s;
+            font-family: inherit;
+            flex: 1 1 180px;
+        }
+        .level-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #a88051;
+        }
+        .level-btn .sub {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #4d351b;
+        }
+        .level-btn:hover {
+            background: #fce1c0;
+        }
+        .center-text {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="app">
+
+    <div id="introScreen" class="intro-screen">
+        <div class="owl">🦉</div>
+        <h1>Строители предложений</h1>
+        <p>
+            <strong>Привет, строитель! 🏗️</strong><br><br>
+            Выбери уровень:<br>
+            <span style="font-size:0.9rem;">🔹 Уровень 1 — найди все словосочетания в предложении<br>
+            🔹 Уровень 2 — подбери пару слов</span>
+        </p>
+        <div class="level-select">
+            <button class="level-btn" data-level="1">📖 Уровень 1 <span class="sub">Найди все в предложении</span></button>
+            <button class="level-btn" data-level="2">🧩 Уровень 2 <span class="sub">Подбери пару</span></button>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+        <div class="header">
+            <div class="title"><span>🧱</span> Стройка <span class="level-badge" id="levelBadge">Уровень 1</span></div>
+            <div class="score-area" id="scoreDisplay">0 / 7</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="levelContent"></div>
+        <div class="feedback" id="feedbackMessage">&nbsp;</div>
+        <div class="mascot-area" id="mascot">🦉</div>
+    </div>
+
+    <div id="finishScreen" class="finish-screen hidden">
+        <h2>🏁 Строительство завершено!</h2>
+        <div style="font-size:3.4rem; margin:6px 0;">🏗️</div>
+        <div class="big-score" id="finalScore">0</div>
+        <div style="font-size:1.2rem; margin-bottom:6px;">из 7</div>
+        <div class="msg" id="finalMessage">Ты — гений!</div>
+        <button class="restart-btn" id="restartBtn">🔄 В меню</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ============================================================
+        //  УРОВЕНЬ 1 — предложения со ВСЕМИ словосочетаниями
+        // ============================================================
+        const LEVEL1_DATA = [
+            {
+                sentence: "Белоствольная берёза стоит у реки.",
+                phrases: [
+                    ["Белоствольная", "берёза"],
+                    ["стоит", "у", "реки"]
+                ]
+            },
+            {
+                sentence: "Пушистый кот спит на диване.",
+                phrases: [
+                    ["Пушистый", "кот"],
+                    ["спит", "на", "диване"]
+                ]
+            },
+            {
+                sentence: "Яркое солнце светит в окно.",
+                phrases: [
+                    ["Яркое", "солнце"],
+                    ["светит", "в", "окно"]
+                ]
+            },
+            {
+                sentence: "Мама купила вкусное яблоко.",
+                phrases: [
+                    ["купила", "яблоко"],
+                    ["вкусное", "яблоко"]
+                ]
+            },
+            {
+                sentence: "Дети играют в весёлую игру.",
+                phrases: [
+                    ["играют", "в", "игру"],
+                    ["весёлую", "игру"]
+                ]
+            },
+            {
+                sentence: "На столе лежит интересная книга.",
+                phrases: [
+                    ["лежит", "на", "столе"],
+                    ["интересная", "книга"]
+                ]
+            },
+            {
+                sentence: "В небе плывёт белое облако.",
+                phrases: [
+                    ["плывёт", "в", "небе"],
+                    ["белое", "облако"]
+                ]
+            }
+        ];
+
+        // ============================================================
+        //  УРОВЕНЬ 2
+        // ============================================================
+        const LEVEL2_DATA = [
+            { main: "Берёза", options: ["Красная", "Белоствольная", "Солёная"], correct: "Белоствольная", hint: "У этого дерева белый ствол." },
+            { main: "Солнце", options: ["Яркое", "Грустное", "Колючее"], correct: "Яркое", hint: "Оно светит днём и греет." },
+            { main: "Кот", options: ["Книжный", "Пушистый", "Железный"], correct: "Пушистый", hint: "У него мягкая шерстка." },
+            { main: "Ручка", options: ["Шариковая", "Квадратная", "Дождливая"], correct: "Шариковая", hint: "Ей пишут в тетради." },
+            { main: "Мяч", options: ["Резиновый", "Стеклянный", "Сахарный"], correct: "Резиновый", hint: "Он прыгает и летает." },
+            { main: "Облако", options: ["Перистое", "Твёрдое", "Громкое"], correct: "Перистое", hint: "Плывёт по небу." },
+            { main: "Зима", options: ["Снежная", "Мокрая", "Жаркая"], correct: "Снежная", hint: "Холодное время года." }
+        ];
+
+        // ============================================================
+        //  СОСТОЯНИЕ
+        // ============================================================
+        let currentLevel = 1;
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let totalQuestions = 7;
+        let isAnswered = false;
+        let selectedTokens = [];
+        let foundPhrases = 0;
+        let totalPhrases = 0;
+
+        const introScreen = document.getElementById('introScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const finishScreen = document.getElementById('finishScreen');
+        const levelContent = document.getElementById('levelContent');
+        const levelBadge = document.getElementById('levelBadge');
+        const feedbackEl = document.getElementById('feedbackMessage');
+        const mascot = document.getElementById('mascot');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const finalScore = document.getElementById('finalScore');
+        const finalMessage = document.getElementById('finalMessage');
+        const restartBtn = document.getElementById('restartBtn');
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function prepareLevel1() {
+            return shuffleArray([...LEVEL1_DATA]);
+        }
+
+        function prepareLevel2() {
+            return shuffleArray(LEVEL2_DATA.map(q => ({
+                ...q,
+                options: shuffleArray([...q.options])
+            })));
+        }
+
+        function updateUIStats() {
+            scoreDisplay.textContent = `${score} / ${totalQuestions}`;
+            const percent = (currentIndex / totalQuestions) * 100;
+            progressFill.style.width = `${Math.min(100, percent)}%`;
+        }
+
+        // ============================================================
+        //  УРОВЕНЬ 1
+        // ============================================================
+        function renderLevel1(index) {
+            if (index >= totalQuestions) { showFinishScreen(); return; }
+            const q = questions[index];
+            selectedTokens = [];
+            foundPhrases = 0;
+            totalPhrases = q.phrases.length;
+            isAnswered = false;
+
+            // разбиваем предложение на слова (сохраняя знаки препинания)
+            const words = q.sentence.split(/(\s+)/).filter(w => w.trim().length > 0);
+
+            levelContent.innerHTML = `
+                <div class="center-text">
+                    <span class="phrase-counter">Найдено словосочетаний: <span id="phraseCount">0</span> / ${totalPhrases}</span>
+                </div>
+                <div class="task-hint">👆 Нажимай на слова, чтобы собрать словосочетание</div>
+                <div class="sentence-area" id="sentenceArea"></div>
+            `;
+
+            const area = document.getElementById('sentenceArea');
+            words.forEach((word) => {
+                const span = document.createElement('span');
+                span.className = 'word-token';
+                span.textContent = word;
+                const clean = word.replace(/[.,!?;:]/g, '').toLowerCase();
+                span.dataset.clean = clean;
+                span.dataset.original = word;
+                span.addEventListener('click', () => onTokenClickLevel1(span, q));
+                area.appendChild(span);
+            });
+
+            feedbackEl.className = 'feedback';
+            feedbackEl.innerHTML = '&nbsp;';
+            mascot.textContent = '🦉';
+            updateUIStats();
+        }
+
+        function onTokenClickLevel1(el, q) {
+            if (isAnswered) return;
+
+            // переключаем выделение
+            if (el.classList.contains('selected')) {
+                el.classList.remove('selected');
+                selectedTokens = selectedTokens.filter(w => w !== el.dataset.clean);
+                return;
+            }
+
+            el.classList.add('selected');
+            selectedTokens.push(el.dataset.clean);
+
+            // проверяем, совпадает ли выбранный набор с одной из фраз
+            const sortedSelected = [...selectedTokens].sort();
+
+            let matched = false;
+            let matchedPhrase = null;
+
+            for (const phrase of q.phrases) {
+                const sortedPhrase = phrase.map(w => w.toLowerCase()).sort();
+                if (sortedSelected.length === sortedPhrase.length &&
+                    sortedSelected.every((v, i) => v === sortedPhrase[i])) {
+                    matched = true;
+                    matchedPhrase = phrase;
+                    break;
+                }
+            }
+
+            if (matched && matchedPhrase) {
+                // НАШЛИ СЛОВОСОЧЕТАНИЕ!
+                const allTokens = document.querySelectorAll('.word-token');
+                // помечаем выбранные слова как правильные
+                document.querySelectorAll('.word-token.selected').forEach(t => {
+                    t.classList.add('correct-token');
+                    t.classList.remove('selected');
+                    t.classList.add('disabled-token');
+                });
+                selectedTokens = [];
+                foundPhrases++;
+                document.getElementById('phraseCount').textContent = foundPhrases;
+
+                feedbackEl.className = 'feedback ok';
+                feedbackEl.textContent = '✅ Нашёл словосочетание!';
+                mascot.textContent = '😊';
+
+                if (foundPhrases === totalPhrases) {
+                    // ВСЕ НАЙДЕНЫ!
+                    isAnswered = true;
+                    score++;
+                    feedbackEl.textContent = '🎉 Все словосочетания найдены! Молодец!';
+                    setTimeout(() => {
+                        currentIndex++;
+                        renderLevel1(currentIndex);
+                    }, 1200);
+                } else {
+                    // продолжаем искать
+                    setTimeout(() => {
+                        feedbackEl.className = 'feedback';
+                        feedbackEl.innerHTML = '&nbsp;';
+                        mascot.textContent = '🦉';
+                    }, 700);
+                }
+                updateUIStats();
+                return;
+            }
+
+            // если выбрано слишком много слов — сброс
+            const maxPhraseLength = Math.max(...q.phrases.map(p => p.length));
+            if (selectedTokens.length > maxPhraseLength) {
+                // сбрасываем все выделения
+                document.querySelectorAll('.word-token.selected').forEach(t => {
+                    t.classList.remove('selected');
+                });
+                selectedTokens = [];
+                feedbackEl.className = 'feedback fail';
+                feedbackEl.textContent = '❌ Слишком много слов. Попробуй ещё!';
+                mascot.textContent = '🫢';
+                setTimeout(() => {
+                    feedbackEl.className = 'feedback';
+                    feedbackEl.innerHTML = '&nbsp;';
+                    mascot.textContent = '🦉';
+                }, 800);
+            }
+        }
+
+        // ============================================================
+        //  УРОВЕНЬ 2
+        // ============================================================
+        function renderLevel2(index) {
+            if (index >= totalQuestions) { showFinishScreen(); return; }
+            const q = questions[index];
+            isAnswered = false;
+
+            levelContent.innerHTML = `
+                <div style="background:#fef5e8; padding:20px 16px; border-radius:60px; border:1px solid #f7d9b0; margin-bottom:12px;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:center; gap:6px 12px; font-size:1.2rem; color:#3d2b16;">
+                        <span>Главное слово:</span>
+                        <span style="background:#fbbc5a; padding:8px 24px; border-radius:60px; font-size:2.0rem; font-weight:700; color:#1f1307; box-shadow:0 4px 0 #b87c34;">${q.main}</span>
+                    </div>
+                    <div style="text-align:center; font-size:1rem; color:#73593b; margin-top:4px; font-style:italic;">${q.hint || 'Подбери подходящее слово'}</div>
+                </div>
+                <div class="options-grid" id="optionsContainer"></div>
+            `;
+
+            const container = document.getElementById('optionsContainer');
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.dataset.value = opt;
+                btn.addEventListener('click', onLevel2Click);
+                container.appendChild(btn);
+            });
+
+            feedbackEl.className = 'feedback';
+            feedbackEl.innerHTML = '&nbsp;';
+            mascot.textContent = '🦉';
+            updateUIStats();
+        }
+
+        function onLevel2Click(e) {
+            if (isAnswered) return;
+            const btn = e.currentTarget;
+            const selected = btn.dataset.value;
+            const q = questions[currentIndex];
+            const isCorrect = (selected === q.correct);
+
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                feedbackEl.className = 'feedback ok';
+                feedbackEl.textContent = '✅ ВЕРНО! Молодец!';
+                mascot.textContent = '😊';
+                score++;
+                isAnswered = true;
+                setTimeout(() => {
+                    currentIndex++;
+                    renderLevel2(currentIndex);
+                }, 900);
+            } else {
+                btn.classList.add('wrong');
+                feedbackEl.className = 'feedback fail';
+                feedbackEl.textContent = '❌ Подумай ещё! Попробуй другой вариант.';
+                mascot.textContent = '🫢';
+                setTimeout(() => {
+                    btn.classList.remove('wrong');
+                    feedbackEl.className = 'feedback';
+                    feedbackEl.innerHTML = '&nbsp;';
+                    mascot.textContent = '🦉';
+                    document.querySelectorAll('.option-btn').forEach(b => b.disabled = false);
+                }, 650);
+            }
+            updateUIStats();
+        }
+
+        // ============================================================
+        //  ОБЩИЙ РЕНДЕР
+        // ============================================================
+        function renderQuestion(index) {
+            if (currentLevel === 1) {
+                renderLevel1(index);
+            } else {
+                renderLevel2(index);
+            }
+        }
+
+        // ============================================================
+        //  ФИНАЛ
+        // ============================================================
+        function showFinishScreen() {
+            gameScreen.classList.add('hidden');
+            finishScreen.classList.remove('hidden');
+            finalScore.textContent = score;
+            let msg = '';
+            if (score >= 6) msg = '🌟 Ты настоящий Гений словосочетаний!';
+            else if (score >= 4) msg = '📚 Хороший результат! Читай книги, чтобы стать лучше!';
+            else msg = '💪 Ничего страшного! Попробуй ещё раз, у тебя всё получится!';
+            finalMessage.textContent = msg;
+            progressFill.style.width = '100%';
+        }
+
+        // ============================================================
+        //  СТАРТ
+        // ============================================================
+        function startLevel(level) {
+            currentLevel = level;
+            currentIndex = 0;
+            score = 0;
+            isAnswered = false;
+            selectedTokens = [];
+
+            if (level === 1) {
+                questions = prepareLevel1();
+                levelBadge.textContent = 'Уровень 1 · Найди все словосочетания';
+            } else {
+                questions = prepareLevel2();
+                levelBadge.textContent = 'Уровень 2 · Подбери пару';
+            }
+
+            introScreen.classList.add('hidden');
+            finishScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            renderQuestion(0);
+        }
+
+        // ============================================================
+        //  ОБРАБОТЧИКИ
+        // ============================================================
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const level = parseInt(btn.dataset.level);
+                startLevel(level);
+            });
+        });
+
+        restartBtn.addEventListener('click', () => {
+            finishScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            introScreen.classList.remove('hidden');
+        });
+
+        introScreen.classList.remove('hidden');
+        gameScreen.classList.add('hidden');
+        finishScreen.classList.add('hidden');
+    })();
+</script>
+</body>
+</html>
