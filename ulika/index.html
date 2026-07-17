@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Улики - Детективное бюро</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Montserrat:wght@500;700&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #2c3e50;
+            background-image: radial-gradient(#34495e 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .game-container {
+            background-color: #eae0c8;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
+            width: 95%;
+            max-width: 700px;
+            position: relative;
+        }
+
+        /* Эффект папки с делом */
+        .game-container::before {
+            content: "СОВЕРШЕННО СЕКРЕТНО";
+            position: absolute;
+            top: 10px;
+            left: -15px;
+            background-color: #c0392b;
+            color: white;
+            padding: 5px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            transform: rotate(-5deg);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        h1 { font-family: 'Courier Prime', monospace; color: #2c3e50; text-align: center; font-size: 34px; margin-top: 10px;}
+        h2 { color: #8e44ad; font-size: 20px; text-transform: uppercase; margin-bottom: 15px;}
+        
+        .screen { display: none; }
+        .active { display: block; }
+
+        .document-box {
+            font-family: 'Courier Prime', monospace;
+            background-color: #fdfbf7;
+            padding: 20px;
+            border: 1px solid #bdc3c7;
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        /* Имитация скрепки */
+        .document-box::before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 15px;
+            height: 40px;
+            border: 3px solid #7f8c8d;
+            border-radius: 10px;
+            background: transparent;
+            z-index: 10;
+        }
+
+        .question-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2980b9;
+        }
+
+        /* Кнопки ответов */
+        button {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            padding: 15px;
+            margin: 8px 0;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            font-weight: bold;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        button:hover { background-color: #bdc3c7; }
+        button:active { transform: translateY(2px); background-color: #95a5a6;}
+
+        /* Спец-кнопки для механики Правда/Ложь */
+        .tf-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .btn-true { background-color: #d5f5e3; border-color: #27ae60; text-align: center;}
+        .btn-true:hover { background-color: #abebc6; }
+        .btn-false { background-color: #fadbd8; border-color: #c0392b; text-align: center;}
+        .btn-false:hover { background-color: #f5b7b1; }
+
+        .btn-start {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            padding: 15px 30px;
+            width: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Статус */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .feedback {
+            font-size: 20px;
+            min-height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .correct { color: #27ae60; }
+        .wrong { color: #c0392b; }
+
+        .highlight { background-color: #f1c40f; padding: 0 5px; font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- Начальный экран -->
+    <div id="screen-start" class="screen active">
+        <h1>ДЕЛО №2: УЛИКИ 🔎</h1>
+        <div class="document-box">
+            Внимание, следователь!<br><br>
+            Вам предстоит работать с реальными уликами: расписаниями, испорченными записками и показаниями свидетелей. Информацию нужно не просто прочитать, а тщательно проанализировать.<br><br>
+            Ищите подвохи, проверяйте факты и делайте логические выводы.
+        </div>
+        <button class="btn-start" onclick="startGame()">ОТКРЫТЬ ПАПКУ</button>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game-ui" class="screen">
+        <div class="status-bar">
+            <span id="level-display">Улика 1</span>
+            <span id="progress-display">Осталось: 5</span>
+        </div>
+        
+        <h2 id="task-title">Задача</h2>
+        
+        <div id="main-content"></div>
+        <div id="interaction-area"></div>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- Экран победы -->
+    <div id="screen-win" class="screen" style="text-align: center;">
+        <h1>ДЕЛO ЗАКРЫТО! 📁</h1>
+        <div class="document-box" style="text-align: left;">
+            Блестящая работа! Вы умеете извлекать нужную информацию из списков, отличать правду от вымысла и находить главную мысль даже в запутанных текстах.<br><br>
+            В третьем классе такие навыки вам очень пригодятся!
+        </div>
+        <div style="font-size: 50px; margin: 20px 0;">🏅 🕵️‍♂️ 📝</div>
+        <button class="btn-start" onclick="location.reload()">НОВОЕ РАССЛЕДОВАНИЕ</button>
+    </div>
+</div>
+
+<script>
+    const levels = [
+        {
+            type: "table",
+            title: "УЛИКА 1: График дежурств",
+            text: `ГРАФИК УБОРКИ КЛАССА:<br>
+            Понедельник — Иванов и Смирнов (поливают цветы)<br>
+            Вторник — Петрова и Сидорова (моют доску)<br>
+            Среда — Кузнецов и Морозов (выносят мусор)<br>
+            Четверг — Иванов и Сидорова (раскладывают тетради)<br>
+            Пятница — Смирнов и Петрова (генеральная уборка)`,
+            question: "В какой день недели Петрова и Сидорова дежурят ВМЕСТЕ?",
+            options: ["В понедельник", "Во вторник", "В четверг", "В пятницу"],
+            correct: 1
+        },
+        {
+            type: "boolean",
+            title: "УЛИКА 2: Проверка фактов",
+            text: "ПОКАЗАНИЯ СВИДЕТЕЛЯ:<br>«Вчера мы с друзьями пошли за грибами. День был пасмурный, но дождь так и не пошёл. Я нашёл три белых гриба и одну сыроежку. Мой друг Миша не нашёл ничего, поэтому я отдал ему свою единственную сыроежку».",
+            question: "Утверждение: «В корзинке у Миши лежал один белый гриб». Это правда или ложь?",
+            options: ["Правда", "Ложь"], // Ложь, так как ему отдали сыроежку
+            correct: 1
+        },
+        {
+            type: "logic-gap",
+            title: "УЛИКА 3: Испорченный документ",
+            text: "Птицы улетают осенью на юг не только потому, что им становится холодно. Главная причина в том, что поздней осенью замерзают водоёмы и прячутся насекомые. Из-за этого птицам становится нечего <span class='highlight'>[ ... ]</span>, и они отправляются в тёплые края.",
+            question: "Какое слово было на месте пропуска?",
+            options: ["бояться", "строить", "есть", "петь"],
+            correct: 2
+        },
+        {
+            type: "synthesis",
+            title: "УЛИКА 4: Фоторобот по тексту",
+            text: "ОПИСАНИЕ ПОДОЗРЕВАЕМОГО:<br>«Он был не очень высокого роста. На голове у него точно не было шляпы, зато он носил очки с тёмной оправой. В руках он держал синий зонтик-трость, а не красный складной».",
+            question: "Выберите, кто из них нужный нам человек?",
+            options: [
+                "Высокий, в очках, с красным зонтом.",
+                "Невысокий, без шляпы, в очках, с синим зонтом.",
+                "Невысокий, в шляпе, без очков, с синим зонтом."
+            ],
+            correct: 1
+        },
+        {
+            type: "proverb",
+            title: "УЛИКА 5: Скрытый мотив",
+            text: "Один мальчик всё лето катался на велосипеде и играл в приставку, а про список литературы на лето забыл. В сентябре на первом же уроке учительница попросила его рассказать о прочитанной книге. Мальчик краснел, молчал и в итоге получил плохую оценку.",
+            question: "Какая пословица является ГЛАВНОЙ УЛИКОЙ (моралью) к этому тексту?",
+            options: [
+                "Любишь кататься — люби и саночки возить.",
+                "Не имей сто рублей, а имей сто друзей.",
+                "Делу — время, а потехе — час."
+            ],
+            correct: 2
+        }
+    ];
+
+    let currentLevel = 0;
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGame() {
+        currentLevel = 0;
+        showScreen('game-ui');
+        loadLevel();
+    }
+
+    function loadLevel() {
+        if (currentLevel >= levels.length) {
+            showScreen('screen-win');
+            return;
+        }
+
+        const levelData = levels[currentLevel];
+        
+        document.getElementById('level-display').innerText = `Улика ${currentLevel + 1} из ${levels.length}`;
+        document.getElementById('progress-display').innerText = `Осталось: ${levels.length - currentLevel}`;
+        document.getElementById('task-title').innerText = levelData.title;
+        
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = '';
+        feedback.className = 'feedback';
+
+        const mainContent = document.getElementById('main-content');
+        const interactionArea = document.getElementById('interaction-area');
+        
+        // Рендер текста
+        mainContent.innerHTML = `<div class="document-box">${levelData.text}</div><div class="question-title">${levelData.question}</div>`;
+        interactionArea.innerHTML = '';
+
+        // Рендер кнопок в зависимости от типа уровня
+        if (levelData.type === 'boolean') {
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'tf-container';
+            
+            const btnTrue = document.createElement('button');
+            btnTrue.className = 'btn-true';
+            btnTrue.innerText = '✅ ПРАВДА';
+            btnTrue.onclick = () => checkAnswer(0, levelData.correct);
+            
+            const btnFalse = document.createElement('button');
+            btnFalse.className = 'btn-false';
+            btnFalse.innerText = '❌ ЛОЖЬ';
+            btnFalse.onclick = () => checkAnswer(1, levelData.correct);
+
+            btnContainer.appendChild(btnTrue);
+            btnContainer.appendChild(btnFalse);
+            interactionArea.appendChild(btnContainer);
+        } else {
+            // Для остальных типов создаем обычные списки ответов
+            levelData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, levelData.correct);
+                interactionArea.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAnswer(selectedIndex, correctIndex) {
+        const feedback = document.getElementById('feedback');
+        const isCorrect = selectedIndex === correctIndex;
+
+        if (isCorrect) {
+            feedback.innerText = "ФАКТ ПОДТВЕРЖДЁН! Отлично! 🔎";
+            feedback.className = "feedback correct";
+            
+            // Блокируем кнопки
+            const buttons = document.querySelectorAll('#interaction-area button');
+            buttons.forEach(b => b.disabled = true);
+
+            setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+            }, 1800);
+        } else {
+            feedback.innerText = "НЕСОСТЫКОВКА! Перечитайте улику внимательнее. 🛑";
+            feedback.className = "feedback wrong";
+        }
+    }
+</script>
+
+</body>
+</html>

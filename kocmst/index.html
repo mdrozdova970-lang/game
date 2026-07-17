@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5, viewport-fit=cover">
+  <title>Космическая станция Звездочёт · Починка навигатора</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #020518;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      padding: 12px;
+      margin: 0;
+      touch-action: manipulation;
+    }
+    .game-container {
+      width: 100%;
+      max-width: 750px;
+      background: #0a0e27;
+      border-radius: 48px 48px 32px 32px;
+      box-shadow: 0 20px 40px rgba(0, 180, 255, 0.3), 0 0 0 2px rgba(255, 255, 200, 0.2);
+      padding: 18px 18px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 36px;
+      background: radial-gradient(circle at 20% 30%, #141b3a, #020210);
+      box-shadow: inset 0 0 40px rgba(0, 160, 255, 0.4), 0 10px 25px black;
+      touch-action: none;
+    }
+    .info-panel {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px 20px;
+      color: #f0e68c;
+      font-weight: bold;
+      font-size: 1rem;
+      text-shadow: 0 0 10px #ffb347;
+      background: rgba(10, 15, 40, 0.7);
+      padding: 10px 18px;
+      border-radius: 60px;
+      backdrop-filter: blur(8px);
+      margin-top: 4px;
+    }
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1f3a;
+      padding: 5px 16px;
+      border-radius: 30px;
+    }
+    .progress-bar-bg {
+      width: 120px;
+      height: 14px;
+      background: #2a2f4a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px black;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #f9d56e, #ffb347);
+      border-radius: 10px;
+      box-shadow: 0 0 15px #ffaa33;
+      transition: width 0.25s ease;
+    }
+    .question-box {
+      background: #1b1f42;
+      border-radius: 40px;
+      padding: 12px 24px;
+      margin: 5px 0;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #FFD966;
+      text-shadow: 0 0 15px orange;
+      letter-spacing: 2px;
+    }
+    .answers-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin: 8px 0 4px;
+    }
+    .answer-btn {
+      background: #2f3b6b;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.8rem;
+      min-width: 75px;
+      min-height: 70px;
+      padding: 12px 18px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #4b5a9e 0%, #1f254e 100%);
+      box-shadow: 0 7px 0 #0b0f2c, 0 10px 20px rgba(0, 160, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.08s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    .answer-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 3px 0 #0b0e2a, 0 8px 16px cyan;
+    }
+    .level-btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      background: #21295c;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 12px 20px;
+      border-radius: 50px;
+      background: linear-gradient(180deg, #3b4782 0%, #1b1f4b 100%);
+      box-shadow: 0 7px 0 #0b0e2a, 0 12px 22px rgba(0, 160, 255, 0.4);
+      cursor: pointer;
+      transition: 0.08s ease;
+      min-width: 70px;
+      min-height: 55px;
+      text-shadow: 0 2px 4px black;
+    }
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 3px 0 #0b0e2a, 0 8px 16px cyan;
+    }
+    .message-area {
+      font-size: 1.1rem;
+      min-height: 2.2rem;
+      color: #ffe484;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <canvas id="gameCanvas" width="700" height="420" aria-label="Звёздное небо с корабликом"></canvas>
+
+  <div class="info-panel">
+    <span id="starCounter">🌟 0 / 5</span>
+    <div class="progress-wrap">
+      <span>🛰️ Марс</span>
+      <div class="progress-bar-bg">
+        <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+    <span id="levelIndicator">Уровень 1</span>
+  </div>
+
+  <div class="question-box" id="currentExample">8 + 5 = ?</div>
+
+  <div class="answers-grid" id="answersContainer">
+    <button class="answer-btn">12</button>
+    <button class="answer-btn">13</button>
+    <button class="answer-btn">14</button>
+    <button class="answer-btn">15</button>
+  </div>
+
+  <div class="message-area" id="messageBox">✨ Нажми на звезду и выбери ответ!</div>
+
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+    <div class="level-btns">
+      <button class="btn" id="btnLevel1">🌍 Ур.1</button>
+      <button class="btn" id="btnLevel2">🌗 Ур.2</button>
+      <button class="btn" id="btnLevel3">🪐 Ур.3</button>
+    </div>
+    <button class="btn" id="btnRestart">🔄 Заново</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI элементы
+    const starCounterSpan = document.getElementById('starCounter');
+    const progressFill = document.getElementById('progressFill');
+    const levelIndicator = document.getElementById('levelIndicator');
+    const messageBox = document.getElementById('messageBox');
+    const currentExampleDiv = document.getElementById('currentExample');
+    const answersContainer = document.getElementById('answersContainer');
+
+    // Звуки
+    let audioCtx = null;
+    function initAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {}
+    }
+    function playTone(freq, dur, type = 'sine') {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    }
+    function soundSuccess() { playTone(800, 0.12); }
+    function soundError() { playTone(200, 0.22, 'triangle'); }
+    function soundMars() {
+      playTone(523, 0.14); setTimeout(() => playTone(659, 0.14), 130);
+      setTimeout(() => playTone(784, 0.16), 260);
+    }
+
+    // Состояние
+    const LEVELS = {
+      1: { name: 'Уровень 1', starRadius: 38, showRays: true },
+      2: { name: 'Уровень 2', starRadius: 30, showRays: false },
+      3: { name: 'Уровень 3', starRadius: 25, showRays: false }
+    };
+    let currentLevel = 1;
+    let stars = [];
+    let activeStarIndex = 0;
+    let shipPosition = { x: 0, y: 0 };
+    let targetShipPos = { x: 0, y: 0 };
+    let animationId = null;
+    let levelCompleted = false;
+    let mistakeCountOnCurrentStar = 0;
+    const MAX_MISTAKES_HARD = 2;
+    let earthPos = { x: 90, y: 210 };
+    let marsPos = { x: 610, y: 210 };
+
+    // Генерация примеров
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function generateExamples(level, count = 5) {
+      const ex = [];
+      if (level === 1) {
+        for (let i = 0; i < count; i++) {
+          let a = getRandomInt(6, 9), b = getRandomInt(5, 9);
+          while (a + b <= 10 || a + b > 20) { a = getRandomInt(6, 9); b = getRandomInt(5, 9); }
+          ex.push({ text: `${a} + ${b}`, answer: a + b });
+        }
+      } else if (level === 2) {
+        for (let i = 0; i < count; i++) {
+          let tens = getRandomInt(2, 7) * 10;
+          let add = getRandomInt(1, 4) * 10;
+          ex.push({ text: `${tens} + ${add}`, answer: tens + add });
+        }
+      } else {
+        for (let i = 0; i < count; i++) {
+          let a = getRandomInt(35, 65), b = getRandomInt(22, 45);
+          while ((a % 10) + (b % 10) < 10 || a + b > 99) a = getRandomInt(35, 65);
+          ex.push({ text: `${a} + ${b}`, answer: a + b });
+        }
+      }
+      return ex;
+    }
+
+    function buildStars(level) {
+      const examples = generateExamples(level, 5);
+      const startX = earthPos.x + 45, endX = marsPos.x - 45;
+      const step = (endX - startX) / 4;
+      return examples.map((ex, i) => ({
+        x: startX + i * step,
+        y: canvas.height / 2 + (i % 2 === 0 ? -28 : 32),
+        example: ex.text,
+        answer: ex.answer,
+        activated: false,
+        index: i
+      }));
+    }
+
+    function generateAnswerOptions(correctAnswer, level) {
+      const options = new Set();
+      options.add(correctAnswer);
+      while (options.size < 4) {
+        let offset = getRandomInt(1, level === 1 ? 4 : 7);
+        if (Math.random() < 0.5) offset *= -1;
+        let fake = correctAnswer + offset;
+        if (fake >= 0 && fake <= (level === 1 ? 25 : 110)) options.add(fake);
+      }
+      return Array.from(options).sort((a, b) => a - b);
+    }
+
+    function updateQuestionForStar(star) {
+      if (!star || star.activated) {
+        currentExampleDiv.textContent = '✅';
+        answersContainer.innerHTML = '';
+        return;
+      }
+      currentExampleDiv.textContent = `${star.example} = ?`;
+      const opts = generateAnswerOptions(star.answer, currentLevel);
+      answersContainer.innerHTML = opts.map(val => 
+        `<button class="answer-btn">${val}</button>`
+      ).join('');
+    }
+
+    function resetLevel(level) {
+      currentLevel = level;
+      stars = buildStars(level);
+      activeStarIndex = 0;
+      levelCompleted = false;
+      mistakeCountOnCurrentStar = 0;
+      shipPosition = { x: earthPos.x, y: earthPos.y };
+      targetShipPos = { x: earthPos.x, y: earthPos.y };
+      levelIndicator.textContent = LEVELS[level].name;
+      messageBox.textContent = '✨ Выбери первую звезду и ответ!';
+      if (stars.length > 0) updateQuestionForStar(stars[0]);
+      else currentExampleDiv.textContent = '🎉';
+      updateUI();
+      if (animationId) cancelAnimationFrame(animationId);
+      animate();
+    }
+
+    function activateStar(star) {
+      star.activated = true;
+      soundSuccess();
+      targetShipPos = { x: star.x, y: star.y };
+      activeStarIndex++;
+      mistakeCountOnCurrentStar = 0;
+      if (activeStarIndex >= stars.length) {
+        targetShipPos = { x: marsPos.x, y: marsPos.y };
+        levelCompleted = true;
+        soundMars();
+        messageBox.textContent = '🎉 Курс проложен! 🚀 Марс достигнут!';
+        currentExampleDiv.textContent = '🏆';
+        answersContainer.innerHTML = '';
+      } else {
+        messageBox.textContent = `🌟 Отлично! Осталось ${stars.length - activeStarIndex} зв.`;
+        updateQuestionForStar(stars[activeStarIndex]);
+      }
+      updateUI();
+    }
+
+    function handleWrongAnswer() {
+      soundError();
+      if (currentLevel === 3) {
+        mistakeCountOnCurrentStar++;
+        if (mistakeCountOnCurrentStar >= MAX_MISTAKES_HARD) {
+          messageBox.textContent = '🌀 Чёрная дыра! Уровень перезапущен.';
+          setTimeout(() => resetLevel(3), 500);
+          return;
+        }
+        messageBox.textContent = `⚠️ Ошибка! Осталось попыток: ${MAX_MISTAKES_HARD - mistakeCountOnCurrentStar}`;
+      } else {
+        messageBox.textContent = '❌ Попробуй другой ответ!';
+      }
+    }
+
+    function onAnswerClick(answerValue) {
+      if (levelCompleted) return;
+      const currentStar = stars[activeStarIndex];
+      if (!currentStar || currentStar.activated) return;
+      if (answerValue === currentStar.answer) {
+        activateStar(currentStar);
+      } else {
+        handleWrongAnswer();
+      }
+    }
+
+    // Клик по canvas (выбор звезды)
+    function onCanvasClick(e) {
+      e.preventDefault();
+      initAudio();
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      let clientX, clientY;
+      if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+      else { clientX = e.clientX; clientY = e.clientY; }
+      const cx = (clientX - rect.left) * scaleX;
+      const cy = (clientY - rect.top) * scaleY;
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        if (s.activated) continue;
+        const r = LEVELS[currentLevel].starRadius + 8;
+        if (Math.hypot(cx - s.x, cy - s.y) <= r) {
+          if (i === activeStarIndex) {
+            updateQuestionForStar(s);
+            messageBox.textContent = `🌟 Решай: ${s.example}`;
+          } else {
+            messageBox.textContent = '⏳ Сначала нужно активировать предыдущую звезду!';
+          }
+          break;
+        }
+      }
+    }
+
+    function updateUI() {
+      const activated = stars.filter(s => s.activated).length;
+      starCounterSpan.textContent = `🌟 ${activated} / ${stars.length}`;
+      progressFill.style.width = `${(activated / stars.length) * 100}%`;
+    }
+
+    // Рисование
+    function drawBackground() {
+      for (let i = 0; i < 55; i++) {
+        const sx = (i * 41 + 17) % canvas.width;
+        const sy = (i * 73 + 23) % canvas.height;
+        ctx.fillStyle = `rgba(255,255,220,${0.4+Math.sin(Date.now()*0.003+i)*0.25})`;
+        ctx.beginPath(); ctx.arc(sx, sy, 1.3, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    function drawPlanet(x, y, color, isMars) {
+      ctx.shadowColor = color; ctx.shadowBlur = 18;
+      ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    function drawStarsAndLines() {
+      const points = [earthPos, ...stars.map(s => ({x:s.x,y:s.y})), marsPos];
+      for (let i = 0; i < points.length-1; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = (i < activeStarIndex || levelCompleted) ? '#ffffff' : '#556';
+        ctx.setLineDash((i < activeStarIndex || levelCompleted) ? [] : [7,7]);
+        ctx.moveTo(points[i].x, points[i].y);
+        ctx.lineTo(points[i+1].x, points[i+1].y);
+        ctx.stroke();
+      }
+      stars.forEach(s => {
+        const r = LEVELS[currentLevel].starRadius;
+        ctx.shadowColor = s.activated ? 'white' : '#FFD700';
+        ctx.shadowBlur = s.activated ? 22 : 10;
+        ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 2*Math.PI);
+        ctx.fillStyle = s.activated ? '#FFFFFF' : '#FFD700';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+    }
+    function drawShip() {
+      ctx.save(); ctx.translate(shipPosition.x, shipPosition.y);
+      ctx.rotate(Math.atan2(targetShipPos.y - shipPosition.y, targetShipPos.x - shipPosition.x));
+      ctx.fillStyle = '#E0E0FF'; ctx.shadowColor = 'cyan'; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-9,-8); ctx.lineTo(-9,8); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    function animate() {
+      const dx = targetShipPos.x - shipPosition.x;
+      const dy = targetShipPos.y - shipPosition.y;
+      if (Math.hypot(dx, dy) > 1.2) {
+        shipPosition.x += dx * 0.09;
+        shipPosition.y += dy * 0.09;
+      }
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawBackground();
+      drawStarsAndLines();
+      drawPlanet(earthPos.x, earthPos.y, '#4A90E2', false);
+      drawPlanet(marsPos.x, marsPos.y, '#E57373', true);
+      drawShip();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // Привязка событий
+    canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onCanvasClick(e); }, {passive: false});
+    answersContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.answer-btn');
+      if (!btn) return;
+      initAudio();
+      const val = parseInt(btn.textContent, 10);
+      if (!isNaN(val)) onAnswerClick(val);
+    });
+    document.getElementById('btnLevel1').addEventListener('click', () => resetLevel(1));
+    document.getElementById('btnLevel2').addEventListener('click', () => resetLevel(2));
+    document.getElementById('btnLevel3').addEventListener('click', () => resetLevel(3));
+    document.getElementById('btnRestart').addEventListener('click', () => resetLevel(currentLevel));
+
+    earthPos = { x: 90, y: canvas.height/2 };
+    marsPos = { x: canvas.width-90, y: canvas.height/2 };
+    resetLevel(1);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Летняя Математика - 2 Класс</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+        body {
+            font-family: 'Comic Neue', cursive, sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            color: #333;
+        }
+
+        .game-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 95%;
+            max-width: 550px;
+            border: 4px solid #4dd0e1;
+            box-sizing: border-box;
+        }
+
+        h1 { color: #ff9800; font-size: 32px; }
+        h2 { color: #00bcd4; font-size: 24px; }
+        
+        .screen { display: none; }
+        .active { display: block; }
+
+        .question {
+            font-size: 32px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #2c3e50;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Кнопки */
+        button {
+            font-family: 'Comic Neue', cursive;
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 8px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 4px 0 #388E3C;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #388E3C;
+        }
+
+        button.option-btn { background-color: #2196F3; box-shadow: 0 4px 0 #1976D2; font-size: 22px; width: 120px; max-width: 100%;}
+        button.sign-btn { background-color: #ff9800; box-shadow: 0 4px 0 #F57C00; font-size: 30px; width: 80px;}
+        button.logic-btn { background-color: #9c27b0; box-shadow: 0 4px 0 #7b1fa2; font-size: 22px; width: 140px;}
+        
+        /* Поле ввода */
+        input[type="number"] {
+            font-family: 'Comic Neue', cursive;
+            font-size: 30px;
+            width: 120px;
+            text-align: center;
+            padding: 10px;
+            border: 3px solid #00bcd4;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Статус и обратная связь */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+        }
+
+        .feedback {
+            font-size: 22px;
+            height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .correct { color: #4CAF50; }
+        .wrong { color: #f44336; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- Начальный экран -->
+    <div id="screen-start" class="screen active">
+        <h1>🌞 Супер-Математика 🌞</h1>
+        <p>Тебя ждут 6 уровней: мы проверим сложение, вычитание, умножение, деление и логику! Готов?</p>
+        <button onclick="startGame()" style="font-size: 24px; padding: 15px 30px;">Начать игру! 🚀</button>
+    </div>
+
+    <!-- Общий интерфейс для уровней -->
+    <div id="game-ui" class="screen">
+        <div class="status-bar">
+            <span id="level-display">Уровень: 1</span>
+            <span id="progress-display">Вопрос: 1/5</span>
+        </div>
+        
+        <h2 id="level-title">Название уровня</h2>
+        <div id="question-text" class="question">2 + 2 = ?</div>
+
+        <!-- Механика 1: Три варианта ответа (математика и задачи) -->
+        <div id="mechanic-1" style="display: none;">
+            <button class="option-btn" onclick="checkAnswer1(this)"></button>
+            <button class="option-btn" onclick="checkAnswer1(this)"></button>
+            <button class="option-btn" onclick="checkAnswer1(this)"></button>
+        </div>
+
+        <!-- Механика 2: Знаки больше/меньше -->
+        <div id="mechanic-2" style="display: none;">
+            <button class="sign-btn" onclick="checkAnswer2('<')">&lt;</button>
+            <button class="sign-btn" onclick="checkAnswer2('=')">=</button>
+            <button class="sign-btn" onclick="checkAnswer2('>')">&gt;</button>
+        </div>
+
+        <!-- Механика 3: Ввод числа -->
+        <div id="mechanic-3" style="display: none;">
+            <input type="number" id="answer-input" placeholder="?">
+            <br>
+            <button onclick="checkAnswer3()">Проверить ✔️</button>
+        </div>
+
+        <!-- Механика 4: Четное / Нечетное -->
+        <div id="mechanic-4" style="display: none;">
+            <button class="logic-btn" onclick="checkAnswer4(true)">Чётное</button>
+            <button class="logic-btn" onclick="checkAnswer4(false)">Нечётное</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- Экран победы -->
+    <div id="screen-win" class="screen">
+        <h1>🎉 ТЫ ГЕНИЙ! 🎉</h1>
+        <p>Математика пройдена на отлично! Третий класс ждёт тебя!</p>
+        <div style="font-size: 60px; margin: 20px 0;">🥇 📚 🍦</div>
+        <button onclick="location.reload()">Играть снова</button>
+    </div>
+</div>
+
+<script>
+    const totalLevels = 6;
+    const questionsPerLevel = 5;
+    
+    let currentLevel = 1;
+    let currentQuestion = 1;
+    
+    let correctAnswer = 0;
+    let correctSign = '';
+    let isCorrectEven = false;
+
+    // Массив текстовых задач на умножение и деление (Уровень 6)
+    const mathWordProblems = [
+        { q: "У 4 кошек по 4 лапы. Сколько всего лап у этих кошек?", a: "16", options: ["12", "16", "20"] },
+        { q: "15 конфет раздали 3 детям поровну. Сколько конфет получил каждый?", a: "5", options: ["3", "5", "12"] },
+        { q: "В классе 18 парт расставили в 2 одинаковых ряда. Сколько парт в ряду?", a: "9", options: ["8", "9", "10"] },
+        { q: "Купили 5 пакетов сока по 2 литра. Сколько всего литров сока?", a: "10", options: ["7", "10", "12"] },
+        { q: "20 яблок разложили в пакеты, по 5 штук в каждый. Сколько понадобилось пакетов?", a: "4", options: ["4", "5", "15"] }
+    ];
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function showMechanic(id) {
+        document.getElementById('mechanic-1').style.display = 'none';
+        document.getElementById('mechanic-2').style.display = 'none';
+        document.getElementById('mechanic-3').style.display = 'none';
+        document.getElementById('mechanic-4').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+
+    function startGame() {
+        currentLevel = 1;
+        currentQuestion = 1;
+        showScreen('game-ui');
+        loadQuestion();
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateStatusBar() {
+        document.getElementById('level-display').innerText = `Уровень: ${currentLevel}/${totalLevels}`;
+        document.getElementById('progress-display').innerText = `Вопрос: ${currentQuestion}/${questionsPerLevel}`;
+        document.getElementById('feedback').innerText = '';
+        
+        // Меняем размер шрифта для длинных текстов в 6 уровне
+        if(currentLevel === 6) {
+            document.getElementById('question-text').style.fontSize = '24px';
+        } else {
+            document.getElementById('question-text').style.fontSize = '40px';
+        }
+    }
+
+    function loadQuestion() {
+        updateStatusBar();
+        document.getElementById('answer-input').value = '';
+
+        if (currentLevel === 1) {
+            // --- УРОВЕНЬ 1: Сложение и вычитание ---
+            document.getElementById('level-title').innerText = "Выбери правильный ответ";
+            showMechanic('mechanic-1');
+            
+            let a = getRandomInt(10, 50);
+            let b = getRandomInt(10, 49);
+            let isAddition = Math.random() > 0.5;
+            
+            if (isAddition) {
+                correctAnswer = (a + b).toString();
+                document.getElementById('question-text').innerText = `${a} + ${b} = ?`;
+            } else {
+                if (a < b) { let temp = a; a = b; b = temp; }
+                correctAnswer = (a - b).toString();
+                document.getElementById('question-text').innerText = `${a} - ${b} = ?`;
+            }
+
+            generateOptionsForMechanic1(parseInt(correctAnswer), true);
+        } 
+        else if (currentLevel === 2) {
+            // --- УРОВЕНЬ 2: Сравнение ---
+            document.getElementById('level-title').innerText = "Какой знак поставим?";
+            showMechanic('mechanic-2');
+
+            let a = getRandomInt(10, 99);
+            let b = getRandomInt(10, 99);
+            if (Math.random() < 0.15) b = a; // шанс на равно
+
+            document.getElementById('question-text').innerText = `${a} ... ${b}`;
+
+            if (a < b) correctSign = '<';
+            else if (a > b) correctSign = '>';
+            else correctSign = '=';
+        }
+        else if (currentLevel === 3) {
+            // --- УРОВЕНЬ 3: Умножение ---
+            document.getElementById('level-title').innerText = "Таблица умножения";
+            showMechanic('mechanic-3');
+
+            let a = getRandomInt(2, 5); 
+            let b = getRandomInt(2, 9);
+            correctAnswer = (a * b).toString();
+
+            document.getElementById('question-text').innerText = `${a} × ${b} = ?`;
+            setTimeout(() => document.getElementById('answer-input').focus(), 100);
+        }
+        else if (currentLevel === 4) {
+            // --- УРОВЕНЬ 4: Числовые ряды (Логика) ---
+            document.getElementById('level-title').innerText = "Продолжи ряд чисел";
+            showMechanic('mechanic-3');
+
+            let start = getRandomInt(2, 15);
+            let step = getRandomInt(2, 5);
+            let isForward = Math.random() > 0.3; // чаще идет на увеличение
+
+            if(!isForward) {
+                start = getRandomInt(30, 60);
+                step = -step;
+            }
+
+            let seq = [start, start + step, start + step*2, start + step*3];
+            correctAnswer = (start + step*4).toString();
+
+            document.getElementById('question-text').innerText = `${seq[0]}, ${seq[1]}, ${seq[2]}, ${seq[3]}, ... ?`;
+            setTimeout(() => document.getElementById('answer-input').focus(), 100);
+        }
+        else if (currentLevel === 5) {
+            // --- УРОВЕНЬ 5: Четное/Нечетное (Логика свойств чисел) ---
+            document.getElementById('level-title').innerText = "Это число делится на 2?";
+            showMechanic('mechanic-4');
+
+            let num = getRandomInt(11, 99);
+            isCorrectEven = (num % 2 === 0);
+            
+            document.getElementById('question-text').innerText = `Число ${num}`;
+        }
+        else if (currentLevel === 6) {
+            // --- УРОВЕНЬ 6: Текстовые задачи на умножение и деление ---
+            document.getElementById('level-title').innerText = "Текстовые задачи";
+            showMechanic('mechanic-1');
+
+            let problem = mathWordProblems[currentQuestion - 1];
+            correctAnswer = problem.a;
+            document.getElementById('question-text').innerText = problem.q;
+
+            // Расставляем варианты ответов
+            let btns = document.querySelectorAll('.option-btn');
+            let shuffledOptions = [...problem.options].sort(() => Math.random() - 0.5);
+            
+            btns[0].innerText = shuffledOptions[0];
+            btns[1].innerText = shuffledOptions[1];
+            btns[2].innerText = shuffledOptions[2];
+        }
+    }
+
+    // Вспомогательная функция для генерации кнопок в 1 механике
+    function generateOptionsForMechanic1(correctNum, isNumber) {
+        let options = [correctNum];
+        while(options.length < 3) {
+            let wrongAnswer = correctNum + getRandomInt(-10, 10);
+            if (wrongAnswer !== correctNum && wrongAnswer >= 0 && !options.includes(wrongAnswer)) {
+                options.push(wrongAnswer);
+            }
+        }
+        options.sort(() => Math.random() - 0.5);
+        let btns = document.querySelectorAll('.option-btn');
+        btns[0].innerText = options[0];
+        btns[1].innerText = options[1];
+        btns[2].innerText = options[2];
+    }
+
+    // Обработчики кнопок
+    function checkAnswer1(btn) {
+        processResult(btn.innerText === correctAnswer);
+    }
+
+    function checkAnswer2(sign) {
+        processResult(sign === correctSign);
+    }
+
+    function checkAnswer3() {
+        let answer = document.getElementById('answer-input').value.trim();
+        if (answer === '') return;
+        processResult(answer === correctAnswer);
+    }
+
+    function checkAnswer4(userChoseEven) {
+        processResult(userChoseEven === isCorrectEven);
+    }
+
+    document.getElementById('answer-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') checkAnswer3();
+    });
+
+    function processResult(isCorrect) {
+        let feedback = document.getElementById('feedback');
+        if (isCorrect) {
+            feedback.innerText = "Правильно! Умница! ⭐";
+            feedback.className = "feedback correct";
+            
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion > questionsPerLevel) {
+                    currentQuestion = 1;
+                    currentLevel++;
+                }
+
+                if (currentLevel > totalLevels) {
+                    showScreen('screen-win');
+                } else {
+                    loadQuestion();
+                }
+            }, 1200);
+        } else {
+            feedback.innerText = "Ой, ошибочка! Подумай еще раз 🤔";
+            feedback.className = "feedback wrong";
+            
+            // Если это поля ввода - очищаем их
+            if (currentLevel === 3 || currentLevel === 4) {
+                document.getElementById('answer-input').value = '';
+                document.getElementById('answer-input').focus();
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

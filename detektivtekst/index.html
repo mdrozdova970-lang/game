@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детектив по текстам - 2 класс</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .game-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 95%;
+            max-width: 700px;
+            border: 4px solid #3498db;
+            box-sizing: border-box;
+        }
+
+        h1 { color: #e74c3c; text-align: center; }
+        h2 { color: #2980b9; font-size: 22px; margin-bottom: 10px; }
+        
+        .screen { display: none; }
+        .active { display: block; }
+
+        .text-box {
+            background-color: #fff9c4;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border-left: 5px solid #f1c40f;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .question-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #8e44ad;
+        }
+
+        /* Кнопки */
+        button {
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            padding: 12px 20px;
+            margin: 8px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            background-color: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 0 #27ae60;
+            font-weight: bold;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #27ae60;
+        }
+
+        button:hover { background-color: #2c3e50; box-shadow: 0 4px 0 #1a252f;}
+
+        /* Специфичные кнопки для ответов */
+        .answer-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #3498db;
+            box-shadow: 0 4px 0 #2980b9;
+            margin: 10px 0;
+            white-space: normal;
+        }
+
+        .answer-btn:hover { background-color: #2980b9; }
+
+        /* Для задания "Найди лишнее" */
+        .sentence-btn {
+            background-color: #ecf0f1;
+            color: #333;
+            box-shadow: 0 4px 0 #bdc3c7;
+            text-align: left;
+            width: 100%;
+            margin: 5px 0;
+            font-weight: normal;
+            font-size: 18px;
+        }
+        .sentence-btn:hover { background-color: #d5dbdb; box-shadow: 0 4px 0 #95a5a6; color: #333;}
+
+        /* Для задания "Восстанови порядок" */
+        #order-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order-item {
+            background-color: #e8f8f5;
+            padding: 15px;
+            border: 2px dashed #1abc9c;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .order-result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fcf3cf;
+            border-radius: 10px;
+            min-height: 100px;
+        }
+
+        /* Статус */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .feedback {
+            font-size: 20px;
+            min-height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .correct { color: #27ae60; }
+        .wrong { color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- Начальный экран -->
+    <div id="screen-start" class="screen active">
+        <h1>🕵️‍♂️ Детектив по текстам 🕵️‍♀️</h1>
+        <div class="text-box" style="text-align: left;">
+            Привет, агент! В нашей библиотеке кто-то перепутал все книги. Заголовки исчезли, предложения перемешались, а в некоторые истории пробрались чужие слова.<br><br>
+            Твоя задача — навести порядок в информации. Включай логику и внимательность!
+        </div>
+        <div style="text-align: center;">
+            <button onclick="startGame()" style="font-size: 22px; padding: 15px 40px; background-color: #e67e22; box-shadow: 0 4px 0 #d35400;">Начать расследование 🔍</button>
+        </div>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game-ui" class="screen">
+        <div class="status-bar">
+            <span id="level-display">Дело №1</span>
+            <span id="progress-display">Осталось: 5</span>
+        </div>
+        
+        <h2 id="task-title">Задание</h2>
+        
+        <div id="main-content">
+            <!-- Сюда подгружается текст или элементы уровня -->
+        </div>
+
+        <div id="interaction-area">
+            <!-- Сюда подгружаются кнопки ответов -->
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- Экран победы -->
+    <div id="screen-win" class="screen" style="text-align: center;">
+        <h1>🎉 Дело раскрыто! 🎉</h1>
+        <div class="text-box">
+            Отличная работа, Агент! Ты мастерски умеешь работать с текстом: находить главное, видеть лишнее и выстраивать логику. Библиотека спасена!
+        </div>
+        <div style="font-size: 60px; margin: 20px 0;">📚 🏆 🕵️‍♂️</div>
+        <button onclick="location.reload()" style="background-color: #3498db; box-shadow: 0 4px 0 #2980b9;">Пройти ещё раз</button>
+    </div>
+</div>
+
+<script>
+    const levels = [
+        {
+            type: "title",
+            title: "Подбери точный заголовок",
+            text: "Бобры строят свои дома на реках и ручьях. Сначала они валят деревья своими острыми зубами, а потом перетаскивают ветки в воду. Из этих веток, ила и глины получается крепкая плотина. Внутри своего домика бобры делают тёплую и сухую комнату, вход в которую находится под водой.",
+            question: "Какой заголовок лучше всего отражает ГЛАВНУЮ мысль текста?",
+            options: [
+                "Острые зубы", 
+                "Как бобры строят свои домики", 
+                "Жизнь на реке",
+                "Ветки и глина"
+            ],
+            correct: 1
+        },
+        {
+            type: "extra",
+            title: "Найди лишнее предложение",
+            text: "Внимательно прочитай текст. Одно предложение здесь чужое — оно не подходит к общей теме. Найди его и нажми на него.",
+            sentences: [
+                "Утром ребята решили построить во дворе большую снежную крепость.",
+                "Они скатали огромные комки снега и сложили их друг на друга.",
+                "Летом на этой клумбе распускаются красивые красные розы.",
+                "Когда стены были готовы, мальчики сделали окна и башню."
+            ],
+            correct: 2
+        },
+        {
+            type: "order",
+            title: "Восстанови логику текста",
+            text: "Кто-то перепутал порядок предложений в истории. Нажимай на предложения в правильном порядке, чтобы получился связный текст (от начала к концу).",
+            sentences: [
+                {id: 0, text: "Когда тесто поднялось, бабушка слепила пирожки."},
+                {id: 1, text: "Сначала бабушка замесила мягкое тесто из муки и молока."},
+                {id: 2, text: "Мы сели пить чай с горячими и вкусными пирожками."},
+                {id: 3, text: "Затем она поставила противень в горячую духовку."}
+            ],
+            correctOrder: [1, 0, 3, 2] // Правильный порядок индексов
+        },
+        {
+            type: "detail",
+            title: "Скрытая информация",
+            text: "На столе лежали три тетради. Тетрадь в синей обложке принадлежала Маше, в зелёной — Пете, а под ними пряталась жёлтая тетрадь с рисунками динозавров, которую забыл Рома. Учительница попросила Петю сдать свою тетрадь на проверку.",
+            question: "Тетрадь КАКОГО ЦВЕТА сдал на проверку ученик?",
+            options: [
+                "Синюю",
+                "Жёлтую",
+                "Зелёную"
+            ],
+            correct: 2
+        },
+        {
+            type: "type",
+            title: "Определи тип текста",
+            text: "Чтобы приготовить фруктовый салат, возьми яблоко, банан и грушу. Тщательно вымой фрукты под тёплой водой. Очисти банан от кожуры, а из яблока и груши удали семена. Нарежь всё мелкими кубиками, положи в миску и залей сладким йогуртом. Приятного аппетита!",
+            question: "К какому типу относится этот текст?",
+            options: [
+                "Текст-описание (картинка словами)",
+                "Текст-инструкция (руководство к действию)",
+                "Сказка (выдуманная история)"
+            ],
+            correct: 1
+        }
+    ];
+
+    let currentLevel = 0;
+    let selectedOrder = []; // Для 3 уровня
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGame() {
+        currentLevel = 0;
+        showScreen('game-ui');
+        loadLevel();
+    }
+
+    function loadLevel() {
+        if (currentLevel >= levels.length) {
+            showScreen('screen-win');
+            return;
+        }
+
+        const levelData = levels[currentLevel];
+        
+        document.getElementById('level-display').innerText = `Дело №${currentLevel + 1}`;
+        document.getElementById('progress-display').innerText = `Осталось: ${levels.length - currentLevel}`;
+        document.getElementById('task-title').innerText = levelData.title;
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('feedback').className = 'feedback';
+
+        const mainContent = document.getElementById('main-content');
+        const interactionArea = document.getElementById('interaction-area');
+        mainContent.innerHTML = '';
+        interactionArea.innerHTML = '';
+
+        if (levelData.type === 'title' || levelData.type === 'detail' || levelData.type === 'type') {
+            // Обычные тесты с текстом и выбором ответа
+            mainContent.innerHTML = `<div class="text-box">${levelData.text}</div><div class="question-title">${levelData.question}</div>`;
+            levelData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkStandardAnswer(index, levelData.correct);
+                interactionArea.appendChild(btn);
+            });
+        } 
+        else if (levelData.type === 'extra') {
+            // Поиск лишнего предложения
+            mainContent.innerHTML = `<div class="question-title" style="color: #d35400;">${levelData.text}</div>`;
+            levelData.sentences.forEach((sentence, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'sentence-btn';
+                btn.innerText = sentence;
+                btn.onclick = () => checkStandardAnswer(index, levelData.correct);
+                interactionArea.appendChild(btn);
+            });
+        }
+        else if (levelData.type === 'order') {
+            // Восстановление порядка
+            selectedOrder = [];
+            mainContent.innerHTML = `<div class="question-title" style="color: #16a085;">${levelData.text}</div>`;
+            
+            const workspace = document.createElement('div');
+            workspace.id = 'order-workspace';
+            
+            const resultBox = document.createElement('div');
+            resultBox.className = 'order-result';
+            resultBox.id = 'order-result';
+            resultBox.innerText = 'Твой собранный текст появится здесь...';
+            
+            // Выводим предложения (они изначально не по порядку, как в массиве)
+            levelData.sentences.forEach((sentence) => {
+                const item = document.createElement('div');
+                item.className = 'order-item';
+                item.innerText = sentence.text;
+                item.onclick = () => handleOrderSelection(item, sentence, levelData.correctOrder);
+                workspace.appendChild(item);
+            });
+
+            const clearBtn = document.createElement('button');
+            clearBtn.innerText = 'Начать заново';
+            clearBtn.style.backgroundColor = '#e74c3c';
+            clearBtn.style.boxShadow = '0 4px 0 #c0392b';
+            clearBtn.style.width = '100%';
+            clearBtn.onclick = loadLevel;
+
+            mainContent.appendChild(workspace);
+            mainContent.appendChild(resultBox);
+            interactionArea.appendChild(clearBtn);
+        }
+    }
+
+    function checkStandardAnswer(selectedIndex, correctIndex) {
+        showFeedback(selectedIndex === correctIndex);
+    }
+
+    function handleOrderSelection(itemElement, sentenceData, correctOrderArray) {
+        // Если элемент уже выбран, ничего не делаем
+        if (itemElement.style.opacity === '0.5') return;
+
+        itemElement.style.opacity = '0.5';
+        itemElement.style.cursor = 'default';
+        selectedOrder.push(sentenceData.id);
+
+        const resultBox = document.getElementById('order-result');
+        
+        // Очищаем начальный текст при первом клике
+        if (selectedOrder.length === 1) resultBox.innerHTML = '';
+        
+        // Добавляем выбранное предложение в блок результата с нумерацией
+        resultBox.innerHTML += `<strong>${selectedOrder.length}.</strong> ${sentenceData.text}<br><br>`;
+
+        // Если выбраны все 4, проверяем результат
+        if (selectedOrder.length === 4) {
+            let isCorrect = JSON.stringify(selectedOrder) === JSON.stringify(correctOrderArray);
+            showFeedback(isCorrect);
+        }
+    }
+
+    function showFeedback(isCorrect) {
+        const feedback = document.getElementById('feedback');
+        if (isCorrect) {
+            feedback.innerText = "Точно! Замечательно! 🌟";
+            feedback.className = "feedback correct";
+            
+            // Отключаем кнопки, чтобы не кликали дважды
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+                buttons.forEach(b => b.disabled = false); // включаем обратно для нового уровня
+            }, 1800);
+        } else {
+            feedback.innerText = "Где-то ошибка... Подумай ещё! 🕵️‍♂️";
+            feedback.className = "feedback wrong";
+            
+            // Если это задание на порядок, сбрасываем его
+            if (levels[currentLevel].type === 'order') {
+                setTimeout(() => {
+                    loadLevel();
+                }, 1500);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
