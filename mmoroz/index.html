@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Математическое мороженое · 4 этапа</title>
+  <style>
+    /* ===== ПЕРЕМЕННЫЕ СТИЛЯ ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Comic Neue', 'Quicksand', system-ui, sans-serif;
+      background: #fcede5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      margin: 0;
+    }
+
+    #game {
+      --game-bg: #fff7f0;
+      --game-card: #ffeade;
+      --game-primary: #f7c9b8;
+      --game-accent: #fbaf9a;
+      --game-text: #5e3e34;
+      --game-success: #9bc9b0;
+      --game-error: #f3b3b3;
+      --game-muted: #d9c6b8;
+
+      background-color: var(--game-bg);
+      background-image: radial-gradient(circle at 10% 20%, #ffe3d0 0%, #fce3d0 80%);
+      box-shadow: 0 20px 40px rgba(120, 70, 50, 0.15);
+      border-radius: 64px 64px 48px 48px;
+      padding: 24px 20px 28px;
+      max-width: 580px;
+      width: 100%;
+      position: relative;
+      border: 4px solid #fadbc8;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(2px);
+      margin: 10px auto;
+    }
+
+    #game::before {
+      content: "🍧🍦🍨";
+      position: absolute;
+      top: -16px;
+      right: 12px;
+      font-size: 3rem;
+      opacity: 0.2;
+      pointer-events: none;
+      transform: rotate(6deg);
+      letter-spacing: 12px;
+    }
+    #game::after {
+      content: "🌸🌼🌺";
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      font-size: 2.2rem;
+      opacity: 0.15;
+      pointer-events: none;
+      transform: rotate(-8deg);
+    }
+
+    .card, .question-box, .option-grid, .stage-container {
+      background: var(--game-card);
+      border-radius: 48px 28px 48px 28px;
+      padding: 20px 18px;
+      box-shadow: 0 10px 0 #dbb8a6, 0 8px 16px rgba(130, 70, 40, 0.12);
+      border: 2px solid #fce2d4;
+      transition: all 0.15s ease;
+    }
+
+    .btn {
+      background: var(--game-primary);
+      border: none;
+      border-radius: 60px;
+      padding: 14px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--game-text);
+      box-shadow: 0 6px 0 #c7a291, 0 6px 10px rgba(0,0,0,0.05);
+      transition: all 0.08s linear;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+      border: 2px solid #fde4d6;
+      touch-action: manipulation;
+      min-height: 60px;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b39280;
+    }
+
+    .btn-primary {
+      background: #fccfbb;
+      color: #482e24;
+      font-size: 1.3rem;
+      padding: 16px 36px;
+    }
+
+    .btn-success {
+      background: var(--game-success);
+      color: #2b4e3a;
+      box-shadow: 0 6px 0 #7aa58b;
+    }
+
+    .btn-secondary {
+      background: #ebd3c4;
+      box-shadow: 0 6px 0 #c7b1a2;
+    }
+
+    .start-screen {
+      text-align: center;
+      padding: 16px 8px;
+    }
+
+    .start-screen h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #6b3f30;
+      text-shadow: 4px 4px 0 #fadac7;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .start-screen .sub {
+      font-size: 1.3rem;
+      background: #fff3e9;
+      display: inline-block;
+      padding: 6px 24px;
+      border-radius: 60px;
+      color: #7a4e3d;
+      margin-bottom: 22px;
+      border: 2px dashed #f5cbb8;
+    }
+
+    .start-ice {
+      font-size: 4.6rem;
+      line-height: 1.2;
+      filter: drop-shadow(0 12px 8px rgba(140, 80, 50, 0.15));
+      margin: 6px 0 12px;
+    }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      background: rgba(255, 240, 230, 0.6);
+      padding: 10px 14px;
+      border-radius: 60px;
+      backdrop-filter: blur(2px);
+      border: 2px solid #f7d8c6;
+    }
+    .progress-bar-bg {
+      flex: 1;
+      height: 16px;
+      background: #eddacf;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+      min-width: 60px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #fbcfba, #fbb59b);
+      border-radius: 40px;
+      transition: width 0.35s ease;
+    }
+    .progress-text {
+      font-weight: 700;
+      color: #54382c;
+      background: #fff8f0;
+      padding: 0 14px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      border: 2px solid #f1cfbc;
+    }
+
+    .helper {
+      background: #fff6ed;
+      border-radius: 80px 80px 40px 40px;
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 16px;
+      border: 3px solid #fad7c2;
+      box-shadow: 0 6px 0 #dcbeac;
+    }
+    .helper-emoji {
+      font-size: 3.4rem;
+      filter: drop-shadow(0 6px 6px rgba(0,0,0,0.05));
+    }
+    .helper-bubble {
+      background: white;
+      padding: 10px 18px;
+      border-radius: 40px 40px 40px 12px;
+      font-size: 1rem;
+      color: #3d2b22;
+      border: 2px solid #fbdccb;
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      border: none;
+    }
+    .option-btn {
+      background: #fff6ed;
+      border: 3px solid #fad7c2;
+      border-radius: 60px;
+      padding: 18px 10px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #4d3429;
+      box-shadow: 0 5px 0 #c7a999;
+      transition: 0.08s linear;
+      cursor: pointer;
+      touch-action: manipulation;
+      text-align: center;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .option-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #b39280;
+    }
+    .option-btn.correct {
+      border: 4px solid #6bb68a;
+      background: #daf5e6;
+      box-shadow: 0 0 0 2px #b5e3cc;
+    }
+    .option-btn.wrong {
+      border: 4px solid #e68787;
+      background: #ffe1e1;
+      box-shadow: 0 0 0 2px #fcc;
+    }
+    .option-btn.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .feedback-line {
+      margin: 12px 0 10px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 8px 12px;
+      border-radius: 40px;
+      background: #fff1e6;
+      border: 2px solid #fad1bc;
+    }
+
+    .task-text {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      background: #fffcf7;
+      padding: 16px 18px;
+      border-radius: 40px;
+      border: 2px solid #f5cebb;
+      margin: 8px 0 12px;
+      font-weight: 500;
+    }
+
+    .inline-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 14px 0;
+    }
+    .inline-options .opt {
+      background: #fff3ea;
+      border-radius: 60px;
+      padding: 14px 26px;
+      border: 3px solid #f5ccb8;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.08s;
+      box-shadow: 0 5px 0 #ccb09d;
+      touch-action: manipulation;
+    }
+    .inline-options .opt:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #b39280;
+    }
+    .inline-options .opt.selected {
+      border-color: #ad8b7a;
+      background: #fcddcc;
+    }
+
+    .word-input {
+      font-size: 1.6rem;
+      padding: 18px 22px;
+      border: 4px solid #f5d0bb;
+      border-radius: 60px;
+      width: 90%;
+      max-width: 280px;
+      text-align: center;
+      background: #fffaf5;
+      font-weight: 600;
+      color: #3d2b22;
+      outline: none;
+      margin: 8px 0;
+    }
+    .word-input:focus {
+      border-color: #f0b89a;
+      box-shadow: 0 0 0 4px #fadac7;
+    }
+
+    .flex-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .stage-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #674434;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .score-badge {
+      background: #f8dccc;
+      border-radius: 60px;
+      padding: 6px 20px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border: 2px solid #f0cbb6;
+      color: #4b3429;
+      display: inline-block;
+    }
+
+    .final-score {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .final-score .big {
+      font-size: 3.4rem;
+      font-weight: 800;
+      color: #633f2f;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+    @keyframes shake {
+      0%,100%{transform: translateX(0);}
+      30%{transform: translateX(-8px);}
+      60%{transform: translateX(8px);}
+    }
+
+    .confetti-container {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @media (max-width: 480px) {
+      #game { padding: 16px 12px; border-radius: 48px; }
+      .option-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .option-btn { font-size: 1rem; padding: 14px 8px; min-height: 60px; }
+      .btn { font-size: 1rem; padding: 12px 20px; min-height: 54px; }
+      .start-screen h1 { font-size: 2.2rem; }
+      .inline-options .opt { padding: 12px 18px; font-size: 1rem; }
+      .word-input { font-size: 1.3rem; }
+    }
+
+    .deco-sprinkles {
+      background: repeating-linear-gradient(45deg, #fcd5c0 0px, #fcd5c0 8px, #ffe5d6 8px, #ffe5d6 16px);
+      height: 12px;
+      width: 100%;
+      border-radius: 40px;
+      margin: 8px 0 12px;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+<div id="game">
+
+  <div id="startScreen" class="start-screen">
+    <div class="deco-sprinkles"></div>
+    <div class="start-ice">🍦🍨🍧</div>
+    <h1>Математическое<br>мороженое</h1>
+    <div class="sub">2 класс · средний уровень</div>
+    <p style="font-size:1.1rem; background: #ffefe4; padding: 12px 18px; border-radius: 60px; border:2px solid #fad2bd;">
+      🧁 Пройди 4 этапа вместе с тортиком!
+    </p>
+    <br>
+    <button class="btn btn-primary" id="startBtn">🍭 Начать игру</button>
+    <div style="margin-top:18px; font-size:0.9rem; color:#7a5b4c;">Собери все звёзды ⭐⭐⭐</div>
+  </div>
+
+  <div id="gameContainer" class="hidden">
+    <div class="progress-wrap" id="progressWrap">
+      <span style="font-size:1.2rem;">🍦</span>
+      <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">0 / 18</span>
+      <span class="score-badge" id="globalScore">⭐ 0</span>
+    </div>
+
+    <div class="helper" id="helperBox">
+      <span class="helper-emoji" id="helperEmoji">🧁</span>
+      <div class="helper-bubble" id="helperBubble">Привет! Я тортик-помощник :)</div>
+    </div>
+
+    <div id="stageContent"></div>
+  </div>
+
+  <div id="finalScreen" class="hidden final-score">
+    <div class="deco-sprinkles"></div>
+    <h2 style="font-size:2.4rem; color:#5d3b2e;">🍨 Миссия выполнена!</h2>
+    <div style="font-size:4.2rem; margin:6px 0;">🏆</div>
+    <div id="finalStats" style="font-size:1.3rem; background:#fff1e6; padding:16px; border-radius:60px; border:2px solid #f5cebb;"></div>
+    <div id="finalStars" style="font-size:3rem; margin:6px 0;"></div>
+    <div id="finalMessage" style="font-weight:600; padding:8px;">Отлично постарался!</div>
+    <div class="flex-buttons">
+      <button class="btn btn-primary" id="restartBtn">🔁 Играть снова</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    const STAGES = [
+      { // этап 1: викторина
+        type: 'quiz',
+        title: '🍬 Викторина',
+        questions: [
+          { q: 'Сколько будет 24 + 17?', options: ['31', '41', '51', '37'], correct: 1 },
+          { q: 'Если 8 × 6 = ?', options: ['42', '48', '56', '64'], correct: 1 },
+          { q: 'На сколько 53 больше 28?', options: ['15', '25', '35', '45'], correct: 1 },
+          { q: 'Сколько углов у шестиугольника?', options: ['4', '5', '6', '8'], correct: 2 },
+          { q: 'Какое число пропущено: 32, 40, ___, 56?', options: ['44', '48', '50', '52'], correct: 1 },
+          { q: 'Сколько будет 100 - 37?', options: ['63', '73', '67', '77'], correct: 0 }
+        ],
+        feedbacks: {
+          correct: ['Отлично! 👍', 'Верно! 🎉', 'Ты молодец!', 'Идеально!'],
+          wrong: ['Почти! Попробуй ещё раз.', 'Ой, не совсем.', 'Давай подумаем вместе.', 'Не расстраивайся!']
+        }
+      },
+      { // этап 2: вставь слово (выбор)
+        type: 'fill-select',
+        title: '🧩 Вставь слово',
+        tasks: [
+          { text: 'У ____ 4 лапы, а у паука 8.', options: ['собаки', 'лошади', 'птицы', 'рыбы'], correct: 0 },
+          { text: 'Мороженое ____ в холодильнике, чтобы не растаяло.', options: ['лежит', 'стоит', 'висит', 'плавает'], correct: 0 },
+          { text: 'У квадрата все стороны ____, а у прямоугольника только противоположные.', options: ['кривые', 'длинные', 'равные', 'разные'], correct: 2 },
+          { text: 'Число 15 ____ 3, потому что 15 = 3 × 5.', options: ['больше', 'меньше', 'равно', 'сложнее'], correct: 0 },
+          { text: 'У ____ 6 лап, а у человека 2 руки и 2 ноги.', options: ['муравья', 'паука', 'жука', 'пчелы'], correct: 0 }
+        ]
+      },
+      { // этап 3: вписать слово
+        type: 'type-word',
+        title: '✏️ Впиши слово',
+        tasks: [
+          { question: 'Сколько будет 56 + 28? (цифрой)', answer: '84' },
+          { question: 'Сколько будет 9 × 7? (цифрой)', answer: '63' },
+          { question: 'Сколько сантиметров в 2 метрах? (цифрой)', answer: '200' },
+          { question: 'У восьми братьев по одной сестре. Сколько всего сестёр? (цифрой)', answer: '1' },
+          { question: 'Сколько будет 36 : 9? (цифрой)', answer: '4' }
+        ]
+      },
+      { // этап 4: выбери лишнее
+        type: 'odd-one',
+        title: '🔍 Найди лишнее',
+        tasks: [
+          { items: ['🍎 яблоко', '🍌 банан', '🍐 груша', '🍒 вишня', '🥕 морковь'], correct: 4 },
+          { items: ['4', '8', '12', '16', '19'], correct: 4 },
+          { items: ['плюс', 'минус', 'равно', 'умножить', 'делить'], correct: 2 },
+          { items: ['круг', 'квадрат', 'треугольник', 'овал', 'куб'], correct: 4 },
+          { items: ['24', '36', '48', '60', '72'], correct: 3 }
+        ]
+      }
+    ];
+
+    let currentStage = 0;
+    let currentTask = 0;
+    let score = 0;
+    let stageScores = [];
+    let totalTasks = 0;
+    let stageDone = false;
+
+    const startScreen = document.getElementById('startScreen');
+    const gameContainer = document.getElementById('gameContainer');
+    const stageContent = document.getElementById('stageContent');
+    const finalScreen = document.getElementById('finalScreen');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const globalScoreSpan = document.getElementById('globalScore');
+    const helperBubble = document.getElementById('helperBubble');
+    const helperEmoji = document.getElementById('helperEmoji');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    STAGES.forEach(s => {
+      if (s.type === 'quiz') totalTasks += s.questions.length;
+      else if (s.type === 'fill-select') totalTasks += s.tasks.length;
+      else if (s.type === 'type-word') totalTasks += s.tasks.length;
+      else if (s.type === 'odd-one') totalTasks += s.tasks.length;
+    });
+
+    function updateProgress() {
+      let done = 0;
+      for (let i=0; i<currentStage; i++) {
+        const s = STAGES[i];
+        if (s.type === 'quiz') done += s.questions.length;
+        else if (s.type === 'fill-select') done += s.tasks.length;
+        else if (s.type === 'type-word') done += s.tasks.length;
+        else if (s.type === 'odd-one') done += s.tasks.length;
+      }
+      if (currentStage < STAGES.length) {
+        const s = STAGES[currentStage];
+        if (s.type === 'quiz') done += Math.min(currentTask, s.questions.length);
+        else if (s.type === 'fill-select') done += Math.min(currentTask, s.tasks.length);
+        else if (s.type === 'type-word') done += Math.min(currentTask, s.tasks.length);
+        else if (s.type === 'odd-one') done += Math.min(currentTask, s.tasks.length);
+      }
+      const pct = Math.min(100, Math.round((done / totalTasks) * 100));
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `${done} / ${totalTasks}`;
+      globalScoreSpan.textContent = '⭐ ' + score;
+    }
+
+    function setHelper(emoji, text) {
+      helperEmoji.textContent = emoji || '🧁';
+      helperBubble.textContent = text || '...';
+    }
+
+    function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function showConfetti() {
+      const container = document.createElement('div');
+      container.className = 'confetti-container';
+      for (let i=0; i<60; i++) {
+        const span = document.createElement('span');
+        span.style.cssText = `position:absolute; width:8px; height:8px; background:${['#f9c9b4','#f7b69a','#fad5c0','#fce3d0','#ffb39c'][Math.floor(Math.random()*5)]}; border-radius:50%; top:${Math.random()*100}%; left:${Math.random()*100}%; animation: confettiFall ${1+Math.random()}s linear forwards; transform:rotate(${Math.random()*360}deg);`;
+        container.appendChild(span);
+      }
+      document.body.appendChild(container);
+      setTimeout(() => container.remove(), 1400);
+    }
+
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes confettiFall {
+        0% { opacity:1; transform: translateY(-20px) rotate(0deg); }
+        100% { opacity:0; transform: translateY(90vh) rotate(720deg); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    function shakeElement(el) {
+      if (!el) return;
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    }
+
+    function renderStage() {
+      if (currentStage >= STAGES.length) {
+        showFinalScreen();
+        return;
+      }
+      const stage = STAGES[currentStage];
+      let html = `<div class="stage-container"><div class="stage-title">${stage.title}</div>`;
+
+      if (stage.type === 'quiz') {
+        html += renderQuiz(stage);
+      } else if (stage.type === 'fill-select') {
+        html += renderFillSelect(stage);
+      } else if (stage.type === 'type-word') {
+        html += renderTypeWord(stage);
+      } else if (stage.type === 'odd-one') {
+        html += renderOddOne(stage);
+      }
+      html += '</div>';
+      stageContent.innerHTML = html;
+      updateProgress();
+      bindStageEvents(stage);
+    }
+
+    function renderQuiz(stage) {
+      if (currentTask >= stage.questions.length) return `<p>🏁 Этап пройден!</p>`;
+      const q = stage.questions[currentTask];
+      let html = `<div class="task-text">${q.q}</div><div class="option-grid" id="quizOptions">`;
+      q.options.forEach((opt, idx) => {
+        html += `<div class="option-btn" data-idx="${idx}">${opt}</div>`;
+      });
+      html += `</div><div id="quizFeedback" class="feedback-line hidden"></div>`;
+      html += `<div class="flex-buttons"><button class="btn btn-secondary" id="quizNextBtn" disabled>Дальше →</button></div>`;
+      return html;
+    }
+
+    function bindQuizEvents() {
+      const options = document.querySelectorAll('#quizOptions .option-btn');
+      const feedback = document.getElementById('quizFeedback');
+      const nextBtn = document.getElementById('quizNextBtn');
+      if (!options.length) return;
+      const stage = STAGES[currentStage];
+      const q = stage.questions[currentTask];
+      let locked = false;
+
+      options.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          if (locked || this.classList.contains('disabled')) return;
+          const idx = parseInt(this.dataset.idx);
+          const correct = q.correct;
+          const isCorrect = (idx === correct);
+          locked = true;
+          options.forEach(b => b.classList.add('disabled'));
+
+          if (isCorrect) {
+            this.classList.add('correct');
+            score++;
+            showConfetti();
+            setHelper('🧁✨', getRandom(['Верно! Ты супер!', 'Отлично! Так держать!', 'Правильно! Умничка!']));
+            feedback.innerHTML = '✅ Отлично! ' + (q.options[correct] + ' — верно!');
+            feedback.classList.remove('hidden');
+          } else {
+            this.classList.add('wrong');
+            shakeElement(this);
+            options.forEach((b, i) => { if (i === correct) b.classList.add('correct'); });
+            setHelper('🧁💪', getRandom(['Почти! Попробуй ещё раз.', 'Не беда, бывает!', 'Посмотри на верный ответ.']));
+            feedback.innerHTML = '❌ Почти! Правильно: ' + q.options[correct];
+            feedback.classList.remove('hidden');
+          }
+          globalScoreSpan.textContent = '⭐ ' + score;
+          updateProgress();
+          nextBtn.disabled = false;
+        });
+      });
+
+      nextBtn.addEventListener('click', function() {
+        currentTask++;
+        if (currentTask >= stage.questions.length) {
+          stageDone = true;
+          showStageComplete();
+        } else {
+          renderStage();
+        }
+      });
+    }
+
+    function renderFillSelect(stage) {
+      if (currentTask >= stage.tasks.length) return `<p>🏁 Этап пройден!</p>`;
+      const task = stage.tasks[currentTask];
+      let html = `<div class="task-text">${task.text.replace('____', '______')}</div>`;
+      html += `<div class="inline-options" id="fillOptions">`;
+      task.options.forEach((opt, idx) => {
+        html += `<span class="opt" data-idx="${idx}">${opt}</span>`;
+      });
+      html += `</div><div id="fillFeedback" class="feedback-line hidden"></div>`;
+      html += `<div class="flex-buttons"><button class="btn btn-secondary" id="fillNextBtn" disabled>Дальше →</button></div>`;
+      return html;
+    }
+
+    function bindFillEvents() {
+      const opts = document.querySelectorAll('#fillOptions .opt');
+      const feedback = document.getElementById('fillFeedback');
+      const nextBtn = document.getElementById('fillNextBtn');
+      if (!opts.length) return;
+      const stage = STAGES[currentStage];
+      const task = stage.tasks[currentTask];
+      let chosen = false;
+
+      opts.forEach(el => {
+        el.addEventListener('click', function() {
+          if (chosen) return;
+          const idx = parseInt(this.dataset.idx);
+          const correct = task.correct;
+          const isCorrect = (idx === correct);
+          chosen = true;
+          opts.forEach(b => b.style.opacity = '0.5');
+          this.style.opacity = '1';
+          if (isCorrect) {
+            this.style.borderColor = '#6bb68a';
+            this.style.background = '#daf5e6';
+            score++;
+            showConfetti();
+            setHelper('🧁🎉', getRandom(['Отлично!', 'Верно!', 'Молодец!']));
+            feedback.innerHTML = '✅ Верно!';
+            feedback.classList.remove('hidden');
+          } else {
+            this.style.borderColor = '#e68787';
+            this.style.background = '#ffe1e1';
+            shakeElement(this);
+            opts.forEach((b,i) => { if (i===correct) { b.style.borderColor='#6bb68a'; b.style.background='#daf5e6'; }});
+            setHelper('🧁🤔', getRandom(['Почти!', 'Не расстраивайся.', 'Правильный ответ выделен.']));
+            feedback.innerHTML = '❌ Неверно. Правильно: ' + task.options[correct];
+            feedback.classList.remove('hidden');
+          }
+          globalScoreSpan.textContent = '⭐ ' + score;
+          updateProgress();
+          nextBtn.disabled = false;
+        });
+      });
+      nextBtn.addEventListener('click', function() {
+        currentTask++;
+        if (currentTask >= stage.tasks.length) { stageDone = true; showStageComplete(); }
+        else renderStage();
+      });
+    }
+
+    function renderTypeWord(stage) {
+      if (currentTask >= stage.tasks.length) return `<p>🏁 Этап пройден!</p>`;
+      const task = stage.tasks[currentTask];
+      let html = `<div class="task-text">${task.question}</div>`;
+      html += `<div style="display:flex; flex-direction:column; align-items:center;"><input class="word-input" id="wordInput" type="text" placeholder="впиши ответ" autocomplete="off"></div>`;
+      html += `<div id="typeFeedback" class="feedback-line hidden"></div>`;
+      html += `<div class="flex-buttons"><button class="btn btn-primary" id="typeCheckBtn">Проверить</button></div>`;
+      return html;
+    }
+
+    function bindTypeEvents() {
+      const input = document.getElementById('wordInput');
+      const checkBtn = document.getElementById('typeCheckBtn');
+      const feedback = document.getElementById('typeFeedback');
+      if (!input) return;
+      const stage = STAGES[currentStage];
+      const task = stage.tasks[currentTask];
+      let done = false;
+
+      function checkAnswer() {
+        if (done) return;
+        const val = input.value.trim().toLowerCase();
+        const correct = task.answer.trim().toLowerCase();
+        if (val === correct) {
+          done = true;
+          score++;
+          showConfetti();
+          setHelper('🧁🎈', getRandom(['Правильно!', 'Супер!', 'Так держать!']));
+          feedback.innerHTML = '✅ Отлично! Верно!';
+          feedback.classList.remove('hidden');
+          globalScoreSpan.textContent = '⭐ ' + score;
+          updateProgress();
+          checkBtn.textContent = 'Дальше →';
+          checkBtn.disabled = false;
+          checkBtn.onclick = function() {
+            currentTask++;
+            if (currentTask >= stage.tasks.length) { stageDone = true; showStageComplete(); }
+            else renderStage();
+          };
+        } else {
+          shakeElement(input);
+          setHelper('🧁😅', getRandom(['Почти! Попробуй ещё.', 'Не совсем, подумай.', 'Попробуй снова.']));
+          feedback.innerHTML = '❌ Неверно. Попробуй ещё раз!';
+          feedback.classList.remove('hidden');
+          input.value = '';
+          input.focus();
+        }
+      }
+
+      checkBtn.addEventListener('click', checkAnswer);
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
+    }
+
+    function renderOddOne(stage) {
+      if (currentTask >= stage.tasks.length) return `<p>🏁 Этап пройден!</p>`;
+      const task = stage.tasks[currentTask];
+      let html = `<div class="task-text">Найди лишнее:</div><div class="option-grid" id="oddGrid">`;
+      task.items.forEach((item, idx) => {
+        html += `<div class="option-btn" data-idx="${idx}">${item}</div>`;
+      });
+      html += `</div><div id="oddFeedback" class="feedback-line hidden"></div>`;
+      html += `<div class="flex-buttons"><button class="btn btn-secondary" id="oddNextBtn" disabled>Дальше →</button></div>`;
+      return html;
+    }
+
+    function bindOddEvents() {
+      const items = document.querySelectorAll('#oddGrid .option-btn');
+      const feedback = document.getElementById('oddFeedback');
+      const nextBtn = document.getElementById('oddNextBtn');
+      if (!items.length) return;
+      const stage = STAGES[currentStage];
+      const task = stage.tasks[currentTask];
+      let locked = false;
+
+      items.forEach(el => {
+        el.addEventListener('click', function() {
+          if (locked) return;
+          const idx = parseInt(this.dataset.idx);
+          const correct = task.correct;
+          const isCorrect = (idx === correct);
+          locked = true;
+          items.forEach(b => b.classList.add('disabled'));
+
+          if (isCorrect) {
+            this.classList.add('correct');
+            score++;
+            showConfetti();
+            setHelper('🧁🌟', getRandom(['Точно! Лишнее найдено!', 'Молодец!', 'Верно!']));
+            feedback.innerHTML = '✅ Отлично! ' + task.items[correct] + ' — лишнее!';
+            feedback.classList.remove('hidden');
+          } else {
+            this.classList.add('wrong');
+            shakeElement(this);
+            setHelper('🧁🤗', getRandom(['Почти! Подумай ещё.', 'Не то, попробуй снова.', 'Ой, давай ещё раз.']));
+            feedback.innerHTML = '❌ Неверно. Попробуй ещё раз!';
+            feedback.classList.remove('hidden');
+            setTimeout(() => {
+              this.classList.remove('wrong','disabled');
+              locked = false;
+              items.forEach(b => b.classList.remove('disabled'));
+              feedback.classList.add('hidden');
+            }, 800);
+            return;
+          }
+          globalScoreSpan.textContent = '⭐ ' + score;
+          updateProgress();
+          nextBtn.disabled = false;
+        });
+      });
+
+      nextBtn.addEventListener('click', function() {
+        currentTask++;
+        if (currentTask >= stage.tasks.length) { stageDone = true; showStageComplete(); }
+        else renderStage();
+      });
+    }
+
+    function bindStageEvents(stage) {
+      if (!stage) return;
+      if (stage.type === 'quiz') bindQuizEvents();
+      else if (stage.type === 'fill-select') bindFillEvents();
+      else if (stage.type === 'type-word') bindTypeEvents();
+      else if (stage.type === 'odd-one') bindOddEvents();
+    }
+
+    function showStageComplete() {
+      const stage = STAGES[currentStage];
+      let msg = `🎉 Этап "${stage.title}" пройден!`;
+      setHelper('🧁🍭', 'Молодец! Переходим дальше!');
+      stageContent.innerHTML = `
+        <div class="card" style="text-align:center; padding:30px 16px;">
+          <div style="font-size:4rem;">🍨</div>
+          <h2 style="font-size:2rem; color:#5f3d30;">${msg}</h2>
+          <p style="font-size:1.2rem;">Баллов за этап: ${score - (stageScores[currentStage]||0)}</p>
+          <br>
+          <button class="btn btn-primary" id="nextStageBtn">➡️ Дальше</button>
+        </div>
+      `;
+      document.getElementById('nextStageBtn').addEventListener('click', function() {
+        stageScores[currentStage] = score;
+        currentStage++;
+        currentTask = 0;
+        stageDone = false;
+        if (currentStage >= STAGES.length) {
+          showFinalScreen();
+        } else {
+          renderStage();
+        }
+      });
+      updateProgress();
+    }
+
+    function showFinalScreen() {
+      gameContainer.classList.add('hidden');
+      finalScreen.classList.remove('hidden');
+      const total = totalTasks;
+      const correct = score;
+      const pct = Math.round((correct / total) * 100);
+      let stars = 0;
+      if (pct >= 100) stars = 3;
+      else if (pct >= 75) stars = 2;
+      else if (pct >= 50) stars = 1;
+      document.getElementById('finalStats').innerHTML = `
+        <div>✅ Верных ответов: ${correct} из ${total}</div>
+        <div>⭐ Баллы: ${correct}</div>
+      `;
+      document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + ('☆'.repeat(3-stars));
+      let msg = '';
+      if (stars === 3) msg = '🏆 Идеально! Ты гений!';
+      else if (stars === 2) msg = '👏 Отлично! Почти всё верно!';
+      else if (stars === 1) msg = '💪 Хорошо! Давай повторим!';
+      else msg = '😊 Не сдавайся! Попробуй ещё раз!';
+      document.getElementById('finalMessage').textContent = msg;
+      if (stars < 3) {
+        const need = total - correct;
+        document.getElementById('finalMessage').textContent += ` До следующей звезды не хватает ${need} ответ${need>1?'ов':''}.`;
+      }
+    }
+
+    function resetGame() {
+      currentStage = 0;
+      currentTask = 0;
+      score = 0;
+      stageScores = [];
+      stageDone = false;
+      startScreen.classList.add('hidden');
+      finalScreen.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      renderStage();
+    }
+
+    startBtn.addEventListener('click', function() {
+      startScreen.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      resetGame();
+    });
+
+    restartBtn.addEventListener('click', function() {
+      resetGame();
+    });
+
+    gameContainer.classList.add('hidden');
+    finalScreen.classList.add('hidden');
+    STAGES.forEach(() => stageScores.push(0));
+
+  })();
+</script>
+</body>
+</html>

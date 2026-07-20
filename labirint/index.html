@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Лабиринт Поварёнка</title>
+<style>
+  :root {
+    --game-bg: #F5E6D3;
+    --game-bg-2: #E8D4B8;
+    --game-card: #FFF8E7;
+    --game-primary: #7CB342;
+    --game-primary-dark: #558B2F;
+    --game-accent: #6D4C41;
+    --game-accent-dark: #3E2723;
+    --game-text: #3E2723;
+    --game-success: #43A047;
+    --game-error: #D84315;
+    --game-muted: #A1887F;
+    --game-yellow: #FFC107;
+    --game-orange: #FF9800;
+    --outline: 3px solid #1A1A1A;
+    --outline-thick: 4px solid #1A1A1A;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* Улучшает реакцию на тач */
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', cursive, sans-serif;
+    background: var(--game-bg);
+    color: var(--game-text);
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(124, 179, 66, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(109, 76, 65, 0.15) 0%, transparent 40%),
+      repeating-linear-gradient(45deg, transparent 0, transparent 20px, rgba(62, 39, 35, 0.03) 20px, rgba(62, 39, 35, 0.03) 21px),
+      repeating-linear-gradient(-45deg, transparent 0, transparent 20px, rgba(62, 39, 35, 0.03) 20px, rgba(62, 39, 35, 0.03) 21px);
+    min-height: 100vh;
+    user-select: none; /* Запрет выделения текста */
+    -webkit-user-select: none;
+  }
+
+  .screen {
+    display: none;
+    padding: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    min-height: 100vh;
+    animation: fadeIn 0.4s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .screen.active {
+    display: flex; /* Используем flex для центрирования контента */
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ СТАРТОВЫЙ ЭКРАН ============ */
+  .start-screen {
+    justify-content: center;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .title-banner {
+    background: var(--game-card);
+    border: var(--outline-thick);
+    border-radius: 20px;
+    padding: 24px 28px;
+    box-shadow: 8px 8px 0 var(--game-accent-dark);
+    position: relative;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 400px;
+    transform: rotate(-1deg);
+  }
+
+  .title-banner::before,
+  .title-banner::after {
+    content: "★";
+    position: absolute;
+    font-size: 32px;
+    color: var(--game-yellow);
+    -webkit-text-stroke: 2px var(--game-accent-dark);
+    text-shadow: 2px 2px 0 var(--game-accent-dark);
+    pointer-events: none;
+  }
+
+  .title-banner::before {
+    top: -20px;
+    left: -10px;
+    transform: rotate(-15deg);
+  }
+
+  .title-banner::after {
+    bottom: -20px;
+    right: -10px;
+    transform: rotate(15deg);
+  }
+
+  .game-title {
+    font-size: 34px;
+    font-weight: bold;
+    color: var(--game-accent-dark);
+    margin: 0 0 8px 0;
+    text-shadow: 3px 3px 0 var(--game-primary);
+    line-height: 1.1;
+    letter-spacing: 1px;
+  }
+
+  .game-subtitle {
+    font-size: 16px;
+    color: var(--game-accent);
+    margin: 0;
+    font-weight: bold;
+  }
+
+  .chef-hero {
+    width: 160px;
+    height: 160px;
+    margin: 10px auto;
+    position: relative;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .start-description {
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--game-text);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 16px 36px;
+    border: var(--outline-thick);
+    border-radius: 16px;
+    cursor: pointer;
+    background: var(--game-primary);
+    color: white;
+    text-shadow: 2px 2px 0 var(--game-accent-dark);
+    box-shadow: 5px 5px 0 var(--game-accent-dark);
+    transition: all 0.1s ease;
+    letter-spacing: 1px;
+    position: relative;
+    user-select: none;
+    outline: none;
+    margin-top: 10px;
+    z-index: 10;
+  }
+
+  .btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0 var(--game-accent-dark);
+  }
+
+  .btn:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 var(--game-accent-dark);
+  }
+
+  .btn-secondary {
+    background: var(--game-accent);
+  }
+
+  .btn-small {
+    font-size: 16px;
+    padding: 12px 24px;
+  }
+
+  /* ============ ИГРОВОЙ ЭКРАН ============ */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .score-box {
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--game-accent-dark);
+    box-shadow: 3px 3px 0 var(--game-accent-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .score-box .coin {
+    color: var(--game-yellow);
+    -webkit-text-stroke: 1px var(--game-accent-dark);
+    font-size: 20px;
+  }
+
+  .inventory-box {
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 12px;
+    padding: 6px 10px;
+    display: flex;
+    gap: 4px;
+    box-shadow: 3px 3px 0 var(--game-accent-dark);
+    min-width: 110px;
+    justify-content: center;
+  }
+
+  .fragment {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--game-bg-2);
+    border: 2px solid var(--game-accent-dark);
+    position: relative;
+    opacity: 0.4;
+    transition: all 0.4s ease;
+  }
+
+  .fragment.collected {
+    background: var(--game-yellow);
+    opacity: 1;
+    box-shadow: 0 0 8px var(--game-yellow);
+    animation: fragmentPop 0.5s ease;
+  }
+
+  @keyframes fragmentPop {
+    0% { transform: scale(0.3); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .progress-wrap {
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 20px;
+    height: 22px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+    box-shadow: 3px 3px 0 var(--game-accent-dark);
+    width: 100%;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--game-primary) 0%, var(--game-yellow) 100%);
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .progress-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 8px,
+      rgba(255,255,255,0.25) 8px,
+      rgba(255,255,255,0.25) 16px
+    );
+  }
+
+  .progress-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--game-accent-dark);
+    z-index: 2;
+    text-shadow: 1px 1px 0 white;
+  }
+
+  /* ============ ЛАБИРИНТ ============ */
+  .maze-scene {
+    background: var(--game-card);
+    border: var(--outline-thick);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 6px 6px 0 var(--game-accent-dark);
+    position: relative;
+    width: 100%;
+  }
+
+  .maze-path {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .path-segment {
+    width: 60px;
+    height: 40px;
+    background: var(--game-bg-2);
+    border: 3px solid var(--game-accent-dark);
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .path-segment::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--game-accent-dark) 0,
+      var(--game-accent-dark) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  .chef-character {
+    width: 80px;
+    height: 80px;
+    margin: 8px auto;
+    position: relative;
+    z-index: 5;
+  }
+
+  .speech-bubble {
+    background: white;
+    border: var(--outline);
+    border-radius: 18px;
+    padding: 12px 16px;
+    position: relative;
+    margin: 12px auto;
+    width: 100%;
+    max-width: 320px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--game-text);
+    box-shadow: 3px 3px 0 var(--game-accent-dark);
+    text-align: center;
+  }
+
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 14px solid var(--game-accent-dark);
+  }
+
+  .speech-bubble::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid white;
+    z-index: 1;
+  }
+
+  .task-card {
+    background: var(--game-yellow);
+    border: var(--outline-thick);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    position: relative;
+    width: 100%;
+  }
+
+  .task-card::before {
+    content: "ЗАДАЧА";
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--game-primary);
+    color: white;
+    padding: 2px 12px;
+    border: 2px solid var(--game-accent-dark);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .task-text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--game-accent-dark);
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .fork-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .fork-visual {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    position: relative;
+  }
+
+  .fork-visual::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 6px;
+    background: var(--game-accent-dark);
+    border-radius: 3px;
+    z-index: 0;
+  }
+
+  .answer-btn {
+    flex: 1;
+    background: var(--game-card);
+    border: var(--outline-thick);
+    border-radius: 14px;
+    padding: 18px 12px;
+    font-family: inherit;
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--game-accent-dark);
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    transition: all 0.15s ease;
+    position: relative;
+    z-index: 1;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--game-accent-dark);
+    background: white;
+  }
+
+  .answer-btn:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--game-accent-dark);
+  }
+
+  .answer-btn.correct {
+    background: var(--game-success);
+    color: white;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    animation: correctPulse 0.6s ease;
+  }
+
+  .answer-btn.wrong {
+    background: var(--game-error);
+    color: white;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    animation: shake 0.5s ease;
+  }
+
+  .answer-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.85;
+  }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  .feedback-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: var(--outline);
+    display: none;
+    animation: slideIn 0.3s ease;
+    width: 100%;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .feedback-box.show {
+    display: block;
+  }
+
+  .feedback-correct {
+    background: #C8E6C9;
+    color: var(--game-accent-dark);
+  }
+
+  .feedback-wrong {
+    background: #FFCCBC;
+    color: var(--game-accent-dark);
+  }
+
+  .feedback-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feedback-text {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .next-btn-wrap {
+    margin-top: 14px;
+    text-align: center;
+    display: none;
+  }
+
+  .next-btn-wrap.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+  }
+
+  /* ============ КОНФЕТТИ ============ */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: confettiFall 1s ease-out forwards;
+  }
+
+  @keyframes confettiFall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  /* ============ ФИНАЛЬНЫЙ ЭКРАН ============ */
+  .final-screen {
+    text-align: center;
+    padding-top: 30px;
+  }
+
+  .final-banner {
+    background: var(--game-yellow);
+    border: var(--outline-thick);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 6px 6px 0 var(--game-accent-dark);
+    margin-bottom: 20px;
+    position: relative;
+    width: 100%;
+  }
+
+  .final-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: var(--game-accent-dark);
+    margin: 0 0 12px 0;
+    text-shadow: 3px 3px 0 white;
+  }
+
+  .stars-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .star {
+    width: 60px;
+    height: 60px;
+    font-size: 50px;
+    line-height: 1;
+    color: var(--game-bg-2);
+    -webkit-text-stroke: 3px var(--game-accent-dark);
+    transition: all 0.5s ease;
+  }
+
+  .star.earned {
+    color: var(--game-yellow);
+    animation: starPop 0.6s ease;
+  }
+
+  @keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(20deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .final-stats {
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    width: 100%;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--game-accent-dark);
+  }
+
+  .stat-row + .stat-row {
+    border-top: 2px dashed var(--game-muted);
+  }
+
+  .final-map {
+    background: var(--game-card);
+    border: var(--outline-thick);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    position: relative;
+    width: 100%;
+  }
+
+  .final-map-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--game-accent-dark);
+    margin-bottom: 10px;
+  }
+
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .map-piece {
+    aspect-ratio: 1;
+    background: var(--game-yellow);
+    border: 2px solid var(--game-accent-dark);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    animation: mapGlow 1.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes mapGlow {
+    from { box-shadow: 0 0 4px var(--game-yellow); }
+    to { box-shadow: 0 0 14px var(--game-yellow); }
+  }
+
+  .final-message {
+    background: var(--game-primary);
+    color: white;
+    border: var(--outline);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 16px 0;
+    font-size: 15px;
+    line-height: 1.4;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    width: 100%;
+  }
+
+  .final-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .errors-list {
+    display: none;
+    background: var(--game-card);
+    border: var(--outline);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 16px;
+    text-align: left;
+    box-shadow: 4px 4px 0 var(--game-accent-dark);
+    width: 100%;
+  }
+
+  .errors-list.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+  }
+
+  .errors-list h3 {
+    margin: 0 0 10px 0;
+    color: var(--game-accent-dark);
+    font-size: 17px;
+  }
+
+  .error-item {
+    background: #FFCCBC;
+    border: 2px solid var(--game-accent-dark);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .error-item strong {
+    color: var(--game-accent-dark);
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============ СТАРТОВЫЙ ЭКРАН ============ -->
+<div class="screen start-screen active" id="startScreen">
+  <div class="title-banner">
+    <h1 class="game-title">Лабиринт<br>Поварёнка</h1>
+    <p class="game-subtitle">Математическое приключение</p>
+  </div>
+
+  <div class="chef-hero" id="heroChef">
+    <svg viewBox="0 0 200 200" width="100%" height="100%">
+      <!-- Тень -->
+      <ellipse cx="100" cy="185" rx="50" ry="6" fill="rgba(0,0,0,0.2)"/>
+      <!-- Тело/фартук -->
+      <path d="M 60 130 Q 60 110 75 105 L 125 105 Q 140 110 140 130 L 140 175 Q 140 180 135 180 L 65 180 Q 60 180 60 175 Z" 
+            fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+      <!-- Фартук -->
+      <path d="M 75 125 L 125 125 L 130 175 L 70 175 Z" 
+            fill="#7CB342" stroke="#1A1A1A" stroke-width="3" stroke-linejoin="round"/>
+      <!-- Лямки фартука -->
+      <path d="M 80 110 L 85 125 M 120 110 L 115 125" 
+            stroke="#1A1A1A" stroke-width="3" fill="none"/>
+      <!-- Голова -->
+      <circle cx="100" cy="85" r="32" fill="#FFD9B3" stroke="#1A1A1A" stroke-width="4"/>
+      <!-- Колпак -->
+      <path d="M 68 70 Q 68 40 85 35 Q 95 25 100 25 Q 105 25 115 35 Q 132 40 132 70 Z" 
+            fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="70" rx="34" ry="8" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4"/>
+      <!-- Глаза -->
+      <circle cx="90" cy="85" r="4" fill="#1A1A1A"/>
+      <circle cx="110" cy="85" r="4" fill="#1A1A1A"/>
+      <circle cx="91" cy="83" r="1.5" fill="white"/>
+      <circle cx="111" cy="83" r="1.5" fill="white"/>
+      <!-- Щёчки -->
+      <circle cx="82" cy="95" r="4" fill="#FF9999" opacity="0.6"/>
+      <circle cx="118" cy="95" r="4" fill="#FF9999" opacity="0.6"/>
+      <!-- Улыбка -->
+      <path d="M 90 100 Q 100 108 110 100" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Поварской инструмент (лопатка) -->
+      <g transform="translate(145, 140) rotate(30)">
+        <rect x="-3" y="0" width="6" height="25" fill="#6D4C41" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="0" cy="-5" rx="10" ry="8" fill="#A1887F" stroke="#1A1A1A" stroke-width="2"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="start-description">
+    Помоги поварёнку пройти через кухонный лабиринт! Решай задачи на умножение и деление и собирай фрагменты волшебной карты рецепта! 🗺️
+  </div>
+
+  <button class="btn" onclick="startGame()">▶ НАЧАТЬ ИГРУ</button>
+</div>
+
+<!-- ============ ИГРОВОЙ ЭКРАН ============ -->
+<div class="screen" id="gameScreen">
+  <div class="top-bar">
+    <div class="score-box">
+      <span class="coin">★</span>
+      <span id="scoreValue">0</span>
+    </div>
+    <div class="inventory-box" id="inventory">
+      <div class="fragment" data-idx="0"></div>
+      <div class="fragment" data-idx="1"></div>
+      <div class="fragment" data-idx="2"></div>
+      <div class="fragment" data-idx="3"></div>
+      <div class="fragment" data-idx="4"></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-label" id="progressLabel">Задание 1 из 5</div>
+  </div>
+
+  <div class="maze-scene" id="mazeScene">
+    <div class="maze-path">
+      <div class="path-segment"></div>
+      
+      <div class="chef-character" id="gameChef">
+        <svg viewBox="0 0 200 200" width="100%" height="100%">
+          <path d="M 60 130 Q 60 110 75 105 L 125 105 Q 140 110 140 130 L 140 175 Q 140 180 135 180 L 65 180 Q 60 180 60 175 Z" 
+                fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M 75 125 L 125 125 L 130 175 L 70 175 Z" 
+                fill="#7CB342" stroke="#1A1A1A" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M 80 110 L 85 125 M 120 110 L 115 125" 
+                stroke="#1A1A1A" stroke-width="3" fill="none"/>
+          <circle cx="100" cy="85" r="32" fill="#FFD9B3" stroke="#1A1A1A" stroke-width="4"/>
+          <path d="M 68 70 Q 68 40 85 35 Q 95 25 100 25 Q 105 25 115 35 Q 132 40 132 70 Z" 
+                fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+          <ellipse cx="100" cy="70" rx="34" ry="8" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4"/>
+          <circle cx="90" cy="85" r="4" fill="#1A1A1A"/>
+          <circle cx="110" cy="85" r="4" fill="#1A1A1A"/>
+          <circle cx="91" cy="83" r="1.5" fill="white"/>
+          <circle cx="111" cy="83" r="1.5" fill="white"/>
+          <circle cx="82" cy="95" r="4" fill="#FF9999" opacity="0.6"/>
+          <circle cx="118" cy="95" r="4" fill="#FF9999" opacity="0.6"/>
+          <path d="M 90 100 Q 100 108 110 100" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="speech-bubble" id="speechBubble">
+        Привет! Я поварёнок Петя! Помоги мне пройти лабиринт!
+      </div>
+
+      <div class="task-card">
+        <div class="task-text" id="taskText">Загрузка...</div>
+      </div>
+
+      <div class="fork-container">
+        <div class="fork-visual">
+          <button class="answer-btn" id="answerA" onclick="selectAnswer(0)">?</button>
+          <button class="answer-btn" id="answerB" onclick="selectAnswer(1)">?</button>
+        </div>
+      </div>
+
+      <div class="feedback-box" id="feedbackBox">
+        <div class="feedback-title" id="feedbackTitle"></div>
+        <div class="feedback-text" id="feedbackText"></div>
+        <div class="next-btn-wrap" id="nextBtnWrap">
+          <button class="btn btn-small" onclick="nextTask()">ДАЛЬШЕ ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ФИНАЛЬНЫЙ ЭКРАН ============ -->
+<div class="screen final-screen" id="finalScreen">
+  <div class="final-banner">
+    <h1 class="final-title">МИССИЯ ВЫПОЛНЕНА!</h1>
+    <div class="stars-row" id="starsRow">
+      <div class="star" data-star="1">★</div>
+      <div class="star" data-star="2">★</div>
+      <div class="star" data-star="3">★</div>
+    </div>
+  </div>
+
+  <div class="final-stats">
+    <div class="stat-row">
+      <span>⭐ Баллы:</span>
+      <span id="finalScore">0</span>
+    </div>
+    <div class="stat-row">
+      <span>✅ Верных ответов:</span>
+      <span id="finalCorrect">0</span>
+    </div>
+    <div class="stat-row">
+      <span>❌ Ошибок:</span>
+      <span id="finalWrong">0</span>
+    </div>
+  </div>
+
+  <div class="final-map">
+    <div class="final-map-title">🗺️ Карта волшебного рецепта</div>
+    <div class="map-grid" id="mapGrid">
+      <div class="map-piece">🍞</div>
+      <div class="map-piece">🥕</div>
+      <div class="map-piece">🧀</div>
+      <div class="map-piece">🍅</div>
+      <div class="map-piece">🍰</div>
+    </div>
+  </div>
+
+  <div class="final-message" id="finalMessage">
+    Отличная работа!
+  </div>
+
+  <div class="final-buttons">
+    <button class="btn" onclick="restartGame()">🔄 ИГРАТЬ СНОВА</button>
+    <button class="btn btn-secondary" onclick="toggleErrors()">📋 ПОСМОТРЕТЬ ОШИБКИ</button>
+  </div>
+
+  <div class="errors-list" id="errorsList">
+    <h3>📝 Разбор ошибок:</h3>
+    <div id="errorsContent"></div>
+  </div>
+</div>
+
+<script>
+  // ============ ДАННЫЕ ЗАДАЧ ============
+  const tasks = [
+    {
+      text: "Поварёнок разложил 12 пирожков поровну на 3 тарелки. Сколько пирожков на каждой тарелке?",
+      answers: [4, 5],
+      correctIdx: 0,
+      correctExplanation: "Отлично! 12 ÷ 3 = 4. На каждой тарелке по 4 пирожка!",
+      wrongExplanation: "Почти! Попробуй ещё раз. 12 ÷ 3 = 4, ведь 3 × 4 = 12.",
+      speechCorrect: ["Ура! Всё правильно!", "Ты молодец!", "Так держать!", "Супер!"],
+      speechWrong: ["Не беда, попробуй ещё!", "Ой, почти! Давай подумаем!", "Ничего страшного, разберёмся!"]
+    },
+    {
+      text: "В 4 кастрюлях по 2 литра супа. Сколько всего литров супа сварил поварёнок?",
+      answers: [6, 8],
+      correctIdx: 1,
+      correctExplanation: "Отлично! 4 × 2 = 8. Всего 8 литров вкусного супа!",
+      wrongExplanation: "Почти! Попробуй ещё раз. 4 × 2 = 8, потому что 4 раза по 2.",
+      speechCorrect: ["Вкуснотища!", "Правильно!", "Ты настоящий математик!", "Суп готов!"],
+      speechWrong: ["Ой, не совсем так!", "Подумай ещё разок!", "Почти получилось!"]
+    },
+    {
+      text: "На 3 тарелках по 5 печенек, и ещё 2 печеньки на столе. Сколько всего печенек?",
+      answers: [17, 15],
+      correctIdx: 0,
+      correctExplanation: "Отлично! 3 × 5 = 15, а 15 + 2 = 17. Всего 17 печенек!",
+      wrongExplanation: "Почти! Попробуй ещё раз. Сначала 3 × 5 = 15, потом 15 + 2 = 17.",
+      speechCorrect: ["Сладкоежкам понравится!", "Верно!", "Ты супер!", "Печеньки посчитаны!"],
+      speechWrong: ["Не торопись!", "Вспомни порядок действий!", "Попробуй ещё разок!"]
+    },
+    {
+      text: "Было 18 яблок. 6 яблок съели, а остальные разложили поровну на 2 блюда. Сколько яблок на каждом блюде?",
+      answers: [8, 6],
+      correctIdx: 1,
+      correctExplanation: "Отлично! 18 − 6 = 12, а 12 ÷ 2 = 6. На каждом блюде 6 яблок!",
+      wrongExplanation: "Почти! Попробуй ещё раз. Сначала 18 − 6 = 12, потом 12 ÷ 2 = 6.",
+      speechCorrect: ["Яблочки разложены!", "Ты справился!", "Молодец!", "Всё верно!"],
+      speechWrong: ["Давай подумаем вместе!", "Не расстраивайся!", "Попробуй ещё раз!"]
+    },
+    {
+      text: "В 2 коробках по 6 конфет, и ещё 3 конфеты в кармане. Сколько всего конфет?",
+      answers: [11, 15],
+      correctIdx: 1,
+      correctExplanation: "Отлично! 2 × 6 = 12, а 12 + 3 = 15. Всего 15 конфет!",
+      wrongExplanation: "Почти! Попробуй ещё раз. Сначала 2 × 6 = 12, потом 12 + 3 = 15.",
+      speechCorrect: ["Сладкий приз!", "Ты чемпион!", "Финал близко!", "Ура!"],
+      speechWrong: ["Последнее усилие!", "Не сдавайся!", "Попробуй ещё!"]
+    }
+  ];
+
+  // ============ СОСТОЯНИЕ ИГРЫ ============
+  let currentTask = 0;
+  let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let answered = false;
+  let errors = [];
+
+  // ============ ФУНКЦИИ ============
+  function startGame() {
+    document.getElementById('startScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    resetGame();
+    loadTask();
+  }
+
+  function resetGame() {
+    currentTask = 0;
+    score = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    errors = [];
+    document.getElementById('scoreValue').textContent = '0';
+    updateProgress();
+    document.querySelectorAll('.fragment').forEach(f => f.classList.remove('collected'));
+  }
+
+  function updateProgress() {
+    const percent = (currentTask / tasks.length) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressLabel').textContent = 
+      currentTask < tasks.length 
+        ? `Задание ${currentTask + 1} из ${tasks.length}`
+        : `Готово!`;
+  }
+
+  function loadTask() {
+    if (currentTask >= tasks.length) {
+      showFinal();
+      return;
+    }
+
+    answered = false;
+    const task = tasks[currentTask];
+
+    document.getElementById('taskText').textContent = task.text;
+    
+    const btnA = document.getElementById('answerA');
+    const btnB = document.getElementById('answerB');
+    
+    btnA.textContent = task.answers[0];
+    btnB.textContent = task.answers[1];
+    btnA.className = 'answer-btn';
+    btnB.className = 'answer-btn';
+    btnA.disabled = false;
+    btnB.disabled = false;
+
+    document.getElementById('feedbackBox').classList.remove('show');
+    document.getElementById('feedbackBox').className = 'feedback-box';
+    document.getElementById('nextBtnWrap').classList.remove('show');
+
+    // Случайная реплика повара в начале
+    const introSpeeches = [
+      "Давай решим эту задачку!",
+      "Я знаю, ты справишься!",
+      "Думай внимательно!",
+      "У тебя всё получится!"
+    ];
+    document.getElementById('speechBubble').textContent = 
+      introSpeeches[Math.floor(Math.random() * introSpeeches.length)];
+
+    updateProgress();
+  }
+
+  function selectAnswer(idx) {
+    if (answered) return;
+    answered = true;
+
+    const task = tasks[currentTask];
+    const btnA = document.getElementById('answerA');
+    const btnB = document.getElementById('answerB');
+    const chosenBtn = idx === 0 ? btnA : btnB;
+    const otherBtn = idx === 0 ? btnB : btnA;
+
+    btnA.disabled = true;
+    btnB.disabled = true;
+
+    const isCorrect = idx === task.correctIdx;
+
+    if (isCorrect) {
+      chosenBtn.classList.add('correct');
+      score++;
+      correctCount++;
+      document.getElementById('scoreValue').textContent = score;
+      
+      // Собираем фрагмент карты
+      const fragment = document.querySelector(`.fragment[data-idx="${currentTask}"]`);
+      if (fragment) fragment.classList.add('collected');
+
+      // Показываем обратную связь
+      showFeedback(true, task.correctExplanation);
+      
+      // Реплика повара
+      const speech = task.speechCorrect[Math.floor(Math.random() * task.speechCorrect.length)];
+      document.getElementById('speechBubble').textContent = speech;
+
+      // Конфетти
+      launchConfetti();
+
+    } else {
+      chosenBtn.classList.add('wrong');
+      wrongCount++;
+      
+      // Подсветим верный ответ
+      const correctBtn = task.correctIdx === 0 ? btnA : btnB;
+      setTimeout(() => {
+        correctBtn.classList.add('correct');
+      }, 400);
+
+      // Запишем ошибку
+      errors.push({
+        task: task.text,
+        yourAnswer: task.answers[idx],
+        correctAnswer: task.answers[task.correctIdx],
+        explanation: task.wrongExplanation
+      });
+
+      // Показываем обратную связь
+      showFeedback(false, task.wrongExplanation);
+      
+      // Реплика повара
+      const speech = task.speechWrong[Math.floor(Math.random() * task.speechWrong.length)];
+      document.getElementById('speechBubble').textContent = speech;
+    }
+  }
+
+  function showFeedback(isCorrect, text) {
+    const box = document.getElementById('feedbackBox');
+    const title = document.getElementById('feedbackTitle');
+    const content = document.getElementById('feedbackText');
+
+    box.classList.remove('feedback-correct', 'feedback-wrong');
+    box.classList.add(isCorrect ? 'feedback-correct' : 'feedback-wrong');
+
+    if (isCorrect) {
+      title.innerHTML = '✅ Отлично!';
+    } else {
+      title.innerHTML = '💭 Почти! Попробуй ещё раз.';
+    }
+
+    content.textContent = text;
+    box.classList.add('show');
+
+    // Показываем кнопку "Дальше" с задержкой
+    setTimeout(() => {
+      document.getElementById('nextBtnWrap').classList.add('show');
+    }, 600);
+  }
+
+  function nextTask() {
+    currentTask++;
+    updateProgress();
+    
+    // Небольшая задержка перед загрузкой
+    setTimeout(() => {
+      if (currentTask >= tasks.length) {
+        // Финальная анимация
+        document.getElementById('progressBar').style.width = '100%';
+        setTimeout(showFinal, 600);
+      } else {
+        loadTask();
+      }
+    }, 200);
+  }
+
+  function launchConfetti() {
+    const colors = ['#FFC107', '#7CB342', '#FF9800', '#6D4C41', '#FFF8E7'];
+    const shapes = ['■', '●', '▲', '★'];
+    
+    for (let i = 0; i < 25; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+      confetti.style.left = (Math.random() * 100) + '%';
+      confetti.style.top = '-20px';
+      confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.fontSize = (10 + Math.random() * 14) + 'px';
+      confetti.style.animationDuration = (0.7 + Math.random() * 0.5) + 's';
+      confetti.style.animationDelay = (Math.random() * 0.2) + 's';
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => confetti.remove(), 1500);
+    }
+  }
+
+  function showFinal() {
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('finalScreen').classList.add('active');
+
+    document.getElementById('finalScore').textContent = score;
+    document.getElementById('finalCorrect').textContent = correctCount;
+    document.getElementById('finalWrong').textContent = wrongCount;
+
+    // Определяем звёзды
+    const percent = (correctCount / tasks.length) * 100;
+    let stars = 0;
+    if (percent >= 100) stars = 3;
+    else if (percent >= 75) stars = 2;
+    else if (percent >= 50) stars = 1;
+
+    // Показываем звёзды с анимацией
+    const starsEls = document.querySelectorAll('.star');
+    starsEls.forEach((s, i) => {
+      setTimeout(() => {
+        if (i < stars) s.classList.add('earned');
+        else s.classList.remove('earned');
+      }, i * 300);
+    });
+
+    // Сообщение
+    let message = '';
+    if (percent === 100) {
+      message = '🎉 Великолепно! Ты настоящий мастер математики! Поварёнок Петя гордится тобой!';
+    } else if (percent >= 75) {
+      message = `👏 Отлично! До трёх звёзд не хватило всего ${tasks.length - correctCount} верных ответов. Попробуй ещё раз!`;
+    } else if (percent >= 50) {
+      message = `😊 Хороший результат! До двух звёзд не хватило ${Math.ceil(tasks.length * 0.75) - correctCount} верных ответов. Потренируйся ещё!`;
+    } else {
+      message = '💪 Не расстраивайся! Математика — это тренировка. Попробуй пройти лабиринт снова!';
+    }
+    document.getElementById('finalMessage').textContent = message;
+
+    // Список ошибок
+    const errorsContent = document.getElementById('errorsContent');
+    errorsContent.innerHTML = '';
+    if (errors.length === 0) {
+      errorsContent.innerHTML = '<div class="error-item" style="background:#C8E6C9"><strong>🎉 Ошибок нет!</strong> Ты решил все задачи верно!</div>';
+    } else {
+      errors.forEach((e, i) => {
+        const div = document.createElement('div');
+        div.className = 'error-item';
+        div.innerHTML = `
+          <strong>Задача ${i + 1}:</strong> ${e.task}<br>
+          <strong>Твой ответ:</strong> ${e.yourAnswer}<br>
+          <strong>Правильный ответ:</strong> ${e.correctAnswer}<br>
+          <em>${e.explanation}</em>
+        `;
+        errorsContent.appendChild(div);
+      });
+    }
+
+    // Конфетти в финале
+    if (percent >= 50) {
+      launchConfetti();
+      setTimeout(launchConfetti, 400);
+    }
+  }
+
+  function toggleErrors() {
+    document.getElementById('errorsList').classList.toggle('show');
+  }
+
+  function restartGame() {
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('errorsList').classList.remove('show');
+    
+    // Сбрасываем звёзды
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('earned'));
+    
+    document.getElementById('startScreen').classList.add('active');
+  }
+</script>
+
+</body>
+</html>

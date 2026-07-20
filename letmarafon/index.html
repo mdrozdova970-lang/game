@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Летний марафон знаний: Русский язык</title>
+<style>
+  :root {
+    --bg: #FFF9E6;
+    --bg-2: #FFEFD5;
+    --card: #FFFFFF;
+    --primary: #FF9E5E;
+    --primary-dark: #E67E3C;
+    --accent: #6BB6D6;
+    --accent-dark: #4A95B5;
+    --text: #3D3D3D;
+    --text-soft: #6B6B6B;
+    --success: #7BC47F;
+    --success-dark: #5AA55E;
+    --error: #E88A8A;
+    --error-dark: #C86868;
+    --muted: #D8D0C0;
+    --yellow: #FFD966;
+    --line: #B8D8E8;
+    --outline: 2.5px solid #3D3D3D;
+    --shadow: 4px 4px 0 rgba(61, 61, 61, 0.2);
+    --shadow-lg: 6px 6px 0 rgba(61, 61, 61, 0.25);
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Trebuchet MS', cursive, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 10% 15%, rgba(255, 217, 102, 0.35) 0%, transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(107, 182, 214, 0.3) 0%, transparent 40%),
+      repeating-linear-gradient(0deg, transparent 0, transparent 28px, rgba(184, 216, 232, 0.3) 28px, rgba(184, 216, 232, 0.3) 29px);
+    min-height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+    padding-bottom: 40px;
+  }
+
+  .screen {
+    display: none;
+    padding: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .start-screen {
+    text-align: center;
+    padding-top: 30px;
+  }
+
+  .title-card {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .title-card::before {
+    content: "☀️";
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    font-size: 44px;
+    transform: rotate(15deg);
+  }
+
+  .game-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-dark);
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+    text-shadow: 2px 2px 0 rgba(255, 217, 102, 0.5);
+  }
+
+  .game-subtitle {
+    font-size: 16px;
+    color: var(--text-soft);
+    margin: 0;
+  }
+
+  .intro-card {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .intro-card h3 {
+    margin: 0 0 8px 0;
+    color: var(--accent-dark);
+    font-size: 17px;
+  }
+
+  .intro-card ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+
+  .intro-card li {
+    margin-bottom: 4px;
+  }
+
+  .student-name-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 16px;
+    border: var(--outline);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--text);
+    margin: 10px 0;
+    outline: none;
+  }
+
+  .student-name-input:focus {
+    background: white;
+    box-shadow: 0 0 0 3px rgba(107, 182, 214, 0.3);
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 14px 30px;
+    border: var(--outline);
+    border-radius: 30px;
+    cursor: pointer;
+    background: var(--primary);
+    color: white;
+    text-shadow: 1px 1px 0 rgba(61, 61, 61, 0.3);
+    box-shadow: var(--shadow);
+    transition: all 0.15s ease;
+    outline: none;
+    margin: 6px 4px;
+  }
+
+  .btn:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 rgba(61, 61, 61, 0.25);
+  }
+
+  .btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 rgba(61, 61, 61, 0.25);
+  }
+
+  .btn-accent {
+    background: var(--accent);
+  }
+
+  .btn-success {
+    background: var(--success);
+  }
+
+  .btn-small {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  .progress-wrap {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 20px;
+    height: 22px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    position: relative;
+    box-shadow: var(--shadow);
+    width: 100%;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow) 0%, var(--primary) 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-size: 12px;
+    color: var(--text);
+    z-index: 2;
+    text-shadow: 1px 1px 0 white;
+  }
+
+  .score-box {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .block-card {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 18px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .block-title {
+    display: inline-block;
+    background: var(--yellow);
+    border: 2px solid var(--text);
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .block-subtitle {
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--accent-dark);
+    margin: 4px 0 10px 0;
+    line-height: 1.3;
+  }
+
+  .task {
+    background: var(--bg);
+    border: 2px dashed var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .task-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .task-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .task-example {
+    font-style: italic;
+    color: var(--text-soft);
+    font-size: 14px;
+    background: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .task-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    font-size: 16px;
+  }
+
+  .task-row .word {
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .letter-input {
+    width: 36px;
+    height: 40px;
+    text-align: center;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid var(--text);
+    border-radius: 8px;
+    background: white;
+    color: var(--text);
+    outline: none;
+    text-transform: lowercase;
+  }
+
+  .letter-input:focus {
+    background: #FFF8E6;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(255, 158, 94, 0.3);
+  }
+
+  .letter-input.correct {
+    background: #D4F0D6;
+    border-color: var(--success-dark);
+    color: var(--success-dark);
+  }
+
+  .letter-input.wrong {
+    background: #FBDADA;
+    border-color: var(--error-dark);
+    color: var(--error-dark);
+  }
+
+  .check-input {
+    width: 120px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 15px;
+    border: 2px solid var(--text);
+    border-radius: 8px;
+    background: white;
+    color: var(--text);
+    outline: none;
+  }
+
+  .check-input:focus {
+    background: #FFF8E6;
+    border-color: var(--primary);
+  }
+
+  .check-input.correct {
+    background: #D4F0D6;
+    border-color: var(--success-dark);
+  }
+
+  .check-input.wrong {
+    background: #FBDADA;
+    border-color: var(--error-dark);
+  }
+
+  .text-answer {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 15px;
+    border: 2px solid var(--text);
+    border-radius: 10px;
+    background: white;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    line-height: 1.4;
+  }
+
+  .text-answer:focus {
+    background: #FFF8E6;
+    border-color: var(--primary);
+  }
+
+  .reading-text {
+    background: white;
+    border: var(--outline);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    box-shadow: inset 0 0 0 2px var(--bg-2);
+  }
+
+  .reading-text .title {
+    font-weight: bold;
+    font-size: 17px;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--accent-dark);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .option-btn {
+    background: white;
+    border: 2px solid var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .option-btn:hover {
+    background: var(--bg-2);
+  }
+
+  .option-btn.selected {
+    background: var(--yellow);
+    border-color: var(--primary-dark);
+    font-weight: bold;
+  }
+
+  .option-btn.correct {
+    background: var(--success);
+    color: white;
+    border-color: var(--success-dark);
+  }
+
+  .option-btn.wrong {
+    background: var(--error);
+    color: white;
+    border-color: var(--error-dark);
+  }
+
+  .checkbox-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--text);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background: white;
+  }
+
+  .option-btn.selected .checkbox-mark {
+    background: var(--primary);
+    color: white;
+  }
+
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  .match-item {
+    background: white;
+    border: 2px solid var(--text);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .match-select {
+    padding: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    border: 2px solid var(--text);
+    border-radius: 10px;
+    background: white;
+    color: var(--text);
+    outline: none;
+    min-width: 100px;
+  }
+
+  .match-select.correct {
+    background: #D4F0D6;
+    border-color: var(--success-dark);
+  }
+
+  .match-select.wrong {
+    background: #FBDADA;
+    border-color: var(--error-dark);
+  }
+
+  .word-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .word-chip {
+    background: white;
+    border: 2px solid var(--text);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+  }
+
+  .word-chip:hover {
+    background: var(--bg-2);
+  }
+
+  .word-chip.selected {
+    background: var(--yellow);
+    border-color: var(--primary-dark);
+    font-weight: bold;
+  }
+
+  .word-chip.correct {
+    background: var(--success);
+    color: white;
+    border-color: var(--success-dark);
+  }
+
+  .word-chip.wrong {
+    background: var(--error);
+    color: white;
+    border-color: var(--error-dark);
+  }
+
+  .feedback {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    display: none;
+  }
+
+  .feedback.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .feedback-correct {
+    background: #D4F0D6;
+    border: 2px solid var(--success-dark);
+    color: var(--success-dark);
+  }
+
+  .feedback-wrong {
+    background: #FBDADA;
+    border: 2px solid var(--error-dark);
+    color: var(--error-dark);
+  }
+
+  .feedback-partial {
+    background: #FFF3D0;
+    border: 2px solid #D4A84A;
+    color: #8A6A1A;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .final-screen {
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  .final-card {
+    background: var(--card);
+    border: var(--outline);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 16px;
+  }
+
+  .final-title {
+    font-size: 26px;
+    color: var(--primary-dark);
+    margin: 0 0 12px 0;
+    text-shadow: 2px 2px 0 rgba(255, 217, 102, 0.4);
+  }
+
+  .stars-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 14px 0;
+    font-size: 42px;
+  }
+
+  .star-icon {
+    color: var(--muted);
+    transition: all 0.5s ease;
+  }
+
+  .star-icon.earned {
+    color: var(--yellow);
+    text-shadow: 2px 2px 0 var(--primary-dark);
+    animation: starPop 0.6s ease;
+  }
+
+  @keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(20deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .final-stats {
+    background: var(--bg);
+    border: 2px dashed var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 14px 0;
+    text-align: left;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 6px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .final-message {
+    background: var(--accent);
+    color: white;
+    border: var(--outline);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 14px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    text-shadow: 1px 1px 0 rgba(61, 61, 61, 0.3);
+  }
+
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    font-size: 20px;
+    animation: confettiFall 1.2s ease-out forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Подсказка о большой букве */
+  .capital-hint {
+    display: inline-block;
+    background: #FFF3D0;
+    border: 2px solid #D4A84A;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #8A6A1A;
+    margin-left: 8px;
+    font-weight: bold;
+  }
+
+  @media (max-width: 400px) {
+    .game-title { font-size: 22px; }
+    .block-subtitle { font-size: 15px; }
+    .task-text { font-size: 14px; }
+    .letter-input { width: 32px; height: 36px; font-size: 16px; }
+    .check-input { width: 100px; font-size: 14px; }
+    .reading-text { font-size: 14px; }
+    .btn { font-size: 16px; padding: 12px 22px; }
+  }
+
+  @media (min-width: 600px) {
+    .game-title { font-size: 34px; }
+    .block-card { padding: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen start-screen active" id="startScreen">
+  <div class="title-card">
+    <h1 class="game-title">🌞 Летний марафон знаний</h1>
+    <p class="game-subtitle">Русский язык · Повторение за 2 класс</p>
+  </div>
+
+  <div class="intro-card">
+    <h3>📝 Что тебя ждёт:</h3>
+    <ul>
+      <li>🟢 <b>Блок А</b> — проверяемые безударные гласные в корне</li>
+      <li>🔵 <b>Блок Б</b> — парные звонкие и глухие согласные</li>
+      <li>📖 <b>Часть 2</b> — работа с текстом и задания на внимание</li>
+    </ul>
+  </div>
+
+  <div class="intro-card">
+    <h3>✏️ Как выполнять:</h3>
+    <p>Внимательно читай задание, вписывай буквы и слова в поля. После выполнения всех заданий нажми кнопку <b>«Проверить»</b> — система покажет, что получилось верно, а что нужно повторить.</p>
+  </div>
+
+  <input type="text" class="student-name-input" id="studentName" placeholder="Как тебя зовут?">
+
+  <button class="btn" onclick="startWork()">🚀 НАЧАТЬ РАБОТУ</button>
+</div>
+
+<div class="screen" id="workScreen">
+  <div class="top-bar">
+    <div class="score-box">
+      <span>✏️</span>
+      <span id="studentNameDisplay">Ученик</span>
+    </div>
+    <div class="score-box">
+      <span>⭐</span>
+      <span id="scoreValue">0</span>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-label" id="progressLabel">Задание 1 из 10</div>
+  </div>
+
+  <div class="block-card" id="blockA">
+    <span class="block-title">🟢 БЛОК А</span>
+    <h2 class="block-subtitle">Проверяемые безударные гласные в корне</h2>
+
+    <div class="task" data-task="1">
+      <div class="task-label">Задание 1 · «Волшебное превращение»</div>
+      <div class="task-text">Вставь пропущенную безударную гласную. Рядом запиши проверочное слово.</div>
+      <div class="task-example">Образец: л..сной → лес (лЕс)</div>
+
+      <div class="task-row">
+        <span class="word">1. м</span>
+        <input type="text" class="letter-input" data-answer="1-1-letter" maxlength="1" inputmode="text">
+        <span class="word">рской →</span>
+        <input type="text" class="check-input" data-answer="1-1-check" placeholder="проверочное">
+      </div>
+
+      <div class="task-row">
+        <span class="word">2. тр</span>
+        <input type="text" class="letter-input" data-answer="1-2-letter" maxlength="1">
+        <span class="word">пинка →</span>
+        <input type="text" class="check-input" data-answer="1-2-check" placeholder="проверочное">
+      </div>
+
+      <div class="task-row">
+        <span class="word">3. х</span>
+        <input type="text" class="letter-input" data-answer="1-3-letter" maxlength="1">
+        <span class="word">лодный →</span>
+        <input type="text" class="check-input" data-answer="1-3-check" placeholder="проверочное">
+      </div>
+
+      <div class="feedback" id="feedback-1"></div>
+    </div>
+
+    <div class="task" data-task="2">
+      <div class="task-label">Задание 2 · «Найди пару»</div>
+      <div class="task-text">Выбери для каждого слова правильное проверочное слово.</div>
+
+      <div class="match-grid">
+        <div class="match-item">1. г..ра</div>
+        <div>→</div>
+        <select class="match-select" data-answer="2-1">
+          <option value="">— выбери —</option>
+          <option value="цвет">цвет</option>
+          <option value="горы">горы</option>
+          <option value="звёзды">звёзды</option>
+        </select>
+
+        <div class="match-item">2. зв..зда</div>
+        <div>→</div>
+        <select class="match-select" data-answer="2-2">
+          <option value="">— выбери —</option>
+          <option value="цвет">цвет</option>
+          <option value="горы">горы</option>
+          <option value="звёзды">звёзды</option>
+        </select>
+
+        <div class="match-item">3. цв..тной</div>
+        <div>→</div>
+        <select class="match-select" data-answer="2-3">
+          <option value="">— выбери —</option>
+          <option value="цвет">цвет</option>
+          <option value="горы">горы</option>
+          <option value="звёзды">звёзды</option>
+        </select>
+      </div>
+
+      <div class="feedback" id="feedback-2"></div>
+    </div>
+
+    <div class="task" data-task="3">
+      <div class="task-label">Задание 3 · «Предложение-загадка»</div>
+      <div class="task-text">Вставь пропущенные буквы в предложение.</div>
+
+      <div class="task-row" style="flex-wrap: wrap;">
+        <span class="word">В л</span>
+        <input type="text" class="letter-input" data-answer="3-1" maxlength="1">
+        <span class="word">су мы нашли сп</span>
+        <input type="text" class="letter-input" data-answer="3-2" maxlength="1">
+        <span class="word">лую з</span>
+        <input type="text" class="letter-input" data-answer="3-3" maxlength="1">
+        <span class="word">млянику.</span>
+      </div>
+
+      <div class="feedback" id="feedback-3"></div>
+    </div>
+  </div>
+
+  <div class="block-card" id="blockB">
+    <span class="block-title">🔵 БЛОК Б</span>
+    <h2 class="block-subtitle">Парные звонкие и глухие согласные</h2>
+
+    <div class="task" data-task="4">
+      <div class="task-label">Задание 4 · «Хитрый конец»</div>
+      <div class="task-text">Вставь пропущенную парную согласную. Запиши проверочное слово.</div>
+      <div class="task-example">Образец: ду.. → дубы (дУбы)</div>
+
+      <div class="task-row">
+        <span class="word">1. ска</span>
+        <input type="text" class="letter-input" data-answer="4-1-letter" maxlength="1">
+        <span class="word">ка →</span>
+        <input type="text" class="check-input" data-answer="4-1-check" placeholder="проверочное">
+      </div>
+
+      <div class="task-row">
+        <span class="word">2. моро</span>
+        <input type="text" class="letter-input" data-answer="4-2-letter" maxlength="1">
+        <span class="word">→</span>
+        <input type="text" class="check-input" data-answer="4-2-check" placeholder="проверочное">
+      </div>
+
+      <div class="task-row">
+        <span class="word">3. ло</span>
+        <input type="text" class="letter-input" data-answer="4-3-letter" maxlength="1">
+        <span class="word">ка →</span>
+        <input type="text" class="check-input" data-answer="4-3-check" placeholder="проверочное">
+      </div>
+
+      <div class="feedback" id="feedback-4"></div>
+    </div>
+
+    <div class="task" data-task="5">
+      <div class="task-label">Задание 5 · «Третий лишний»</div>
+      <div class="task-text">В каждой строчке найди слово, в котором <b>не нужно</b> проверять парную согласную. Нажми на него.</div>
+
+      <div style="margin: 8px 0;">
+        <div style="font-size: 14px; color: var(--text-soft); margin-bottom: 4px;">Строчка 1:</div>
+        <div class="word-choices" data-group="5-1">
+          <button class="word-chip" data-value="гриб">гриб</button>
+          <button class="word-chip" data-value="суп">суп</button>
+          <button class="word-chip" data-value="дуб">дуб</button>
+        </div>
+      </div>
+
+      <div style="margin: 8px 0;">
+        <div style="font-size: 14px; color: var(--text-soft); margin-bottom: 4px;">Строчка 2:</div>
+        <div class="word-choices" data-group="5-2">
+          <button class="word-chip" data-value="снег">снег</button>
+          <button class="word-chip" data-value="парк">парк</button>
+          <button class="word-chip" data-value="морковь">морковь</button>
+        </div>
+      </div>
+
+      <div style="margin: 8px 0;">
+        <div style="font-size: 14px; color: var(--text-soft); margin-bottom: 4px;">Строчка 3:</div>
+        <div class="word-choices" data-group="5-3">
+          <button class="word-chip" data-value="утюг">утюг</button>
+          <button class="word-chip" data-value="кот">кот</button>
+          <button class="word-chip" data-value="арбуз">арбуз</button>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback-5"></div>
+    </div>
+
+    <div class="task" data-task="6">
+      <div class="task-label">Задание 6 · «Магическое множественное число»</div>
+      <div class="task-text">Поставь слова во множественное число, чтобы парная согласная стала проверочной.</div>
+      <div class="task-example">Образец: глаз → глаза</div>
+
+      <div class="task-row">
+        <span class="word">1. зуб →</span>
+        <input type="text" class="check-input" data-answer="6-1" placeholder="множ. число">
+      </div>
+      <div class="task-row">
+        <span class="word">2. дуб →</span>
+        <input type="text" class="check-input" data-answer="6-2" placeholder="множ. число">
+      </div>
+      <div class="task-row">
+        <span class="word">3. ёж →</span>
+        <input type="text" class="check-input" data-answer="6-3" placeholder="множ. число">
+      </div>
+
+      <div class="feedback" id="feedback-6"></div>
+    </div>
+  </div>
+
+  <div class="block-card" id="blockC">
+    <span class="block-title">📖 ЧАСТЬ 2</span>
+    <h2 class="block-subtitle">Работа с информацией на основе текста</h2>
+
+    <div class="reading-text">
+      <div class="title">Летняя находка</div>
+      Наступило тёплое летнее утро. На лесной поляне расцвела душистая земляника. Яркие ягоды прятались под широкими зелёными листьями. Вдруг налетел лёгкий ветерок. Он закачал высокие травы. Из-за куста выглянул рыжий бельчонок. Он быстро схватил крепкий орешек и юркнул в дупло старого дуба. Скоро на небе появились тёмные тучи. Пора возвращаться домой!
+    </div>
+
+    <div class="task" data-task="7">
+      <div class="task-label">Задание 7 · «Детектив»</div>
+      <div class="task-text">Ответь на вопросы по тексту полными предложениями.</div>
+
+      <div style="margin: 8px 0;">
+        <div style="font-size: 14px; color: var(--text-soft); margin-bottom: 4px;">
+          1. Что расцвело на лесной поляне?
+          <span class="capital-hint">💡 Начни с большой буквы!</span>
+        </div>
+        <textarea class="text-answer" data-answer="7-1" placeholder="На лесной поляне расцвела..."></textarea>
+      </div>
+
+      <div style="margin: 8px 0;">
+        <div style="font-size: 14px; color: var(--text-soft); margin-bottom: 4px;">
+          2. Что сделал бельчонок, когда выглянул из-за куста?
+          <span class="capital-hint">💡 Начни с большой буквы!</span>
+        </div>
+        <textarea class="text-answer" data-answer="7-2" placeholder="Бельчонок схватил..."></textarea>
+      </div>
+
+      <div class="feedback" id="feedback-7"></div>
+    </div>
+
+    <div class="task" data-task="8">
+      <div class="task-label">Задание 8 · «Грамматика в тексте»</div>
+      <div class="task-text">Найди в тексте и выпиши словосочетания, которые отвечают на вопросы:</div>
+
+      <div class="task-row">
+        <span class="word">какой ветерок? →</span>
+        <input type="text" class="check-input" data-answer="8-1" style="width: 180px;" placeholder="... ветерок">
+      </div>
+      <div class="task-row">
+        <span class="word">какой дуб? →</span>
+        <input type="text" class="check-input" data-answer="8-2" style="width: 180px;" placeholder="... дуб">
+      </div>
+
+      <div class="feedback" id="feedback-8"></div>
+    </div>
+
+    <div class="task" data-task="9">
+      <div class="task-label">Задание 9 · «Смысловая догадка»</div>
+      <div class="task-text">Как ты думаешь, почему бельчонок «юркнул» в дупло? Выбери один верный ответ.</div>
+
+      <div class="options" data-group="9">
+        <button class="option-btn" data-value="а">
+          <span class="checkbox-mark">а</span>
+          <span>Он испугался громкого звука.</span>
+        </button>
+        <button class="option-btn" data-value="б">
+          <span class="checkbox-mark">б</span>
+          <span>Он хотел спрятать еду и укрыться от надвигающейся непогоды.</span>
+        </button>
+        <button class="option-btn" data-value="в">
+          <span class="checkbox-mark">в</span>
+          <span>Он захотел поспать.</span>
+        </button>
+      </div>
+
+      <div class="feedback" id="feedback-9"></div>
+    </div>
+
+    <div class="task" data-task="10">
+      <div class="task-label">Задание 10 · «Редактор»</div>
+      <div class="task-text">Придумай и запиши свой заголовок к этому тексту (не используй слово «Находка»).</div>
+      <div style="font-size: 13px; color: var(--text-soft); margin-bottom: 6px;">
+        <span class="capital-hint">💡 Заголовок пиши с большой буквы!</span>
+      </div>
+
+      <input type="text" class="check-input" data-answer="10" style="width: 100%;" placeholder="Заголовок: ...">
+
+      <div class="feedback" id="feedback-10"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-success" onclick="checkAll()">✅ ПРОВЕРИТЬ ВСЁ</button>
+    <button class="btn btn-accent btn-small" onclick="resetAll()">🔄 ОЧИСТИТЬ</button>
+  </div>
+</div>
+
+<div class="screen final-screen" id="finalScreen">
+  <div class="final-card">
+    <h2 class="final-title" id="finalTitle">🏆 Работа проверена!</h2>
+    
+    <div class="stars-row" id="starsRow">
+      <span class="star-icon">★</span>
+      <span class="star-icon">★</span>
+      <span class="star-icon">★</span>
+    </div>
+
+    <div class="final-stats">
+      <div class="stat-row">
+        <span>✅ Верно выполнено заданий:</span>
+        <span id="finalCorrect">0</span>
+      </div>
+      <div class="stat-row">
+        <span>❌ Есть ошибки в заданиях:</span>
+        <span id="finalWrong">0</span>
+      </div>
+      <div class="stat-row">
+        <span>⭐ Всего баллов:</span>
+        <span id="finalScore">0</span>
+      </div>
+    </div>
+
+    <div class="final-message" id="finalMessage">
+      Отличная работа!
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="goToWork()">🔍 ПОСМОТРЕТЬ ОШИБКИ</button>
+      <button class="btn btn-accent" onclick="restartAll()">🔄 НАЧАТЬ СНАЧАЛА</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const correctAnswers = {
+    '1-1-letter': ['о'],
+    '1-1-check': ['море'],
+    '1-2-letter': ['о'],
+    '1-2-check': ['тропы', 'тропа', 'троп'],
+    '1-3-letter': ['о'],
+    '1-3-check': ['холод'],
+    
+    '2-1': ['горы'],
+    '2-2': ['звёзды', 'звезды'],
+    '2-3': ['цвет'],
+    
+    '3-1': ['е'],
+    '3-2': ['е'],
+    '3-3': ['е'],
+    
+    '4-1-letter': ['з'],
+    '4-1-check': ['сказочка'],
+    '4-2-letter': ['з'],
+    '4-2-check': ['морозы', 'мороз', 'морозец'],
+    '4-3-letter': ['ж'],
+    '4-3-check': ['ложечка'],
+    
+    '5-1': ['суп'],
+    '5-2': ['парк'],
+    '5-3': ['кот'],
+    
+    '6-1': ['зубы'],
+    '6-2': ['дубы'],
+    '6-3': ['ежи'],
+    
+    '8-1': ['лёгкий ветерок', 'легкий ветерок'],
+    '8-2': ['старый дуб'],
+    
+    '9': ['б'],
+  };
+
+  let totalScore = 0;
+  let studentName = '';
+  let selections = {};
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function startWork() {
+    const nameInput = document.getElementById('studentName');
+    studentName = nameInput.value.trim() || 'Ученик';
+    document.getElementById('studentNameDisplay').textContent = studentName;
+    showScreen('workScreen');
+    updateProgress();
+  }
+
+  // Автоматическая капитализация первой буквы в предложениях
+  document.querySelectorAll('.text-answer').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+      if (this.value.length > 0) {
+        const firstChar = this.value.charAt(0);
+        const rest = this.value.slice(1);
+        this.value = firstChar.toUpperCase() + rest;
+      }
+    });
+  });
+
+  // Автоматическая капитализация для заголовка (задание 10)
+  document.querySelector('[data-answer="10"]').addEventListener('input', function() {
+    if (this.value.length > 0) {
+      const firstChar = this.value.charAt(0);
+      const rest = this.value.slice(1);
+      this.value = firstChar.toUpperCase() + rest;
+    }
+  });
+
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('.options').dataset.group;
+      btn.closest('.options').querySelectorAll('.option-btn').forEach(b => {
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      selections[group] = btn.dataset.value;
+    });
+  });
+
+  document.querySelectorAll('.word-choices').forEach(group => {
+    const groupName = group.dataset.group;
+    group.querySelectorAll('.word-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        group.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selections[groupName] = chip.dataset.value;
+      });
+    });
+  });
+
+  function normalize(str) {
+    return str.trim().toLowerCase().replace(/ё/g, 'е');
+  }
+
+  function checkField(inputEl, correctList) {
+    const userVal = normalize(inputEl.value);
+    if (!userVal) {
+      inputEl.classList.remove('correct', 'wrong');
+      return null;
+    }
+    const isCorrect = correctList.some(ans => normalize(ans) === userVal);
+    inputEl.classList.remove('correct', 'wrong');
+    inputEl.classList.add(isCorrect ? 'correct' : 'wrong');
+    return isCorrect;
+  }
+
+  function showFeedback(id, type, text) {
+    const fb = document.getElementById(id);
+    fb.className = 'feedback show feedback-' + type;
+    fb.innerHTML = text;
+  }
+
+  function checkAll() {
+    let totalChecks = 0;
+    let correctChecks = 0;
+
+    ['1-1-letter', '1-1-check', '1-2-letter', '1-2-check', '1-3-letter', '1-3-check'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    ['2-1', '2-2', '2-3'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    ['3-1', '3-2', '3-3'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    ['4-1-letter', '4-1-check', '4-2-letter', '4-2-check', '4-3-letter', '4-3-check'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    ['5-1', '5-2', '5-3'].forEach(key => {
+      const userSel = selections[key];
+      const group = document.querySelector(`.word-choices[data-group="${key}"]`);
+      const chips = group.querySelectorAll('.word-chip');
+      chips.forEach(c => {
+        c.classList.remove('correct', 'wrong');
+        if (c.dataset.value === correctAnswers[key][0]) {
+          c.classList.add('correct');
+        } else if (c.classList.contains('selected') && c.dataset.value !== correctAnswers[key][0]) {
+          c.classList.add('wrong');
+        }
+      });
+      if (userSel) {
+        totalChecks++;
+        if (userSel === correctAnswers[key][0]) correctChecks++;
+      }
+    });
+
+    ['6-1', '6-2', '6-3'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    const t7_1 = document.querySelector('[data-answer="7-1"]').value.trim().toLowerCase();
+    const t7_2 = document.querySelector('[data-answer="7-2"]').value.trim().toLowerCase();
+    
+    if (t7_1.length > 5 && (t7_1.includes('земляник') || t7_1.includes('ягод'))) {
+      document.querySelector('[data-answer="7-1"]').style.borderColor = 'var(--success-dark)';
+      document.querySelector('[data-answer="7-1"]').style.background = '#D4F0D6';
+      totalChecks++;
+      correctChecks++;
+    } else if (t7_1.length > 0) {
+      document.querySelector('[data-answer="7-1"]').style.borderColor = 'var(--error-dark)';
+      document.querySelector('[data-answer="7-1"]').style.background = '#FBDADA';
+      totalChecks++;
+    }
+    
+    if (t7_2.length > 5 && ((t7_2.includes('схват') && t7_2.includes('ореш')) || t7_2.includes('юркну'))) {
+      document.querySelector('[data-answer="7-2"]').style.borderColor = 'var(--success-dark)';
+      document.querySelector('[data-answer="7-2"]').style.background = '#D4F0D6';
+      totalChecks++;
+      correctChecks++;
+    } else if (t7_2.length > 0) {
+      document.querySelector('[data-answer="7-2"]').style.borderColor = 'var(--error-dark)';
+      document.querySelector('[data-answer="7-2"]').style.background = '#FBDADA';
+      totalChecks++;
+    }
+
+    ['8-1', '8-2'].forEach(key => {
+      const el = document.querySelector(`[data-answer="${key}"]`);
+      const res = checkField(el, correctAnswers[key]);
+      if (res !== null) {
+        totalChecks++;
+        if (res) correctChecks++;
+      }
+    });
+
+    const sel9 = selections['9'];
+    const options9 = document.querySelectorAll('.options[data-group="9"] .option-btn');
+    options9.forEach(b => {
+      b.classList.remove('correct', 'wrong');
+      if (b.dataset.value === 'б') b.classList.add('correct');
+      else if (b.classList.contains('selected')) b.classList.add('wrong');
+    });
+    if (sel9) {
+      totalChecks++;
+      if (sel9 === 'б') correctChecks++;
+    }
+
+    const t10 = document.querySelector('[data-answer="10"]').value.trim();
+    const t10el = document.querySelector('[data-answer="10"]');
+    if (t10.length > 2) {
+      totalChecks++;
+      if (!t10.toLowerCase().includes('находк')) {
+        correctChecks++;
+        t10el.classList.add('correct');
+        t10el.classList.remove('wrong');
+      } else {
+        t10el.classList.add('wrong');
+        t10el.classList.remove('correct');
+      }
+    }
+
+    showTaskFeedback(1, totalChecks > 0);
+    showTaskFeedback(2, totalChecks > 0);
+    showTaskFeedback(3, totalChecks > 0);
+    showTaskFeedback(4, totalChecks > 0);
+    showTaskFeedback(5, totalChecks > 0);
+    showTaskFeedback(6, totalChecks > 0);
+    showTaskFeedback(7, totalChecks > 0);
+    showTaskFeedback(8, totalChecks > 0);
+    showTaskFeedback(9, totalChecks > 0);
+    showTaskFeedback(10, totalChecks > 0);
+
+    totalScore = correctChecks;
+    document.getElementById('scoreValue').textContent = totalScore;
+
+    showFinal(correctChecks, totalChecks);
+  }
+
+  function showTaskFeedback(taskNum, hasData) {
+    const fb = document.getElementById(`feedback-${taskNum}`);
+    if (!hasData) return;
+    
+    const task = document.querySelector(`.task[data-task="${taskNum}"]`);
+    const inputs = task.querySelectorAll('.letter-input, .check-input, .match-select');
+    let correct = 0, total = 0, empty = 0;
+    
+    inputs.forEach(inp => {
+      if (inp.classList.contains('correct')) { correct++; total++; }
+      else if (inp.classList.contains('wrong')) { total++; }
+      else if (inp.value && inp.value.trim()) { total++; }
+      else { empty++; }
+    });
+
+    if (taskNum === 5 || taskNum === 9) {
+      const groupKey = taskNum === 5 ? ['5-1', '5-2', '5-3'] : ['9'];
+      groupKey.forEach(k => {
+        if (selections[k]) {
+          total++;
+          if (selections[k] === correctAnswers[k][0]) correct++;
+        }
+      });
+    }
+
+    if (taskNum === 7) {
+      const t7_1 = document.querySelector('[data-answer="7-1"]').value.trim();
+      const t7_2 = document.querySelector('[data-answer="7-2"]').value.trim();
+      total = 0; correct = 0;
+      if (t7_1) { total++; if (t7_1.toLowerCase().includes('земляник') || t7_1.toLowerCase().includes('ягод')) correct++; }
+      if (t7_2) { total++; if ((t7_2.toLowerCase().includes('схват') && t7_2.toLowerCase().includes('ореш')) || t7_2.toLowerCase().includes('юркну')) correct++; }
+    }
+
+    if (taskNum === 10) {
+      const t10 = document.querySelector('[data-answer="10"]').value.trim();
+      total = 0; correct = 0;
+      if (t10) {
+        total++;
+        if (!t10.toLowerCase().includes('находк')) correct++;
+      }
+    }
+
+    if (total === 0 && empty > 0) {
+      fb.className = 'feedback show feedback-partial';
+      fb.innerHTML = '🤔 Ты ещё не заполнил все поля. Подумай и попробуй ещё раз!';
+      return;
+    }
+
+    if (correct === total && total > 0) {
+      fb.className = 'feedback show feedback-correct';
+      fb.innerHTML = '✨ <b>Отлично!</b> Все ответы верные!';
+    } else if (correct > 0) {
+      fb.className = 'feedback show feedback-partial';
+      fb.innerHTML = `💪 <b>Почти!</b> Верно: ${correct} из ${total}. Подумай над теми, что подсвечены красным.`;
+    } else {
+      fb.className = 'feedback show feedback-wrong';
+      fb.innerHTML = '🤗 <b>Не расстраивайся!</b> Посмотри на красные поля — там есть ошибки. Вспомни правило и попробуй ещё раз!';
+    }
+  }
+
+  function showFinal(correct, total) {
+    document.getElementById('finalCorrect').textContent = correct;
+    document.getElementById('finalWrong').textContent = Math.max(0, total - correct);
+    document.getElementById('finalScore').textContent = correct;
+
+    const percent = total > 0 ? (correct / total) * 100 : 0;
+    let stars = 0;
+    if (percent >= 90) stars = 3;
+    else if (percent >= 70) stars = 2;
+    else if (percent >= 50) stars = 1;
+
+    const starsEls = document.querySelectorAll('#starsRow .star-icon');
+    starsEls.forEach((s, i) => {
+      setTimeout(() => {
+        if (i < stars) s.classList.add('earned');
+        else s.classList.remove('earned');
+      }, i * 300);
+    });
+
+    let msg = '';
+    if (percent >= 90) {
+      msg = `🎉 ${studentName}, ты настоящий мастер русского языка! Все правила ты знаешь отлично!`;
+    } else if (percent >= 70) {
+      msg = `👏 ${studentName}, отличная работа! Ещё чуть-чуть — и будет идеально. Повтори те задания, где были ошибки.`;
+    } else if (percent >= 50) {
+      msg = `😊 ${studentName}, хороший результат! Но есть над чем поработать. Попробуй ещё раз — у тебя получится!`;
+    } else {
+      msg = `💪 ${studentName}, не расстраивайся! Русский язык — это тренировка. Повтори правила о безударных гласных и парных согласных и попробуй снова!`;
+    }
+    document.getElementById('finalMessage').textContent = msg;
+
+    document.getElementById('finalTitle').textContent = 
+      percent >= 90 ? '🏆 Великолепно!' : 
+      percent >= 70 ? '🌟 Отличная работа!' : 
+      percent >= 50 ? '📚 Хороший результат!' : 
+      '📖 Работа проверена';
+
+    showScreen('finalScreen');
+
+    if (percent >= 70) {
+      launchConfetti();
+      setTimeout(launchConfetti, 400);
+    }
+  }
+
+  function goToWork() {
+    showScreen('workScreen');
+    setTimeout(() => {
+      const firstWrong = document.querySelector('.wrong, .feedback-wrong');
+      if (firstWrong) {
+        firstWrong.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+  }
+
+  function resetAll() {
+    if (!confirm('Очистить все ответы и начать заново?')) return;
+    document.querySelectorAll('.letter-input, .check-input, .text-answer, .match-select').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'wrong');
+      el.style.borderColor = '';
+      el.style.background = '';
+    });
+    document.querySelectorAll('.word-chip, .option-btn').forEach(el => {
+      el.classList.remove('selected', 'correct', 'wrong');
+    });
+    document.querySelectorAll('.feedback').forEach(fb => {
+      fb.classList.remove('show');
+    });
+    selections = {};
+    totalScore = 0;
+    document.getElementById('scoreValue').textContent = '0';
+    updateProgress();
+    window.scrollTo(0, 0);
+  }
+
+  function restartAll() {
+    resetAll();
+    showScreen('startScreen');
+  }
+
+  function updateProgress() {
+    const totalTasks = 10;
+    const filled = countFilledTasks();
+    const percent = (filled / totalTasks) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressLabel').textContent = `Заполнено заданий: ${filled} из ${totalTasks}`;
+  }
+
+  function countFilledTasks() {
+    let filled = 0;
+    for (let i = 1; i <= 10; i++) {
+      const task = document.querySelector(`.task[data-task="${i}"]`);
+      if (!task) continue;
+      const inputs = task.querySelectorAll('input, textarea, select');
+      let hasData = false;
+      inputs.forEach(inp => {
+        if (inp.value && inp.value.trim()) hasData = true;
+      });
+      if (i === 5) {
+        if (selections['5-1'] || selections['5-2'] || selections['5-3']) hasData = true;
+      }
+      if (i === 9) {
+        if (selections['9']) hasData = true;
+      }
+      if (hasData) filled++;
+    }
+    return filled;
+  }
+
+  document.addEventListener('input', updateProgress);
+
+  function launchConfetti() {
+    const shapes = ['★', '✦', '✿', '❀', '🌟', '✨'];
+    const colors = ['#FFD966', '#FF9E5E', '#6BB6D6', '#7BC47F', '#E88A8A'];
+    
+    for (let i = 0; i < 25; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+      confetti.style.left = (Math.random() * 100) + '%';
+      confetti.style.top = '-20px';
+      confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.fontSize = (14 + Math.random() * 14) + 'px';
+      confetti.style.animationDuration = (0.9 + Math.random() * 0.5) + 's';
+      confetti.style.animationDelay = (Math.random() * 0.3) + 's';
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => confetti.remove(), 1800);
+    }
+  }
+</script>
+
+</body>
+</html>

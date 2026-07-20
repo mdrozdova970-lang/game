@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Свитки магии · Русский язык</title>
+  <style>
+    /* ===== ПЕРЕМЕННЫЕ СТИЛЯ ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Cormorant Garamond', 'Georgia', serif;
+      background: #2b1f2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      margin: 0;
+      background-image: radial-gradient(circle at 20% 30%, #3d2a42 0%, #1f1423 100%);
+    }
+
+    #game {
+      --game-bg: #f8eee3;
+      --game-card: #f2e2d0;
+      --game-primary: #d9b8c4;
+      --game-accent: #b58b9e;
+      --game-text: #3d2832;
+      --game-success: #a7b8a0;
+      --game-error: #dbb0b0;
+      --game-muted: #c9b6aa;
+
+      background-color: var(--game-bg);
+      background-image: repeating-linear-gradient(45deg, rgba(210, 180, 160, 0.1) 0px, rgba(210, 180, 160, 0.1) 10px, transparent 10px, transparent 20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 4px #b89a8a inset, 0 0 0 8px #dcc4b8 inset;
+      border-radius: 48px 48px 32px 32px;
+      padding: 24px 20px 28px;
+      max-width: 600px;
+      width: 100%;
+      position: relative;
+      border: 6px solid #c9ae9a;
+      transition: all 0.2s ease;
+      margin: 10px auto;
+    }
+
+    #game::before {
+      content: "📜✨";
+      position: absolute;
+      top: -18px;
+      left: 20px;
+      font-size: 2.8rem;
+      opacity: 0.25;
+      transform: rotate(-12deg);
+      filter: blur(0.5px);
+      pointer-events: none;
+    }
+    #game::after {
+      content: "🌫️🔮";
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      font-size: 2.4rem;
+      opacity: 0.2;
+      transform: rotate(8deg);
+      pointer-events: none;
+      filter: blur(0.8px);
+    }
+
+    .fog-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      border-radius: 48px 48px 32px 32px;
+      overflow: hidden;
+      opacity: 0.15;
+      background: radial-gradient(circle at 30% 40%, rgba(210, 190, 220, 0.3) 0%, transparent 70%);
+      animation: fogMove 12s ease-in-out infinite alternate;
+    }
+    @keyframes fogMove {
+      0% { transform: translateX(-10px) scale(1); opacity: 0.1; }
+      100% { transform: translateX(20px) scale(1.1); opacity: 0.25; }
+    }
+
+    .card, .stage-container {
+      background: var(--game-card);
+      border-radius: 32px 16px 32px 16px;
+      padding: 20px 18px;
+      box-shadow: 0 8px 0 #b89a8a, 0 8px 24px rgba(50, 30, 40, 0.2);
+      border: 2px solid #dcc4b8;
+      position: relative;
+      backdrop-filter: blur(2px);
+      transition: all 0.15s ease;
+    }
+
+    .btn {
+      background: var(--game-primary);
+      border: none;
+      border-radius: 40px 12px 40px 12px;
+      padding: 14px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--game-text);
+      box-shadow: 0 6px 0 #a08274, 0 6px 12px rgba(0,0,0,0.1);
+      transition: all 0.08s linear;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
+      border: 2px solid #e6d2c4;
+      touch-action: manipulation;
+      min-height: 60px;
+      font-family: inherit;
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #8a7062; }
+    .btn-primary { background: #dcc0b0; color: #2d1e26; font-size: 1.3rem; padding: 16px 36px; }
+    .btn-success { background: var(--game-success); color: #2a3d2e; box-shadow: 0 6px 0 #7f9a7a; }
+    .btn-secondary { background: #d6c0b4; box-shadow: 0 6px 0 #b09686; }
+
+    .start-screen {
+      text-align: center;
+      padding: 20px 8px;
+      background: rgba(248, 238, 227, 0.7);
+      border-radius: 40px 16px 40px 16px;
+      border: 3px solid #dcc4b8;
+      backdrop-filter: blur(4px);
+    }
+    .start-screen h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #3d2832;
+      text-shadow: 3px 3px 0 #dcc4b8, 0 0 20px rgba(180, 140, 160, 0.2);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      font-family: 'Georgia', serif;
+    }
+    .start-screen .sub {
+      font-size: 1.2rem;
+      background: #e6d2c4;
+      display: inline-block;
+      padding: 6px 28px;
+      border-radius: 40px 8px 40px 8px;
+      color: #3d2832;
+      margin-bottom: 20px;
+      border: 2px solid #c9ae9a;
+      font-style: italic;
+    }
+    .start-icon { font-size: 4.2rem; line-height: 1.2; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15)); margin: 6px 0; }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      background: rgba(230, 210, 196, 0.5);
+      padding: 10px 16px;
+      border-radius: 60px 16px 60px 16px;
+      backdrop-filter: blur(4px);
+      border: 2px solid #dcc4b8;
+    }
+    .progress-bar-bg {
+      flex: 1; height: 18px;
+      background: #dcc4b8;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+      min-width: 60px;
+    }
+    .progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #b58b9e, #d9b8c4);
+      border-radius: 30px;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      font-weight: 700;
+      color: #3d2832;
+      background: #f2e2d0;
+      padding: 0 16px;
+      border-radius: 40px 8px 40px 8px;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      border: 2px solid #c9ae9a;
+    }
+
+    .inventory {
+      position: absolute;
+      top: 90px;
+      right: 12px;
+      background: rgba(248, 238, 227, 0.85);
+      border: 3px solid #c9ae9a;
+      border-radius: 20px 8px 20px 8px;
+      padding: 8px 6px;
+      min-width: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 10;
+      font-size: 1.6rem;
+    }
+    .inventory span { font-size: 0.7rem; color: #5a3d4a; font-weight: 700; }
+    .inv-items { display: flex; flex-direction: column; gap: 2px; font-size: 1.8rem; }
+
+    .helper {
+      background: rgba(230, 210, 196, 0.5);
+      border-radius: 60px 16px 60px 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 14px 0 16px;
+      border: 2px solid #dcc4b8;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 0 #b89a8a;
+    }
+    .helper-emoji { font-size: 3.4rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+    .helper-bubble {
+      background: rgba(255, 248, 240, 0.85);
+      padding: 10px 18px;
+      border-radius: 40px 40px 40px 8px;
+      font-size: 1rem;
+      color: #3d2832;
+      border: 2px solid #dcc4b8;
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+      font-style: italic;
+      backdrop-filter: blur(2px);
+    }
+
+    .level-map {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .level-node {
+      background: #e6d2c4;
+      border-radius: 40px 12px 40px 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 3px solid #c9ae9a;
+      box-shadow: 0 4px 0 #b89a8a;
+      transition: 0.2s;
+    }
+    .level-node.locked {
+      opacity: 0.6;
+      filter: grayscale(0.4);
+      pointer-events: none;
+    }
+    .level-node .level-info { display: flex; align-items: center; gap: 12px; }
+    .level-node .level-stars { font-size: 1.6rem; letter-spacing: 2px; }
+    .level-node .level-btn {
+      background: #d9b8c4;
+      border: none;
+      border-radius: 30px 8px 30px 8px;
+      padding: 8px 20px;
+      font-weight: 700;
+      color: #2d1e26;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #a08274;
+      transition: 0.08s;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    .level-node .level-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #8a7062; }
+    .level-node .level-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+      background: transparent;
+      padding: 0;
+    }
+    .option-btn {
+      background: #f8eee3;
+      border: 3px solid #dcc4b8;
+      border-radius: 40px 8px 40px 8px;
+      padding: 16px 10px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #3d2832;
+      box-shadow: 0 5px 0 #b89a8a;
+      transition: 0.08s linear;
+      cursor: pointer;
+      touch-action: manipulation;
+      text-align: center;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+    }
+    .option-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #a08274; }
+    .option-btn.correct {
+      border: 4px solid #7f9a7a;
+      background: #dce8d6;
+      box-shadow: 0 0 0 3px #b5cfae;
+    }
+    .option-btn.wrong {
+      border: 4px solid #dbb0b0;
+      background: #f5dfdf;
+      box-shadow: 0 0 0 3px #ecc;
+    }
+    .option-btn.disabled { opacity: 0.6; pointer-events: none; }
+
+    .multi-check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 14px 0;
+      background: rgba(255, 248, 240, 0.5);
+      padding: 12px 16px;
+      border-radius: 30px 8px;
+      border: 2px solid #dcc4b8;
+    }
+    .multi-check-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 12px;
+      background: rgba(248, 238, 227, 0.6);
+      border-radius: 30px 6px;
+      border: 2px solid #e6d2c4;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .multi-check-item input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: #b58b9e;
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+    .multi-check-item.correct-check {
+      border-color: #7f9a7a;
+      background: #dce8d6;
+    }
+    .multi-check-item.wrong-check {
+      border-color: #dbb0b0;
+      background: #f5dfdf;
+    }
+    .multi-check-item.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .feedback-line {
+      margin: 12px 0 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-radius: 40px 8px 40px 8px;
+      background: rgba(248, 238, 227, 0.8);
+      border: 2px solid #dcc4b8;
+    }
+
+    .task-text {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      background: rgba(255, 248, 240, 0.7);
+      padding: 16px 18px;
+      border-radius: 40px 8px 40px 8px;
+      border: 2px solid #dcc4b8;
+      margin: 8px 0 12px;
+      font-weight: 500;
+      backdrop-filter: blur(2px);
+    }
+
+    .flex-buttons { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 14px; }
+    .hidden { display: none !important; }
+
+    .shake { animation: shake 0.3s ease-in-out; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 30%{transform:translateX(-8px);} 60%{transform:translateX(8px);} }
+
+    .confetti-container {
+      position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999;
+    }
+
+    @media (max-width: 480px) {
+      #game { padding: 16px 12px; border-radius: 32px; }
+      .option-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .option-btn { font-size: 1rem; padding: 14px 8px; min-height: 56px; }
+      .btn { font-size: 1rem; padding: 12px 18px; min-height: 52px; }
+      .start-screen h1 { font-size: 2.2rem; }
+      .inventory { top: 80px; right: 6px; font-size: 1.3rem; min-width: 36px; padding: 6px 4px; }
+      .inv-items { font-size: 1.4rem; }
+      .multi-check-item { font-size: 1rem; padding: 6px 10px; }
+    }
+
+    .deco-sprinkles {
+      background: repeating-linear-gradient(45deg, #dcc4b8 0px, #dcc4b8 6px, #f2e2d0 6px, #f2e2d0 12px);
+      height: 10px; width: 100%; border-radius: 30px; margin: 6px 0 12px; opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+<div id="game">
+  <div class="fog-overlay"></div>
+
+  <div id="startScreen" class="start-screen">
+    <div class="deco-sprinkles"></div>
+    <div class="start-icon">📜🔮</div>
+    <h1>Свитки магии</h1>
+    <div class="sub">Русский язык · 2 класс</div>
+    <p style="font-size:1.1rem; background: rgba(230,210,196,0.5); padding:12px 18px; border-radius:40px 8px; border:2px solid #c9ae9a; backdrop-filter:blur(4px);">
+      🧙‍♂️ Пройди три уровня вместе с волшебником!
+    </p>
+    <br>
+    <button class="btn btn-primary" id="startBtn">✨ Начать</button>
+    <div style="margin-top:16px; font-size:0.9rem; color:#5a3d4a;">Собери все фрагменты карты 🗺️</div>
+  </div>
+
+  <div id="gameContainer" class="hidden">
+    <div class="progress-wrap" id="progressWrap">
+      <span style="font-size:1.3rem;">📜</span>
+      <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">0 / 15</span>
+      <span class="progress-text" id="globalScore">⭐ 0</span>
+    </div>
+
+    <div class="helper" id="helperBox">
+      <span class="helper-emoji" id="helperEmoji">🧙</span>
+      <div class="helper-bubble" id="helperBubble">Приветствую! Я волшебник Свиткознай.</div>
+    </div>
+
+    <div class="inventory" id="inventory">
+      <span>🗺️</span>
+      <div class="inv-items" id="invItems"></div>
+    </div>
+
+    <div id="stageContent"></div>
+  </div>
+
+  <div id="finalScreen" class="hidden" style="text-align:center; padding:20px 0;">
+    <div class="deco-sprinkles"></div>
+    <h2 style="font-size:2.4rem; color:#3d2832; font-family:'Georgia',serif;">📜 Путь завершён!</h2>
+    <div style="font-size:4.2rem; margin:6px 0;">🏆</div>
+    <div id="finalStats" style="font-size:1.2rem; background:rgba(248,238,227,0.8); padding:16px; border-radius:40px 8px; border:2px solid #dcc4b8;"></div>
+    <div id="finalStars" style="font-size:3rem; margin:8px 0;"></div>
+    <div id="finalArtifact" style="font-size:2.4rem; margin:4px 0;">🗺️</div>
+    <div id="finalMessage" style="font-weight:600; padding:8px; background:rgba(230,210,196,0.3); border-radius:40px 8px;">Отлично!</div>
+    <div class="flex-buttons">
+      <button class="btn btn-primary" id="restartBtn">🔁 Пройти снова</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ===== ДАННЫЕ =====
+    const LEVELS = [
+      {
+        name: 'Лёгкий',
+        tasks: [
+          { q: 'В слове "кошка" сколько букв?', options: ['4', '5', '6', '7'], correct: 1 },
+          { q: 'Какая буква лишняя: А, О, У, Ы, Й?', options: ['А', 'О', 'У', 'Ы', 'Й'], correct: 4 },
+          { q: 'Какой звук в слове "дом" — гласный?', options: ['д', 'о', 'м', 'дм'], correct: 1 },
+          { q: 'Сколько слогов в слове "мама"?', options: ['1', '2', '3', '4'], correct: 1 },
+          { q: 'Какое слово начинается с буквы "З"?', options: ['заяц', 'белка', 'ворона', 'собака'], correct: 0 }
+        ]
+      },
+      {
+        name: 'Средний',
+        tasks: [
+          { q: 'В слове "солнце" сколько согласных звуков?', options: ['2', '3', '4', '5'], correct: 2 },
+          { q: 'Какие слова нельзя переносить? (отметь все верные)', options: ['огонь', 'волк', 'яма', 'земля'], correct: [0, 1, 2] },
+          { q: 'Какой звук в слове "ёж" — мягкий согласный?', options: ['ё', 'ж', 'й', 'ш'], correct: 2 },
+          { q: 'Какие слова являются многозначными? (отметь все верные)', options: ['лес-лес', 'коса-коса', 'лук-лук', 'ручка-ручка'], correct: [1,2,3] },
+          { q: 'Сколько букв в слове "яблоко"?', options: ['5', '6', '7', '8'], correct: 1 }
+        ]
+      },
+      {
+        name: 'Сложный',
+        tasks: [
+          { q: 'Какое слово состоит из корня и окончания?', options: ['школа', 'школьный', 'школьник', 'пришкольный'], correct: 0 },
+          { q: 'Сколько звуков в слове "пень"?', options: ['2', '3', '4', '5'], correct: 1 },
+          { q: 'В каком слове все согласные твёрдые?', options: ['цирк', 'пир', 'синий', 'чай'], correct: 0 },
+          { q: 'Какое слово образовано от слова "снег"?', options: ['снежинка', 'снежный', 'снегопад', 'все'], correct: 3 },
+          { q: 'Сколько слогов в слове "воробей"?', options: ['2', '3', '4', '5'], correct: 1 }
+        ]
+      }
+    ];
+
+    // ===== СОСТОЯНИЕ =====
+    let currentLevel = 0;
+    let currentTask = 0;
+    let score = 0;
+    let levelScores = [0,0,0];
+    let levelStars = [0,0,0];
+    let levelComplete = [false,false,false];
+    let totalTasks = 15;
+    let collectedArtifacts = [];
+
+    const startScreen = document.getElementById('startScreen');
+    const gameContainer = document.getElementById('gameContainer');
+    const stageContent = document.getElementById('stageContent');
+    const finalScreen = document.getElementById('finalScreen');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const globalScoreSpan = document.getElementById('globalScore');
+    const helperBubble = document.getElementById('helperBubble');
+    const helperEmoji = document.getElementById('helperEmoji');
+    const invItems = document.getElementById('invItems');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function updateProgress() {
+      let done = 0;
+      for (let i=0; i<currentLevel; i++) {
+        done += LEVELS[i].tasks.length;
+      }
+      if (currentLevel < LEVELS.length) {
+        done += Math.min(currentTask, LEVELS[currentLevel].tasks.length);
+      }
+      const pct = Math.min(100, Math.round((done / totalTasks) * 100));
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `${done} / ${totalTasks}`;
+      globalScoreSpan.textContent = '⭐ ' + score;
+    }
+
+    function setHelper(emoji, text) {
+      helperEmoji.textContent = emoji || '🧙';
+      helperBubble.textContent = text || '...';
+    }
+
+    function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function showConfetti() {
+      const container = document.createElement('div');
+      container.className = 'confetti-container';
+      for (let i=0; i<50; i++) {
+        const span = document.createElement('span');
+        const colors = ['#d9b8c4','#b58b9e','#dcc4b8','#e6d2c4','#f2e2d0','#a7b8a0'];
+        span.style.cssText = `position:absolute; width:8px; height:8px; background:${colors[Math.floor(Math.random()*colors.length)]}; border-radius:50%; top:${Math.random()*100}%; left:${Math.random()*100}%; animation: confettiFall ${0.8+Math.random()}s linear forwards; transform:rotate(${Math.random()*360}deg);`;
+        container.appendChild(span);
+      }
+      document.body.appendChild(container);
+      setTimeout(() => container.remove(), 1300);
+    }
+
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes confettiFall {
+        0% { opacity:1; transform: translateY(-20px) rotate(0deg); }
+        100% { opacity:0; transform: translateY(90vh) rotate(720deg); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    function shakeElement(el) {
+      if (!el) return;
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    }
+
+    function updateInventory() {
+      const items = ['🔮','📜','✨','🪄','🧹','🌟','☄️','🌙','⭐','🔱','🗡️','🏹','🛡️','⚗️','📖'];
+      let html = '';
+      for (let i=0; i<collectedArtifacts.length && i<items.length; i++) {
+        html += `<span>${items[i]}</span>`;
+      }
+      invItems.innerHTML = html || '<span style="font-size:0.8rem; color:#7a5d6a;">пусто</span>';
+    }
+
+    function renderLevelMap() {
+      let html = `<div class="level-map">`;
+      LEVELS.forEach((level, idx) => {
+        const locked = (idx > 0 && !levelComplete[idx-1]);
+        const stars = levelStars[idx] || 0;
+        const starStr = '⭐'.repeat(stars) + ('☆'.repeat(3-stars));
+        html += `
+          <div class="level-node ${locked ? 'locked' : ''}">
+            <div class="level-info">
+              <span style="font-size:1.8rem;">${idx===0?'📜':idx===1?'📜':idx===2?'📜':''}</span>
+              <div>
+                <div style="font-weight:700;">Уровень ${idx+1}: ${level.name}</div>
+                <div class="level-stars">${starStr}</div>
+              </div>
+            </div>
+            <button class="level-btn" data-level="${idx}" ${locked ? 'disabled' : ''}>
+              ${locked ? '🔒' : (levelComplete[idx] ? '🔄' : '▶️')}
+            </button>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      stageContent.innerHTML = html;
+
+      document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const lvl = parseInt(this.dataset.level);
+          if (lvl > 0 && !levelComplete[lvl-1]) return;
+          currentLevel = lvl;
+          currentTask = 0;
+          renderLevel();
+        });
+      });
+      updateProgress();
+      updateInventory();
+    }
+
+    function renderLevel() {
+      if (currentLevel >= LEVELS.length) { showFinalScreen(); return; }
+      const level = LEVELS[currentLevel];
+      if (currentTask >= level.tasks.length) {
+        levelComplete[currentLevel] = true;
+        const correct = levelScores[currentLevel] || 0;
+        const total = level.tasks.length;
+        const pct = Math.round((correct / total) * 100);
+        let stars = 0;
+        if (pct >= 100) stars = 3;
+        else if (pct >= 75) stars = 2;
+        else if (pct >= 50) stars = 1;
+        levelStars[currentLevel] = stars;
+        if (currentLevel < LEVELS.length - 1) {
+          stageContent.innerHTML = `
+            <div class="card" style="text-align:center; padding:30px 16px;">
+              <div style="font-size:4rem;">📜</div>
+              <h2 style="font-size:2rem; color:#3d2832;">Уровень ${currentLevel+1} пройден!</h2>
+              <p style="font-size:1.2rem;">Верных ответов: ${correct} из ${total}</p>
+              <div style="font-size:2.4rem;">${'⭐'.repeat(stars)}</div>
+              <br>
+              <button class="btn btn-primary" id="mapBtn">🗺️ Карта уровней</button>
+            </div>
+          `;
+          document.getElementById('mapBtn').addEventListener('click', function() {
+            renderLevelMap();
+          });
+          setHelper('🧙✨', 'Отлично! Ты справился с уровнем! Продолжим?');
+          updateProgress();
+          updateInventory();
+          return;
+        } else {
+          showFinalScreen();
+          return;
+        }
+      }
+
+      const task = level.tasks[currentTask];
+      
+      if (task.q.includes('отметь все') || task.q.includes('Какие слова')) {
+        renderMultiCheckTask(level, task);
+        return;
+      }
+
+      let html = `
+        <div class="stage-container">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-weight:700; font-size:1.1rem;">Уровень ${currentLevel+1}: ${level.name}</span>
+            <span style="background:#e6d2c4; padding:2px 14px; border-radius:30px 6px; font-weight:600;">${currentTask+1}/${level.tasks.length}</span>
+          </div>
+          <div class="task-text">${task.q}</div>
+          <div class="option-grid" id="quizOptions">
+      `;
+      task.options.forEach((opt, idx) => {
+        html += `<div class="option-btn" data-idx="${idx}">${opt}</div>`;
+      });
+      html += `</div><div id="quizFeedback" class="feedback-line hidden"></div>`;
+      html += `<div class="flex-buttons"><button class="btn btn-secondary" id="quizNextBtn" disabled>Дальше →</button></div>`;
+      html += `</div>`;
+      stageContent.innerHTML = html;
+      updateProgress();
+      bindLevelEvents(level);
+    }
+
+    function renderMultiCheckTask(level, task) {
+      let html = `
+        <div class="stage-container">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-weight:700; font-size:1.1rem;">Уровень ${currentLevel+1}: ${level.name}</span>
+            <span style="background:#e6d2c4; padding:2px 14px; border-radius:30px 6px; font-weight:600;">${currentTask+1}/${level.tasks.length}</span>
+          </div>
+          <div class="task-text">${task.q}</div>
+          <div class="multi-check-group" id="multiCheckGroup">
+      `;
+      task.options.forEach((opt, idx) => {
+        html += `
+          <label class="multi-check-item" data-idx="${idx}">
+            <input type="checkbox" value="${idx}"> ${opt}
+          </label>
+        `;
+      });
+      html += `
+          </div>
+          <div id="quizFeedback" class="feedback-line hidden"></div>
+          <div class="flex-buttons">
+            <button class="btn btn-primary" id="multiCheckBtn">✅ Проверить</button>
+          </div>
+        </div>
+      `;
+      stageContent.innerHTML = html;
+      updateProgress();
+      
+      let isAnswered = false;
+      document.getElementById('multiCheckBtn').addEventListener('click', function() {
+        if (isAnswered) {
+          currentTask++;
+          renderLevel();
+          return;
+        }
+        
+        const checkboxes = document.querySelectorAll('#multiCheckGroup input[type="checkbox"]');
+        const items = document.querySelectorAll('#multiCheckGroup .multi-check-item');
+        const feedback = document.getElementById('quizFeedback');
+        const correct = task.correct;
+        let selected = [];
+        checkboxes.forEach((cb, idx) => {
+          if (cb.checked) selected.push(idx);
+          cb.disabled = true;
+          items[idx].classList.add('disabled');
+        });
+        
+        const isCorrect = selected.length === correct.length && selected.every(v => correct.includes(v));
+        
+        if (isCorrect) {
+          items.forEach((item, idx) => {
+            if (correct.includes(idx)) item.classList.add('correct-check');
+          });
+          score++;
+          levelScores[currentLevel] = (levelScores[currentLevel] || 0) + 1;
+          collectedArtifacts.push('📜');
+          showConfetti();
+          setHelper('🧙✨', getRandom(['Верно! Ты силён!', 'Отлично! Магия знаний!', 'Правильно! Так держать!']));
+          feedback.innerHTML = '✅ Отлично! Все верные ответы найдены!';
+          feedback.classList.remove('hidden');
+        } else {
+          items.forEach((item, idx) => {
+            if (correct.includes(idx)) item.classList.add('correct-check');
+            if (selected.includes(idx) && !correct.includes(idx)) item.classList.add('wrong-check');
+          });
+          shakeElement(document.getElementById('multiCheckGroup'));
+          setHelper('🧙💫', getRandom(['Почти! Не сдавайся!', 'Ой, бывает. Посмотри верные ответы.', 'Давай подумаем вместе.']));
+          let correctWords = correct.map(i => task.options[i]).join(', ');
+          feedback.innerHTML = '❌ Почти! Правильные ответы: ' + correctWords;
+          feedback.classList.remove('hidden');
+        }
+        globalScoreSpan.textContent = '⭐ ' + score;
+        updateProgress();
+        updateInventory();
+        isAnswered = true;
+        this.textContent = 'Дальше →';
+      });
+    }
+
+    function bindLevelEvents(level) {
+      const options = document.querySelectorAll('#quizOptions .option-btn');
+      const feedback = document.getElementById('quizFeedback');
+      const nextBtn = document.getElementById('quizNextBtn');
+      if (!options.length) return;
+      const task = level.tasks[currentTask];
+      let locked = false;
+
+      options.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          if (locked || this.classList.contains('disabled')) return;
+          const idx = parseInt(this.dataset.idx);
+          const correct = task.correct;
+          const isCorrect = (idx === correct);
+          locked = true;
+          options.forEach(b => b.classList.add('disabled'));
+
+          if (isCorrect) {
+            this.classList.add('correct');
+            score++;
+            levelScores[currentLevel] = (levelScores[currentLevel] || 0) + 1;
+            collectedArtifacts.push('📜');
+            showConfetti();
+            setHelper('🧙✨', getRandom(['Верно! Ты силён!', 'Отлично! Магия знаний!', 'Правильно! Так держать!', 'Идеально!']));
+            feedback.innerHTML = '✅ Отлично! ' + (task.options[correct] + ' — верно!');
+            feedback.classList.remove('hidden');
+          } else {
+            this.classList.add('wrong');
+            shakeElement(this);
+            options.forEach((b, i) => { if (i === correct) b.classList.add('correct'); });
+            setHelper('🧙💫', getRandom(['Почти! Не сдавайся!', 'Ой, бывает. Посмотри верный ответ.', 'Давай подумаем вместе.', 'Не беда, в следующий раз!']));
+            feedback.innerHTML = '❌ Почти! Правильно: ' + task.options[correct];
+            feedback.classList.remove('hidden');
+          }
+          globalScoreSpan.textContent = '⭐ ' + score;
+          updateProgress();
+          updateInventory();
+          nextBtn.disabled = false;
+        });
+      });
+
+      nextBtn.addEventListener('click', function() {
+        currentTask++;
+        renderLevel();
+      });
+    }
+
+    function showFinalScreen() {
+      gameContainer.classList.add('hidden');
+      finalScreen.classList.remove('hidden');
+      const total = totalTasks;
+      const correct = score;
+      const pct = Math.round((correct / total) * 100);
+      let stars = 0;
+      if (pct >= 100) stars = 3;
+      else if (pct >= 75) stars = 2;
+      else if (pct >= 50) stars = 1;
+
+      document.getElementById('finalStats').innerHTML = `
+        <div>✅ Верных ответов: ${correct} из ${total}</div>
+        <div>⭐ Баллы: ${correct}</div>
+        <div style="margin-top:6px;">📜 Уровни: ${levelStars.map((s,i)=>`${i+1}: ${'⭐'.repeat(s)}`).join(' · ')}</div>
+      `;
+      document.getElementById('finalStars').textContent = '⭐'.repeat(stars) + ('☆'.repeat(3-stars));
+
+      let msg = '';
+      if (stars === 3) msg = '🏆 Ты настоящий маг! Карта собрана!';
+      else if (stars === 2) msg = '👏 Отлично! Почти всё верно!';
+      else if (stars === 1) msg = '💪 Хорошо! Попробуй ещё раз!';
+      else msg = '😊 Не сдавайся! У тебя всё получится!';
+      document.getElementById('finalMessage').textContent = msg;
+      if (stars < 3) {
+        const need = total - correct;
+        document.getElementById('finalMessage').textContent += ` До следующей звезды не хватает ${need} ответ${need>1?'ов':''}.`;
+      }
+      if (collectedArtifacts.length >= totalTasks) {
+        document.getElementById('finalArtifact').textContent = '🗺️✨ Карта магии открыта!';
+      } else {
+        document.getElementById('finalArtifact').textContent = '🗺️ ' + collectedArtifacts.length + '/' + totalTasks + ' фрагментов';
+      }
+    }
+
+    function resetGame() {
+      currentLevel = 0;
+      currentTask = 0;
+      score = 0;
+      levelScores = [0,0,0];
+      levelStars = [0,0,0];
+      levelComplete = [false,false,false];
+      collectedArtifacts = [];
+      startScreen.classList.add('hidden');
+      finalScreen.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      renderLevelMap();
+      setHelper('🧙', 'Добро пожаловать! Выбери уровень.');
+    }
+
+    startBtn.addEventListener('click', function() {
+      startScreen.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      resetGame();
+    });
+
+    restartBtn.addEventListener('click', function() {
+      resetGame();
+    });
+
+    gameContainer.classList.add('hidden');
+    finalScreen.classList.add('hidden');
+  })();
+</script>
+</body>
+</html>
