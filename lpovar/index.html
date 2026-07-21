@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Математический лабиринт</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: #f7f2e0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+    }
+    .screen.show {
+      display: block;
+    }
+
+    .card {
+      background: #fffcf0;
+      border: 4px solid #3d2b1a;
+      border-radius: 40px 40px 30px 30px;
+      padding: 28px 24px;
+      box-shadow: 0 12px 0 #3d2b1a, 0 8px 20px rgba(0,0,0,0.15);
+      transition: 0.2s;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #4a2e1b;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    p, li {
+      font-size: 1.2rem;
+      color: #2d2d2d;
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 16px 24px;
+      border: 4px solid #1f1f1f;
+      border-radius: 60px;
+      background: #f5b342;
+      color: #1f1f1f;
+      width: 100%;
+      cursor: pointer;
+      transition: 0.1s ease;
+      box-shadow: 0 6px 0 #b8752c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 12px 0;
+    }
+    button:active {
+      transform: translateY(6px);
+      box-shadow: none;
+    }
+    button.secondary {
+      background: #b8d9b0;
+      box-shadow: 0 6px 0 #7a9a72;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .progress-wrap {
+      flex: 2;
+      min-width: 120px;
+    }
+    .progress {
+      height: 20px;
+      background: #d6cfb5;
+      border-radius: 40px;
+      border: 3px solid #3d2b1a;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      border-radius: 40px;
+      transition: width 0.3s ease;
+    }
+
+    .step-label {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #4d3e2a;
+      margin-top: 4px;
+    }
+
+    .score-box {
+      background: #3d2b1a;
+      padding: 6px 18px 6px 16px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #f7e9c3;
+      font-weight: 700;
+      font-size: 1.6rem;
+      border: 3px solid #f7e9c3;
+    }
+
+    .inventory {
+      font-size: 2.2rem;
+      letter-spacing: 4px;
+      background: #e8dec8;
+      padding: 0 16px;
+      border-radius: 60px;
+      border: 3px solid #3d2b1a;
+      line-height: 1.6;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .chef {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 12px;
+    }
+    .chef h2 {
+      font-size: 2rem;
+      color: #3d2b1a;
+    }
+
+    .speech {
+      background: #f3ebd7;
+      padding: 14px 20px;
+      border-radius: 40px 40px 40px 8px;
+      border: 3px solid #3d2b1a;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 8px 0 20px;
+      display: inline-block;
+    }
+
+    #q {
+      font-size: 1.7rem;
+      font-weight: 600;
+      background: #f7f0db;
+      padding: 20px 18px;
+      border-radius: 30px;
+      border: 3px dashed #3d2b1a;
+      margin: 16px 0;
+      line-height: 1.4;
+    }
+
+    .choices-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .choice {
+      background: white;
+      border: 4px solid #3d2b1a;
+      border-radius: 50px;
+      padding: 18px 20px;
+      font-size: 1.7rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: 0 6px 0 #3d2b1a;
+      color: #1f1f1f;
+    }
+    .choice:active {
+      transform: translateY(6px);
+      box-shadow: none;
+    }
+    .choice.ok {
+      background: #b1e0b0;
+      border-color: #1f6d1f;
+      box-shadow: 0 6px 0 #1f6d1f;
+    }
+    .choice.bad {
+      background: #f7b0a8;
+      border-color: #a03a3a;
+      box-shadow: 0 6px 0 #a03a3a;
+      animation: shake 0.3s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-12px); }
+      50% { transform: translateX(12px); }
+      75% { transform: translateX(-6px); }
+      100% { transform: translateX(0); }
+    }
+
+    .feedback {
+      background: #ece3cf;
+      border-radius: 30px;
+      padding: 18px;
+      margin: 20px 0 8px;
+      border: 3px solid #3d2b1a;
+      font-size: 1.1rem;
+    }
+
+    .feedback .exp {
+      font-weight: 500;
+      color: #1f4f1f;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .result-stars {
+      font-size: 3.2rem;
+      letter-spacing: 8px;
+      margin: 12px 0;
+    }
+
+    /* finish */
+    .finish-box {
+      text-align: center;
+    }
+    .finish-box p {
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 700px) {
+      .card { padding: 20px 16px; }
+      h1 { font-size: 1.9rem; }
+      #q { font-size: 1.3rem; }
+      .choice { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- СТАРТОВЫЙ ЭКРАН -->
+<div id="startScreen" class="screen show">
+  <div class="card">
+    <h1>🍳 Лабиринт поварёнка</h1>
+    <p style="font-size:1.3rem; margin: 10px 0 20px;">
+      Помоги поварёнку пройти лабиринт, решая задачи на умножение и деление в 2 действия.
+    </p>
+    <button onclick="startGame()">🔰 Начать</button>
+  </div>
+</div>
+
+<!-- ИГРОВОЙ ЭКРАН -->
+<div id="gameScreen" class="screen">
+  <div class="card">
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+      <div class="progress-wrap">
+        <div class="progress"><div id="progressBar" class="bar"></div></div>
+        <div class="step-label" id="stepLabel">Задание 1 из 5</div>
+      </div>
+      <div class="score-box">⭐ <span id="scoreDisplay">0</span></div>
+      <div class="inventory" id="inventoryDisplay">🍞</div>
+    </div>
+
+    <!-- Поварёнок -->
+    <div class="chef">
+      <h2>👨‍🍳 Поварёнок</h2>
+    </div>
+    <div class="speech" id="speechBubble">Выбери правильную дорожку!</div>
+
+    <!-- Вопрос -->
+    <div id="questionText"></div>
+
+    <!-- Варианты -->
+    <div class="choices-grid" id="choicesContainer"></div>
+
+    <!-- Обратная связь -->
+    <div id="feedbackArea" class="feedback hidden"></div>
+
+    <!-- Кнопка "Дальше" -->
+    <button id="nextButton" class="secondary hidden" onclick="nextTask()">➡️ Дальше</button>
+  </div>
+</div>
+
+<!-- ФИНИШНЫЙ ЭКРАН -->
+<div id="finishScreen" class="screen">
+  <div class="card finish-box">
+    <h1>🎉 Миссия выполнена!</h1>
+    <div id="resultContainer"></div>
+    <button onclick="location.reload()">🔄 Играть снова</button>
+  </div>
+</div>
+
+<script>
+  // ----- ДАННЫЕ ЗАДАНИЙ (русский) -----
+  const tasks = [
+    {
+      question: "Для пирожков нужно испечь 4 противня по 6 пирожков, а затем разделить их поровну на 3 корзины. Сколько пирожков в каждой корзине?",
+      correct: "8",
+      wrong: "6",
+      explanation: "Сначала 4×6=24, затем 24:3=8."
+    },
+    {
+      question: "Испекли 5 коробок по 4 кекса и раздали по 2 на тарелку. Сколько тарелок получилось?",
+      correct: "10",
+      wrong: "8",
+      explanation: "5×4=20, 20:2=10."
+    },
+    {
+      question: "3 подноса по 8 булочек разделили на 6 корзин. Сколько в каждой?",
+      correct: "4",
+      wrong: "5",
+      explanation: "3×8=24, 24:6=4."
+    },
+    {
+      question: "24 печенья разложили по 4 пакетам, затем каждый пакет разделили пополам. Сколько печений в половине пакета?",
+      correct: "3",
+      wrong: "6",
+      explanation: "24:4=6, 6:2=3."
+    },
+    {
+      question: "2 коробки по 18 конфет разделили на 9 детей. Сколько каждому?",
+      correct: "4",
+      wrong: "6",
+      explanation: "2×18=36, 36:9=4."
+    }
+  ];
+
+  // Состояние игры
+  let currentIndex = 0;
+  let score = 0;
+  let wrongTasks = [];
+  let isAnswered = false;
+
+  // DOM-элементы
+  const startScreen = document.getElementById('startScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const finishScreen = document.getElementById('finishScreen');
+
+  const progressBar = document.getElementById('progressBar');
+  const stepLabel = document.getElementById('stepLabel');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const inventoryDisplay = document.getElementById('inventoryDisplay');
+  const speechBubble = document.getElementById('speechBubble');
+  const questionText = document.getElementById('questionText');
+  const choicesContainer = document.getElementById('choicesContainer');
+  const feedbackArea = document.getElementById('feedbackArea');
+  const nextButton = document.getElementById('nextButton');
+
+  const resultContainer = document.getElementById('resultContainer');
+
+  // ---- Вспомогательные фразы ----
+  const okPhrases = ["Отлично!", "Молодец!", "Верный путь!", "Так держать!", "Точно!"];
+  const badPhrases = ["Ничего страшного.", "Попробуй ещё.", "Подумай ещё.", "Ты справишься!", "Не сдавайся!"];
+
+  // ---- Запуск игры ----
+  function startGame() {
+    startScreen.classList.remove('show');
+    gameScreen.classList.add('show');
+    currentIndex = 0;
+    score = 0;
+    wrongTasks = [];
+    updateScoreAndInventory();
+    renderTask();
+  }
+
+  // ---- Отрисовка задания ----
+  function renderTask() {
+    const task = tasks[currentIndex];
+    if (!task) return;
+
+    isAnswered = false;
+    feedbackArea.classList.add('hidden');
+    feedbackArea.innerHTML = '';
+    nextButton.classList.add('hidden');
+
+    // Прогресс
+    const progress = (currentIndex / tasks.length) * 100;
+    progressBar.style.width = progress + '%';
+    stepLabel.textContent = `Задание ${currentIndex + 1} из ${tasks.length}`;
+
+    // Речь
+    speechBubble.textContent = 'Выбери правильную дорожку!';
+
+    // Вопрос
+    questionText.textContent = task.question;
+
+    // Кнопки (перемешиваем правильный и неправильный)
+    const variants = [task.correct, task.wrong];
+    variants.sort(() => Math.random() - 0.5);
+
+    choicesContainer.innerHTML = '';
+    variants.forEach(value => {
+      const div = document.createElement('div');
+      div.className = 'choice';
+      div.textContent = value;
+      div.dataset.value = value;
+      div.addEventListener('click', () => handleChoice(div, value, task));
+      choicesContainer.appendChild(div);
+    });
+  }
+
+  // ---- Обработка выбора ----
+  function handleChoice(element, chosenValue, task) {
+    if (isAnswered) return;
+    isAnswered = true;
+
+    // Отключаем все клики
+    document.querySelectorAll('.choice').forEach(el => el.style.pointerEvents = 'none');
+
+    const isCorrect = (chosenValue === task.correct);
+
+    if (isCorrect) {
+      // Успех
+      score++;
+      updateScoreAndInventory();
+      element.classList.add('ok');
+      speechBubble.textContent = okPhrases[Math.floor(Math.random() * okPhrases.length)];
+      feedbackArea.classList.remove('hidden');
+      feedbackArea.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:2rem;">✅</span>
+          <span><strong>Отлично!</strong> <span class="exp">${task.explanation}</span></span>
+        </div>
+      `;
+      // Добавляем иконку в инвентарь (🍳)
+      inventoryDisplay.textContent += ' 🧩';
+    } else {
+      // Ошибка
+      wrongTasks.push(currentIndex + 1);
+      element.classList.add('bad');
+      speechBubble.textContent = badPhrases[Math.floor(Math.random() * badPhrases.length)];
+
+      // Показываем правильный ответ
+      document.querySelectorAll('.choice').forEach(el => {
+        if (el.dataset.value === task.correct) {
+          el.classList.add('ok');
+        }
+      });
+
+      feedbackArea.classList.remove('hidden');
+      feedbackArea.innerHTML = `
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:2rem;">❌</span>
+            <span><strong>Почти!</strong> Попробуй ещё раз.</span>
+          </div>
+          <div class="exp">${task.explanation}</div>
+          <button onclick="retryTask()" style="margin-top:14px; font-size:1.2rem; padding:12px; width:auto; display:inline-block; background:#d6c8ae; box-shadow:0 5px 0 #8f7d63;">🔄 Вернуться</button>
+        </div>
+      `;
+      // кнопка "Вернуться" перерисовывает задание
+      return;
+    }
+
+    // Если правильно — показываем кнопку "Дальше"
+    nextButton.classList.remove('hidden');
+  }
+
+  // ---- Повтор задания (при ошибке) ----
+  function retryTask() {
+    // Сброс состояния и перерисовка текущего задания
+    renderTask();
+  }
+
+  // ---- Переход к следующему заданию ----
+  function nextTask() {
+    currentIndex++;
+    if (currentIndex >= tasks.length) {
+      // Игра окончена
+      finishGame();
+    } else {
+      renderTask();
+    }
+  }
+
+  // ---- Обновление счёта и инвентаря ----
+  function updateScoreAndInventory() {
+    scoreDisplay.textContent = score;
+    // инвентарь показываем иконками, но не перезаписываем, а дополняем при правильных ответах
+    // (стартовое значение задаём при старте)
+    if (currentIndex === 0 && score === 0) {
+      inventoryDisplay.textContent = '🍞';
+    }
+  }
+
+  // ---- Финиш ----
+  function finishGame() {
+    gameScreen.classList.remove('show');
+    finishScreen.classList.add('show');
+
+    progressBar.style.width = '100%';
+    stepLabel.textContent = 'Готово!';
+
+    const stars = score === 5 ? 3 : score >= 4 ? 2 : score >= 3 ? 1 : 0;
+    const starString = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+    let wrongMsg = '';
+    if (wrongTasks.length) {
+      wrongMsg = `<p style="font-size:1.2rem;">❕ Ошибки в заданиях: ${wrongTasks.join(', ')}</p>`;
+    } else {
+      wrongMsg = `<p style="font-size:1.2rem; color:#1f6d1f;">✨ Без единой ошибки! Ты гений!</p>`;
+    }
+
+    resultContainer.innerHTML = `
+      <div style="margin: 20px 0;">
+        <p style="font-size:2rem; font-weight:700;">Верных: ${score} из 5</p>
+        <p style="font-size:1.4rem;">Ошибок: ${5 - score}</p>
+        <div class="result-stars">${starString}</div>
+        <p style="font-size:1.3rem;">Фрагменты карты: ${score}/5</p>
+        ${wrongMsg}
+      </div>
+    `;
+  }
+
+  // ---- Инициализация (стартовый экран уже показан) ----
+  // Для корректного отображения инвентаря при первом запуске
+  window.onload = function() {
+    inventoryDisplay.textContent = '🍞';
+  };
+</script>
+
+</body>
+</html>

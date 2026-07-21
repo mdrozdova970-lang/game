@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Русский язык: 2 класс | Задания</title>
+    <style>
+        :root {
+            --primary-blue: #4A90E2;
+            --primary-green: #77DD77;
+            --error-red: #FF6B6B;
+            --bg-color: #F9FBFD;
+            --text-color: #333333;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.2);
+        }
+
+        .mascot { font-size: 3em; margin-bottom: 10px; }
+
+        .level-block {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 6px solid var(--primary-blue);
+        }
+
+        .level-block.advanced { border-left-color: var(--primary-green); }
+
+        .level-title {
+            color: var(--primary-blue);
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .advanced .level-title { color: #5CB85C; }
+
+        .task {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #F0F7FF;
+            border-radius: 10px;
+        }
+        .advanced .task { background-color: #F0FFF4; }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            padding: 12px 15px;
+            border: 2px solid var(--primary-blue);
+            background-color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: left;
+            transition: all 0.2s ease;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .advanced .option-btn { border-color: var(--primary-green); }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #E1EFFE;
+            transform: translateX(5px);
+        }
+        .advanced .option-btn:hover:not(:disabled) { background-color: #E1F7E1; }
+
+        .option-btn.correct {
+            background-color: var(--primary-green) !important;
+            border-color: var(--primary-green) !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error-red) !important;
+            border-color: var(--error-red) !important;
+            color: white;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .feedback.correct { background-color: #D4EDDA; color: #155724; display: block; }
+        .feedback.incorrect { background-color: #F8D7DA; color: #721C24; display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="mascot">🦉🎓</div>
+        <h1>Привет, друзья!</h1>
+        <p>Мудрый Совёнок приглашает вас проверить свои знания по русскому языку! Всё работает отлично, смело нажимайте на кнопки.</p>
+    </div>
+
+    <!-- УРОВЕНЬ 1 -->
+    <div class="level-block">
+        <div class="level-title">⭐ Уровень 1: «Разминка для ума»</div>
+
+        <!-- Задание 1.1 -->
+        <div class="task" data-task-id="task1-1" data-correct="1">
+            <h3>1. Звуки и буквы</h3>
+            <p>В каком слове <strong>звуков меньше, чем букв</strong>?</p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) юла</button>
+                <button class="option-btn" data-index="1">Б) конь</button>
+                <button class="option-btn" data-index="2">В) дом</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Задание 1.2 -->
+        <div class="task" data-task-id="task1-2" data-correct="1">
+            <h3>2. Деление на слоги</h3>
+            <p>Как правильно разделить слово <strong>«ребята»</strong> на слоги?</p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) ре-бят-а</button>
+                <button class="option-btn" data-index="1">Б) ре-бя-та</button>
+                <button class="option-btn" data-index="2">В) реб-я-та</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Задание 1.3 -->
+        <div class="task" data-task-id="task1-3" data-correct="0">
+            <h3>3. Главные члены предложения</h3>
+            <p>Найди <strong>главные члены предложения</strong> (подлежащее и сказуемое): <br><em>«Весёлый щенок играет во дворе».</em></p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) щенок играет</button>
+                <button class="option-btn" data-index="1">Б) весёлый щенок</button>
+                <button class="option-btn" data-index="2">В) играет во дворе</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+    <!-- УРОВЕНЬ 2 -->
+    <div class="level-block advanced">
+        <div class="level-title">🌟 Уровень 2: «Задания со звёздочкой»</div>
+
+        <!-- Задание 2.1 -->
+        <div class="task" data-task-id="task2-1" data-correct="1">
+            <h3>1. Звуки и буквы (с хитринкой)</h3>
+            <p>Сколько <strong>звуков</strong> в слове <strong>«ягода»</strong>?</p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) 5 звуков</button>
+                <button class="option-btn" data-index="1">Б) 6 звуков</button>
+                <button class="option-btn" data-index="2">В) 4 звука</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Задание 2.2 -->
+        <div class="task" data-task-id="task2-2" data-correct="1">
+            <h3>2. Слоги и перенос слова</h3>
+            <p>Как правильно разделить слово <strong>«подъезд»</strong> для переноса?</p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) под-ъезд</button>
+                <button class="option-btn" data-index="1">Б) подъ-езд</button>
+                <button class="option-btn" data-index="2">В) под-ъе-зд</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+        
+        <!-- Задание 2.3 (ИСПРАВЛЕНО) -->
+        <div class="task" data-task-id="task2-3" data-correct="1">
+            <h3>3. Второстепенные члены предложения</h3>
+            <p>Найди <strong>второстепенные члены предложения</strong>, которые отвечают на вопрос <strong>какой?</strong> (они обозначают признак предмета): <br><em>«Маленький ёжик быстро пробежал по лесной тропинке».</em></p>
+            <div class="options">
+                <button class="option-btn" data-index="0">А) быстро</button>
+                <button class="option-btn" data-index="1">Б) маленький, лесной</button>
+                <button class="option-btn" data-index="2">В) по тропинке</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Массив с правильными ответами и объяснениями
+    const answers = {
+        'task1-1': {
+            correct: 1,
+            messages: [
+                'В слове "юла" 3 буквы, но 4 звука: [й\'], [у], [л], [а].',
+                'Отлично! В слове "конь" 4 буквы, но 3 звука: [к], [о], [н\']. Мягкий знак звука не обозначает.',
+                'В слове "дом" 3 буквы и 3 звука. Посчитай ещё раз!'
+            ]
+        },
+        'task1-2': {
+            correct: 1,
+            messages: [
+                'Слог должен содержать гласную. Проверь, все ли гласные учтены.',
+                'Молодец! В слове 3 гласные, значит, 3 слога: ре-бя-та.',
+                'Обрати внимание: буква "я" после гласной даёт два звука, но здесь она в начале слога.'
+            ]
+        },
+        'task1-3': {
+            correct: 0,
+            messages: [
+                'Верно! "Щенок" (кто?) — подлежащее, "играет" (что делает?) — сказуемое.',
+                '"Весёлый" — это второстепенный член предложения. Ищи главные!',
+                '"Во дворе" отвечает на вопрос "где?" и является второстепенным членом предложения.'
+            ]
+        },
+        'task2-1': {
+            correct: 1,
+            messages: [
+                'Посчитай внимательнее: буква "я" в начале слова даёт два звука [й\'] и [а].',
+                'Блестяще! 5 букв, но 6 звуков: [й\'], [а], [г], [о], [д], [а].',
+                'Звуков всегда больше или равно количеству букв. Проверь букву "я"!'
+            ]
+        },
+        'task2-2': {
+            correct: 1,
+            messages: [
+                'Букву "ъ" нельзя оставлять одну на строке или переносить с ней согласную.',
+                'Именно! Приставка "под-" отделяется, а твёрдый знак остаётся с корнем: подъ-езд.',
+                'Такое деление нарушает правило переноса слов с твёрдым знаком.'
+            ]
+        },
+        'task2-3': {
+            correct: 1,
+            messages: [
+                '"Быстро" отвечает на вопрос "как?" и является второстепенным членом предложения (обстоятельством).',
+                'Отлично! "Маленький" и "лесной" отвечают на вопрос "какой?" и являются второстепенными членами предложения (они обозначают признак предмета).',
+                '"По тропинке" отвечает на вопрос "где?" и является второстепенным членом предложения (обстоятельством).'
+            ]
+        }
+    };
+
+    // Ждём загрузки DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим все задания
+        const tasks = document.querySelectorAll('.task');
+        
+        tasks.forEach(task => {
+            const taskId = task.getAttribute('data-task-id');
+            const buttons = task.querySelectorAll('.option-btn');
+            const feedback = task.querySelector('.feedback');
+            
+            // Добавляем обработчик на каждую кнопку
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const selectedIndex = parseInt(this.getAttribute('data-index'));
+                    const correctIndex = answers[taskId].correct;
+                    const message = answers[taskId].messages[selectedIndex];
+                    
+                    // Блокируем все кнопки
+                    buttons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    
+                    // Проверяем ответ
+                    if (selectedIndex === correctIndex) {
+                        this.classList.add('correct');
+                        feedback.className = 'feedback correct';
+                        feedback.innerHTML = '✅ ' + message;
+                    } else {
+                        this.classList.add('incorrect');
+                        feedback.className = 'feedback incorrect';
+                        feedback.innerHTML = '❌ ' + message + ' <br><small>Не расстраивайся, попробуй вспомнить правило!</small>';
+                        
+                        // Подсвечиваем правильный ответ
+                        buttons[correctIndex].classList.add('correct');
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
