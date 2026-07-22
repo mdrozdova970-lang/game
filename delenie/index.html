@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математическая комната: Табличное деление</title>
+    <style>
+        :root {
+            --game-bg: #FFF9F0;
+            --game-card: #FFFFFF;
+            --game-primary: #FFB74D;
+            --game-accent: #64B5F6;
+            --game-text: #4E342E;
+            --game-success: #81C784;
+            --game-error: #E57373;
+            --game-muted: #BCAAA4;
+            
+            --font-main: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            --radius-lg: 25px;
+            --radius-sm: 15px;
+            --shadow: 0 8px 20px rgba(78, 52, 46, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background-color: var(--game-bg);
+            color: var(--game-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: radial-gradient(#FFE0B2 20%, transparent 20%), radial-gradient(#E1F5FE 20%, transparent 20%);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            min-height: 90vh;
+            background: var(--game-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 8px solid var(--game-primary);
+        }
+
+        .decor-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .top-left { top: -10px; left: -10px; transform: rotate(-10deg); }
+        .top-right { top: -10px; right: -10px; transform: rotate(10deg); }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--game-text);
+        }
+
+        .btn {
+            background: var(--game-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #F57C00;
+            transition: transform 0.1s;
+            margin-top: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn:disabled {
+            background: var(--game-muted);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 20px;
+            background: #EEE;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--game-muted);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--game-success);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .pairs-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .pairs-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pair-item {
+            background: #FFF3E0;
+            border: 3px dashed var(--game-primary);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .pair-item.selected {
+            background: var(--game-accent);
+            color: white;
+            border-style: solid;
+            transform: scale(1.05);
+        }
+
+        .pair-item.matched {
+            background: var(--game-success);
+            color: white;
+            border-color: var(--game-success);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #E8F5E9;
+            border-radius: var(--radius-sm);
+            border-left: 5px solid var(--game-success);
+            display: none;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .qa-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .qa-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .qa-item {
+            background: white;
+            border: 2px solid var(--game-accent);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+            position: relative;
+            z-index: 5;
+        }
+
+        .qa-item.selected {
+            background: var(--game-accent);
+            color: white;
+        }
+
+        .qa-item.correct {
+            background: var(--game-success);
+            border-color: var(--game-success);
+            color: white;
+            pointer-events: none;
+        }
+
+        .qa-item.wrong {
+            animation: shake 0.5s;
+            border-color: var(--game-error);
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .assembly-area {
+            width: 100%;
+            min-height: 80px;
+            background: #F5F5F5;
+            border: 3px dotted var(--game-muted);
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assembly-area.wrong {
+            animation: shake 0.5s;
+        }
+
+        .parts-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .word-part {
+            background: var(--game-primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 3px 0 #F57C00;
+            position: relative;
+            z-index: 5;
+        }
+
+        .word-part:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .check-btn {
+            background: var(--game-success);
+            box-shadow: 0 4px 0 #43A047;
+        }
+
+        .stars {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+
+        .icon-svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .pairs-grid { flex-direction: column; }
+            .qa-container { flex-direction: column; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <svg class="decor-corner top-left" viewBox="0 0 100 100">
+        <circle cx="20" cy="20" r="15" fill="#FFB74D" />
+        <rect x="40" y="10" width="20" height="20" fill="#64B5F6" rx="5" />
+    </svg>
+    <svg class="decor-corner top-right" viewBox="0 0 100 100">
+        <polygon points="80,10 90,30 70,30" fill="#81C784" />
+        <circle cx="50" cy="50" r="10" fill="#E57373" />
+    </svg>
+
+    <div id="startScreen" class="screen active">
+        <svg class="icon-svg" viewBox="0 0 100 100">
+            <rect x="20" y="30" width="60" height="50" rx="5" fill="#64B5F6" stroke="#4E342E" stroke-width="2"/>
+            <circle cx="35" cy="55" r="5" fill="white"/>
+            <circle cx="65" cy="55" r="5" fill="white"/>
+            <path d="M 40 70 Q 50 80 60 70" stroke="white" stroke-width="3" fill="none"/>
+            <rect x="45" y="10" width="10" height="20" fill="#FFB74D" stroke="#4E342E" stroke-width="2"/>
+        </svg>
+        <h1>Математическая комната</h1>
+        <p style="text-align: center; font-size: 1.1rem; margin: 10px 20px;">
+            Привет! Давай поиграем с числами.<br>
+            Тема: <b>Табличное деление</b>.<br>
+            Тебя ждут 3 увлекательных этапа!
+        </p>
+        <button class="btn" id="startBtn">Начать игру</button>
+    </div>
+
+    <div id="gameScreen" class="screen">
+        <div class="score-board">
+            <span id="stageTitle">Этап 1</span>
+            <span>⭐ Баллы: <span id="totalScore">0</span></span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-fill"></div>
+            </div>
+            <div style="text-align: right; font-size: 0.8rem; margin-top: 5px; color: var(--game-muted);">
+                Задание <span id="currentTaskNum">1</span> из <span id="totalTasksNum">5</span>
+            </div>
+        </div>
+
+        <div id="stageContent" style="width: 100%; flex-grow: 1;"></div>
+
+        <button id="nextStageBtn" class="btn" style="display: none;">Дальше ➡️</button>
+    </div>
+
+    <div id="interimScreen" class="screen">
+        <h2>Этап пройден!</h2>
+        <div class="stars">🌟 🌟 🌟</div>
+        <p id="interimText">Отличная работа!</p>
+        <button class="btn" id="continueBtn">Продолжить</button>
+    </div>
+
+    <div id="finalScreen" class="screen">
+        <h1>Поздравляем!</h1>
+        <svg class="icon-svg" viewBox="0 0 100 100">
+             <path d="M50 10 L60 40 L90 40 L70 60 L80 90 L50 70 L20 90 L30 60 L10 40 L40 40 Z" fill="#FFB74D" stroke="#4E342E" stroke-width="2"/>
+        </svg>
+        <p>Ты прошел все испытания!</p>
+        <div class="stars" id="finalStars">⭐⭐⭐</div>
+        <h2>Твой счет: <span id="finalScore">0</span></h2>
+        <p id="finalMessage">Ты настоящий мастер деления!</p>
+        <button class="btn" id="restartBtn">Играть снова</button>
+    </div>
+</div>
+
+<script>
+    const stage1Data = [
+        { id: 1, start: "12 : 2", end: "6", expl: "Верно! Если разделить 12 на 2 равные части, в каждой будет по 6." },
+        { id: 2, start: "15 : 3", end: "5", expl: "Молодец! Три раза по 5 — это как раз 15." },
+        { id: 3, start: "8 : 4", end: "2", expl: "Правильно! В числе 8 содержится два числа по 4." },
+        { id: 4, start: "20 : 5", end: "4", expl: "Отлично! Пять умножить на 4 равно 20." },
+        { id: 5, start: "18 : 9", end: "2", expl: "Так держать! Девять умножить на 2 будет 18." }
+    ];
+
+    const stage2Data = [
+        { q: "Как называется число, которое делим?", a: "Делимое" },
+        { q: "Что получается в результате деления?", a: "Частное" },
+        { q: "На какое число нельзя делить?", a: "На ноль" },
+        { q: "Если частное умножить на делитель, что выйдет?", a: "Делимое" },
+        { q: "Сколько будет 0 : 5?", a: "Ноль" }
+    ];
+
+    const stage3Data = [
+        { parts: ["12", ":", "3", "=", "4"], correctOrder: ["12", ":", "3", "=", "4"] },
+        { parts: ["18", ":", "2", "=", "9"], correctOrder: ["18", ":", "2", "=", "9"] },
+        { parts: ["20", ":", "5", "=", "4"], correctOrder: ["20", ":", "5", "=", "4"] },
+        { parts: ["8", ":", "4", "=", "2"], correctOrder: ["8", ":", "4", "=", "2"] },
+        { parts: ["15", ":", "3", "=", "5"], correctOrder: ["15", ":", "3", "=", "5"] }
+    ];
+
+    let currentStage = 0;
+    let totalScore = 0;
+    let currentTaskIndex = 0;
+    let selectedStart = null;
+    let matchedPairsCount = 0;
+    let selectedQ = null;
+    let stage2Matches = 0;
+    let currentAssembly = [];
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function updateScore() {
+        document.getElementById('totalScore').textContent = totalScore;
+    }
+
+    function updateProgress(current, total) {
+        const percent = (current / total) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('currentTaskNum').textContent = current;
+    }
+
+    function startGame() {
+        currentStage = 1;
+        totalScore = 0;
+        updateScore();
+        showScreen('gameScreen');
+        initStage1();
+    }
+
+    function goToNextStage() {
+        if (currentStage === 1) {
+            showInterim("Первый этап пройден! Ты отлично соединил все примеры.");
+            currentStage = 2;
+        } else if (currentStage === 2) {
+            showInterim("Второй этап завершен! Ты знаешь правила деления.");
+            currentStage = 3;
+        } else if (currentStage === 3) {
+            finishGame();
+        }
+    }
+
+    function showInterim(text) {
+        document.getElementById('interimText').textContent = text;
+        showScreen('interimScreen');
+    }
+
+    function startNextStage() {
+        showScreen('gameScreen');
+        if (currentStage === 2) initStage2();
+        if (currentStage === 3) initStage3();
+    }
+
+    function finishGame() {
+        showScreen('finalScreen');
+        document.getElementById('finalScore').textContent = totalScore;
+        let stars = "⭐";
+        if (totalScore > 10) stars = "⭐⭐";
+        if (totalScore > 20) stars = "⭐⭐⭐";
+        document.getElementById('finalStars').textContent = stars;
+    }
+
+    function initStage1() {
+        document.getElementById('stageTitle').textContent = "Этап 1: Найди пару";
+        document.getElementById('totalTasksNum').textContent = "5";
+        currentTaskIndex = 0;
+        updateProgress(0, 5);
+        document.getElementById('nextStageBtn').style.display = 'none';
+        
+        const container = document.getElementById('stageContent');
+        container.innerHTML = '';
+        
+        const grid = document.createElement('div');
+        grid.className = 'pairs-grid';
+        
+        let starts = stage1Data.map(d => ({id: d.id, text: d.start, type: 'start'}));
+        let ends = stage1Data.map(d => ({id: d.id, text: d.end, type: 'end'}));
+        
+        starts.sort(() => Math.random() - 0.5);
+        ends.sort(() => Math.random() - 0.5);
+        
+        const leftCol = document.createElement('div');
+        leftCol.className = 'pairs-column';
+        const rightCol = document.createElement('div');
+        rightCol.className = 'pairs-column';
+        
+        starts.forEach(item => {
+            let el = createPairItem(item);
+            leftCol.appendChild(el);
+        });
+        ends.forEach(item => {
+            let el = createPairItem(item);
+            rightCol.appendChild(el);
+        });
+
+        grid.appendChild(leftCol);
+        grid.appendChild(rightCol);
+        container.appendChild(grid);
+
+        const feedback = document.createElement('div');
+        feedback.id = 'stage1Feedback';
+        feedback.className = 'feedback-box';
+        container.appendChild(feedback);
+
+        matchedPairsCount = 0;
+        selectedStart = null;
+    }
+
+    function createPairItem(data) {
+        let div = document.createElement('div');
+        div.className = 'pair-item';
+        div.textContent = data.text;
+        div.dataset.id = data.id;
+        div.dataset.type = data.type;
+        
+        div.addEventListener('click', function() {
+            handlePairClick(div);
+        });
+        return div;
+    }
+
+    function handlePairClick(el) {
+        if (el.classList.contains('matched')) return;
+        
+        const type = el.dataset.type;
+        
+        if (type === 'start') {
+            document.querySelectorAll('.pair-item[data-type="start"]').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedStart = el;
+            document.getElementById('stage1Feedback').style.display = 'none';
+        } 
+        else if (type === 'end' && selectedStart) {
+            checkPairMatch(selectedStart, el);
+        }
+    }
+
+    function checkPairMatch(startEl, endEl) {
+        const feedback = document.getElementById('stage1Feedback');
+        
+        if (startEl.dataset.id === endEl.dataset.id) {
+            startEl.classList.remove('selected');
+            startEl.classList.add('matched');
+            endEl.classList.add('matched');
+            
+            const data = stage1Data.find(d => d.id == startEl.dataset.id);
+            feedback.innerHTML = `<b>${data.expl}</b>`;
+            feedback.style.display = 'block';
+            feedback.style.background = '#E8F5E9';
+            feedback.style.borderColor = 'var(--game-success)';
+            
+            totalScore += 1;
+            updateScore();
+            matchedPairsCount++;
+            updateProgress(matchedPairsCount, 5);
+            
+            selectedStart = null;
+            
+            if (matchedPairsCount === 5) {
+                document.getElementById('nextStageBtn').style.display = 'inline-block';
+            }
+        } else {
+            endEl.classList.add('wrong');
+            setTimeout(() => endEl.classList.remove('wrong'), 500);
+            feedback.innerHTML = "Попробуй другой вариант! Подумай, какое число при умножении даст результат.";
+            feedback.style.display = 'block';
+            feedback.style.background = '#FFEBEE';
+            feedback.style.borderColor = 'var(--game-error)';
+        }
+    }
+
+    function initStage2() {
+        document.getElementById('stageTitle').textContent = "Этап 2: Вопросы и ответы";
+        document.getElementById('totalTasksNum').textContent = "5";
+        updateProgress(0, 5);
+        document.getElementById('nextStageBtn').style.display = 'none';
+        
+        const container = document.getElementById('stageContent');
+        container.innerHTML = '';
+        
+        const qaContainer = document.createElement('div');
+        qaContainer.className = 'qa-container';
+        
+        const qCol = document.createElement('div');
+        qCol.className = 'qa-column';
+        stage2Data.forEach((item, index) => {
+            let el = document.createElement('div');
+            el.className = 'qa-item';
+            el.textContent = item.q;
+            el.dataset.index = index;
+            el.dataset.type = 'q';
+            el.addEventListener('click', function() {
+                handleQAClick(el);
+            });
+            qCol.appendChild(el);
+        });
+        
+        const aCol = document.createElement('div');
+        aCol.className = 'qa-column';
+        
+        let answerObjects = stage2Data.map((d, idx) => ({text: d.a, correctQIndex: idx}));
+        answerObjects.sort(() => Math.random() - 0.5);
+        
+        answerObjects.forEach(obj => {
+            let el = document.createElement('div');
+            el.className = 'qa-item';
+            el.textContent = obj.text;
+            el.dataset.correctQIndex = obj.correctQIndex;
+            el.dataset.type = 'a';
+            el.addEventListener('click', function() {
+                handleQAClick(el);
+            });
+            aCol.appendChild(el);
+        });
+        
+        qaContainer.appendChild(qCol);
+        qaContainer.appendChild(aCol);
+        container.appendChild(qaContainer);
+        
+        stage2Matches = 0;
+        selectedQ = null;
+    }
+
+    function handleQAClick(el) {
+        if (el.classList.contains('correct')) return;
+        
+        if (el.dataset.type === 'q') {
+            document.querySelectorAll('.qa-item[data-type="q"]').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedQ = el;
+        } else if (el.dataset.type === 'a' && selectedQ) {
+            const qIndex = parseInt(selectedQ.dataset.index);
+            const aCorrectIndex = parseInt(el.dataset.correctQIndex);
+            
+            if (qIndex === aCorrectIndex) {
+                selectedQ.classList.remove('selected');
+                selectedQ.classList.add('correct');
+                el.classList.add('correct');
+                
+                totalScore += 1;
+                updateScore();
+                stage2Matches++;
+                updateProgress(stage2Matches, 5);
+                selectedQ = null;
+                
+                if (stage2Matches === 5) {
+                    document.getElementById('nextStageBtn').style.display = 'inline-block';
+                }
+            } else {
+                el.classList.add('wrong');
+                setTimeout(() => el.classList.remove('wrong'), 500);
+            }
+        }
+    }
+
+    function initStage3() {
+        document.getElementById('stageTitle').textContent = "Этап 3: Собери пример";
+        document.getElementById('totalTasksNum').textContent = "5";
+        currentTaskIndex = 0;
+        updateProgress(0, 5);
+        document.getElementById('nextStageBtn').style.display = 'none';
+        
+        loadStage3Task();
+    }
+
+    function loadStage3Task() {
+        const container = document.getElementById('stageContent');
+        container.innerHTML = '';
+        currentAssembly = [];
+        
+        const task = stage3Data[currentTaskIndex];
+        
+        const instr = document.createElement('p');
+        instr.textContent = "Нажми на части, чтобы собрать верное равенство:";
+        instr.style.textAlign = 'center';
+        container.appendChild(instr);
+        
+        const assemblyArea = document.createElement('div');
+        assemblyArea.className = 'assembly-area';
+        assemblyArea.id = 'assemblyArea';
+        container.appendChild(assemblyArea);
+        
+        const pool = document.createElement('div');
+        pool.className = 'parts-pool';
+        pool.id = 'partsPool';
+        
+        let shuffledParts = [...task.parts].sort(() => Math.random() - 0.5);
+        
+        shuffledParts.forEach((part, idx) => {
+            let btn = document.createElement('div');
+            btn.className = 'word-part';
+            btn.textContent = part;
+            btn.dataset.partIndex = idx;
+            btn.dataset.partText = part;
+            btn.addEventListener('click', function() {
+                movePartToAssembly(btn);
+            });
+            pool.appendChild(btn);
+        });
+        
+        container.appendChild(pool);
+        
+        const checkBtn = document.createElement('button');
+        checkBtn.className = 'btn check-btn';
+        checkBtn.textContent = 'Проверить';
+        checkBtn.addEventListener('click', function() {
+            checkStage3Answer(task.correctOrder);
+        });
+        checkBtn.style.marginTop = '20px';
+        container.appendChild(checkBtn);
+        
+        const msg = document.createElement('div');
+        msg.id = 'stage3Msg';
+        msg.style.textAlign = 'center';
+        msg.style.marginTop = '10px';
+        msg.style.fontWeight = 'bold';
+        container.appendChild(msg);
+    }
+
+    function movePartToAssembly(btnElement) {
+        const area = document.getElementById('assemblyArea');
+        const pool = document.getElementById('partsPool');
+        
+        if (btnElement.parentElement === area) {
+            pool.appendChild(btnElement);
+            const text = btnElement.dataset.partText;
+            const idx = currentAssembly.indexOf(text);
+            if (idx > -1) currentAssembly.splice(idx, 1);
+        } else {
+            area.appendChild(btnElement);
+            currentAssembly.push(btnElement.dataset.partText);
+        }
+    }
+
+    function checkStage3Answer(correctOrder) {
+        const msg = document.getElementById('stage3Msg');
+        
+        const isCorrect = JSON.stringify(currentAssembly) === JSON.stringify(correctOrder);
+        
+        if (isCorrect) {
+            msg.textContent = "Отлично! Всё верно!";
+            msg.style.color = "var(--game-success)";
+            totalScore += 2;
+            updateScore();
+            
+            currentTaskIndex++;
+            updateProgress(currentTaskIndex, 5);
+            
+            setTimeout(() => {
+                if (currentTaskIndex < stage3Data.length) {
+                    loadStage3Task();
+                } else {
+                    document.getElementById('nextStageBtn').style.display = 'inline-block';
+                    document.getElementById('stageContent').innerHTML = '<h2 style="color:var(--game-success)">Все примеры собраны!</h2>';
+                }
+            }, 1500);
+        } else {
+            msg.textContent = "Почти! Попробуй ещё раз.";
+            msg.style.color = "var(--game-error)";
+            const area = document.getElementById('assemblyArea');
+            area.classList.add('wrong');
+            setTimeout(() => area.classList.remove('wrong'), 500);
+        }
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('nextStageBtn').addEventListener('click', goToNextStage);
+    document.getElementById('continueBtn').addEventListener('click', startNextStage);
+    document.getElementById('restartBtn').addEventListener('click', function() {
+        location.reload();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия Грамотности: Работа с текстом</title>
+    <style>
+        :root {
+            --game-bg: #FFF8E1;
+            --game-card: #FFFFFF;
+            --game-primary: #D32F2F;
+            --game-accent: #FFC107;
+            --game-text: #3E2723;
+            --game-success: #4CAF50;
+            --game-error: #FF5722;
+            --game-muted: #BCAAA4;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --radius-btn: 50px;
+            --radius-card: 20px;
+        }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0; padding: 0;
+            font-family: var(--font-main);
+            background-color: var(--game-bg);
+            background-image: radial-gradient(var(--game-accent) 15%, transparent 16%), radial-gradient(var(--game-accent) 15%, transparent 16%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: var(--game-text);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
+        .container { width: 100%; max-width: 600px; padding: 20px; position: relative; }
+        h1, h2, h3 { text-align: center; margin-bottom: 20px; color: var(--game-primary); text-transform: uppercase; letter-spacing: 1px; }
+        .card {
+            background: var(--game-card); border-radius: var(--radius-card);
+            padding: 25px; box-shadow: 0 10px 25px rgba(62, 39, 35, 0.1);
+            border: 4px solid var(--game-accent); position: relative; overflow: hidden;
+        }
+        .btn {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            border: none; border-radius: var(--radius-btn); font-size: 1.2rem;
+            font-weight: bold; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;
+            text-align: center; color: white; background-color: var(--game-primary);
+            box-shadow: 0 6px 0 #B71C1C;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #B71C1C; }
+        .btn-secondary { background-color: var(--game-accent); color: var(--game-text); box-shadow: 0 6px 0 #FFA000; }
+        .btn-secondary:active { box-shadow: 0 2px 0 #FFA000; }
+        .progress-container {
+            width: 100%; height: 20px; background: #eee; border-radius: 10px;
+            margin-bottom: 15px; overflow: hidden; border: 2px solid var(--game-muted);
+        }
+        .progress-bar {
+            height: 100%;
+            background: repeating-linear-gradient(45deg, var(--game-primary), var(--game-primary) 10px, var(--game-error) 10px, var(--game-error) 20px);
+            width: 0%; transition: width 0.5s ease;
+        }
+        .score-board {
+            position: absolute; top: -50px; right: 0;
+            background: var(--game-primary); color: white;
+            padding: 5px 15px; border-radius: 20px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10;
+        }
+        #start-screen { text-align: center; }
+        .pizza-icon {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            background: var(--game-accent); border-radius: 50%;
+            border: 8px solid #F57F17; position: relative; overflow: hidden;
+        }
+        .pepperoni { position: absolute; background: var(--game-primary); border-radius: 50%; opacity: 0.8; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .option-btn {
+            background: white; border: 3px solid var(--game-muted);
+            color: var(--game-text); border-radius: 15px; padding: 15px;
+            text-align: left; cursor: pointer; font-size: 1rem; transition: all 0.2s;
+        }
+        .option-btn.selected { border-color: var(--game-primary); background-color: #FFEBEE; transform: scale(1.02); }
+        .option-btn.correct { border-color: var(--game-success); background-color: #E8F5E9; }
+        .option-btn.wrong { border-color: var(--game-error); background-color: #FFEBEE; opacity: 0.7; }
+        .feedback-msg { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .tf-buttons { display: flex; gap: 15px; margin-top: 20px; }
+        .tf-btn { height: 100px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .tf-true { background-color: var(--game-success); box-shadow: 0 6px 0 #2E7D32; }
+        .tf-false { background-color: var(--game-error); box-shadow: 0 6px 0 #D32F2F; }
+        .explanation-box {
+            background: #FFF3E0; border: 2px dashed var(--game-accent);
+            padding: 15px; margin-top: 20px; border-radius: 15px;
+            display: none; animation: popIn 0.3s ease;
+        }
+        .dropdown-trigger {
+            display: inline-block; padding: 10px 20px; background: white;
+            border: 2px solid var(--game-primary); border-radius: 10px;
+            cursor: pointer; margin-bottom: 10px; font-weight: bold; color: var(--game-primary);
+        }
+        .custom-select-options {
+            display: none; background: white;
+            border: 2px solid var(--game-primary); border-radius: 10px; margin-top: 5px;
+        }
+        .custom-select-options.show { display: block; }
+        .select-opt { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .select-opt:hover { background: #FFEBEE; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .hidden { display: none !important; }
+        .fade-in { animation: popIn 0.5s ease forwards; }
+        .deco-fry {
+            position: absolute; bottom: -20px; right: -20px;
+            width: 80px; height: 80px; background: var(--game-accent);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+            opacity: 0.5; z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="global-score" class="score-board hidden">Баллы: 0</div>
+
+    <div id="start-screen" class="card fade-in">
+        <div class="pizza-icon">
+            <div class="pepperoni" style="top: 20%; left: 20%; width: 20px; height: 20px;"></div>
+            <div class="pepperoni" style="top: 50%; left: 60%; width: 25px; height: 25px;"></div>
+            <div class="pepperoni" style="top: 70%; left: 30%; width: 18px; height: 18px;"></div>
+        </div>
+        <h1>Пиццерия Грамотности</h1>
+        <p style="font-size: 1.1rem; line-height: 1.5;">
+            Добро пожаловать на кухню русского языка! <br>
+            Сегодня мы готовим идеальный текст. Пройди 3 этапа, чтобы стать Шеф-поваром слов!
+        </p>
+        <button class="btn" onclick="startGame()">Начать готовку!</button>
+    </div>
+
+    <div id="game-container" class="card hidden">
+        <div id="stage-indicator" style="text-align: center; color: var(--game-muted); font-size: 0.9rem; margin-bottom: 5px;">Этап 1 из 3</div>
+        <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+        <div id="task-counter" style="text-align: right; font-size: 0.9rem; margin-bottom: 10px; font-weight: bold;">Задание 1</div>
+        <div id="question-area">
+            <h2 id="q-title">Заголовок задания</h2>
+            <div id="q-content"></div>
+            <div id="feedback-area" class="feedback-msg"></div>
+        </div>
+        <div id="controls-area" style="margin-top: 20px;">
+            <button id="action-btn" class="btn">Проверить</button>
+            <button id="next-btn" class="btn btn-secondary hidden">Дальше >></button>
+        </div>
+        <div class="deco-fry"></div>
+    </div>
+
+    <div id="interim-screen" class="card hidden" style="text-align: center;">
+        <h2 style="color: var(--game-success)">Этап пройден!</h2>
+        <p id="interim-text">Отличная работа!</p>
+        <button class="btn" onclick="nextStage()">Следующий этап</button>
+    </div>
+
+    <div id="final-screen" class="card hidden" style="text-align: center;">
+        <div style="font-size: 4rem;">🏆</div>
+        <h1>Ты — Шеф-повар!</h1>
+        <p>Игра окончена. Твой результат:</p>
+        <h2 id="final-score" style="font-size: 3rem; color: var(--game-primary);">0</h2>
+        <p id="final-rank">Мастер слова</p>
+        <button class="btn" onclick="location.reload()">Играть снова</button>
+    </div>
+</div>
+
+<script>
+    // --- ДАННЫЕ ИГРЫ ---
+
+    // Этап 1: Выбор нескольких вариантов
+    const stage1Data = [
+        {
+            question: "Из каких частей состоит текст?",
+            options: ["Вступление", "Заголовок", "Основная часть", "Иллюстрация", "Заключение", "Титульный лист"],
+            correct: [0, 2, 4] // Вступление, Основная часть, Заключение
+        },
+        {
+            question: "Что нужно выбрать, чтобы написать текст?",
+            options: ["О чём будем писать", "Главную мысль текста", "Какой будет объём", "Цвет чернил", "Шрифт", "Дату написания"],
+            correct: [0, 1, 2] // Тема, Главная мысль, Объём
+        },
+        {
+            question: "Какие признаки есть у хорошего текста?",
+            options: ["Связность предложений", "Много ошибок", "Понятность", "Скачки с темы на тему", "Порядок мыслей", "Отсутствие абзацев"],
+            correct: [0, 2, 4] // Связность, Понятность, Порядок мыслей (вместо Логичности)
+        },
+        {
+            question: "Что такое «тема» текста?",
+            options: ["То, о чём говорится в тексте", "Имя автора", "Главная мысль", "О чём можно спросить", "Название книги", "Дата написания"],
+            correct: [0, 3]
+        }
+    ];
+
+    const stage2Data = [
+        { text: "Заголовок текста должен быть длинным и сложным.", isTrue: false, explain: "Заголовок должен быть кратким и ярким." },
+        { text: "Абзац — это часть текста от одной красной строки до другой.", isTrue: true, explain: "Верно! Красная строка обозначает начало абзаца." },
+        { text: "В одном тексте может быть только одна тема.", isTrue: true, explain: "Обычно текст посвящен одной конкретной теме." },
+        { text: "Главная мысль текста всегда пишется в самом конце.", isTrue: false, explain: "Главная мысль может быть в начале, в середине или в конце." },
+        { text: "Если убрать из текста все знаки препинания, смысл не изменится.", isTrue: false, explain: "Без знаков препинания текст становится непонятным." },
+        { text: "План текста помогает не запутаться при пересказе.", isTrue: true, explain: "План — это опора для восстановления текста." },
+        { text: "Текст-описание рассказывает о событиях, которые происходили во времени.", isTrue: false, explain: "Это текст-повествование. Описание отвечает на вопрос «Какой?»." },
+        { text: "Каждое предложение в тексте связано по смыслу с другими.", isTrue: true, explain: "Именно связь предложений делает набор фраз текстом." }
+    ];
+
+    const stage3Data = [
+        { text: "Весна пришла. Снег начал ___.", options: ["таять", "летать", "спать"], answer: "таять" },
+        { text: "Птицы свили ___ на ветке дерева.", options: ["дом", "гнездо", "будку"], answer: "гнездо" },
+        { text: "Ребята вышли на улицу и стали лепить ___.", options: ["снеговика", "булку", "камни"], answer: "снеговика" },
+        { text: "Солнце светит ярко и ___.", options: ["грустно", "тёмно", "жарко"], answer: "жарко" },
+        { text: "В лесу проснулись медведи после ___ сна.", options: ["зимнего", "летнего", "вечного"], answer: "зимнего" },
+        { text: "На поляне расцвели первые ___ подснежники.", options: ["красивые", "злые", "сухие"], answer: "красивые" }
+    ];
+
+    let currentStage = 0;
+    let currentIndex = 0;
+    let score = 0;
+    let selectedOptions = [];
+    
+    const screens = {
+        start: document.getElementById('start-screen'),
+        game: document.getElementById('game-container'),
+        interim: document.getElementById('interim-screen'),
+        final: document.getElementById('final-screen')
+    };
+    const ui = {
+        score: document.getElementById('global-score'),
+        progressBar: document.getElementById('progress-bar'),
+        taskCounter: document.getElementById('task-counter'),
+        stageIndicator: document.getElementById('stage-indicator'),
+        qTitle: document.getElementById('q-title'),
+        qContent: document.getElementById('q-content'),
+        feedback: document.getElementById('feedback-area'),
+        actionBtn: document.getElementById('action-btn'),
+        nextBtn: document.getElementById('next-btn'),
+        interimText: document.getElementById('interim-text'),
+        finalScore: document.getElementById('final-score'),
+        finalRank: document.getElementById('final-rank')
+    };
+
+    function startGame() {
+        screens.start.classList.add('hidden');
+        screens.game.classList.remove('hidden');
+        ui.score.classList.remove('hidden');
+        currentStage = 1;
+        loadStage();
+    }
+
+    function updateProgress(current, total) {
+        const percent = (current / total) * 100;
+        ui.progressBar.style.width = `${percent}%`;
+        ui.taskCounter.innerText = `Задание ${current} из ${total}`;
+    }
+
+    function loadStage() {
+        currentIndex = 0;
+        ui.actionBtn.classList.remove('hidden');
+        ui.nextBtn.classList.add('hidden');
+        ui.feedback.innerText = "";
+        if (currentStage === 1) { ui.stageIndicator.innerText = "Этап 1: Строители текста"; renderStage1(); }
+        else if (currentStage === 2) { ui.stageIndicator.innerText = "Этап 2: Правда или Ложь"; renderStage2(); }
+        else if (currentStage === 3) { ui.stageIndicator.innerText = "Этап 3: Шеф-редактор"; renderStage3(); }
+    }
+
+    function renderStage1() {
+        const data = stage1Data[currentIndex];
+        updateProgress(currentIndex + 1, stage1Data.length);
+        ui.qTitle.innerText = data.question;
+        ui.qTitle.style.display = 'block';
+        ui.actionBtn.innerText = "Проверить";
+        ui.actionBtn.onclick = checkStage1;
+        ui.nextBtn.classList.add('hidden');
+        ui.actionBtn.classList.remove('hidden');
+        ui.feedback.innerText = "";
+        selectedOptions = [];
+        let html = '<div class="options-grid">';
+        data.options.forEach((opt, idx) => {
+            html += `<div class="option-btn" onclick="toggleOption(this, ${idx})">${opt}</div>`;
+        });
+        html += '</div>';
+        ui.qContent.innerHTML = html;
+    }
+
+    window.toggleOption = function(el, idx) {
+        if (ui.nextBtn.classList.contains('hidden')) {
+            el.classList.toggle('selected');
+            if (selectedOptions.includes(idx)) selectedOptions = selectedOptions.filter(i => i !== idx);
+            else selectedOptions.push(idx);
+        }
+    };
+
+    function checkStage1() {
+        const data = stage1Data[currentIndex];
+        const correctSet = new Set(data.correct);
+        const selectedSet = new Set(selectedOptions);
+        const isCorrect = correctSet.size === selectedSet.size && [...correctSet].every(x => selectedSet.has(x));
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach((btn, idx) => {
+            if (data.correct.includes(idx)) btn.classList.add('correct');
+            else if (selectedOptions.includes(idx)) btn.classList.add('wrong');
+        });
+        if (isCorrect) {
+            score += 10;
+            ui.feedback.innerText = "Отлично! Все верно.";
+            ui.feedback.style.color = "var(--game-success)";
+        } else {
+            ui.feedback.innerText = "Почти! Попробуй ещё раз.";
+            ui.feedback.style.color = "var(--game-error)";
+        }
+        ui.score.innerText = `Баллы: ${score}`;
+        ui.actionBtn.classList.add('hidden');
+        ui.nextBtn.classList.remove('hidden');
+        ui.nextBtn.onclick = () => {
+            currentIndex++;
+            if (currentIndex < stage1Data.length) renderStage1();
+            else showInterim("Часть 1 готова! Основа для пиццы замешана.");
+        };
+    }
+
+    function renderStage2() {
+        const data = stage2Data[currentIndex];
+        updateProgress(currentIndex + 1, stage2Data.length);
+        ui.qTitle.style.display = 'none';
+        ui.qContent.innerHTML = `<h3 style="font-size: 1.4rem; margin: 30px 0;">${data.text}</h3>`;
+        ui.actionBtn.classList.add('hidden');
+        ui.nextBtn.classList.add('hidden');
+        ui.feedback.innerText = "";
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'tf-buttons';
+        btnContainer.innerHTML = `
+            <button class="btn tf-btn tf-true" onclick="checkStage2(true)">Правда</button>
+            <button class="btn tf-btn tf-false" onclick="checkStage2(false)">Ложь</button>
+        `;
+        ui.qContent.appendChild(btnContainer);
+        const expDiv = document.createElement('div');
+        expDiv.id = 'explanation-box';
+        expDiv.className = 'explanation-box';
+        ui.qContent.appendChild(expDiv);
+    }
+
+    window.checkStage2 = function(userChoice) {
+        const data = stage2Data[currentIndex];
+        const isCorrect = (userChoice === data.isTrue);
+        const expBox = document.getElementById('explanation-box');
+        expBox.style.display = 'block';
+        if (isCorrect) {
+            score += 10;
+            ui.score.innerText = `Баллы: ${score}`;
+            expBox.innerHTML = `<strong style="color:var(--game-success)">Верно!</strong> ${data.explain}`;
+        } else {
+            expBox.innerHTML = `<strong style="color:var(--game-error)">Неверно.</strong> ${data.explain}`;
+        }
+        const tfButtons = ui.qContent.querySelector('.tf-buttons');
+        tfButtons.style.pointerEvents = 'none';
+        tfButtons.style.opacity = '0.7';
+        ui.nextBtn.classList.remove('hidden');
+        ui.nextBtn.onclick = () => {
+            currentIndex++;
+            if (currentIndex < stage2Data.length) renderStage2();
+            else showInterim("Начинка добавлена! Текст почти готов.");
+        };
+    };
+
+    function renderStage3() {
+        const data = stage3Data[currentIndex];
+        updateProgress(currentIndex + 1, stage3Data.length);
+        ui.qTitle.style.display = 'block';
+        ui.qTitle.innerText = "Вставь пропущенное слово:";
+        const parts = data.text.split('___');
+        let html = `<p style="font-size: 1.3rem; line-height: 1.6;">${parts[0]} <span style="display:inline-block; border-bottom: 2px solid var(--game-primary); min-width: 80px; color: var(--game-primary); font-weight:bold;" id="current-word">...</span> ${parts[1] || ''}</p>`;
+        html += `<div style="position:relative; margin-top:20px;">`;
+        html += `<div class="dropdown-trigger" onclick="toggleDropdown()">Выбери слово ▼</div>`;
+        html += `<div id="custom-select" class="custom-select-options">`;
+        data.options.forEach(opt => {
+            html += `<div class="select-opt" onclick="selectWord('${opt}')">${opt}</div>`;
+        });
+        html += `</div></div>`;
+        ui.qContent.innerHTML = html;
+        ui.actionBtn.classList.remove('hidden');
+        ui.actionBtn.innerText = "Проверить";
+        ui.actionBtn.onclick = checkStage3;
+        ui.nextBtn.classList.add('hidden');
+        ui.feedback.innerText = "";
+        window.currentSelection = null;
+    }
+
+    window.toggleDropdown = function() {
+        document.getElementById('custom-select').classList.toggle('show');
+    }
+
+    window.selectWord = function(word) {
+        document.getElementById('current-word').innerText = word;
+        document.getElementById('custom-select').classList.remove('show');
+        window.currentSelection = word;
+    }
+
+    function checkStage3() {
+        if (!window.currentSelection) {
+            ui.feedback.innerText = "Сначала выбери слово!";
+            ui.feedback.style.color = "var(--game-muted)";
+            return;
+        }
+        const data = stage3Data[currentIndex];
+        const isCorrect = window.currentSelection.toLowerCase().trim() === data.answer.toLowerCase().trim();
+        if (isCorrect) {
+            score += 10;
+            ui.score.innerText = `Баллы: ${score}`;
+            ui.feedback.innerText = "Отлично! В самый раз.";
+            ui.feedback.style.color = "var(--game-success)";
+            document.getElementById('current-word').style.color = "var(--game-success)";
+        } else {
+            ui.feedback.innerText = "Почти! Попробуй ещё раз.";
+            ui.feedback.style.color = "var(--game-error)";
+            document.getElementById('current-word').style.color = "var(--game-error)";
+        }
+        ui.actionBtn.classList.add('hidden');
+        ui.nextBtn.classList.remove('hidden');
+        ui.nextBtn.onclick = () => {
+            currentIndex++;
+            if (currentIndex < stage3Data.length) renderStage3();
+            else endGame();
+        };
+    }
+
+    function showInterim(text) {
+        screens.game.classList.add('hidden');
+        screens.interim.classList.remove('hidden');
+        ui.interimText.innerText = text;
+    }
+
+    function nextStage() {
+        screens.interim.classList.add('hidden');
+        screens.game.classList.remove('hidden');
+        currentStage++;
+        loadStage();
+    }
+
+    function endGame() {
+        screens.game.classList.add('hidden');
+        screens.final.classList.remove('hidden');
+        ui.finalScore.innerText = score;
+        let rank = "Новичок";
+        const maxScore = (stage1Data.length + stage2Data.length + stage3Data.length) * 10;
+        if (score === maxScore) rank = "Великий Шеф-Повар!";
+        else if (score > maxScore * 0.7) rank = "Су-шеф (Помощник)";
+        else if (score > maxScore * 0.4) rank = "Стажёр";
+        ui.finalRank.innerText = rank;
+    }
+</script>
+
+</body>
+</html>

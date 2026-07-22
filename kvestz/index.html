@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Квест: Задачи в 2 действия</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+    background: linear-gradient(160deg, #ffe29f 0%, #ffa99f 50%, #ff719a 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 15px; color: #3a2b2b;
+  }
+  .game {
+    background: #fffdf5; width: 100%; max-width: 560px;
+    border-radius: 30px; box-shadow: 0 15px 40px rgba(0,0,0,.25);
+    padding: 25px; text-align: center; position: relative; overflow: hidden;
+  }
+  h1 { font-size: 30px; color: #ff5c8a; margin-bottom: 10px; }
+  h2 { font-size: 22px; color: #7a4ecc; margin-bottom: 12px; }
+  p.rules {
+    font-size: 17px; line-height: 1.5;
+    background: #fff2cc; border-radius: 18px; padding: 15px; margin: 14px 0; text-align: left;
+  }
+  .rules b { color:#ff5c8a; }
+  .hero {
+    width: 150px; height: 150px; object-fit: cover;
+    border-radius: 50%; border: 6px solid #ffd166; margin: 10px auto; display: block;
+    box-shadow: 0 6px 15px rgba(0,0,0,.2); animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .btn {
+    background: #ff5c8a; color: #fff; border: none;
+    font-size: 20px; font-family: inherit; font-weight: bold;
+    padding: 14px 30px; border-radius: 20px; cursor: pointer;
+    margin: 8px; box-shadow: 0 5px 0 #d63f6c; transition: transform .1s, box-shadow .1s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #d63f6c; }
+  .btn.green { background: #2ecc71; box-shadow: 0 5px 0 #23a35a; }
+  .btn.green:active { box-shadow: 0 1px 0 #23a35a; }
+  .progress { display: flex; justify-content: center; gap: 10px; margin: 12px 0; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #ffe0b2; border: 3px solid #ffb74d;
+    font-size: 14px; line-height: 20px; font-weight: bold; color:#a35;
+  }
+  .dot.active { background: #ffb74d; }
+  .dot.done { background: #2ecc71; border-color:#23a35a; color:#fff; }
+  .score { font-size: 18px; color: #7a4ecc; font-weight: bold; margin-bottom: 8px; }
+  .task-img {
+    width: 120px; height: 120px; object-fit: cover;
+    border-radius: 20px; border: 5px solid #ffd166; margin: 10px auto; display:block;
+  }
+  .task-emoji {
+    width: 120px; height: 120px; margin: 10px auto;
+    border-radius: 20px; border: 5px solid #ffd166; background: #fff2cc;
+    display: flex; align-items: center; justify-content: center; font-size: 64px;
+  }
+  .task {
+    background: #eef7ff; border-radius: 18px;
+    padding: 18px; font-size: 19px; line-height: 1.5; margin: 12px 0;
+  }
+  .step-label { font-size: 16px; color: #7a4ecc; font-weight: bold; margin-top: 10px; }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .ans {
+    background: #7a4ecc; color: #fff; border: none;
+    font-size: 24px; font-family: inherit; font-weight: bold;
+    padding: 18px; border-radius: 18px; cursor: pointer;
+    box-shadow: 0 5px 0 #5b37a0; transition: transform .1s;
+  }
+  .ans:active { transform: translateY(4px); box-shadow: 0 1px 0 #5b37a0; }
+  .ans.correct { background: #2ecc71; box-shadow: 0 5px 0 #23a35a; }
+  .ans.wrong { background: #e74c3c; box-shadow: 0 5px 0 #b93225; }
+  .feedback { font-size: 20px; font-weight: bold; min-height: 30px; margin: 10px 0; }
+  .hidden { display: none; }
+  .star-burst { font-size: 50px; animation: pop .5s ease; }
+  @keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.3)} 100%{transform:scale(1)} }
+  .win-img {
+    width: 130px; height:130px; object-fit:cover; border-radius:50%;
+    border:6px solid #2ecc71; margin:12px auto; display:block;
+  }
+</style>
+</head>
+<body>
+<div class="game">
+
+  <!-- СТАРТ -->
+  <div id="startScreen">
+    <h1>🌟 Волшебный квест 🌟</h1>
+    <img class="hero" src="https://i.pinimg.com/736x/eb/02/b5/eb02b57dfde15eed3c128d22c1a6178a.jpg" alt="Герой">
+    <p class="rules">
+      Привет, друг! Помоги героям пройти <b>3 испытания</b>. 🐰🧁🐿️<br><br>
+      Каждую задачу решаем <b>по действиям:</b><br>
+      1️⃣ Сначала выполни <b>первое действие</b> и выбери ответ.<br>
+      2️⃣ Потом переходи ко <b>второму действию</b> и выбери ответ.<br><br>
+      Считай сам в уме и выбирай правильный ответ. За каждый верный ответ — звезда ⭐!
+    </p>
+    <button class="btn green" onclick="startGame()">🚀 Начать квест</button>
+  </div>
+
+  <!-- ИГРА -->
+  <div id="gameScreen" class="hidden">
+    <div class="score">⭐ Звёзды: <span id="score">0</span></div>
+    <div class="progress" id="progress"></div>
+    <div id="imgHolder"></div>
+    <h2 id="levelTitle"></h2>
+    <div class="task" id="taskText"></div>
+    <div class="step-label" id="stepLabel"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- ПОБЕДА -->
+  <div id="winScreen" class="hidden">
+    <div class="star-burst">🎉⭐🎉</div>
+    <h1>Ура! Квест пройден!</h1>
+    <img class="win-img" src="https://i.pinimg.com/736x/1d/97/d2/1d97d24b67c3a74b982a4f1dbfdbe6c2.jpg" alt="Победа">
+    <p class="rules" style="text-align:center;">Ты собрал <b><span id="finalScore">0</span></b> звёзд из 6!<br><span id="praise"></span></p>
+    <button class="btn green" onclick="restart()">🔁 Играть снова</button>
+  </div>
+
+</div>
+
+<script>
+/*
+  ПРОВЕРКА ОТВЕТОВ:
+  Задача 1: 6 × 6 = 36; 36 + 12 = 48
+  Задача 2: 7 × 9 = 63; 63 - 24 = 39
+  Задача 3: 27 + 9 = 36; 36 : 4 = 9
+*/
+const levels = [
+  {
+    img: "https://i.pinimg.com/736x/eb/02/b5/eb02b57dfde15eed3c128d22c1a6178a.jpg",
+    emoji: "🥕",
+    title: "Испытание 1: Огород великана",
+    story: "У великана на грядке росло 12 морковок. Он посадил ещё 6 рядов, по 6 морковок в каждом ряду. Сколько всего морковок стало у великана?",
+    step1text: "1️⃣ Первое действие: сколько морковок в новых рядах?",
+    step1: { correct: 36, options: [36, 12, 42, 30] },
+    step2text: "2️⃣ Второе действие: прибавь 12 старых морковок. Сколько всего?",
+    step2: { correct: 48, options: [48, 42, 54, 24] }
+  },
+  {
+    img: "https://i.pinimg.com/736x/75/64/77/756477dc43455be2dad21b450e835548.jpg",
+    emoji: "🧁",
+    title: "Испытание 2: Королевская пекарня",
+    story: "Пекарь испёк 7 подносов пирожных, по 9 штук на каждом подносе. Гости съели 24 пирожных. Сколько пирожных осталось у пекаря?",
+    step1text: "1️⃣ Первое действие: сколько всего пирожных испёк пекарь?",
+    step1: { correct: 63, options: [63, 16, 54, 72] },
+    step2text: "2️⃣ Второе действие: гости съели 24. Сколько осталось?",
+    step2: { correct: 39, options: [39, 87, 41, 29] }
+  },
+  {
+    img: null,
+    emoji: "🐿️",
+    title: "Испытание 3: Волшебный лес",
+    story: "Фея принесла 27 орешков и нашла ещё 9. Все орешки она раздала поровну 4 белкам. Сколько орешков получила каждая белка?",
+    step1text: "1️⃣ Первое действие: сколько всего орешков стало у феи?",
+    step1: { correct: 36, options: [36, 18, 31, 45] },
+    step2text: "2️⃣ Второе действие: раздай поровну 4 белкам. Сколько получит каждая?",
+    step2: { correct: 9, options: [9, 8, 32, 40] }
+  }
+];
+
+let current = 0, step = 1, score = 0;
+
+function beep(freq, dur, type){
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type||'sine'; o.frequency.value = freq;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur);
+    o.start(); o.stop(ctx.currentTime+dur);
+  } catch(e){}
+}
+const goodSound = () => { beep(660,.15); setTimeout(()=>beep(880,.2),120); };
+const badSound  = () => beep(180,.3,'sawtooth');
+
+function startGame(){
+  current = 0; step = 1; score = 0;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('winScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  buildProgress();
+  renderStep();
+}
+
+function buildProgress(){
+  const box = document.getElementById('progress');
+  box.innerHTML = '';
+  levels.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (i<current?' done':'') + (i===current?' active':'');
+    d.textContent = i+1;
+    box.appendChild(d);
+  });
+}
+
+function shuffle(arr){
+  return arr.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.v);
+}
+
+function renderImage(lvl){
+  const holder = document.getElementById('imgHolder');
+  holder.innerHTML = lvl.img
+    ? '<img class="task-img" src="'+lvl.img+'" alt="">'
+    : '<div class="task-emoji">'+(lvl.emoji||'❓')+'</div>';
+}
+
+function renderStep(){
+  const lvl = levels[current];
+  document.getElementById('score').textContent = score;
+  renderImage(lvl);
+  document.getElementById('levelTitle').textContent = lvl.title;
+  document.getElementById('taskText').textContent = lvl.story;
+  document.getElementById('feedback').textContent = '';
+  buildProgress();
+
+  const data = step===1 ? lvl.step1 : lvl.step2;
+  document.getElementById('stepLabel').textContent =
+    step===1 ? lvl.step1text : lvl.step2text;
+
+  const box = document.getElementById('answers');
+  box.innerHTML = '';
+  shuffle([...data.options]).forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = 'ans';
+    b.textContent = opt;
+    b.onclick = () => checkAnswer(b, opt, data.correct);
+    box.appendChild(b);
+  });
+}
+
+function checkAnswer(btn, chosen, correct){
+  const buttons = document.querySelectorAll('.ans');
+  if(chosen === correct){
+    btn.classList.add('correct');
+    buttons.forEach(b=>b.disabled=true);
+    score++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('feedback').textContent =
+      step===1 ? '✅ Верно! Теперь переходи ко второму действию.' : '✅ Верно! Молодец!';
+    document.getElementById('feedback').style.color = '#2ecc71';
+    goodSound();
+    setTimeout(nextStep, 1200);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    document.getElementById('feedback').textContent = '❌ Попробуй ещё разок!';
+    document.getElementById('feedback').style.color = '#e74c3c';
+    badSound();
+  }
+}
+
+function nextStep(){
+  if(step === 1){
+    step = 2; renderStep();
+  } else {
+    step = 1; current++;
+    if(current < levels.length) renderStep();
+    else showWin();
+  }
+}
+
+function showWin(){
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('winScreen').classList.remove('hidden');
+  document.getElementById('finalScore').textContent = score;
+  const praise = score===6 ? 'Идеально! Ты настоящий математик! 🏆'
+               : score>=4 ? 'Отличная работа! Ты почти без ошибок! 👍'
+               : 'Хорошая попытка! Попробуй ещё раз и станет ещё лучше! 💪';
+  document.getElementById('praise').textContent = praise;
+  goodSound();
+}
+
+function restart(){ startGame(); }
+</script>
+</body>
+</html>
