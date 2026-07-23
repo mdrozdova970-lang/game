@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Секретная миссия: Взломай языковой сервер</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: "Courier New", monospace;
+  background: #0a0f14; color: #d7f5e0; line-height: 1.6;
+}
+.page {
+  max-width: 920px; margin: 0 auto; background: #0e161d;
+  min-height: 100vh; padding: 30px 30px 50px;
+  box-shadow: 0 0 40px rgba(0,255,128,.08);
+}
+.top {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:14px; border-bottom:1px dashed #24424a;
+  padding-bottom:16px; margin-bottom:20px;
+}
+h1 { margin:0; font-size:26px; color:#37ff9c; text-shadow:0 0 10px rgba(55,255,156,.4); }
+.subtitle { color:#79a892; font-size:15px; margin-top:6px; }
+.btn {
+  border:1px solid #37ff9c; background:transparent; color:#37ff9c;
+  padding:10px 16px; border-radius:6px; cursor:pointer;
+  font-family:inherit; font-size:14px; font-weight:bold; margin:4px;
+}
+.btn:hover { background:#37ff9c; color:#0a0f14; }
+.brief {
+  background:#10202a; border:1px solid #1f3d44; border-radius:10px;
+  padding:16px 18px; margin-bottom:26px;
+}
+.tag { color:#ff5d5d; font-weight:bold; letter-spacing:1px; }
+.meta { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
+.meta-card { border:1px solid #1f3d44; border-radius:8px; padding:10px 14px; background:#10202a; }
+.level { border:1px solid #1f3d44; border-radius:12px; overflow:hidden; margin-bottom:28px; background:#0e1b22; }
+.level-head { padding:16px 18px; font-size:20px; font-weight:bold; color:#0a0f14; }
+.lvl1{background:linear-gradient(90deg,#37ff9c,#7affc4);}
+.lvl2{background:linear-gradient(90deg,#ffb037,#ffd27a);}
+.lvl3{background:linear-gradient(90deg,#5db8ff,#9ad4ff);}
+.level-body { padding:18px 20px; }
+.intro { color:#a8d8c0; font-style:italic; margin-bottom:14px; }
+.task-goal { background:#10262c; border-left:4px solid #37ff9c; padding:10px 14px; border-radius:6px; margin-bottom:16px; }
+.word-block { background:#0b171d; border:1px solid #1c3239; border-radius:8px; padding:12px 14px; margin-bottom:12px; }
+.word { color:#37ff9c; font-weight:bold; font-size:17px; }
+.hint { color:#8fae9d; font-size:14px; margin:4px 0; }
+input[type=text] {
+  width:100%; margin-top:8px; padding:8px 10px;
+  background:#08131a; border:1px solid #2c4d55; border-radius:6px;
+  color:#d7f5e0; font-family:inherit; font-size:15px;
+}
+input[type=text]:focus { outline:none; border-color:#37ff9c; box-shadow:0 0 6px rgba(55,255,156,.4); }
+select[data-answer]{
+  width:100%; margin-top:8px; padding:8px 10px;
+  background:#08131a; border:1px solid #2c4d55; border-radius:6px;
+  color:#d7f5e0; font-family:inherit; font-size:15px; cursor:pointer;
+}
+select[data-answer]:focus{ outline:none; border-color:#37ff9c; box-shadow:0 0 6px rgba(55,255,156,.4); }
+select[data-answer] option{ background:#0e161d; color:#d7f5e0; }
+.small-inp { display:inline-block; width:60%; }
+.subhead { color:#ffb037; font-weight:bold; margin:18px 0 8px; }
+.subhead.blue { color:#5db8ff; }
+.ok { border-color:#37ff9c !important; box-shadow:0 0 6px rgba(55,255,156,.5) !important; }
+.bad { border-color:#ff5d5d !important; box-shadow:0 0 6px rgba(255,93,93,.5) !important; }
+.result {
+  margin-top:26px; text-align:center; background:#0b1f16;
+  border:1px solid #37ff9c; border-radius:12px; padding:22px; display:none;
+}
+.result h2 { color:#37ff9c; margin:0 0 8px; }
+.score { font-size:34px; color:#ffb037; font-weight:bold; }
+@media (max-width:700px){ .meta{grid-template-columns:1fr;} h1{font-size:22px;} }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div>
+      <h1>🕵️‍♂️ СЕКРЕТНАЯ МИССИЯ</h1>
+      <div class="subtitle">«Взломай языковой сервер»</div>
+    </div>
+    <div>
+      <button class="btn" onclick="checkAll()">✅ Проверить</button>
+      <button class="btn" onclick="location.reload()">🔄 Заново</button>
+      <button class="btn" onclick="window.print()">🖨 Печать</button>
+    </div>
+  </div>
+
+  <div class="brief">
+    <span class="tag">⚠ БРИФИНГ АГЕНТУ:</span><br>
+    Злобный хакер заблокировал сервер <b>Института Грамотности</b>! Пройди три уровня защиты
+    и спаси правила русского языка. Вписывай ответы прямо в поля и жми «Проверить».
+  </div>
+
+  <div class="meta">
+    <div class="meta-card">Агент: <input type="text" class="small-inp"></div>
+    <div class="meta-card">Дата: <input type="text" class="small-inp"></div>
+  </div>
+
+  <!-- УРОВЕНЬ 1 -->
+  <div class="level">
+    <div class="level-head lvl1">🔓 Уровень 1. Лаборатория разборки</div>
+    <div class="level-body">
+      <div class="intro">Разбери сложные слова по составу.</div>
+      <div class="task-goal"><b>Финал уровня:</b> впиши только КОРЕНЬ каждого слова.</div>
+
+      <div class="word-block">
+        <span class="word">Подосиновики</span>
+        <input type="text" data-answer="осин" placeholder="Корень...">
+      </div>
+      <div class="word-block">
+        <span class="word">Заморозки</span>
+        <input type="text" data-answer="мороз" placeholder="Корень...">
+      </div>
+      <div class="word-block">
+        <span class="word">Покраска</span>
+        <input type="text" data-answer="крас" placeholder="Корень...">
+      </div>
+      <div class="word-block">
+        <span class="word">Разведчики</span>
+        <input type="text" data-answer="вед" placeholder="Корень...">
+      </div>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 2 -->
+  <div class="level">
+    <div class="level-head lvl2">🚨 Уровень 2. Минное поле звуков</div>
+    <div class="level-body">
+      <div class="intro">Впиши слово целиком с нужной буквой.</div>
+
+      <div class="subhead">🔸 Безударные гласные</div>
+      <div class="word-block">
+        <span class="word">Уд..вительный</span> (подарок)
+        <input type="text" data-answer="удивительный" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Разг..дать</span> (секрет)
+        <input type="text" data-answer="разгадать" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Осв..тить</span> (комнату)
+        <input type="text" data-answer="осветить" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Задр..жать</span> (от холода)
+        <input type="text" data-answer="задрожать" placeholder="Слово целиком">
+      </div>
+
+      <div class="subhead">🔹 Парные согласные</div>
+      <div class="word-block">
+        <span class="word">Ре..кий</span> (ветер)
+        <input type="text" data-answer="резкий" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Ги..кий</span> (шланг)
+        <input type="text" data-answer="гибкий" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Повя..ка</span> (на руке)
+        <input type="text" data-answer="повязка" placeholder="Слово целиком">
+      </div>
+      <div class="word-block">
+        <span class="word">Мя..кий</span> (хлеб)
+        <input type="text" data-answer="мягкий" placeholder="Слово целиком">
+      </div>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 3 -->
+  <div class="level">
+    <div class="level-head lvl3">📦 Уровень 3. Сортировка данных</div>
+    <div class="level-body">
+      <div class="intro">Найди «вирус» — лишнее слово в каждом ряду и выбери верное объяснение.</div>
+
+      <div class="subhead blue">🧬 Ряд №1. Вирус в составе слова</div>
+      <div class="word-block">
+        <span class="word">Лесной, перелесок, лесник, лисий</span>
+        <div class="hint">Все ли слова с корнем «лес»? Кто притворился?</div>
+        <input type="text" data-answer="лисий" placeholder="Лишнее слово">
+        <select data-answer="a">
+          <option value="">— выбери объяснение —</option>
+          <option value="a">Это слово с другим корнем (лис-), а остальные — от слова «лес».</option>
+          <option value="b">В этом слове есть приставка, а в остальных её нет.</option>
+          <option value="c">Это единственное слово с суффиксом.</option>
+          <option value="d">Это слово нельзя проверить ударением.</option>
+        </select>
+      </div>
+
+      <div class="subhead blue">🧬 Ряд №2. Вирус в корне</div>
+      <div class="word-block">
+        <span class="word">Водный, водичка, наводнение, водитель, подводный</span>
+        <div class="hint">Кто притворился родственником из-за похожего звучания?</div>
+        <input type="text" data-answer="водитель" placeholder="Лишнее слово">
+        <select data-answer="a">
+          <option value="">— выбери объяснение —</option>
+          <option value="a">«Водитель» — от слова «водить» (управлять), а остальные — от «вода».</option>
+          <option value="b">В этом слове нет приставки.</option>
+          <option value="c">Это слово с непроверяемой гласной.</option>
+          <option value="d">Это единственное слово во множественном числе.</option>
+        </select>
+      </div>
+
+      <div class="subhead blue">🧬 Ряд №3. Вирус в орфографии</div>
+      <div class="word-block">
+        <span class="word">Разд..лить, разж..вать, разм..шлять, разв..вать (флаг)</span>
+        <div class="hint">Вставь мысленно пропущенные буквы. В четырёх словах — одна буква, а в пятом — другая!</div>
+        <input type="text" data-answer="размышлять" placeholder="Лишнее слово (полностью)">
+        <select data-answer="a">
+          <option value="">— выбери объяснение —</option>
+          <option value="a">Во всех словах пропущена буква «Е», а в лишнем — «Ы».</option>
+          <option value="b">Во всех словах пропущена буква «Ы», а в лишнем — «Е».</option>
+          <option value="c">В лишнем слове нет приставки.</option>
+          <option value="d">Лишнее слово — единственное с суффиксом «-ва-».</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <h2>РЕЗУЛЬТАТ МИССИИ</h2>
+    <div class="score" id="score"></div>
+    <p id="msg"></p>
+  </div>
+</div>
+
+<script>
+function norm(s){
+  return s.toLowerCase().trim().replace(/ё/g,'е').replace(/\s+/g,' ');
+}
+function checkAll(){
+  const fields = document.querySelectorAll('input[data-answer], select[data-answer]');
+  let correct = 0, total = fields.length;
+
+  fields.forEach(f => {
+    f.classList.remove('ok','bad');
+    let ok = false;
+
+    if(f.tagName === 'SELECT'){
+      ok = (f.value === f.dataset.answer);
+    } else {
+      ok = (norm(f.value) && norm(f.value) === norm(f.dataset.answer));
+    }
+
+    if(ok){ f.classList.add('ok'); correct++; }
+    else { f.classList.add('bad'); }
+  });
+
+  const res = document.getElementById('result');
+  const score = document.getElementById('score');
+  const msg = document.getElementById('msg');
+  res.style.display = 'block';
+  score.textContent = correct + ' / ' + total;
+
+  if(correct === total){
+    msg.textContent = '✅ СЕРВЕР ОЧИЩЕН! Ты спас Институт Грамотности! 🎉';
+  } else if(correct >= total*0.6){
+    msg.textContent = '⚡ Почти взломал! Проверь красные поля и попробуй снова.';
+  } else {
+    msg.textContent = '🔒 Защита держится. Внимательно перечитай подсказки, агент!';
+  }
+  res.scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

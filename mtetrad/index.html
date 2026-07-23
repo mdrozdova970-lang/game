@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🗺️ Математическая тетрадь искателя сокровищ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #74b9ff 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2d3436;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.2em;
+    color: #2d3436;
+    text-shadow: 3px 3px 0 #fff;
+    margin-bottom: 15px;
+  }
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .nav button {
+    padding: 10px 16px;
+    font-size: 1em;
+    font-family: inherit;
+    border: 3px solid #2d3436;
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+  }
+  .nav button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+  .nav button.active { background: #fdcb6e; transform: scale(1.05); }
+  .task {
+    display: none;
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .task.active { display: block; }
+  .task h2 { color: #d63031; margin-bottom: 10px; font-size: 1.6em; }
+  .story {
+    background: #ffeaa7;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border-left: 6px solid #fdcb6e;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .instructions {
+    background: #dff9fb;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border-left: 6px solid #22a6b3;
+    margin-bottom: 12px;
+  }
+  .instructions ol { padding-left: 22px; }
+  .instructions li { margin: 6px 0; }
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  @media (max-width: 900px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+  .canvas-wrap {
+    background: #fff;
+    border: 3px solid #2d3436;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  canvas {
+    background: #fff;
+    border: 2px dashed #b2bec3;
+    border-radius: 8px;
+    cursor: crosshair;
+    max-width: 100%;
+    touch-action: none;
+  }
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    justify-content: center;
+  }
+  .tools button {
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 0.9em;
+    border: 2px solid #2d3436;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .tools button.active { background: #55efc4; }
+  .tools button:hover { background: #81ecec; }
+  .panel {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 15px;
+    border: 2px solid #dfe6e9;
+  }
+  .panel h3 { color: #6c5ce7; margin-bottom: 10px; }
+  .answer-row {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    align-items: center;
+  }
+  .answer-row label { flex: 1; font-weight: bold; }
+  .answer-row input {
+    width: 80px;
+    padding: 6px;
+    font-size: 1em;
+    border: 2px solid #74b9ff;
+    border-radius: 8px;
+    font-family: inherit;
+    text-align: center;
+  }
+  .check-btn {
+    width: 100%;
+    padding: 10px;
+    background: #00b894;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .check-btn:hover { background: #00a381; }
+  .feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    min-height: 40px;
+  }
+  .feedback.ok { background: #55efc4; color: #006266; }
+  .feedback.no { background: #fab1a0; color: #6b2d2d; }
+  .hint {
+    background: #ffeaa7;
+    padding: 8px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 0.9em;
+    border-left: 4px solid #fdcb6e;
+  }
+  .final {
+    background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border: 2px dashed #d63031;
+    font-weight: bold;
+  }
+  .color-picker {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .color-swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid #2d3436;
+    cursor: pointer;
+  }
+  .color-swatch.active { transform: scale(1.2); box-shadow: 0 0 0 3px #fdcb6e; }
+</style>
+</head>
+<body>
+
+<h1>🗺️ Математическая тетрадь искателя сокровищ ✨</h1>
+
+<div class="nav">
+  <button onclick="showTask(0)" id="nav0" class="active">🏴‍☠️ Задание 1</button>
+  <button onclick="showTask(1)" id="nav1">🕵️ Задание 2</button>
+  <button onclick="showTask(2)" id="nav2">💎 Задание 3</button>
+  <button onclick="showTask(3)" id="nav3">🚀 Задание 4</button>
+  <button onclick="showTask(4)" id="nav4">🏰 Задание 5</button>
+</div>
+
+<!-- ================= ЗАДАНИЕ 1 ================= -->
+<div class="task active" id="task0">
+  <h2>🏴‍☠️ Задание 1: Карта сокровищ капитана Флинта</h2>
+  <div class="story">📜 Ты нашёл старинную карту. Чтобы найти клад, нужно построить правильный маршрут!</div>
+  <div class="instructions">
+    <b>🎯 Задание:</b>
+    <ol>
+      <li>Поставь точку <b>A</b> (старт) — нажми на клетку.</li>
+      <li>Проведи отрезок вправо длиной <b>4 × 3 = ?</b> см → точка <b>B</b>.</li>
+      <li>Из точки B — отрезок вверх длиной <b>24 : 4 = ?</b> см → точка <b>C</b>.</li>
+      <li>Из точки C — отрезок влево длиной <b>40 : 5 = ?</b> см → точка <b>D</b>.</li>
+      <li>Нарисуй в точке D сундук с золотом! 💰</li>
+    </ol>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-wrap">
+      <canvas id="c0" width="600" height="500"></canvas>
+      <div class="tools">
+        <button class="active" onclick="setTool(0,'pencil',this)">✏️ Карандаш</button>
+        <button onclick="setTool(0,'line',this)">📏 Линия</button>
+        <button onclick="setTool(0,'point',this)">📍 Точка</button>
+        <button onclick="setTool(0,'text',this)">🔤 Подпись</button>
+        <button onclick="setTool(0,'eraser',this)">🧹 Ластик</button>
+        <button onclick="clearCanvas(0)">🗑️ Очистить</button>
+      </div>
+      <div class="color-picker" id="colors0"></div>
+    </div>
+    <div class="panel">
+      <h3>📝 Ответы</h3>
+      <div class="answer-row"><label>4 × 3 =</label><input id="a0_1" type="number"><span>см</span></div>
+      <div class="answer-row"><label>24 : 4 =</label><input id="a0_2" type="number"><span>см</span></div>
+      <div class="answer-row"><label>40 : 5 =</label><input id="a0_3" type="number"><span>см</span></div>
+      <div class="answer-row"><label>Фигура:</label><input id="a0_4" type="text" style="width:120px"></div>
+      <button class="check-btn" onclick="checkTask0()">✅ Проверить</button>
+      <div class="feedback" id="fb0"></div>
+      <div class="final">💰 Финал: Нарисуй сундук в точке D!</div>
+      <div class="hint">💡 Подсказка: 1 клетка = 1 см. Используй инструмент «Линия», чтобы соединять точки.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ЗАДАНИЕ 2 ================= -->
+<div class="task" id="task1">
+  <h2>🕵️ Задание 2: Секретный чертёж спецагента</h2>
+  <div class="story">🦸 База супергероев должна быть защищена забором особой формы. Проверь, хватит ли материалов!</div>
+  <div class="instructions">
+    <b>🎯 Задание:</b>
+    <ol>
+      <li>Начерти прямоугольник: <b>ширина = 3 см</b>, а <b>длина — в 2 раза больше</b>.</li>
+      <li>Посчитай периметр (сумму всех сторон).</li>
+      <li>Разукрась внутренность базы <b>синим цветом</b> 🎨</li>
+    </ol>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-wrap">
+      <canvas id="c1" width="600" height="500"></canvas>
+      <div class="tools">
+        <button class="active" onclick="setTool(1,'pencil',this)">✏️ Карандаш</button>
+        <button onclick="setTool(1,'line',this)">📏 Линия</button>
+        <button onclick="setTool(1,'rect',this)">⬜ Прямоугольник</button>
+        <button onclick="setTool(1,'fill',this)">🪣 Заливка</button>
+        <button onclick="setTool(1,'eraser',this)">🧹 Ластик</button>
+        <button onclick="clearCanvas(1)">🗑️ Очистить</button>
+      </div>
+      <div class="color-picker" id="colors1"></div>
+    </div>
+    <div class="panel">
+      <h3>📝 Ответы</h3>
+      <div class="answer-row"><label>Ширина:</label><input id="a1_1" type="number" value="3"><span>см</span></div>
+      <div class="answer-row"><label>Длина:</label><input id="a1_2" type="number"><span>см</span></div>
+      <div class="answer-row"><label>Периметр:</label><input id="a1_3" type="number"><span>см</span></div>
+      <button class="check-btn" onclick="checkTask1()">✅ Проверить</button>
+      <div class="feedback" id="fb1"></div>
+      <div class="final">🎨 Финал: Разукрась базу синим!</div>
+      <div class="hint">💡 Подсказка: Длина = 3 × 2. Периметр = ширина + длина + ширина + длина.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ЗАДАНИЕ 3 ================= -->
+<div class="task" id="task2">
+  <h2>💎 Задание 3: Огранка алмазов для короны</h2>
+  <div class="story">👑 Королевский ювелир делает заготовки для драгоценных камней. Нужны идеальные формы!</div>
+  <div class="instructions">
+    <b>🎯 Задание:</b>
+    <ol>
+      <li>Начерти квадрат со стороной <b>6 см</b>.</li>
+      <li>Раздели его одной линией на <b>два одинаковых прямоугольника</b>.</li>
+      <li>Какова длина сторон у получившихся маленьких прямоугольников?</li>
+      <li>Внутри каждого прямоугольника нарисуй по <b>3 маленьких круга</b> 💎</li>
+    </ol>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-wrap">
+      <canvas id="c2" width="600" height="500"></canvas>
+      <div class="tools">
+        <button class="active" onclick="setTool(2,'pencil',this)">✏️ Карандаш</button>
+        <button onclick="setTool(2,'line',this)">📏 Линия</button>
+        <button onclick="setTool(2,'rect',this)">⬜ Прямоугольник</button>
+        <button onclick="setTool(2,'circle',this)">⭕ Круг</button>
+        <button onclick="setTool(2,'eraser',this)">🧹 Ластик</button>
+        <button onclick="clearCanvas(2)">🗑️ Очистить</button>
+      </div>
+      <div class="color-picker" id="colors2"></div>
+    </div>
+    <div class="panel">
+      <h3>📝 Ответы</h3>
+      <div class="answer-row"><label>Сторона квадрата:</label><input id="a2_1" type="number" value="6"><span>см</span></div>
+      <div class="answer-row"><label>Длина прямоугольника:</label><input id="a2_2" type="number"><span>см</span></div>
+      <div class="answer-row"><label>Ширина прямоугольника:</label><input id="a2_3" type="number"><span>см</span></div>
+      <div class="answer-row"><label>Всего кругов:</label><input id="a2_4" type="number"><span>шт.</span></div>
+      <button class="check-btn" onclick="checkTask2()">✅ Проверить</button>
+      <div class="feedback" id="fb2"></div>
+      <div class="final">💎 Финал: Инкрустируй камни кругами!</div>
+      <div class="hint">💡 Подсказка: квадрат 6×6 разрезали пополам → получились прямоугольники. Одна сторона осталась 6 см, а другая стала в 2 раза меньше.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ЗАДАНИЕ 4 ================= -->
+<div class="task" id="task3">
+  <h2>🚀 Задание 4: Запуск космической ракеты</h2>
+  <div class="story">🌌 Ракета взлетит, только если все отсеки будут построены по строгим математическим правилам!</div>
+  <div class="instructions">
+    <b>🎯 Задание:</b>
+    <ol>
+      <li><b>Корпус:</b> прямоугольник: ширина 4 см, длина 8 см.</li>
+      <li><b>Нос:</b> треугольник сверху на узкой стороне.</li>
+      <li><b>Иллюминаторы:</b> круглых окошек — ответ на <b>18 : 6</b>.</li>
+      <li><b>Пламя:</b> дорисуй внизу 🔥</li>
+    </ol>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-wrap">
+      <canvas id="c3" width="600" height="500"></canvas>
+      <div class="tools">
+        <button class="active" onclick="setTool(3,'pencil',this)">✏️ Карандаш</button>
+        <button onclick="setTool(3,'line',this)">📏 Линия</button>
+        <button onclick="setTool(3,'rect',this)">⬜ Прямоугольник</button>
+        <button onclick="setTool(3,'triangle',this)">🔺 Треугольник</button>
+        <button onclick="setTool(3,'circle',this)">⭕ Круг</button>
+        <button onclick="setTool(3,'fill',this)">🪣 Заливка</button>
+        <button onclick="setTool(3,'eraser',this)">🧹 Ластик</button>
+        <button onclick="clearCanvas(3)">🗑️ Очистить</button>
+      </div>
+      <div class="color-picker" id="colors3"></div>
+    </div>
+    <div class="panel">
+      <h3>📝 Ответы</h3>
+      <div class="answer-row"><label>18 : 6 =</label><input id="a3_1" type="number"><span>иллюминаторов</span></div>
+      <div class="answer-row"><label>Ширина корпуса:</label><input id="a3_2" type="number" value="4"><span>см</span></div>
+      <div class="answer-row"><label>Длина корпуса:</label><input id="a3_3" type="number" value="8"><span>см</span></div>
+      <button class="check-btn" onclick="checkTask3()">✅ Проверить</button>
+      <div class="feedback" id="fb3"></div>
+      <div class="final">🔥 Финал: Дорисуй пламя — ракета готова к старту!</div>
+      <div class="hint">💡 Подсказка: Узкая сторона (ширина) = 4 см, на ней стоит треугольник-нос.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ЗАДАНИЕ 5 ================= -->
+<div class="task" id="task4">
+  <h2>🏰 Задание 5: Архитектор Лего-замка</h2>
+  <div class="story">🧱 Мы строим главный фасад крепости. Нужно посчитать количество кирпичей!</div>
+  <div class="instructions">
+    <b>🎯 Задание:</b>
+    <ol>
+      <li>Начерти ломаную из <b>4 звеньев</b>.</li>
+      <li>1-е звено = <b>2 см</b>, каждое следующее — <b>в 2 раза длиннее</b>.</li>
+      <li>Найди общую длину ломаной.</li>
+      <li>Дорисуй зубцы замка и флаг 🚩</li>
+    </ol>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-wrap">
+      <canvas id="c4" width="600" height="500"></canvas>
+      <div class="tools">
+        <button class="active" onclick="setTool(4,'pencil',this)">✏️ Карандаш</button>
+        <button onclick="setTool(4,'line',this)">📏 Линия</button>
+        <button onclick="setTool(4,'point',this)">📍 Точка</button>
+        <button onclick="setTool(4,'text',this)">🔤 Подпись</button>
+        <button onclick="setTool(4,'eraser',this)">🧹 Ластик</button>
+        <button onclick="clearCanvas(4)">🗑️ Очистить</button>
+      </div>
+      <div class="color-picker" id="colors4"></div>
+    </div>
+    <div class="panel">
+      <h3>📝 Ответы</h3>
+      <div class="answer-row"><label>1-е звено:</label><input id="a4_1" type="number" value="2"><span>см</span></div>
+      <div class="answer-row"><label>2-е звено:</label><input id="a4_2" type="number"><span>см</span></div>
+      <div class="answer-row"><label>3-е звено:</label><input id="a4_3" type="number"><span>см</span></div>
+      <div class="answer-row"><label>4-е звено:</label><input id="a4_4" type="number"><span>см</span></div>
+      <div class="answer-row"><label>Вся ломаная:</label><input id="a4_5" type="number"><span>см</span></div>
+      <button class="check-btn" onclick="checkTask4()">✅ Проверить</button>
+      <div class="feedback" id="fb4"></div>
+      <div class="final">🚩 Финал: Дорисуй зубцы и флаг на вершинах!</div>
+      <div class="hint">💡 Подсказка: 2 → 2×2 → результат×2 → результат×2. Сложи все 4 числа.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ НАВИГАЦИЯ ============ */
+function showTask(i) {
+  document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('task' + i).classList.add('active');
+  document.getElementById('nav' + i).classList.add('active');
+}
+
+/* ============ ЦВЕТОВАЯ ПАЛИТРА ============ */
+const palette = ['#2d3436','#d63031','#0984e3','#00b894','#fdcb6e','#6c5ce7','#e17055','#00cec9'];
+for (let i = 0; i < 5; i++) {
+  const wrap = document.getElementById('colors' + i);
+  palette.forEach((c, idx) => {
+    const s = document.createElement('div');
+    s.className = 'color-swatch' + (idx === 0 ? ' active' : '');
+    s.style.background = c;
+    s.onclick = () => {
+      wrap.querySelectorAll('.color-swatch').forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+      state[i].color = c;
+    };
+    wrap.appendChild(s);
+  });
+}
+
+/* ============ СОСТОЯНИЕ CANVAS ============ */
+const state = [];
+for (let i = 0; i < 5; i++) {
+  state[i] = {
+    tool: 'pencil',
+    color: '#2d3436',
+    drawing: false,
+    startX: 0, startY: 0,
+    snapshot: null
+  };
+}
+
+const CELL = 25; // 1 клетка = 25 px = 1 см
+
+/* ============ ОТРИСОВКА СЕТКИ ============ */
+function drawGrid(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.strokeStyle = '#b2e4f5';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= canvas.width; x += CELL) {
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 0);
+    ctx.lineTo(x + 0.5, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= canvas.height; y += CELL) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + 0.5);
+    ctx.lineTo(canvas.width, y + 0.5);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#636e72';
+  ctx.font = '10px sans-serif';
+  for (let x = CELL; x < canvas.width; x += CELL * 2) {
+    ctx.fillText((x / CELL) + '', x - 3, 10);
+  }
+  for (let y = CELL; y < canvas.height; y += CELL * 2) {
+    ctx.fillText((y / CELL) + '', 2, y + 3);
+  }
+  ctx.restore();
+}
+
+/* ============ ИНИЦИАЛИЗАЦИЯ CANVAS ============ */
+for (let i = 0; i < 5; i++) {
+  const canvas = document.getElementById('c' + i);
+  const ctx = canvas.getContext('2d');
+  drawGrid(canvas);
+  canvas._gridImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  canvas.addEventListener('mousedown', e => startDraw(i, e));
+  canvas.addEventListener('mousemove', e => moveDraw(i, e));
+  canvas.addEventListener('mouseup', e => endDraw(i, e));
+  canvas.addEventListener('mouseleave', e => endDraw(i, e));
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(i, e.touches[0]); });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(i, e.touches[0]); });
+  canvas.addEventListener('touchend', e => { e.preventDefault(); endDraw(i, e); });
+}
+
+function getPos(idx, e) {
+  const canvas = document.getElementById('c' + idx);
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+
+function startDraw(idx, e) {
+  const s = state[idx];
+  const p = getPos(idx, e);
+  const canvas = document.getElementById('c' + idx);
+  const ctx = canvas.getContext('2d');
+  s.drawing = true;
+  s.startX = p.x; s.startY = p.y;
+
+  if (s.tool === 'point') {
+    ctx.fillStyle = s.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    s.drawing = false;
+  } else if (s.tool === 'text') {
+    const txt = prompt('Введи подпись (букву/слово):');
+    if (txt) {
+      ctx.fillStyle = s.color;
+      ctx.font = 'bold 18px Comic Sans MS, cursive';
+      ctx.fillText(txt, p.x, p.y);
+    }
+    s.drawing = false;
+  } else if (s.tool === 'fill') {
+    ctx.fillStyle = s.color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawGrid(canvas);
+    s.drawing = false;
+  } else if (s.tool === 'pencil' || s.tool === 'eraser') {
+    ctx.strokeStyle = s.tool === 'eraser' ? '#ffffff' : s.color;
+    ctx.lineWidth = s.tool === 'eraser' ? 20 : 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  } else if (['line','rect','circle','triangle'].includes(s.tool)) {
+    s.snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function moveDraw(idx, e) {
+  const s = state[idx];
+  if (!s.drawing) return;
+  const p = getPos(idx, e);
+  const canvas = document.getElementById('c' + idx);
+  const ctx = canvas.getContext('2d');
+
+  if (s.tool === 'pencil') {
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  } else if (s.tool === 'eraser') {
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  } else if (['line','rect','circle','triangle'].includes(s.tool)) {
+    ctx.putImageData(s.snapshot, 0, 0);
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (s.tool === 'line') {
+      ctx.moveTo(s.startX, s.startY);
+      ctx.lineTo(p.x, p.y);
+    } else if (s.tool === 'rect') {
+      ctx.rect(s.startX, s.startY, p.x - s.startX, p.y - s.startY);
+    } else if (s.tool === 'circle') {
+      const r = Math.hypot(p.x - s.startX, p.y - s.startY);
+      ctx.arc(s.startX, s.startY, r, 0, Math.PI * 2);
+    } else if (s.tool === 'triangle') {
+      ctx.moveTo(s.startX, s.startY);
+      ctx.lineTo(p.x, p.y);
+      ctx.lineTo(s.startX - (p.x - s.startX), p.y);
+      ctx.closePath();
+    }
+    ctx.stroke();
+  }
+}
+
+function endDraw(idx) {
+  state[idx].drawing = false;
+}
+
+function setTool(idx, tool, btn) {
+  state[idx].tool = tool;
+  const taskEl = document.getElementById('task' + idx);
+  taskEl.querySelectorAll('.tools button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function clearCanvas(idx) {
+  const canvas = document.getElementById('c' + idx);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawGrid(canvas);
+}
+
+/* ============ ПРОВЕРКА ОТВЕТОВ ============ */
+function showFeedback(idx, ok, msg) {
+  const fb = document.getElementById('fb' + idx);
+  fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+  fb.textContent = ok ? '🎉 ' + msg : '❌ ' + msg;
+}
+
+function checkTask0() {
+  const a = +document.getElementById('a0_1').value;
+  const b = +document.getElementById('a0_2').value;
+  const c = +document.getElementById('a0_3').value;
+  const d = document.getElementById('a0_4').value.trim().toLowerCase();
+  if (a === 12 && b === 6 && c === 8 && (d.includes('прямоугольник') || d.includes('прямоуг'))) {
+    showFeedback(0, true, 'Отлично! Это прямоугольник. Клад найден! 💰');
+  } else {
+    let msg = 'Проверь вычисления.';
+    if (a !== 12) msg = '4 × 3 = ?';
+    else if (b !== 6) msg = '24 : 4 = ?';
+    else if (c !== 8) msg = '40 : 5 = ?';
+    else if (!d.includes('прямо')) msg = 'Подумай, как называется фигура с 4 прямыми углами.';
+    showFeedback(0, false, msg);
+  }
+}
+
+function checkTask1() {
+  const len = +document.getElementById('a1_2').value;
+  const p = +document.getElementById('a1_3').value;
+  if (len === 6 && p === 18) {
+    showFeedback(1, true, 'Супер! База супергероев защищена! 🦸');
+  } else {
+    let msg = '';
+    if (len !== 6) msg = 'Длина = 3 × 2 = ?';
+    else msg = 'Периметр = 3 + 6 + 3 + 6 = ?';
+    showFeedback(1, false, msg);
+  }
+}
+
+function checkTask2() {
+  const len = +document.getElementById('a2_2').value;
+  const wid = +document.getElementById('a2_3').value;
+  const circles = +document.getElementById('a2_4').value;
+  const ok = ((len === 6 && wid === 3) || (len === 3 && wid === 6)) && circles === 6;
+  if (ok) {
+    showFeedback(2, true, 'Блестяще! Корона будет прекрасна! 👑');
+  } else {
+    let msg = '';
+    if (!((len === 6 && wid === 3) || (len === 3 && wid === 6)))
+      msg = 'Квадрат 6×6 разрезали пополам → длина 6, ширина 3';
+    else msg = 'В каждом прямоугольнике 3 круга, всего их 2 → 3 × 2 = ?';
+    showFeedback(2, false, msg);
+  }
+}
+
+function checkTask3() {
+  const a = +document.getElementById('a3_1').value;
+  if (a === 3) {
+    showFeedback(3, true, '3, 2, 1... СТАРТ! 🚀 Ракета летит!');
+  } else {
+    showFeedback(3, false, '18 : 6 = ? Посчитай ещё раз.');
+  }
+}
+
+function checkTask4() {
+  const v = [1,2,3,4].map(i => +document.getElementById('a4_' + i).value);
+  const sum = +document.getElementById('a4_5').value;
+  const ok = v[0]===2 && v[1]===4 && v[2]===8 && v[3]===16 && sum===30;
+  if (ok) {
+    showFeedback(4, true, 'Замок построен! Король доволен! 🏰');
+  } else {
+    let msg = '';
+    if (v[1] !== 4) msg = '2-е звено: 2 × 2 = ?';
+    else if (v[2] !== 8) msg = '3-е звено: 4 × 2 = ?';
+    else if (v[3] !== 16) msg = '4-е звено: 8 × 2 = ?';
+    else msg = 'Сумма: 2 + 4 + 8 + 16 = ?';
+    showFeedback(4, false, msg);
+  }
+}
+</script>
+
+</body>
+</html>
