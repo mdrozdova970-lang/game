@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏴‍☠️ Математический рейд пирата - Интерактивная тетрадь</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #BFE3EC 0%, #F4C96B 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FBEFD6;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(92, 58, 33, 0.3);
+            overflow: hidden;
+            border: 4px solid #5C3A21;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #F4C96B 0%, #E8625A 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #3B2417;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #3B2417;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .intro {
+            background: #FBEFD6;
+            border: 3px dashed #5C3A21;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #3B2417;
+        }
+
+        .level {
+            margin-bottom: 40px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .level-header {
+            padding: 20px;
+            color: white;
+            font-size: 1.8em;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .level-1 .level-header {
+            background: linear-gradient(135deg, #4FB8C9 0%, #2E8B9B 100%);
+        }
+
+        .level-2 .level-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+
+        .level-3 .level-header {
+            background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
+        }
+
+        .level-content {
+            background: #FBEFD6;
+            padding: 25px;
+        }
+
+        .task {
+            background: white;
+            border: 2px solid #5C3A21;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 1.3em;
+            color: #E8625A;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .example-item {
+            background: #FBEFD6;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .example-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #3B2417;
+            margin-bottom: 10px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .check-button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #F29445;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .check-button:hover {
+            background: #E8625A;
+            transform: scale(1.05);
+        }
+
+        .check-button:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #C8E6C9;
+            color: #2E7D32;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #FFCDD2;
+            color: #C62828;
+            display: block;
+        }
+
+        .problem-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #3B2417;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .solution-inputs {
+            background: #FBEFD6;
+            border: 2px dashed #5C3A21;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .solution-line {
+            margin-bottom: 20px;
+        }
+
+        .solution-label {
+            font-weight: bold;
+            color: #3B2417;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .solution-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+
+        .solution-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            font-family: inherit;
+            background: white;
+        }
+
+        .solution-input::placeholder {
+            color: #999;
+        }
+
+        .logic-task {
+            background: white;
+            border: 3px solid #9C27B0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logic-task .task-title {
+            color: #9C27B0;
+        }
+
+        .pattern-box {
+            background: #FBEFD6;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            margin: 15px 0;
+            letter-spacing: 5px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            background: #5C3A21;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4FB8C9 0%, #F4C96B 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .victory-screen {
+            background: linear-gradient(135deg, #F4C96B 0%, #E8625A 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            border-radius: 15px;
+            display: none;
+            margin-top: 30px;
+        }
+
+        .victory-screen h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .victory-screen p {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+
+        .medal {
+            font-size: 5em;
+            margin: 20px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            background: #E8625A;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .reset-button:hover {
+            background: #C62828;
+            transform: scale(1.05);
+        }
+
+        .helper-parrot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3em;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .parrot-speech {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #5C3A21;
+            max-width: 250px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .parrot-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 30px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #5C3A21;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏴‍☠️ МАТЕМАТИЧЕСКИЙ РЕЙД ПИРАТА 🏴‍☠️</h1>
+            <p>Интерактивная рабочая тетрадь для перехода в 3 класс</p>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <strong>Привет, юный пират! </strong><br><br>
+                Тебя ждёт математическое приключение! Пройди три испытания, чтобы стать настоящим пиратом-математиком. Вводи ответы прямо в поля и проверяй их. Удачи! ⭐
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">0%</div>
+            </div>
+
+            <!-- УРОВЕНЬ 1: СЛОЖЕНИЕ И ВЫЧИТАНИЕ -->
+            <div class="level level-1">
+                <div class="level-header">
+                    🏖️ ИСПЫТАНИЕ 1: СЛОЖЕНИЕ И ВЫЧИТАНИЕ В ПРЕДЕЛАХ 100 ️
+                </div>
+                <div class="level-content">
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Реши примеры! Будь внимателен: есть примеры с переходом через разряд и без.
+                    </p>
+
+                    <div class="task">
+                        <div class="task-title">🔑 Задание 1: Без перехода через разряд</div>
+                        <div class="examples-grid">
+                            <div class="example-item">
+                                <div class="example-text">34 + 25 =</div>
+                                <input type="number" class="answer-input" id="task1" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(1, 59, 'task1')">Проверить</button>
+                                <div class="feedback" id="feedback1"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">76 - 42 =</div>
+                                <input type="number" class="answer-input" id="task2" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(2, 34, 'task2')">Проверить</button>
+                                <div class="feedback" id="feedback2"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">53 + 16 =</div>
+                                <input type="number" class="answer-input" id="task3" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(3, 69, 'task3')">Проверить</button>
+                                <div class="feedback" id="feedback3"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">89 - 37 =</div>
+                                <input type="number" class="answer-input" id="task4" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(4, 52, 'task4')">Проверить</button>
+                                <div class="feedback" id="feedback4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-title">🌴 Задание 2: С переходом через разряд</div>
+                        <div class="examples-grid">
+                            <div class="example-item">
+                                <div class="example-text">47 + 28 =</div>
+                                <input type="number" class="answer-input" id="task5" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(5, 75, 'task5')">Проверить</button>
+                                <div class="feedback" id="feedback5"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">83 - 39 =</div>
+                                <input type="number" class="answer-input" id="task6" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(6, 44, 'task6')">Проверить</button>
+                                <div class="feedback" id="feedback6"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">56 + 37 =</div>
+                                <input type="number" class="answer-input" id="task7" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(7, 93, 'task7')">Проверить</button>
+                                <div class="feedback" id="feedback7"></div>
+                            </div>
+                            <div class="example-item">
+                                <div class="example-text">72 - 48 =</div>
+                                <input type="number" class="answer-input" id="task8" placeholder="?">
+                                <button class="check-button" onclick="checkAnswer(8, 24, 'task8')">Проверить</button>
+                                <div class="feedback" id="feedback8"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 2: ЗАДАЧИ В ДВА ДЕЙСТВИЯ -->
+            <div class="level level-2">
+                <div class="level-header">
+                     ИСПЫТАНИЕ 2: ЗАДАЧИ В ДВА ДЕЙСТВИЯ 🌴
+                </div>
+                <div class="level-content">
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Реши задачи! Выбери правильное действие из списка и запиши ответ.
+                    </p>
+
+                    <div class="task">
+                        <div class="task-title"> Задача 1: Пиратские монеты</div>
+                        <div class="problem-text">
+                            Пират нашёл 3 сундука. В каждом сундуке по 8 золотых монет. Он разделил все монеты поровну между 4 друзьями. Сколько монет получил каждый?
+                        </div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">1 действие:</label>
+                                <select class="solution-select" id="task9">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="8×3=24">8 × 3 = 24</option>
+                                    <option value="3×8=24">3 × 8 = 24</option>
+                                    <option value="3+8=11">3 + 8 = 11</option>
+                                    <option value="8-3=5">8 - 3 = 5</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(9, '8×3=24', 'task9')">Проверить</button>
+                                <div class="feedback" id="feedback9"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">2 действие:</label>
+                                <select class="solution-select" id="task10">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="24÷4=6">24 ÷ 4 = 6</option>
+                                    <option value="24×4=96">24 × 4 = 96</option>
+                                    <option value="24-4=20">24 - 4 = 20</option>
+                                    <option value="24+4=28">24 + 4 = 28</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(10, '24÷4=6', 'task10')">Проверить</button>
+                                <div class="feedback" id="feedback10"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">Ответ:</label>
+                                <input type="number" class="solution-input" id="task11" placeholder="Сколько монет получил каждый?">
+                                <button class="check-button" onclick="checkAnswer(11, 6, 'task11')">Проверить ответ</button>
+                                <div class="feedback" id="feedback11"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-title">📜 Задача 2: Кокосы на островах</div>
+                        <div class="problem-text">
+                            На острове растёт 6 пальм. С каждой пальмы моряки сорвали по 5 кокосов и разделили их поровну между 3 кораблями. По сколько кокосов получил каждый корабль?
+                        </div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">1 действие:</label>
+                                <select class="solution-select" id="task12">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="5×6=30">5 × 6 = 30</option>
+                                    <option value="6×5=30">6 × 5 = 30</option>
+                                    <option value="6+5=11">6 + 5 = 11</option>
+                                    <option value="6×3=18">6 × 3 = 18</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(12, '5×6=30', 'task12')">Проверить</button>
+                                <div class="feedback" id="feedback12"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">2 действие:</label>
+                                <select class="solution-select" id="task13">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="30÷3=10">30 ÷ 3 = 10</option>
+                                    <option value="30×3=90">30 × 3 = 90</option>
+                                    <option value="30-3=27">30 - 3 = 27</option>
+                                    <option value="30+3=33">30 + 3 = 33</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(13, '30÷3=10', 'task13')">Проверить</button>
+                                <div class="feedback" id="feedback13"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">Ответ:</label>
+                                <input type="number" class="solution-input" id="task14" placeholder="По сколько кокосов получил каждый корабль?">
+                                <button class="check-button" onclick="checkAnswer(14, 10, 'task14')">Проверить ответ</button>
+                                <div class="feedback" id="feedback14"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-title">📜 Задача 3: Пиратская команда</div>
+                        <div class="problem-text">
+                            Капитан разделил свою команду на 4 группы. В каждой группе по 5 пиратов. Затем капитан распределил всех пиратов на 2 корабля поровну. Сколько пиратов оказалось на каждом корабле?
+                        </div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">1 действие:</label>
+                                <select class="solution-select" id="task15">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="5×4=20">5 × 4 = 20</option>
+                                    <option value="4×5=20">4 × 5 = 20</option>
+                                    <option value="4+5=9">4 + 5 = 9</option>
+                                    <option value="5×2=10">5 × 2 = 10</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(15, '5×4=20', 'task15')">Проверить</button>
+                                <div class="feedback" id="feedback15"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">2 действие:</label>
+                                <select class="solution-select" id="task16">
+                                    <option value="">-- Выбери действие --</option>
+                                    <option value="20÷2=10">20 ÷ 2 = 10</option>
+                                    <option value="20×2=40">20 × 2 = 40</option>
+                                    <option value="20-2=18">20 - 2 = 18</option>
+                                    <option value="20+2=22">20 + 2 = 22</option>
+                                </select>
+                                <button class="check-button" onclick="checkSelect(16, '20÷2=10', 'task16')">Проверить</button>
+                                <div class="feedback" id="feedback16"></div>
+                            </div>
+                            <div class="solution-line">
+                                <label class="solution-label">Ответ:</label>
+                                <input type="number" class="solution-input" id="task17" placeholder="Сколько пиратов на каждом корабле?">
+                                <button class="check-button" onclick="checkAnswer(17, 10, 'task17')">Проверить ответ</button>
+                                <div class="feedback" id="feedback17"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 3: ЛОГИЧЕСКИЕ ЗАДАНИЯ -->
+            <div class="level level-3">
+                <div class="level-header">
+                    💎 ИСПЫТАНИЕ 3: ЛОГИЧЕСКИЕ ГОЛОВОЛОМКИ 💎
+                </div>
+                <div class="level-content">
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Прояви смекалку! Реши логические задачи.
+                    </p>
+
+                    <div class="logic-task">
+                        <div class="task-title">🔍 Задание 1: Найди закономерность</div>
+                        <div class="problem-text">Продолжи ряд чисел:</div>
+                        <div class="pattern-box">2, 4, 6, 8, ___, ___, ___</div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">Три следующих числа (через запятую):</label>
+                                <input type="text" class="solution-input" id="task18" placeholder="">
+                                <button class="check-button" onclick="checkPattern(18, '10,12,14', 'task18')">Проверить</button>
+                                <div class="feedback" id="feedback18"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="logic-task">
+                        <div class="task-title">🔢 Задание 2: Продолжи ряд</div>
+                        <div class="problem-text">Какое число должно быть следующим?</div>
+                        <div class="pattern-box">5, 10, 15, 20, ___</div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">Следующее число:</label>
+                                <input type="number" class="solution-input" id="task19" placeholder="">
+                                <button class="check-button" onclick="checkAnswer(19, 25, 'task19')">Проверить</button>
+                                <div class="feedback" id="feedback19"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="logic-task">
+                        <div class="task-title">🧩 Задание 3: Пиратская загадка</div>
+                        <div class="problem-text">
+                            Три пирата нашли сундук. Первый сказал: "Сундук тяжёлый". Второй сказал: "Сундук лёгкий". Третий сказал: "Сундук не тяжёлый". Только один пират сказал правду. Какой сундук на самом деле?
+                        </div>
+                        <div class="solution-inputs">
+                            <div class="solution-line">
+                                <label class="solution-label">Выбери ответ:</label>
+                                <select class="solution-select" id="task20">
+                                    <option value="">-- Выбери вариант --</option>
+                                    <option value="тяжёлый">Тяжёлый</option>
+                                    <option value="лёгкий">Лёгкий</option>
+                                    <option value="средний">Средний</option>
+                                </select>
+                                <button class="check-button" onclick="checkTextAnswer(20, 'лёгкий', 'task20')">Проверить</button>
+                                <div class="feedback" id="feedback20"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЭКРАН ПОБЕДЫ -->
+            <div class="victory-screen" id="victoryScreen">
+                <div class="medal">🏆</div>
+                <h2>ПОЗДРАВЛЯЕМ! 🎉</h2>
+                <p>Ты прошёл все испытания!</p>
+                <p style="font-size: 1.5em; margin: 20px 0;">
+                    Ты настоящий пират-математик! 🏴‍☠️⭐
+                </p>
+                <p>Готов к 3 классу! 💪</p>
+                <button class="reset-button" onclick="resetGame()">🔄 Пройти ещё раз</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОПУГАЙ-ПОМОЩНИК -->
+    <div class="helper-parrot" onclick="toggleParrot()" title="Нажми на меня!">🦜</div>
+    <div class="parrot-speech" id="parrotSpeech">
+        <strong>Попугай Кеша говорит:</strong><br><br>
+        Привет! Я помогу тебе! Читай задания внимательно и не спеши. Если ошибёшься - попробуй ещё раз! Удачи! 🦜✨
+    </div>
+
+    <script>
+        let completedTasks = 0;
+        const totalTasks = 20;
+
+        function checkAnswer(taskNum, correctAnswer, inputId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById('feedback' + taskNum);
+            const userAnswer = parseInt(input.value);
+
+            if (isNaN(userAnswer)) {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '⚠️ Введи ответ!';
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ Правильно! Отличная работа! ';
+                input.disabled = true;
+                completedTasks++;
+                updateProgress();
+                
+                if (completedTasks === totalTasks) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ Не совсем. Попробуй ещё раз! 💪';
+            }
+        }
+
+        function checkSelect(taskNum, correctValue, selectId) {
+            const select = document.getElementById(selectId);
+            const feedback = document.getElementById('feedback' + taskNum);
+            const userAnswer = select.value;
+
+            if (userAnswer === "") {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '⚠️ Выбери действие!';
+                return;
+            }
+
+            if (userAnswer === correctValue) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ Правильно! Отличная работа! ';
+                select.disabled = true;
+                completedTasks++;
+                updateProgress();
+                
+                if (completedTasks === totalTasks) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ Не совсем. Подумай ещё! 💪';
+            }
+        }
+
+        function checkPattern(taskNum, correctPattern, inputId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById('feedback' + taskNum);
+            const userAnswer = input.value.replace(/\s/g, '').toLowerCase();
+
+            if (userAnswer === "") {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '⚠️ Введи ответ!';
+                return;
+            }
+
+            if (userAnswer === correctPattern.toLowerCase()) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ Правильно! Отличная работа! 🎉';
+                input.disabled = true;
+                completedTasks++;
+                updateProgress();
+                
+                if (completedTasks === totalTasks) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ Не совсем. Попробуй ещё раз! 💪';
+            }
+        }
+
+        function checkTextAnswer(taskNum, correctAnswer, inputId) {
+            const select = document.getElementById(inputId);
+            const feedback = document.getElementById('feedback' + taskNum);
+            const userAnswer = select.value.toLowerCase();
+
+            if (userAnswer === "") {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '️ Выбери ответ!';
+                return;
+            }
+
+            if (userAnswer === correctAnswer.toLowerCase()) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ Правильно! Отличная работа! 🎉';
+                select.disabled = true;
+                completedTasks++;
+                updateProgress();
+                
+                if (completedTasks === totalTasks) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ Не совсем. Подумай ещё! 💪';
+            }
+        }
+
+        function updateProgress() {
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+
+        function showVictory() {
+            document.getElementById('victoryScreen').style.display = 'block';
+            document.getElementById('victoryScreen').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetGame() {
+            completedTasks = 0;
+            updateProgress();
+            
+            for (let i = 1; i <= 20; i++) {
+                const input = document.getElementById('task' + i);
+                const feedback = document.getElementById('feedback' + i);
+                
+                if (input) {
+                    input.value = '';
+                    input.disabled = false;
+                }
+                if (feedback) {
+                    feedback.className = 'feedback';
+                    feedback.textContent = '';
+                }
+            }
+            
+            document.getElementById('victoryScreen').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleParrot() {
+            const speech = document.getElementById('parrotSpeech');
+            speech.style.display = speech.style.display === 'none' || speech.style.display === '' ? 'block' : 'none';
+        }
+
+        setTimeout(() => {
+            document.getElementById('parrotSpeech').style.display = 'none';
+        }, 8000);
+    </script>
+</body>
+</html>

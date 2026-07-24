@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Списывание: Букет</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            line-height: 1.8;
+            font-size: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .task-text {
+            margin-bottom: 20px;
+        }
+        select {
+            font-size: 18px;
+            padding: 2px 5px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            background-color: #eaf6ff;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+        button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #219150;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+        }
+        .wrong {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+        #result-message {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Стили для стартовой страницы */
+        #intro-screen {
+            text-align: center;
+        }
+        #intro-screen h1 {
+            color: #e91e63;
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+        .intro-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .steps {
+            text-align: left;
+            background-color: #fff9e6;
+            border: 2px dashed #f39c12;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 20px 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            font-size: 19px;
+        }
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background-color: #f39c12;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+        .step-text {
+            padding-top: 3px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ЭКРАН 1: ИНСТРУКЦИЯ -->
+<div class="container" id="intro-screen">
+    <div class="intro-icon">📝</div>
+    <h1>Упражнение «Букет»</h1>
+    <p style="text-align:center; color:#555;">Выполняй задание по шагам:</p>
+    
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-text">Прочитай текст внимательно.</div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-text">Спиши его в тетрадь.</div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-text">Потом выполни задание и проверь свой текст.</div>
+        </div>
+    </div>
+
+    <button onclick="startTask()">Начать задание ▶</button>
+</div>
+
+<!-- ЭКРАН 2: ЗАДАНИЕ -->
+<div class="container hidden" id="task-screen">
+    <h2>🌸 Букет 🌸</h2>
+    <p>Выбери правильную букву в пропусках:</p>
+    
+    <div class="task-text" id="text-area">
+        Алеша с 
+        <select data-answer="е">
+            <option value="">_</option>
+            <option value="и">и</option>
+            <option value="е">е</option>
+        </select>
+        строй купили букет мимоз. Они весело вб
+        <select data-answer="е">
+            <option value="">_</option>
+            <option value="и">и</option>
+            <option value="е">е</option>
+        </select>
+        жали в дом. Ч
+        <select data-answer="у">
+            <option value="">_</option>
+            <option value="ю">ю</option>
+            <option value="у">у</option>
+        </select>
+        дный запах лился от цв
+        <select data-answer="е">
+            <option value="">_</option>
+            <option value="и">и</option>
+            <option value="е">е</option>
+        </select>
+        тов. Вот пуш
+        <select data-answer="и">
+            <option value="">_</option>
+            <option value="ы">ы</option>
+            <option value="и">и</option>
+        </select>
+        стый букет на ст
+        <select data-answer="о">
+            <option value="">_</option>
+            <option value="а">а</option>
+            <option value="о">о</option>
+        </select>
+        ле. Малышка 
+        <select data-answer="А">
+            <option value="">_</option>
+            <option value="а">а</option>
+            <option value="А">А</option>
+        </select>
+        ннушка сунула нос в букет. С щеки упала пыльца. Как х
+        <select data-answer="о">
+            <option value="">_</option>
+            <option value="а">а</option>
+            <option value="о">о</option>
+        </select>
+        р
+        <select data-answer="о">
+            <option value="">_</option>
+            <option value="а">а</option>
+            <option value="о">о</option>
+        </select>
+        ши были мимозы! Это цв
+        <select data-answer="е">
+            <option value="">_</option>
+            <option value="и">и</option>
+            <option value="е">е</option>
+        </select>
+        ты для мамы.
+    </div>
+
+    <button onclick="checkAnswers()">Проверить ответы</button>
+    <div id="result-message"></div>
+</div>
+
+<script>
+    // Переход от инструкции к заданию
+    function startTask() {
+        document.getElementById('intro-screen').classList.add('hidden');
+        document.getElementById('task-screen').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    // Проверка ответов
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let correctCount = 0;
+        let total = selects.length;
+
+        selects.forEach(select => {
+            select.classList.remove('correct', 'wrong');
+            const userAnswer = select.value;
+            const rightAnswer = select.getAttribute('data-answer');
+
+            if (userAnswer === rightAnswer) {
+                select.classList.add('correct');
+                correctCount++;
+            } else {
+                select.classList.add('wrong');
+            }
+        });
+
+        const messageDiv = document.getElementById('result-message');
+        if (correctCount === total) {
+            messageDiv.style.color = "green";
+            messageDiv.innerHTML = "Отлично! Всё верно! 🎉";
+        } else {
+            messageDiv.style.color = "red";
+            messageDiv.innerHTML = `Есть ошибки. Правильно: ${correctCount} из ${total}`;
+        }
+    }
+</script>
+
+</body>
+</html>

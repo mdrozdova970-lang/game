@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏴‍☠️ В поисках сокровищ - Таблица деления</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #BFE3EC 0%, #F4C96B 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FBEFD6;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(92, 58, 33, 0.3);
+            overflow: hidden;
+            border: 4px solid #5C3A21;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #F4C96B 0%, #E8625A 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #3B2417;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #3B2417;
+        }
+
+        .pirate-character {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .intro {
+            background: #FBEFD6;
+            border: 3px dashed #5C3A21;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #3B2417;
+        }
+
+        .adventure-preview {
+            background: linear-gradient(135deg, #F4C96B 0%, #FBEFD6 100%);
+            border: 4px solid #5C3A21;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(92, 58, 33, 0.25);
+            position: relative;
+        }
+
+        .adventure-preview::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(45deg, #F4C96B, #E8625A, #4FB8C9, #F4C96B);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .adventure-title {
+            text-align: center;
+            font-size: 2em;
+            color: #3B2417;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .adventure-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .adventure-card {
+            background: white;
+            border: 3px solid #5C3A21;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(92, 58, 33, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .adventure-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #F4C96B, #E8625A);
+        }
+
+        .adventure-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(92, 58, 33, 0.3);
+        }
+
+        .card-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        .adventure-card:nth-child(2) .card-icon {
+            animation-delay: 0.3s;
+        }
+
+        .adventure-card:nth-child(3) .card-icon {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: #E8625A;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card-description {
+            font-size: 1.1em;
+            color: #3B2417;
+            line-height: 1.5;
+        }
+
+        .motivation-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #3B2417;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            border: 2px dashed #E8625A;
+        }
+
+        .motivation-message strong {
+            color: #E8625A;
+            font-size: 1.1em;
+        }
+
+        .level {
+            margin-bottom: 40px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .level-header {
+            padding: 20px;
+            color: white;
+            font-size: 1.8em;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .level-1 .level-header {
+            background: linear-gradient(135deg, #4FB8C9 0%, #2E8B9B 100%);
+        }
+
+        .level-2 .level-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+
+        .level-3 .level-header {
+            background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
+        }
+
+        .level-4 .level-header {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C2185B 100%);
+        }
+
+        .level-5 .level-header {
+            background: linear-gradient(135deg, #FF5722 0%, #D84315 100%);
+        }
+
+        .level-content {
+            background: #FBEFD6;
+            padding: 25px;
+        }
+
+        .task {
+            background: white;
+            border: 2px solid #5C3A21;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .task-text {
+            font-size: 1.3em;
+            color: #3B2417;
+            font-weight: bold;
+        }
+
+        .task-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-select {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #5C3A21;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .task-input button {
+            padding: 10px 20px;
+            background: #F29445;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .task-input button:hover {
+            background: #E8625A;
+            transform: scale(1.05);
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #C8E6C9;
+            color: #2E7D32;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #FFCDD2;
+            color: #C62828;
+            display: block;
+        }
+
+        .treasure-chest {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .victory-screen {
+            background: linear-gradient(135deg, #F4C96B 0%, #E8625A 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .victory-screen h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .victory-screen p {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+
+        .medal {
+            font-size: 5em;
+            margin: 20px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .progress-bar {
+            background: #5C3A21;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4FB8C9 0%, #F4C96B 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .helper-parrot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3em;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .parrot-speech {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #5C3A21;
+            max-width: 250px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .parrot-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 30px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #5C3A21;
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            background: #E8625A;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .reset-button:hover {
+            background: #C62828;
+            transform: scale(1.05);
+        }
+
+        .emoji-decoration {
+            font-size: 1.5em;
+            margin: 0 5px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .pirate-character {
+                display: none;
+            }
+            .task {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .adventure-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏴‍☠️ В ПОИСКАХ СОКРОВИЩ 🏴‍☠️</h1>
+            <p>Математическое приключение: Таблица деления</p>
+            <div class="pirate-character">🏴‍☠️</div>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <strong>Привет, юный пират! 🦜</strong><br><br>
+                Тебя ждёт увлекательное путешествие на пиратский остров! Чтобы найти сокровища, тебе нужно решить математические задачи на деление на 2, 3, 4, 5 и 6. 
+                Пройди все пять уровней и получи золотую медаль! ⭐<br><br>
+                <strong>Правила:</strong> Выбери правильный ответ из выпадающего списка и нажми "Проверить". Если ответ правильный - ты продвинешься дальше!
+            </div>
+
+            <div class="adventure-preview">
+                <h2 class="adventure-title">🗺️ ЧТО ЖДЁТ ТЕБЯ В ЭТОМ ПРИКЛЮЧЕНИИ? 🗺️</h2>
+                
+                <div class="adventure-cards">
+                    <div class="adventure-card">
+                        <span class="card-icon">🏝️</span>
+                        <h3 class="card-title">ИССЛЕДУЙ ОСТРОВ</h3>
+                        <p class="card-description">
+                            Пять загадочных уровней:<br>
+                            🏖️ Пиратский берег (÷2)<br>
+                             Тропические джунгли (÷3)<br>
+                            💎 Пещера сокровищ (÷4)<br>
+                             Коралловый риф (÷5)<br>
+                            🌋 Вулкан пиратов (÷6)
+                        </p>
+                    </div>
+
+                    <div class="adventure-card">
+                        <span class="card-icon">️</span>
+                        <h3 class="card-title">РЕШАЙ ЗАДАЧИ</h3>
+                        <p class="card-description">
+                            20 примеров на деление:<br>
+                            от простых (4÷2) до сложных (30÷6)<br>
+                            + текстовые задачи!
+                        </p>
+                    </div>
+
+                    <div class="adventure-card">
+                        <span class="card-icon"></span>
+                        <h3 class="card-title">НАЙДИ СОКРОВИЩА</h3>
+                        <p class="card-description">
+                            Собери все ключи,<br>
+                            открой сундук с сокровищами<br>
+                            и получи золотую медаль! 
+                        </p>
+                    </div>
+                </div>
+
+                <div class="motivation-message">
+                    <strong>🌟 Отлично подойдёт для подготовки к 3 классу! </strong><br>
+                    Ты станешь настоящим мастером деления и будешь готов к новым математическим приключениям!
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">0%</div>
+            </div>
+
+            <!-- УРОВЕНЬ 1: ДЕЛЕНИЕ НА 2 -->
+            <div class="level level-1">
+                <div class="level-header">
+                    🏖️ УРОВЕНЬ 1: ПИРАТСКИЙ БЕРЕГ (÷2) 🏖️
+                </div>
+                <div class="level-content">
+                    <div class="treasure-chest">🚢🌊</div>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Ты прибыл на пиратский остров! Реши примеры на деление на 2, чтобы найти первый ключ.
+                    </p>
+
+                    <div class="task">
+                        <div class="task-text">🔑 4 ÷ 2</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task1">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(1, 2, 'task1')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback1"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 6 ÷ 2</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task2">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(2, 3, 'task2')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback2"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 8 ÷ 2</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task3">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(3, 4, 'task3')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback3"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 10 ÷ 2</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task4">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(4, 5, 'task4')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback4"></div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 2: ДЕЛЕНИЕ НА 3 -->
+            <div class="level level-2">
+                <div class="level-header">
+                    🌴 УРОВЕНЬ 2: ТРОПИЧЕСКИЕ ДЖУНГЛИ (÷3) 🌴
+                </div>
+                <div class="level-content">
+                    <div class="treasure-chest">🌺🦜</div>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Отлично! Теперь проберись через джунгли. Реши примеры на деление на 3!
+                    </p>
+
+                    <div class="task">
+                        <div class="task-text">🔑 6 ÷ 3</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task5">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(5, 2, 'task5')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback5"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 9 ÷ 3</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task6">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(6, 3, 'task6')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback6"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 12 ÷ 3</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task7">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(7, 4, 'task7')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback7"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 15 ÷ 3</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task8">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(8, 5, 'task8')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback8"></div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 3: ДЕЛЕНИЕ НА 4 -->
+            <div class="level level-3">
+                <div class="level-header">
+                    💎 УРОВЕНЬ 3: ПЕЩЕРА СОКРОВИЩ (÷4) 💎
+                </div>
+                <div class="level-content">
+                    <div class="treasure-chest">👑</div>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Ты в пещере! Реши примеры на деление на 4, чтобы найти сокровища!
+                    </p>
+
+                    <div class="task">
+                        <div class="task-text">🔑 8 ÷ 4</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task9">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(9, 2, 'task9')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback9"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 12 ÷ 4</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task10">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(10, 3, 'task10')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback10"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 16 ÷ 4</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task11">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(11, 4, 'task11')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback11"></div>
+
+                    <div class="task">
+                        <div class="task-text">🔑 20 ÷ 4</div>
+                        <div class="task-input">
+                            <select class="task-select" id="task12">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(12, 5, 'task12')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback12"></div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 4: ДЕЛЕНИЕ НА 5 -->
+            <div class="level level-4">
+                <div class="level-header">
+                    🪸 УРОВЕНЬ 4: КОРАЛЛОВЫЙ РИФ (÷5) 🪸
+                </div>
+                <div class="level-content">
+                    <div class="treasure-chest">🐚🐠🌊</div>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Ты ныряешь к коралловому рифу! Реши примеры на деление на 5!
+                    </p>
+
+                    <div class="task">
+                        <div class="task-text">
+                            Пират нашёл 10 ракушек и разделил их поровну между 5 друзьями. Сколько ракушек получил каждый?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task13">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(13, 2, 'task13')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback13"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            На острове 15 пальм. Их разделили на 5 равных участков. Сколько пальм на каждом участке?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task14">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(14, 3, 'task14')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback14"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            У команды 20 сухарей на 5 дней пути. Сколько сухарей в день?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task15">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(15, 4, 'task15')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback15"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            Капитан нашёл 25 монет и разделил их между 5 пиратами. Сколько монет у каждого?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task16">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(16, 5, 'task16')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback16"></div>
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 5: ДЕЛЕНИЕ НА 6 -->
+            <div class="level level-5">
+                <div class="level-header">
+                    🌋 УРОВЕНЬ 5: ВУЛКАН ПИРАТОВ (÷6) 🌋
+                </div>
+                <div class="level-content">
+                    <div class="treasure-chest">🌋⚓</div>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+                        Финальный уровень! Вулкан пиратов! Реши примеры на деление на 6, чтобы найти главный клад!
+                    </p>
+
+                    <div class="task">
+                        <div class="task-text">
+                            Пираты нашли 12 ключей и разделили их между 6 сундуками. Сколько ключей к каждому сундуку?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task17">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(17, 2, 'task17')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback17"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            У попугая 18 перьев на крыльях. Он терял по 6 перьев в день. За сколько дней он потерял все перья?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task18">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(18, 3, 'task18')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback18"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            До сокровища 24 шага. Пират проходит по 6 шагов в день. За сколько дней он дойдёт?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task19">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(19, 4, 'task19')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback19"></div>
+
+                    <div class="task">
+                        <div class="task-text">
+                            Капитан разделил 30 членов команды на 6 равных групп. Сколько пиратов в каждой группе?
+                        </div>
+                        <div class="task-input">
+                            <select class="task-select" id="task20">
+                                <option value="">Выберите ответ</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <button onclick="checkAnswer(20, 5, 'task20')">Проверить</button>
+                        </div>
+                    </div>
+                    <div class="feedback" id="feedback20"></div>
+                </div>
+            </div>
+
+            <!-- ЭКРАН ПОБЕДЫ -->
+            <div class="victory-screen" id="victoryScreen">
+                <div class="medal">🏆</div>
+                <h2>ПОЗДРАВЛЯЕМ! </h2>
+                <p>Ты нашёл все сокровища пиратского острова!</p>
+                <p style="font-size: 1.5em; margin: 20px 0;">
+                    Ты настоящий математический пират! 🏴☠️⭐
+                </p>
+                <p>Ты отлично знаешь таблицу деления на 2, 3, 4, 5 и 6!</p>
+                <p>Твоя золотая медаль ждёт тебя! 🥇</p>
+                <button class="reset-button" onclick="resetGame()">🔄 Играть снова</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОПУГАЙ-ПОМОЩНИК -->
+    <div class="helper-parrot" onclick="toggleParrot()" title="Нажми на меня!">🦜</div>
+    <div class="parrot-speech" id="parrotSpeech">
+        <strong>Попугай Кеша говорит:</strong><br><br>
+        Привет! Я помогу тебе! Деление - это как разделить что-то на равные части. Например, 12 ÷ 3 = 4, потому что 12 можно разделить на 3 части по 4! Удачи! 🦜✨
+    </div>
+
+    <script>
+        let completedTasks = 0;
+        const totalTasks = 20;
+
+        function checkAnswer(taskNum, correctAnswer, inputId) {
+            const select = document.getElementById(inputId);
+            const feedback = document.getElementById('feedback' + taskNum);
+            const userAnswer = select.value;
+
+            if (userAnswer === "") {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '⚠️ Выбери ответ!';
+                return;
+            }
+
+            if (userAnswer == correctAnswer) {
+                feedback.className = 'feedback correct';
+                feedback.textContent = '✅ Правильно! Отличная работа! ';
+                select.disabled = true;
+                completedTasks++;
+                updateProgress();
+                
+                if (completedTasks === totalTasks) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '❌ Не совсем. Попробуй ещё раз! 💪';
+            }
+        }
+
+        function updateProgress() {
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+
+        function showVictory() {
+            document.getElementById('victoryScreen').style.display = 'block';
+            document.getElementById('victoryScreen').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetGame() {
+            completedTasks = 0;
+            updateProgress();
+            
+            for (let i = 1; i <= 20; i++) {
+                const select = document.getElementById('task' + i);
+                const feedback = document.getElementById('feedback' + i);
+                
+                if (select) {
+                    select.value = '';
+                    select.disabled = false;
+                }
+                if (feedback) {
+                    feedback.className = 'feedback';
+                    feedback.textContent = '';
+                }
+            }
+            
+            document.getElementById('victoryScreen').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleParrot() {
+            const speech = document.getElementById('parrotSpeech');
+            speech.style.display = speech.style.display === 'none' || speech.style.display === '' ? 'block' : 'none';
+        }
+
+        setTimeout(() => {
+            document.getElementById('parrotSpeech').style.display = 'none';
+        }, 8000);
+    </script>
+</body>
+</html>
