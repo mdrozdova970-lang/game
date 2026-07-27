@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🏴‍☠️ Остров Сокровищ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Georgia', serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 50%, #081c15 100%);
+    color: #f4e4bc;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.8em;
+    color: #ffd700;
+    text-shadow: 3px 3px 0 #8b4513, 5px 5px 10px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 20px;
+    color: #f4e4bc;
+  }
+  .progress-bar {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    background: rgba(0,0,0,0.4);
+    border: 3px solid #8b4513;
+    border-radius: 25px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .progress-fill {
+    height: 20px;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    border-radius: 15px;
+    transition: width 0.5s;
+    width: 0%;
+  }
+  .progress-text {
+    color: #ffd700;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  .map {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(255,215,0,0.1) 0%, transparent 50%),
+      linear-gradient(135deg, #d4a574 0%, #b8864d 50%, #8b6914 100%);
+    border: 8px solid #5c3317;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .map::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(139,69,19,0.1) 20px, rgba(139,69,19,0.1) 21px);
+    border-radius: 12px;
+    pointer-events: none;
+  }
+  .cell {
+    aspect-ratio: 1;
+    background: linear-gradient(145deg, #f4e4bc, #d4a574);
+    border: 4px solid #5c3317;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+    color: #5c3317;
+    padding: 5px;
+    text-align: center;
+    position: relative;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  }
+  .cell:hover:not(.done) {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(255,215,0,0.5);
+    border-color: #ffd700;
+  }
+  .cell .icon { font-size: 2em; margin-bottom: 5px; }
+  .cell .title { font-size: 0.75em; line-height: 1.1; }
+  .cell.done {
+    background: linear-gradient(145deg, #ffd700, #ff8c00);
+    color: #5c3317;
+  }
+  .cell.done::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 1.5em;
+    color: #2d6a4f;
+    font-weight: bold;
+  }
+  .chest-cell {
+    background: linear-gradient(145deg, #8b0000, #5c0000) !important;
+    color: #ffd700 !important;
+    border-color: #ffd700 !important;
+  }
+  .chest-cell.locked { cursor: not-allowed; opacity: 0.7; }
+  .chest-cell.open {
+    animation: chestOpen 1s ease;
+    background: linear-gradient(145deg, #ffd700, #ff8c00) !important;
+  }
+  @keyframes chestOpen {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3) rotate(5deg); }
+    100% { transform: scale(1); }
+  }
+
+  /* Модальное окно */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: linear-gradient(145deg, #f4e4bc, #d4a574);
+    color: #5c3317;
+    padding: 30px;
+    border-radius: 20px;
+    border: 5px solid #8b4513;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 50px rgba(255,215,0,0.5);
+    position: relative;
+  }
+  .modal-content h2 {
+    color: #8b0000;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.8em;
+  }
+  .task-text {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .answer-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2em;
+    border: 3px solid #8b4513;
+    border-radius: 10px;
+    background: #fff8e7;
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: inherit;
+  }
+  .btn {
+    background: linear-gradient(145deg, #ffd700, #ff8c00);
+    color: #5c3317;
+    border: 3px solid #8b4513;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    margin: 5px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .feedback {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+  .feedback.correct { background: #2d6a4f; color: #fff; }
+  .feedback.wrong { background: #8b0000; color: #fff; }
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #8b0000;
+    color: #fff;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+  }
+  .option-btn {
+    padding: 12px;
+    background: #fff8e7;
+    border: 3px solid #8b4513;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .option-btn:hover { background: #ffd700; }
+  .option-btn.selected { background: #ffd700; border-color: #5c3317; }
+
+  /* Сундук финальный */
+  .treasure {
+    text-align: center;
+    padding: 20px;
+  }
+  .treasure-icon {
+    font-size: 6em;
+    animation: bounce 1s infinite;
+    display: inline-block;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 200;
+  }
+  .word-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .word-row label {
+    min-width: 120px;
+    font-weight: bold;
+  }
+  .word-row input, .word-row select {
+    padding: 8px;
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1em;
+  }
+  @media (max-width: 600px) {
+    .map { grid-template-columns: repeat(3, 1fr); }
+    h1 { font-size: 2em; }
+    .cell .icon { font-size: 1.5em; }
+    .cell .title { font-size: 0.65em; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🏴‍☠️ Остров Сокровищ 🏴‍☠️</h1>
+<p class="subtitle">Капитан, пройди 10 испытаний и найди клад!</p>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill"></div>
+  <span class="progress-text" id="progressText">🪙 0 / 10</span>
+</div>
+
+<div class="map" id="map"></div>
+
+<!-- Модальное окно -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+const tasks = [
+  {
+    id: 1,
+    icon: '⚓',
+    title: 'Бухта Кораблекрушения',
+    theme: 'Вычисления',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>⚓ Бухта Кораблекрушения</h2>
+        <p class="task-text">Чтобы починить шлюпку, реши примеры:</p>
+        <div class="word-row"><label>45 + 27 =</label><input type="number" id="q1a" class="answer-input" style="width:100px;margin:0"></div>
+        <div class="word-row"><label>80 − 34 =</label><input type="number" id="q1b" class="answer-input" style="width:100px;margin:0"></div>
+        <div class="word-row"><label>56 + 9 =</label><input type="number" id="q1c" class="answer-input" style="width:100px;margin:0"></div>
+        <button class="btn" onclick="checkTask1()">Проверить</button>
+        <div id="feedback1"></div>
+      `;
+    },
+    check: () => {
+      const a = +document.getElementById('q1a').value;
+      const b = +document.getElementById('q1b').value;
+      const c = +document.getElementById('q1c').value;
+      return a === 72 && b === 46 && c === 65;
+    }
+  },
+  {
+    id: 2,
+    icon: '🦜',
+    title: 'Пальма Попугаев',
+    theme: 'Умножение',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🦜 Пальма Попугаев</h2>
+        <p class="task-text">На <b>4 ветках</b> пальмы сидит по <b>3 попугая</b>.<br>Сколько всего попугаев?</p>
+        <input type="number" id="q2" class="answer-input" placeholder="Введи ответ">
+        <button class="btn" onclick="checkTask2()">Проверить</button>
+        <div id="feedback2"></div>
+      `;
+    },
+    check: () => +document.getElementById('q2').value === 12
+  },
+  {
+    id: 3,
+    icon: '🦀',
+    title: 'Риф Хитрых Крабов',
+    theme: 'Словарные слова',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🦀 Риф Хитрых Крабов</h2>
+        <p class="task-text">Крабы украли буквы! Вставь пропущенные:</p>
+        <div class="word-row"><label>С..бака</label><input type="text" id="q3a" maxlength="1" style="width:40px;text-align:center"></div>
+        <div class="word-row"><label>М..дведь</label><input type="text" id="q3b" maxlength="1" style="width:40px;text-align:center"></div>
+        <div class="word-row"><label>М..роз</label><input type="text" id="q3c" maxlength="1" style="width:40px;text-align:center"></div>
+        <button class="btn" onclick="checkTask3()">Проверить</button>
+        <div id="feedback3"></div>
+      `;
+    },
+    check: () => {
+      const a = document.getElementById('q3a').value.toLowerCase();
+      const b = document.getElementById('q3b').value.toLowerCase();
+      const c = document.getElementById('q3c').value.toLowerCase();
+      return (a === 'о') && (b === 'е') && (c === 'о');
+    }
+  },
+  {
+    id: 4,
+    icon: '⏳',
+    title: 'Песочные Часы',
+    theme: 'Время',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>⏳ Песочные Часы</h2>
+        <p class="task-text">Минутная стрелка на <b>12</b>, часовая — на <b>3</b>.<br>Который час?</p>
+        <input type="number" id="q4" class="answer-input" placeholder="Сколько часов?">
+        <button class="btn" onclick="checkTask4()">Проверить</button>
+        <div id="feedback4"></div>
+      `;
+    },
+    check: () => +document.getElementById('q4').value === 3
+  },
+  {
+    id: 5,
+    icon: '💎',
+    title: 'Пещера Грамотея',
+    theme: 'Части речи',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>💎 Пещера Грамотея</h2>
+        <p class="task-text">Раздели слова на части речи. Выбери для каждого слова правильную часть речи:</p>
+        <div id="words5"></div>
+        <button class="btn" onclick="checkTask5()">Проверить</button>
+        <div id="feedback5"></div>
+      `;
+      const words = [
+        {w: 'золотой', a: 'признак'},
+        {w: 'плыть', a: 'действие'},
+        {w: 'сундук', a: 'предмет'},
+        {w: 'зелёный', a: 'признак'},
+        {w: 'искать', a: 'действие'},
+        {w: 'попугай', a: 'предмет'}
+      ];
+      const cont = document.getElementById('words5');
+      words.forEach((item, i) => {
+        cont.innerHTML += `
+          <div class="word-row">
+            <label>${item.w}</label>
+            <select id="w5_${i}">
+              <option value="">-- выбери --</option>
+              <option value="предмет">Предмет (кто? что?)</option>
+              <option value="действие">Действие (что делать?)</option>
+              <option value="признак">Признак (какой?)</option>
+            </select>
+          </div>
+        `;
+      });
+      window._words5 = words;
+    },
+    check: () => {
+      return window._words5.every((item, i) => 
+        document.getElementById('w5_' + i).value === item.a
+      );
+    }
+  },
+  {
+    id: 6,
+    icon: '🌊',
+    title: 'Мост через Реку',
+    theme: 'Вычисления',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🌊 Мост через Реку</h2>
+        <p class="task-text">Реши цепочку примеров, чтобы узнать длину моста:<br><b>50 + 15 − 8 + 20 = ?</b></p>
+        <input type="number" id="q6" class="answer-input" placeholder="Ответ">
+        <button class="btn" onclick="checkTask6()">Проверить</button>
+        <div id="feedback6"></div>
+      `;
+    },
+    check: () => +document.getElementById('q6').value === 77
+  },
+  {
+    id: 7,
+    icon: '🐚',
+    title: 'Ракушки с Жемчугом',
+    theme: 'Умножение',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🐚 Ракушки с Жемчугом</h2>
+        <p class="task-text">В <b>5 ракушках</b> по <b>2 жемчужины</b>.<br>Сколько всего жемчужин?</p>
+        <input type="number" id="q7" class="answer-input" placeholder="Ответ">
+        <button class="btn" onclick="checkTask7()">Проверить</button>
+        <div id="feedback7"></div>
+      `;
+    },
+    check: () => +document.getElementById('q7').value === 10
+  },
+  {
+    id: 8,
+    icon: '📜',
+    title: 'Записка Пирата',
+    theme: 'Словарные слова',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>📜 Записка Старого Пирата</h2>
+        <p class="task-text">В записке ошибки! Напиши слова правильно:</p>
+        <div class="word-row"><label>б<del>е</del>рёза →</label><input type="text" id="q8a" class="answer-input" style="width:150px;margin:0"></div>
+        <div class="word-row"><label>к<del>о</del>рова →</label><input type="text" id="q8b" class="answer-input" style="width:150px;margin:0"></div>
+        <div class="word-row"><label>уч<del>е</del>ник →</label><input type="text" id="q8c" class="answer-input" style="width:150px;margin:0"></div>
+        <button class="btn" onclick="checkTask8()">Проверить</button>
+        <div id="feedback8"></div>
+      `;
+    },
+    check: () => {
+      const a = document.getElementById('q8a').value.toLowerCase().replace('ё','е');
+      const b = document.getElementById('q8b').value.toLowerCase();
+      const c = document.getElementById('q8c').value.toLowerCase();
+      return a === 'береза' && b === 'корова' && c === 'ученик';
+    }
+  },
+  {
+    id: 9,
+    icon: '🌅',
+    title: 'Закат на Острове',
+    theme: 'Время',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🌅 Закат на Острове</h2>
+        <p class="task-text">Начали искать клад в <b>14:00</b>, нашли в <b>17:00</b>.<br>Сколько часов искали сокровища?</p>
+        <input type="number" id="q9" class="answer-input" placeholder="Часов">
+        <button class="btn" onclick="checkTask9()">Проверить</button>
+        <div id="feedback9"></div>
+      `;
+    },
+    check: () => +document.getElementById('q9').value === 3
+  },
+  {
+    id: 10,
+    icon: '🗣️',
+    title: 'Команда Корабля',
+    theme: 'Части речи',
+    render: (container) => {
+      container.innerHTML = `
+        <h2>🗣️ Команда Корабля</h2>
+        <p class="task-text">Подбери к каждому слову подходящее существительное:</p>
+        <div class="word-row"><label>Какое (какое?) →</label>
+          <select id="q10a">
+            <option value="">-- выбери --</option>
+            <option value="море">море</option>
+            <option value="флаг">флаг</option>
+            <option value="лодка">лодка</option>
+          </select>
+        </div>
+        <div class="word-row"><label>Плыла (что делала?) →</label>
+          <select id="q10b">
+            <option value="">-- выбери --</option>
+            <option value="корабль">корабль</option>
+            <option value="лодка">лодка</option>
+            <option value="ветер">ветер</option>
+          </select>
+        </div>
+        <div class="word-row"><label>Быстрый (какой?) →</label>
+          <select id="q10c">
+            <option value="">-- выбери --</option>
+            <option value="море">море</option>
+            <option value="лодка">лодка</option>
+            <option value="ветер">ветер</option>
+          </select>
+        </div>
+        <button class="btn" onclick="checkTask10()">Проверить</button>
+        <div id="feedback10"></div>
+      `;
+    },
+    check: () => {
+      const a = document.getElementById('q10a').value;
+      const b = document.getElementById('q10b').value;
+      const c = document.getElementById('q10c').value;
+      return a === 'море' && b === 'лодка' && c === 'ветер';
+    }
+  }
+];
+
+let completed = new Set();
+
+function buildMap() {
+  const map = document.getElementById('map');
+  tasks.forEach((task, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = 'cell-' + task.id;
+    cell.innerHTML = `<div class="icon">${task.icon}</div><div class="title">${task.title}</div>`;
+    cell.onclick = () => openTask(task.id);
+    map.appendChild(cell);
+  });
+  // Сундук
+  const chest = document.createElement('div');
+  chest.className = 'cell chest-cell locked';
+  chest.id = 'chest';
+  chest.innerHTML = `<div class="icon">🎁</div><div class="title">Сундук Сокровищ</div>`;
+  chest.onclick = () => openChest();
+  map.appendChild(chest);
+}
+
+function openTask(id) {
+  const task = tasks.find(t => t.id === id);
+  const modal = document.getElementById('modal');
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `<button class="close-btn" onclick="closeModal()">✕</button>`;
+  task.render(content);
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function showFeedback(id, correct) {
+  const fb = document.getElementById('feedback' + id);
+  if (correct) {
+    fb.className = 'feedback correct';
+    fb.innerHTML = '✅ Верно! Ты получаешь золотую монету 🪙';
+    setTimeout(() => {
+      completeTask(id);
+      closeModal();
+    }, 1500);
+  } else {
+    fb.className = 'feedback wrong';
+    fb.innerHTML = '❌ Попробуй ещё раз, капитан!';
+  }
+}
+
+function completeTask(id) {
+  completed.add(id);
+  document.getElementById('cell-' + id).classList.add('done');
+  updateProgress();
+  if (completed.size === 10) {
+    document.getElementById('chest').classList.remove('locked');
+  }
+}
+
+function updateProgress() {
+  const pct = (completed.size / 10) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `🪙 ${completed.size} / 10`;
+}
+
+function openChest() {
+  if (completed.size < 10) {
+    alert('🏴‍☠️ Пройди все 10 испытаний, чтобы открыть сундук!');
+    return;
+  }
+  const modal = document.getElementById('modal');
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="treasure">
+      <div class="treasure-icon">🎁</div>
+      <h2 style="color:#8b0000;">🏆 ПОБЕДА! 🏆</h2>
+      <p class="task-text" style="font-size:1.3em;">
+        Ты собрал все 10 золотых монет!<br>
+        Сундук открыт! Внутри тебя ждут настоящие сокровища!
+      </p>
+      <div style="font-size:3em;margin:20px 0;">💰 👑 💎 🏆 💰</div>
+      <p class="task-text">Ты настоящий капитан и знаток!</p>
+      <button class="btn" onclick="celebrate()">🎉 Ура!</button>
+    </div>
+  `;
+  modal.classList.add('active');
+  document.getElementById('chest').classList.add('open');
+}
+
+function celebrate() {
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = ['#ffd700','#ff8c00','#8b0000','#2d6a4f','#fff'][Math.floor(Math.random()*5)];
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(c);
+      const dur = 2 + Math.random() * 2;
+      c.animate([
+        { transform: 'translateY(0) rotate(0)', opacity: 1 },
+        { transform: `translateY(100vh) rotate(${Math.random()*720}deg)`, opacity: 0 }
+      ], { duration: dur * 1000, easing: 'ease-in' });
+      setTimeout(() => c.remove(), dur * 1000);
+    }, i * 30);
+  }
+}
+
+// Функции проверки для каждого задания
+function checkTask1() { showFeedback(1, tasks[0].check()); }
+function checkTask2() { showFeedback(2, tasks[1].check()); }
+function checkTask3() { showFeedback(3, tasks[2].check()); }
+function checkTask4() { showFeedback(4, tasks[3].check()); }
+function checkTask5() { showFeedback(5, tasks[4].check()); }
+function checkTask6() { showFeedback(6, tasks[5].check()); }
+function checkTask7() { showFeedback(7, tasks[6].check()); }
+function checkTask8() { showFeedback(8, tasks[7].check()); }
+function checkTask9() { showFeedback(9, tasks[8].check()); }
+function checkTask10() { showFeedback(10, tasks[9].check()); }
+
+buildMap();
+</script>
+
+</body>
+</html>

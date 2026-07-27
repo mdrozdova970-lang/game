@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.5">
+  <title>🎒 Летний рюкзак знаний</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #2b5a3a 0%, #1e3b28 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Comic Sans MS', 'Arial Rounded', system-ui, sans-serif;
+      padding: 20px;
+      margin: 0;
+      box-shadow: inset 0 0 80px rgba(0,0,0,0.4);
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 650px;
+      background: #fef7e0;
+      border-radius: 70px 70px 50px 50px;
+      padding: 25px 30px 35px;
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.5), 0 0 0 8px #c99a6b, 0 0 0 12px #5e3a1c;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #3a2c1b;
+      text-shadow: 3px 3px 0 #ffd78b;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .backpack-area {
+      background: #d9b382;
+      background-image: radial-gradient(circle at 20% 30%, #efd0a9 5%, #b07d4b 80%);
+      border: 5px solid #5d3a1a;
+      border-radius: 90px 90px 70px 70px;
+      padding: 20px 25px 15px;
+      margin: 10px 0 15px;
+      box-shadow: inset 0 -8px 0 #4b2f14, 0 10px 15px rgba(0,0,0,0.5);
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      min-height: 110px;
+      position: relative;
+    }
+
+    .backpack-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .item {
+      font-size: 2.7rem;
+      filter: drop-shadow(0 8px 6px rgba(0,0,0,0.4));
+      transition: transform 0.2s ease;
+      background: rgba(255,255,240,0.3);
+      border-radius: 30px;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+
+    .item:hover {
+      transform: scale(1.15);
+    }
+
+    .progress {
+      font-size: 1.3rem;
+      font-weight: bold;
+      background: #ffe3aa;
+      border-radius: 30px;
+      padding: 8px 18px;
+      color: #3d2b13;
+      border: 2px dashed #8b5a2b;
+      margin: 5px 0;
+    }
+
+    .subject-card {
+      background: #fff7e9;
+      border-radius: 45px;
+      padding: 20px 20px 15px;
+      width: 100%;
+      box-shadow: 0 12px 0 #b38b5b, 0 10px 20px rgba(0,0,0,0.3);
+      border: 3px solid #af7b4c;
+      margin: 10px 0 15px;
+    }
+
+    .subject-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4a2c1a;
+      background: #ffdd9a;
+      display: inline-block;
+      padding: 5px 25px;
+      border-radius: 40px;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+
+    .question-box {
+      background: #faeed8;
+      border-radius: 30px;
+      padding: 18px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2e3820;
+      margin: 5px 0 15px;
+      border: 2px solid #ccaa70;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin: 12px 0 5px;
+    }
+
+    .option-btn {
+      background: #f5e1c0;
+      border: 3px solid #7b5c3a;
+      border-radius: 30px;
+      padding: 14px 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #3d2b10;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 5px 0 #5e3e24;
+      background: #fffaee;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      word-break: break-word;
+    }
+
+    .option-btn:hover {
+      background: #ffd58c;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #5e3e24;
+    }
+
+    .option-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #5e3e24;
+    }
+
+    .option-btn.correct-glow {
+      background: #b6e9a0;
+      border-color: #2d6a1e;
+      box-shadow: 0 0 18px #6fda44;
+    }
+
+    .feedback {
+      font-size: 1.2rem;
+      margin: 12px 0 5px;
+      min-height: 36px;
+      font-weight: 600;
+      color: #1f4f1f;
+    }
+
+    .next-btn {
+      background: #ffb347;
+      border: none;
+      font-weight: bold;
+      font-size: 1.4rem;
+      padding: 14px 28px;
+      border-radius: 50px;
+      background: #f89c26;
+      color: #2d1d06;
+      border-bottom: 5px solid #9e6018;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 5px;
+      letter-spacing: 1px;
+    }
+
+    .next-btn:active {
+      border-bottom-width: 2px;
+      transform: translateY(3px);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      background: #ccc;
+      border-bottom-color: #777;
+    }
+
+    .finish-message {
+      background: #fde49b;
+      padding: 25px;
+      border-radius: 40px;
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: #2b4f1c;
+    }
+
+    .reset-btn {
+      background: #d9c5a0;
+      margin-top: 15px;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 8px 22px;
+      border-radius: 30px;
+      cursor: pointer;
+      background: #cbae7a;
+      color: #2d2412;
+      border-bottom: 4px solid #6e562f;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <h1>
+    <span>🎒</span> Рюкзак знаний <span>📚</span>
+  </h1>
+
+  <!-- Рюкзак и предметы -->
+  <div class="backpack-area">
+    <div class="backpack-items" id="backpackContainer">
+      <!-- предметы добавляются динамически -->
+    </div>
+    <div class="progress" id="progressText">0 / 8 предметов</div>
+  </div>
+
+  <!-- Карточка задания -->
+  <div class="subject-card" id="questCard">
+    <div class="subject-title" id="subjectDisplay">Русский язык</div>
+    <div class="question-box" id="questionText">Загрузка...</div>
+    <div class="options-grid" id="optionsContainer"></div>
+    <div class="feedback" id="feedbackMessage"></div>
+    <button class="next-btn" id="nextLevelBtn" disabled>✨ Дальше ✨</button>
+  </div>
+
+  <!-- Финиш -->
+  <div id="finishPanel" class="finish-message hidden">
+    🎉 Ура! Рюкзак собран! <br> Ты готов к школе! ✏️📐
+  </div>
+  <button class="reset-btn hidden" id="playAgainBtn">🔄 Собрать заново</button>
+</div>
+
+<script>
+  (function() {
+    // ---------- ПРЕДМЕТЫ И ЗАДАНИЯ ----------
+    const subjects = ["русский язык", "математика", "чтение", "окружающий мир"];
+    
+    // База вопросов: каждый вопрос содержит предмет, текст, варианты и правильный индекс (0-3)
+    const questions = [
+      { subject: "русский язык", text: "Какое слово пишется с буквой «А»?", options: ["К...рова", "С...бака", "М...локо", "П...льто"], correct: 3 },
+      { subject: "математика", text: "Сколько будет 7 + 5?", options: ["11", "12", "13", "14"], correct: 1 },
+      { subject: "чтение", text: "Кто написал «Сказку о рыбаке и рыбке»?", options: ["Маршак", "Пушкин", "Чуковский", "Носов"], correct: 1 },
+      { subject: "окружающий мир", text: "Какой газ мы выдыхаем?", options: ["Кислород", "Азот", "Углекислый газ", "Водород"], correct: 2 },
+      { subject: "русский язык", text: "Найди существительное:", options: ["Бегать", "Красивый", "Солнце", "Быстро"], correct: 2 },
+      { subject: "математика", text: "Сколько углов у треугольника?", options: ["2", "3", "4", "5"], correct: 1 },
+      { subject: "чтение", text: "Закончи пословицу: «Без труда не вытащишь и ...»", options: ["рыбку из пруда", "конфету", "игрушку", "яблоко"], correct: 0 },
+      { subject: "окружающий мир", text: "Какое животное впадает в спячку?", options: ["Заяц", "Волк", "Медведь", "Лиса"], correct: 2 },
+      { subject: "русский язык", text: "В каком слове ударение падает на первый слог?", options: ["ЗвонИт", "Торт", "Малина", "ОкнО"], correct: 1 },
+      { subject: "математика", text: "Сколько будет 20 - 4?", options: ["14", "15", "16", "17"], correct: 2 },
+      { subject: "чтение", text: "Кто из них герой сказки «Колобок»?", options: ["Чебурашка", "Лиса", "Буратино", "Незнайка"], correct: 1 },
+      { subject: "окружающий мир", text: "Сколько планет в Солнечной системе?", options: ["7", "8", "9", "10"], correct: 1 }
+    ];
+
+    // Предметы, которые будут добавляться в рюкзак (эмодзи + название)
+    const backpackRewards = [
+      { emoji: "📘", name: "Учебник рус.яз" },
+      { emoji: "📐", name: "Тетрадь математика" },
+      { emoji: "📖", name: "Книга для чтения" },
+      { emoji: "🌍", name: "Атлас окруж.мир" },
+      { emoji: "✏️", name: "Пенал" },
+      { emoji: "🎨", name: "Альбом" },
+      { emoji: "🍎", name: "Яблоко" },
+      { emoji: "📏", name: "Линейка" }
+    ];
+
+    const TOTAL_LEVELS = 8; // ровно 8 предметов
+
+    // Состояние игры
+    let currentLevel = 0;            // сколько предметов уже собрано (0-7)
+    let collectedItems = [];        // массив эмодзи+названий
+    let currentQuestion = null;     // текущий вопрос
+    let answered = false;
+    let correctAnswerIndex = -1;
+    
+    // Перемешиваем вопросы, чтобы было интереснее
+    let shuffledQuestions = [];
+
+    // DOM элементы
+    const backpackContainer = document.getElementById('backpackContainer');
+    const progressText = document.getElementById('progressText');
+    const subjectDisplay = document.getElementById('subjectDisplay');
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const nextLevelBtn = document.getElementById('nextLevelBtn');
+    const finishPanel = document.getElementById('finishPanel');
+    const questCard = document.getElementById('questCard');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+
+    // Перемешивание массива (Фишер-Йетс)
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Инициализация или сброс игры
+    function resetGame() {
+      currentLevel = 0;
+      collectedItems = [];
+      answered = false;
+      
+      // Подготавливаем вопросы: берем первые 8 из перемешанных
+      shuffledQuestions = shuffleArray([...questions]).slice(0, TOTAL_LEVELS);
+      
+      // На случай если вопросов меньше 8 (добавим запасные)
+      while (shuffledQuestions.length < TOTAL_LEVELS) {
+        const randomQ = questions[Math.floor(Math.random() * questions.length)];
+        shuffledQuestions.push({...randomQ});
+      }
+      
+      updateBackpackDisplay();
+      finishPanel.classList.add('hidden');
+      questCard.classList.remove('hidden');
+      playAgainBtn.classList.add('hidden');
+      nextLevelBtn.disabled = true;
+      feedbackMessage.textContent = '';
+      
+      // Загружаем первый вопрос
+      loadQuestionForLevel(currentLevel);
+    }
+
+    // Обновление рюкзака на экране
+    function updateBackpackDisplay() {
+      backpackContainer.innerHTML = '';
+      if (collectedItems.length === 0) {
+        backpackContainer.innerHTML = '<span style="font-size:1.2rem; color:#4b3621;">Пока пусто...</span>';
+      } else {
+        collectedItems.forEach(item => {
+          const itemDiv = document.createElement('span');
+          itemDiv.className = 'item';
+          itemDiv.textContent = item.emoji;
+          itemDiv.title = item.name;
+          backpackContainer.appendChild(itemDiv);
+        });
+      }
+      progressText.textContent = `${collectedItems.length} / ${TOTAL_LEVELS} предметов`;
+    }
+
+    // Загрузить вопрос по индексу уровня
+    function loadQuestionForLevel(levelIndex) {
+      if (levelIndex >= TOTAL_LEVELS) {
+        finishGame();
+        return;
+      }
+      
+      // Сбрасываем состояние ответа
+      answered = false;
+      nextLevelBtn.disabled = true;
+      feedbackMessage.textContent = '';
+      
+      // Убираем старые обработчики и классы
+      optionsContainer.innerHTML = '';
+      
+      const q = shuffledQuestions[levelIndex];
+      currentQuestion = q;
+      correctAnswerIndex = q.correct;
+      
+      // Отображаем предмет
+      subjectDisplay.textContent = q.subject.charAt(0).toUpperCase() + q.subject.slice(1);
+      questionText.textContent = q.text;
+      
+      // Генерируем кнопки вариантов
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.dataset.optionIndex = idx;
+        btn.addEventListener('click', optionClickHandler);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    // Обработчик клика по варианту ответа
+    function optionClickHandler(e) {
+      if (answered) return; // уже ответили правильно, повторно не обрабатываем
+      const selectedBtn = e.currentTarget;
+      const selectedIndex = parseInt(selectedBtn.dataset.optionIndex, 10);
+      const allOptions = document.querySelectorAll('.option-btn');
+      
+      const isCorrect = (selectedIndex === correctAnswerIndex);
+      
+      if (isCorrect) {
+        // Правильный ответ: блокируем все кнопки и подсвечиваем верный
+        allOptions.forEach(btn => {
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          if (parseInt(btn.dataset.optionIndex, 10) === correctAnswerIndex) {
+            btn.classList.add('correct-glow');
+          }
+        });
+        
+        feedbackMessage.textContent = '✅ Молодец! Правильно!';
+        
+        // Добавляем предмет в рюкзак (только если ещё не добавлен для этого уровня)
+        if (collectedItems.length < TOTAL_LEVELS && collectedItems.length === currentLevel) {
+          const reward = backpackRewards[currentLevel];
+          collectedItems.push({ emoji: reward.emoji, name: reward.name });
+          updateBackpackDisplay();
+        }
+        answered = true;
+        nextLevelBtn.disabled = false;
+      } else {
+        // Неправильный ответ: сообщаем, но кнопки остаются активными
+        feedbackMessage.textContent = '❌ Ой, ошибка! Попробуй ещё раз.';
+        // Небольшая анимация ошибки
+        selectedBtn.style.transform = 'translateX(4px)';
+        setTimeout(() => { selectedBtn.style.transform = ''; }, 100);
+        // answered остаётся false
+      }
+    }
+
+    // Переход на следующий уровень
+    function goToNextLevel() {
+      if (!answered) return;
+      if (collectedItems.length === currentLevel + 1) {
+        currentLevel++;
+        
+        if (currentLevel >= TOTAL_LEVELS) {
+          finishGame();
+        } else {
+          loadQuestionForLevel(currentLevel);
+        }
+      } else {
+        // Защита от несоответствия
+        if (currentLevel < TOTAL_LEVELS) {
+          loadQuestionForLevel(currentLevel);
+        }
+      }
+    }
+
+    // Завершение игры
+    function finishGame() {
+      questCard.classList.add('hidden');
+      finishPanel.classList.remove('hidden');
+      playAgainBtn.classList.remove('hidden');
+      updateBackpackDisplay();
+    }
+
+    // Обработчик кнопки "Дальше"
+    nextLevelBtn.addEventListener('click', goToNextLevel);
+
+    // Кнопка "Собрать заново"
+    playAgainBtn.addEventListener('click', () => {
+      resetGame();
+    });
+
+    // Старт игры
+    resetGame();
+  })();
+</script>
+</body>
+</html>
