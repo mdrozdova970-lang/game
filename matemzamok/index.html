@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Математический Замок</title>
+<style>
+  :root {
+    --game-bg: #f5e6d3;
+    --game-bg-gradient: linear-gradient(180deg, #e8d4e8 0%, #f5e6d3 50%, #f0d4d4 100%);
+    --game-card: #fff5eb;
+    --game-card-border: #c9a892;
+    --game-primary: #d4a5c9;
+    --game-accent: #b893c9;
+    --game-text: #5a3a4a;
+    --game-success: #a8c9a8;
+    --game-error: #d4a5a5;
+    --game-muted: #b8a89c;
+    --game-wood: #a8896c;
+    --game-stone: #d4c4b8;
+    --game-gold: #e8c896;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--game-bg-gradient);
+    min-height: 100vh;
+    color: var(--game-text);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Фоновый узор — камень и дерево */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(184, 147, 201, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(212, 165, 201, 0.15) 0%, transparent 40%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(168, 137, 108, 0.05) 40px, rgba(168, 137, 108, 0.05) 42px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ===== СТАРТОВЫЙ ЭКРАН ===== */
+  #startScreen {
+    text-align: center;
+  }
+
+  .castle-frame {
+    background: var(--game-card);
+    border: 4px solid var(--game-wood);
+    border-radius: 20px;
+    padding: 30px 25px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow:
+      0 0 0 2px var(--game-gold),
+      0 10px 30px rgba(90, 58, 74, 0.3),
+      inset 0 0 20px rgba(212, 165, 201, 0.2);
+    position: relative;
+  }
+
+  .castle-frame::before,
+  .castle-frame::after {
+    content: '🕯️';
+    position: absolute;
+    top: -25px;
+    font-size: 40px;
+    filter: drop-shadow(0 0 8px rgba(232, 200, 150, 0.8));
+    animation: flicker 2s infinite;
+  }
+
+  .castle-frame::before { left: 20px; }
+  .castle-frame::after { right: 20px; }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.05); }
+  }
+
+  .castle-icon {
+    font-size: 70px;
+    margin-bottom: 10px;
+    display: block;
+    filter: drop-shadow(0 4px 6px rgba(90, 58, 74, 0.3));
+  }
+
+  .game-title {
+    font-size: 32px;
+    color: var(--game-accent);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 rgba(232, 200, 150, 0.5);
+    font-weight: bold;
+  }
+
+  .game-subtitle {
+    font-size: 18px;
+    color: var(--game-text);
+    margin-bottom: 25px;
+    font-style: italic;
+  }
+
+  .btn {
+    background: linear-gradient(180deg, var(--game-primary) 0%, var(--game-accent) 100%);
+    color: var(--game-card);
+    border: 3px solid var(--game-wood);
+    padding: 15px 40px;
+    font-size: 20px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow:
+      0 4px 0 var(--game-wood),
+      0 6px 15px rgba(90, 58, 74, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: all 0.15s;
+    text-shadow: 1px 1px 2px rgba(90, 58, 74, 0.5);
+  }
+
+  .btn:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 1px 0 var(--game-wood),
+      0 2px 5px rgba(90, 58, 74, 0.3);
+  }
+
+  /* ===== ИГРОВОЙ ЭКРАН ===== */
+  #gameScreen {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  .progress-container {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background: var(--game-card);
+    border: 3px solid var(--game-wood);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(90, 58, 74, 0.2);
+  }
+
+  .progress-label {
+    font-size: 16px;
+    color: var(--game-text);
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 18px;
+    background: var(--game-stone);
+    border: 2px solid var(--game-wood);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--game-success), #c9d4a8);
+    transition: width 0.6s ease;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  }
+
+  .game-area {
+    width: 100%;
+    max-width: 600px;
+    background: var(--game-card);
+    border: 4px solid var(--game-wood);
+    border-radius: 20px;
+    padding: 20px 15px;
+    box-shadow:
+      0 0 0 2px var(--game-gold),
+      0 8px 20px rgba(90, 58, 74, 0.3);
+    position: relative;
+  }
+
+  .game-area::before {
+    content: '⚜️';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    background: var(--game-card);
+    padding: 0 10px;
+    color: var(--game-gold);
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    position: relative;
+  }
+
+  .column-header {
+    text-align: center;
+    font-size: 14px;
+    color: var(--game-accent);
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card {
+    background: linear-gradient(180deg, #fff 0%, var(--game-card) 100%);
+    border: 2px solid var(--game-card-border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--game-text);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(90, 58, 74, 0.15);
+    position: relative;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px dashed rgba(168, 137, 108, 0.3);
+    border-radius: 7px;
+    pointer-events: none;
+  }
+
+  .card:hover:not(.matched):not(.locked) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(90, 58, 74, 0.25);
+    border-color: var(--game-accent);
+  }
+
+  .card.selected {
+    background: linear-gradient(180deg, var(--game-primary) 0%, var(--game-accent) 100%);
+    color: var(--game-card);
+    border-color: var(--game-wood);
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(184, 147, 201, 0.5);
+  }
+
+  .card.matched {
+    background: linear-gradient(180deg, var(--game-success) 0%, #c9d4a8 100%);
+    color: var(--game-text);
+    cursor: default;
+    opacity: 0.85;
+  }
+
+  .card.locked {
+    cursor: default;
+  }
+
+  .card.shake {
+    animation: shake 0.5s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* SVG для линий */
+  #linesSvg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .match-line {
+    stroke: var(--game-success);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px rgba(168, 201, 168, 0.6));
+  }
+
+  /* Подсказка / сообщение */
+  .feedback {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 16px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    border: 2px solid;
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .feedback.success {
+    background: rgba(168, 201, 168, 0.3);
+    border-color: var(--game-success);
+    color: #4a6a4a;
+  }
+
+  .feedback.error {
+    background: rgba(212, 165, 165, 0.3);
+    border-color: var(--game-error);
+    color: #6a4a4a;
+  }
+
+  .feedback-title {
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .feedback-text {
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  .btn-next {
+    margin-top: 10px;
+    padding: 10px 25px;
+    font-size: 16px;
+    align-self: center;
+  }
+
+  /* Конфетти */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 100;
+    animation: confettiFall 1s ease-out forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== ФИНАЛЬНЫЙ ЭКРАН ===== */
+  #finalScreen {
+    text-align: center;
+  }
+
+  .final-frame {
+    background: var(--game-card);
+    border: 4px solid var(--game-wood);
+    border-radius: 20px;
+    padding: 35px 25px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow:
+      0 0 0 2px var(--game-gold),
+      0 10px 30px rgba(90, 58, 74, 0.3);
+    position: relative;
+  }
+
+  .trophy {
+    font-size: 80px;
+    margin-bottom: 15px;
+    display: block;
+    animation: trophyBounce 1s ease;
+  }
+
+  @keyframes trophyBounce {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .final-title {
+    font-size: 28px;
+    color: var(--game-accent);
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0 rgba(232, 200, 150, 0.5);
+  }
+
+  .final-text {
+    font-size: 18px;
+    color: var(--game-text);
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+
+  /* Декоративные факелы по углам экрана */
+  .torch {
+    position: fixed;
+    font-size: 50px;
+    z-index: 0;
+    opacity: 0.7;
+    animation: flicker 2.5s infinite;
+    filter: drop-shadow(0 0 10px rgba(232, 200, 150, 0.6));
+    pointer-events: none;
+  }
+
+  .torch.tl { top: 10px; left: 10px; }
+  .torch.tr { top: 10px; right: 10px; }
+  .torch.bl { bottom: 10px; left: 10px; }
+  .torch.br { bottom: 10px; right: 10px; }
+
+  /* Адаптация для телефона */
+  @media (max-width: 480px) {
+    .game-title { font-size: 24px; }
+    .game-subtitle { font-size: 15px; }
+    .castle-icon { font-size: 55px; }
+    .card { font-size: 14px; padding: 10px 6px; min-height: 45px; }
+    .columns { gap: 8px; }
+    .column-header { font-size: 12px; }
+    .game-area { padding: 15px 10px; }
+    .progress-label { font-size: 14px; }
+    .feedback { font-size: 14px; padding: 12px; }
+    .feedback-title { font-size: 16px; }
+    .feedback-text { font-size: 13px; }
+    .btn { padding: 12px 30px; font-size: 17px; }
+    .torch { font-size: 35px; }
+    .trophy { font-size: 65px; }
+    .final-title { font-size: 22px; }
+    .final-text { font-size: 16px; }
+  }
+
+  @media (max-width: 360px) {
+    .card { font-size: 13px; padding: 8px 4px; }
+    .castle-frame, .final-frame { padding: 20px 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="torch tl">🔥</div>
+<div class="torch tr">🔥</div>
+<div class="torch bl">🔥</div>
+<div class="torch br">🔥</div>
+
+<!-- СТАРТОВЫЙ ЭКРАН -->
+<div id="startScreen" class="screen">
+  <div class="castle-frame">
+    <span class="castle-icon">🏰</span>
+    <h1 class="game-title">Математический Замок</h1>
+    <p class="game-subtitle">Соедини вопрос с правильным ответом и открой все двери замка!</p>
+    <button class="btn" onclick="startGame()">⚔️ Начать приключение</button>
+  </div>
+</div>
+
+<!-- ИГРОВОЙ ЭКРАН -->
+<div id="gameScreen" class="screen hidden">
+  <div class="progress-container">
+    <div class="progress-label" id="progressLabel">Задание 1 из 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="game-area">
+    <div class="columns">
+      <div class="column" id="questionsColumn">
+        <div class="column-header">📜 Вопросы</div>
+      </div>
+      <div class="column" id="answersColumn">
+        <div class="column-header">🔑 Ответы</div>
+      </div>
+    </div>
+    <svg id="linesSvg"></svg>
+    <div id="feedbackArea"></div>
+  </div>
+</div>
+
+<!-- ФИНАЛЬНЫЙ ЭКРАН -->
+<div id="finalScreen" class="screen hidden">
+  <div class="final-frame">
+    <span class="trophy">🏆</span>
+    <h1 class="final-title">Замок покорён!</h1>
+    <p class="final-text">Ты настоящий математический рыцарь!<br>Все двери замка открыты. Молодец!</p>
+    <button class="btn" onclick="restartGame()">🔄 Играть снова</button>
+  </div>
+</div>
+
+<script>
+  const pairs = [
+    { q: "Сколько будет 5 + 3?", a: "8", hint: "Верно! Пять плюс три — это восемь." },
+    { q: "Сколько будет 9 − 4?", a: "5", hint: "Верно! Девять минус четыре — это пять." },
+    { q: "Сколько будет 7 + 6?", a: "13", hint: "Верно! Семь плюс шесть — это тринадцать." },
+    { q: "Сколько будет 12 − 8?", a: "4", hint: "Верно! Двенадцать минус восемь — это четыре." },
+    { q: "Сколько будет 3 × 3?", a: "9", hint: "Верно! Три умножить на три — это девять." },
+    { q: "Сколько будет 10 + 7?", a: "17", hint: "Верно! Десять плюс семь — это семнадцать." }
+  ];
+
+  let currentSelection = null; // {type: 'q'|'a', index: number, element}
+  let matchedPairs = new Set();
+  let waitingForNext = false;
+
+  function shuffle(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function startGame() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameScreen').classList.remove('hidden');
+    document.getElementById('finalScreen').classList.add('hidden');
+    renderGame();
+  }
+
+  function renderGame() {
+    matchedPairs = new Set();
+    currentSelection = null;
+    waitingForNext = false;
+
+    const qCol = document.getElementById('questionsColumn');
+    const aCol = document.getElementById('answersColumn');
+    qCol.innerHTML = '<div class="column-header">📜 Вопросы</div>';
+    aCol.innerHTML = '<div class="column-header">🔑 Ответы</div>';
+    document.getElementById('feedbackArea').innerHTML = '';
+    document.getElementById('linesSvg').innerHTML = '';
+
+    const shuffledQ = shuffle(pairs.map((p, i) => ({ ...p, origIndex: i })));
+    const shuffledA = shuffle(pairs.map((p, i) => ({ ...p, origIndex: i })));
+
+    shuffledQ.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.textContent = p.q;
+      card.dataset.type = 'q';
+      card.dataset.index = p.origIndex;
+      card.onclick = () => selectCard(card, 'q', p.origIndex);
+      qCol.appendChild(card);
+    });
+
+    shuffledA.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.textContent = p.a;
+      card.dataset.type = 'a';
+      card.dataset.index = p.origIndex;
+      card.onclick = () => selectCard(card, 'a', p.origIndex);
+      aCol.appendChild(card);
+    });
+
+    updateProgress();
+  }
+
+  function selectCard(card, type, index) {
+    if (card.classList.contains('matched') || waitingForNext) return;
+
+    // Если та же карточка — снять выделение
+    if (currentSelection && currentSelection.element === card) {
+      card.classList.remove('selected');
+      currentSelection = null;
+      return;
+    }
+
+    // Если нет выделения — выделить
+    if (!currentSelection) {
+      card.classList.add('selected');
+      currentSelection = { type, index, element: card };
+      return;
+    }
+
+    // Если тип тот же — переключить выделение
+    if (currentSelection.type === type) {
+      currentSelection.element.classList.remove('selected');
+      card.classList.add('selected');
+      currentSelection = { type, index, element: card };
+      return;
+    }
+
+    // Разные типы — проверяем пару
+    const qIndex = type === 'q' ? index : currentSelection.index;
+    const aIndex = type === 'a' ? index : currentSelection.index;
+    const qCard = type === 'q' ? card : currentSelection.element;
+    const aCard = type === 'a' ? card : currentSelection.element;
+
+    if (qIndex === aIndex) {
+      // Верный ответ
+      handleCorrect(qCard, aCard, qIndex);
+    } else {
+      // Неверный ответ
+      handleIncorrect(qCard, aCard);
+    }
+  }
+
+  function handleCorrect(qCard, aCard, index) {
+    qCard.classList.remove('selected');
+    qCard.classList.add('matched', 'locked');
+    aCard.classList.add('matched', 'locked');
+    matchedPairs.add(index);
+
+    drawLine(qCard, aCard);
+    showConfetti();
+    showFeedback('success', '✨ Отлично! ✨', pairs[index].hint);
+
+    currentSelection = null;
+    waitingForNext = true;
+    updateProgress();
+
+    if (matchedPairs.size === pairs.length) {
+      setTimeout(showFinal, 1500);
+    }
+  }
+
+  function handleIncorrect(qCard, aCard) {
+    qCard.classList.add('shake');
+    aCard.classList.add('shake');
+    setTimeout(() => {
+      qCard.classList.remove('shake');
+      aCard.classList.remove('shake');
+    }, 500);
+
+    showFeedback('error', '🤔 Почти! Попробуй ещё раз.', 'Подумай внимательно — у тебя обязательно получится!');
+
+    currentSelection.element.classList.remove('selected');
+    currentSelection = null;
+  }
+
+  function showFeedback(type, title, text) {
+    const area = document.getElementById('feedbackArea');
+    area.innerHTML = `
+      <div class="feedback ${type}">
+        <div class="feedback-title">${title}</div>
+        <div class="feedback-text">${text}</div>
+        ${type === 'success' && matchedPairs.size < pairs.length ? '<button class="btn btn-next" onclick="clearFeedback()">Дальше ➡️</button>' : ''}
+      </div>
+    `;
+  }
+
+  function clearFeedback() {
+    document.getElementById('feedbackArea').innerHTML = '';
+    waitingForNext = false;
+  }
+
+  function drawLine(qCard, aCard) {
+    const svg = document.getElementById('linesSvg');
+    const gameArea = document.querySelector('.game-area');
+    const gameRect = gameArea.getBoundingClientRect();
+
+    const qRect = qCard.getBoundingClientRect();
+    const aRect = aCard.getBoundingClientRect();
+
+    const x1 = qRect.right - gameRect.left;
+    const y1 = qRect.top + qRect.height / 2 - gameRect.top;
+    const x2 = aRect.left - gameRect.left;
+    const y2 = aRect.top + aRect.height / 2 - gameRect.top;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const midX = (x1 + x2) / 2;
+    line.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+    line.setAttribute('class', 'match-line');
+    svg.appendChild(line);
+  }
+
+  function showConfetti() {
+    const colors = ['#d4a5c9', '#b893c9', '#a8c9a8', '#e8c896', '#f0d4d4'];
+    for (let i = 0; i < 30; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDelay = Math.random() * 0.3 + 's';
+      c.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 1500);
+    }
+  }
+
+  function updateProgress() {
+    const total = pairs.length;
+    const done = matchedPairs.size;
+    const percent = (done / total) * 100;
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('progressLabel').textContent = `Задание ${Math.min(done + 1, total)} из ${total}`;
+  }
+
+  function showFinal() {
+    document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('finalScreen').classList.remove('hidden');
+    showConfetti();
+    setTimeout(showConfetti, 400);
+  }
+
+  function restartGame() {
+    document.getElementById('finalScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+  }
+
+  window.addEventListener('resize', () => {
+    // Перерисовать линии при изменении размера
+    const svg = document.getElementById('linesSvg');
+    svg.innerHTML = '';
+    document.querySelectorAll('.card.matched').forEach(card => {
+      // Восстановление линий не требуется — они перерисовываются при следующем ходе
+    });
+  });
+</script>
+
+</body>
+</html>

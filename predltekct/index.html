@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Предложение и текст · 2 класс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background: #f9f2e7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 16px;
+        }
+        .game-container {
+            --game-bg: #fdf8f0;
+            --game-card: #ffffff;
+            --game-primary: #e8753a;
+            --game-accent: #4fa3b3;
+            --game-text: #3d2c1b;
+            --game-success: #5fa84a;
+            --game-error: #d45c5c;
+            --game-muted: #b7a68b;
+            max-width: 560px;
+            width: 100%;
+            background: var(--game-bg);
+            background-image: radial-gradient(circle at 20% 30%, #f5e7d3 0%, transparent 30%),
+                              radial-gradient(circle at 90% 70%, #f0dcc4 0%, transparent 40%);
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px 16px 24px;
+            position: relative;
+            border: 2px solid #ebdccc;
+        }
+        /* мультяшные элементы */
+        .game-container::after {
+            content: '🐾';
+            position: absolute;
+            bottom: 8px;
+            right: 16px;
+            font-size: 2.4rem;
+            opacity: 0.15;
+            transform: rotate(12deg);
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding: 0 4px 8px 4px;
+            border-bottom: 3px dashed #decbb8;
+            position: relative;
+        }
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--game-primary);
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff7eb;
+            padding: 4px 16px 4px 12px;
+            border-radius: 60px;
+            border: 2px solid #e8d5be;
+        }
+        .game-title span {
+            background: var(--game-accent);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .score-badge {
+            background: var(--game-card);
+            padding: 8px 16px;
+            border-radius: 60px;
+            font-weight: 700;
+            color: var(--game-primary);
+            box-shadow: 0 4px 8px rgba(232, 117, 58, 0.15);
+            border: 2px solid #f0d5bb;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stage-indicator {
+            font-size: 0.8rem;
+            color: var(--game-muted);
+            background: #efe5d9;
+            padding: 4px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            font-weight: 600;
+            border: 1px solid #ddd0bf;
+        }
+
+        .card {
+            background: var(--game-card);
+            border-radius: 32px;
+            padding: 18px 16px;
+            box-shadow: 0 8px 0 #dccfc0, 0 12px 28px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+            border: 2px solid #e8d9c7;
+            transition: 0.15s;
+        }
+        .card-accent {
+            border: 3px solid var(--game-accent);
+            box-shadow: 0 8px 0 #b8d0d0;
+        }
+
+        .btn {
+            background: var(--game-primary);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 16px 28px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 0 #b85e2a;
+            transition: 0.05s linear;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 2px solid #f0945e;
+            min-width: 130px;
+            min-height: 60px;
+            touch-action: manipulation;
+            letter-spacing: 0.3px;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b85e2a;
+        }
+        .btn-secondary {
+            background: #decbb8;
+            color: var(--game-text);
+            box-shadow: 0 6px 0 #b8a18a;
+            border-color: #d5bea8;
+        }
+        .btn-success {
+            background: var(--game-success);
+            box-shadow: 0 6px 0 #3f7a32;
+            border-color: #7bc064;
+        }
+        .btn-danger {
+            background: var(--game-error);
+            box-shadow: 0 6px 0 #943d3d;
+            border-color: #e07a7a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            transform: translateY(0);
+            box-shadow: 0 3px 0 #b85e2a;
+            pointer-events: none;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .scene-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/0.9;
+            background: #dae8e6;
+            border-radius: 40px;
+            border: 4px solid #c3b4a1;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 3px #ede3d6, 0 6px 0 #b8a18a;
+            margin: 6px 0 10px;
+        }
+        .scene-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .hotspot {
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .hotspot:hover {
+            filter: drop-shadow(0 0 10px rgba(232, 117, 58, 0.5));
+        }
+        .pulse-dot {
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
+            100% { opacity: 0.8; transform: scale(0.9); }
+        }
+        .hotspot-found .pulse-dot {
+            animation: none;
+            opacity: 0.3;
+            transform: scale(0.7);
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .popup-card {
+            max-width: 440px;
+            width: 100%;
+            background: #fffcf5;
+            border-radius: 48px;
+            padding: 28px 22px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            border: 4px solid #ebdccc;
+            position: relative;
+            animation: popIn 0.25s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .popup-card .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--game-muted);
+        }
+        .popup-card .question {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--game-text);
+            margin-bottom: 16px;
+        }
+        .popup-card .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .popup-card .opt-btn {
+            background: #f5ede4;
+            border: 3px solid #ddd0bf;
+            border-radius: 60px;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--game-text);
+            cursor: pointer;
+            transition: 0.1s;
+            text-align: left;
+            touch-action: manipulation;
+        }
+        .popup-card .opt-btn:active {
+            transform: scale(0.96);
+        }
+        .popup-card .opt-btn.correct {
+            background: var(--game-success);
+            border-color: #3f7a32;
+            color: white;
+        }
+        .popup-card .opt-btn.wrong {
+            background: var(--game-error);
+            border-color: #943d3d;
+            color: white;
+        }
+        .popup-card .opt-btn:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+        .popup-card .feedback-text {
+            margin: 12px 0 6px;
+            font-size: 1rem;
+            padding: 10px 14px;
+            border-radius: 24px;
+            background: #f5ede4;
+            border-left: 6px solid var(--game-accent);
+        }
+        .popup-card .assistant {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fcf3e8;
+            border-radius: 40px;
+            padding: 8px 16px 8px 8px;
+            margin-top: 10px;
+            border: 2px solid #e8d5be;
+        }
+        .popup-card .assistant .avatar {
+            font-size: 2.8rem;
+            background: #fff;
+            border-radius: 60px;
+            padding: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            line-height: 1;
+        }
+        .popup-card .assistant .speech {
+            font-weight: 500;
+            color: var(--game-text);
+            font-size: 0.95rem;
+        }
+
+        .inventory {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-top: 4px;
+            padding: 8px 12px;
+            background: #f5ede4;
+            border-radius: 60px;
+            border: 2px solid #decbb8;
+            min-height: 56px;
+            align-items: center;
+        }
+        .inventory-item {
+            font-size: 2rem;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            transition: 0.15s;
+        }
+        .inventory-item.locked {
+            filter: grayscale(0.8) opacity(0.4);
+        }
+
+        .progress-wrapper {
+            margin: 8px 0 6px;
+        }
+        .progress-bar {
+            height: 18px;
+            background: #e8ddd0;
+            border-radius: 40px;
+            overflow: hidden;
+            border: 2px solid #d5c5b2;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--game-primary), var(--game-accent));
+            border-radius: 40px;
+            transition: width 0.4s ease;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--game-muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .shake {
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-12px); }
+            50% { transform: translateX(12px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+        .confetti-piece {
+            display: inline-block;
+            animation: confettiFall 0.8s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-10px) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(30px) rotate(200deg); }
+        }
+
+        .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .game-title { font-size: 1rem; padding: 2px 12px; }
+            .score-badge { font-size: 0.85rem; padding: 6px 12px; }
+            .btn { font-size: 1rem; padding: 14px 20px; min-height: 52px; min-width: 100px; }
+            .popup-card .question { font-size: 1.1rem; }
+            .popup-card .opt-btn { font-size: 1rem; padding: 14px 16px; }
+            .inventory-item { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="app">
+    <div class="game-header">
+        <div class="game-title">📖 Предложение <span>2 класс</span></div>
+        <div class="score-badge">⭐ <span id="totalScore">0</span></div>
+    </div>
+    <div id="gameContent"></div>
+</div>
+
+<script>
+    (function() {
+        // ---- СОСТОЯНИЕ ----
+        const state = {
+            stage: 0, // 0-старт, 1-игра, 2-финал
+            totalScore: 0,
+            totalCorrect: 0,
+            totalWrong: 0,
+            // 7 объектов
+            found: [false,false,false,false,false,false,false],
+            // инвентарь: 7 карт
+            inventory: [false,false,false,false,false,false,false],
+            // данные по точкам
+            spots: [
+                { id: 0, label: 'дерево', cx: 85, cy: 55, question: 'Что такое предложение?', options: ['Группа слов с законченной мыслью', 'Просто набор слов', 'Одно слово'], correct: 0, explanation: 'Предложение — это слова, которые выражают законченную мысль.' },
+                { id: 1, label: 'цветок', cx: 40, cy: 72, question: 'Что ставится в конце предложения?', options: [', (запятая)', '. (точка)', '? (вопросительный знак)'], correct: 1, explanation: 'В конце предложения ставится точка, вопросительный или восклицательный знак.' },
+                { id: 2, label: 'бабочка', cx: 65, cy: 30, question: 'Сколько слов в предложении "Кот ловит мышь"?', options: ['2', '3', '4'], correct: 1, explanation: 'В этом предложении три слова: Кот, ловит, мышь.' },
+                { id: 3, label: 'пенёк', cx: 20, cy: 45, question: 'Какое слово в предложении "Маша рисует солнце" является подлежащим?', options: ['рисует', 'солнце', 'Маша'], correct: 2, explanation: 'Подлежащее — это о ком говорится. Здесь говорится о Маше.' },
+                { id: 4, label: 'облако', cx: 78, cy: 18, question: 'Что такое текст?', options: ['Несколько предложений на одну тему', 'Одно длинное предложение', 'Список слов'], correct: 0, explanation: 'Текст — это несколько предложений, объединённых общей темой.' },
+                { id: 5, label: 'грибок', cx: 30, cy: 88, question: 'Найди верное утверждение.', options: ['Предложение может быть без смысла', 'В тексте предложения связаны по смыслу', 'Текст — это одно предложение'], correct: 1, explanation: 'В тексте все предложения связаны по смыслу и раскрывают одну тему.' },
+                { id: 6, label: 'солнышко', cx: 52, cy: 10, question: 'Сколько предложений в тексте: "Наступила осень. Птицы улетают. Листья падают."', options: ['2', '3', '4'], correct: 1, explanation: 'Здесь три предложения, каждое заканчивается точкой.' }
+            ],
+            popupOpen: false,
+            busy: false,
+            gameComplete: false,
+            assistantPhrases: {
+                correct: ['Отлично! Ты всё верно понял!', 'Молодец! Знания крепкие!', 'Так держать! Ты просто гений!', 'Ура! Правильный ответ!'],
+                wrong: ['Почти! Попробуй ещё раз.', 'Не расстраивайся, ошибка — это опыт.', 'Давай подумаем вместе.', 'Чуть-чуть не так, но ты справишься!']
+            }
+        };
+
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+        const content = document.getElementById('gameContent');
+        const scoreSpan = document.getElementById('totalScore');
+
+        function updateScoreUI() {
+            scoreSpan.textContent = state.totalScore;
+        }
+
+        function getRandomPhrase(type) {
+            const arr = state.assistantPhrases[type] || state.assistantPhrases.correct;
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function launchConfetti(container) {
+            const emojis = ['✨','🌟','🎉','💫','⭐','🌈'];
+            for (let i = 0; i < 8; i++) {
+                const span = document.createElement('span');
+                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                span.className = 'confetti-piece';
+                span.style.display = 'inline-block';
+                span.style.margin = '0 3px';
+                span.style.fontSize = '1.6rem';
+                container.appendChild(span);
+                setTimeout(() => span.remove(), 900);
+            }
+        }
+
+        // ---- СЦЕНА SVG ----
+        function renderScene() {
+            let svg = `
+            <svg class="scene-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- фон -->
+                <rect width="100" height="100" fill="#dae8e6" rx="8"/>
+                <!-- трава -->
+                <ellipse cx="50" cy="85" rx="48" ry="18" fill="#a8c98a" />
+                <ellipse cx="50" cy="88" rx="44" ry="12" fill="#8bb86b" />
+                <!-- небо, облака -->
+                <circle cx="78" cy="18" r="12" fill="white" opacity="0.7"/>
+                <circle cx="70" cy="14" r="10" fill="white" opacity="0.6"/>
+                <circle cx="88" cy="14" r="8" fill="white" opacity="0.5"/>
+                <!-- солнце -->
+                <circle cx="52" cy="10" r="7" fill="#f7d44a" stroke="#e8b83a" stroke-width="1.2"/>
+                <g stroke="#f7d44a" stroke-width="1.5" stroke-linecap="round">
+                    <line x1="52" y1="2" x2="52" y2="5"/><line x1="52" y1="15" x2="52" y2="18"/>
+                    <line x1="44" y1="6" x2="46" y2="8"/><line x1="58" y1="6" x2="60" y2="8"/>
+                    <line x1="58" y1="14" x2="60" y2="16"/><line x1="44" y1="14" x2="46" y2="16"/>
+                </g>
+                <!-- дерево -->
+                <rect x="82" y="44" width="6" height="20" fill="#8b6b4a" rx="2"/>
+                <circle cx="85" cy="40" r="14" fill="#5e9e4a"/>
+                <circle cx="78" cy="44" r="10" fill="#4d8a3a"/>
+                <circle cx="92" cy="42" r="10" fill="#4d8a3a"/>
+                <!-- пенёк -->
+                <ellipse cx="20" cy="78" rx="8" ry="4" fill="#a67c52"/>
+                <rect x="14" y="74" width="12" height="6" fill="#b5895a" rx="2"/>
+                <ellipse cx="20" cy="74" rx="8" ry="3" fill="#c8a074"/>
+                <!-- цветок -->
+                <line x1="40" y1="72" x2="40" y2="80" stroke="#5e8a4a" stroke-width="2"/>
+                <circle cx="40" cy="70" r="6" fill="#f5a0c0"/>
+                <circle cx="36" cy="66" r="4" fill="#f7b8d0"/>
+                <circle cx="44" cy="66" r="4" fill="#f7b8d0"/>
+                <circle cx="40" cy="62" r="4" fill="#f7b8d0"/>
+                <!-- бабочка -->
+                <g transform="translate(65,30)">
+                    <ellipse cx="-4" cy="0" rx="6" ry="4" fill="#f7c948" transform="rotate(-20)"/>
+                    <ellipse cx="4" cy="0" rx="6" ry="4" fill="#f7c948" transform="rotate(20)"/>
+                    <ellipse cx="-2" cy="-3" rx="3" ry="2" fill="#e8a830" transform="rotate(-10)"/>
+                    <ellipse cx="2" cy="-3" rx="3" ry="2" fill="#e8a830" transform="rotate(10)"/>
+                    <circle cx="0" cy="0" r="1.5" fill="#3d2c1b"/>
+                </g>
+                <!-- грибок -->
+                <rect x="28" y="78" width="4" height="8" fill="#e8d5c0" rx="1"/>
+                <ellipse cx="30" cy="78" rx="9" ry="5" fill="#d45c5c"/>
+                <circle cx="26" cy="76" r="2" fill="white" opacity="0.7"/>
+                <circle cx="34" cy="77" r="1.5" fill="white" opacity="0.6"/>
+                <!-- точки-объекты -->
+                ${state.spots.map((spot, i) => {
+                    const found = state.found[i];
+                    const cls = found ? 'hotspot-found' : 'hotspot';
+                    return `
+                    <g class="${cls}" data-id="${i}" style="cursor:pointer;">
+                        <circle cx="${spot.cx}" cy="${spot.cy}" r="11" fill="rgba(255,255,240,0.25)" stroke="#e8753a" stroke-width="2"/>
+                        <circle cx="${spot.cx}" cy="${spot.cy}" r="5" fill="#e8753a" stroke="white" stroke-width="1.5" class="${found ? '' : 'pulse-dot'}"/>
+                        ${found ? `<text x="${spot.cx}" y="${spot.cy+4}" font-size="12" text-anchor="middle" fill="white" font-weight="bold">✓</text>` : ''}
+                    </g>`;
+                }).join('')}
+            </svg>`;
+            return svg;
+        }
+
+        // ---- ОТРИСОВКА ИГРЫ ----
+        function renderGame() {
+            const foundCount = state.found.filter(Boolean).length;
+            const total = state.spots.length;
+            const progress = Math.round((foundCount / total) * 100);
+
+            let html = `
+                <div class="stage-indicator">🐱 Кот-учёный · Найди все точки!</div>
+                <div class="progress-wrapper">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%;"></div></div>
+                    <div class="progress-text"><span>Найдено ${foundCount} из ${total}</span><span>${progress}%</span></div>
+                </div>
+                <div class="scene-wrapper">
+                    ${renderScene()}
+                </div>
+                <div class="inventory">
+                    ${state.inventory.map((v,i) => `<span class="inventory-item ${v?'':'locked'}">${v ? '🗺️' : '🔒'}</span>`).join('')}
+                </div>
+                <div id="assistantMessage" style="background:#fcf3e8; border-radius:40px; padding:10px 16px; border:2px solid #e8d5be; display:flex; align-items:center; gap:12px; margin-top:8px;">
+                    <span style="font-size:2.4rem;">🐱</span>
+                    <span style="font-weight:500; color:var(--game-text);">Привет! Нажимай на мерцающие точки на картинке.</span>
+                </div>
+            `;
+            content.innerHTML = html;
+
+            // обработчики на точки
+            $$('.hotspot, .hotspot-found').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (state.busy || state.popupOpen) return;
+                    const id = parseInt(this.dataset.id);
+                    if (isNaN(id)) return;
+                    if (state.found[id]) {
+                        showAssistantMessage('🐱', 'Ты уже нашёл этот объект! Ищи другие точки.', '#fcf3e8');
+                        return;
+                    }
+                    openPopup(id);
+                });
+            });
+
+            if (foundCount === total && !state.gameComplete) {
+                state.gameComplete = true;
+                setTimeout(() => showFinalScreen(), 500);
+            }
+        }
+
+        function showAssistantMessage(emoji, text, bg = '#fcf3e8') {
+            const el = document.getElementById('assistantMessage');
+            if (!el) return;
+            el.innerHTML = `<span style="font-size:2.4rem;">${emoji}</span><span style="font-weight:500; color:var(--game-text);">${text}</span>`;
+            el.style.background = bg;
+        }
+
+        // ---- ПОПАП ----
+        function openPopup(id) {
+            if (state.popupOpen || state.busy) return;
+            state.popupOpen = true;
+            const spot = state.spots[id];
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay';
+            overlay.id = 'popupOverlay';
+
+            let optionsHtml = spot.options.map((opt, idx) =>
+                `<button class="opt-btn" data-idx="${idx}" data-correct="${idx === spot.correct ? 'true' : 'false'}">${opt}</button>`
+            ).join('');
+
+            overlay.innerHTML = `
+                <div class="popup-card">
+                    <button class="close-btn" id="popupClose">✕</button>
+                    <div class="question">${spot.question}</div>
+                    <div class="options">${optionsHtml}</div>
+                    <div id="popupFeedback" style="min-height:20px;"></div>
+                    <div id="popupAssistant" class="assistant">
+                        <span class="avatar">🐱</span>
+                        <span class="speech">Выбери вариант ответа.</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // обработчики
+            document.getElementById('popupClose').addEventListener('click', closePopup);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closePopup();
+            });
+
+            let answered = false;
+            const optBtns = overlay.querySelectorAll('.opt-btn');
+            optBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (answered || state.busy) return;
+                    answered = true;
+                    const isCorrect = this.dataset.correct === 'true';
+                    const idx = parseInt(this.dataset.idx);
+                    const fb = document.getElementById('popupFeedback');
+                    const assistant = document.getElementById('popupAssistant');
+
+                    // блокируем кнопки
+                    optBtns.forEach(b => b.disabled = true);
+
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        state.totalScore += 1;
+                        state.totalCorrect += 1;
+                        state.found[id] = true;
+                        state.inventory[id] = true;
+                        updateScoreUI();
+                        fb.innerHTML = `<div style="color:var(--game-success);font-weight:700;font-size:1.2rem;">✅ Отлично!</div><div style="font-size:0.95rem;">${spot.explanation}</div>`;
+                        launchConfetti(fb);
+                        // ассистент
+                        const phrase = getRandomPhrase('correct');
+                        assistant.innerHTML = `<span class="avatar">🐱</span><span class="speech">${phrase}</span>`;
+                        // обновить сцену
+                        setTimeout(() => {
+                            closePopup();
+                            renderGame();
+                        }, 800);
+                    } else {
+                        this.classList.add('wrong');
+                        state.totalWrong += 1;
+                        fb.innerHTML = `<div style="color:var(--game-error);font-weight:700;font-size:1.2rem;">❌ Почти! Попробуй ещё раз.</div><div style="font-size:0.95rem;">${spot.explanation}</div>`;
+                        // покачивание
+                        const card = overlay.querySelector('.popup-card');
+                        card.classList.add('shake');
+                        setTimeout(() => card.classList.remove('shake'), 500);
+                        const phrase = getRandomPhrase('wrong');
+                        assistant.innerHTML = `<span class="avatar">🐱</span><span class="speech">${phrase}</span>`;
+                        // разблокировать через 1.2 сек
+                        setTimeout(() => {
+                            optBtns.forEach(b => b.disabled = false);
+                            answered = false;
+                            // убираем подсветку wrong
+                            this.classList.remove('wrong');
+                            // скрываем пояснение?
+                            fb.innerHTML = '';
+                            assistant.innerHTML = `<span class="avatar">🐱</span><span class="speech">Выбери вариант ответа.</span>`;
+                        }, 1200);
+                    }
+                });
+            });
+        }
+
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            if (overlay) overlay.remove();
+            state.popupOpen = false;
+        }
+
+        // ---- ФИНАЛ ----
+        function showFinalScreen() {
+            state.stage = 2;
+            const found = state.found.filter(Boolean).length;
+            const total = state.spots.length;
+            const stars = found === total ? 3 : found >= 5 ? 2 : 1;
+            const starStr = '⭐'.repeat(stars);
+            let msg = stars === 3 ? '🎉 Ты собрал все фрагменты карты! Великолепно!' : stars === 2 ? 'Хорошо! Ты почти у цели!' : 'Ты справился! Продолжай тренироваться!';
+
+            const html = `
+                <div class="card flex-center" style="padding:28px 20px;">
+                    <h2 style="color:var(--game-primary);font-size:2rem;">🏁 Квест завершён!</h2>
+                    <div style="font-size:2.8rem;">${starStr}</div>
+                    <p style="font-size:1.2rem;">Найдено объектов: ${found} из ${total}</p>
+                    <p style="font-size:1.1rem;">Баллы: ${state.totalScore}  |  Верно: ${state.totalCorrect}  |  Ошибок: ${state.totalWrong}</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0;">
+                        ${state.inventory.map((v,i) => `<span style="font-size:2.4rem;${v?'':'filter:grayscale(0.8);opacity:0.4;'}">${v ? '🗺️' : '🔒'}</span>`).join('')}
+                    </div>
+                    <p style="font-weight:600;font-size:1.1rem;">${msg}</p>
+                    <div style="display:flex;align-items:center;gap:12px;background:#fcf3e8;border-radius:40px;padding:8px 20px;border:2px solid #e8d5be;margin:8px 0;">
+                        <span style="font-size:2.6rem;">🐱</span>
+                        <span style="font-weight:500;">${found === total ? 'Ура! Карта собрана! Ты настоящий исследователь!' : 'Ты молодец! Попробуй ещё раз, чтобы собрать все карты!'}</span>
+                    </div>
+                    <button class="btn btn-success" id="restartBtn" style="font-size:1.3rem;padding:20px 40px;">🔄 Играть снова</button>
+                </div>
+            `;
+            content.innerHTML = html;
+            document.getElementById('restartBtn').addEventListener('click', resetGame);
+        }
+
+        // ---- СТАРТ ----
+        function showStartScreen() {
+            state.stage = 0;
+            const html = `
+                <div class="card flex-center" style="padding:32px 20px;">
+                    <h1 style="color:var(--game-primary);font-size:2.2rem;">📖 Предложение и текст</h1>
+                    <p style="text-align:center;font-size:1.2rem;color:var(--game-text);">2 класс · Интерактивная сцена</p>
+                    <div style="display:flex;align-items:center;gap:12px;background:#fcf3e8;border-radius:40px;padding:8px 20px;border:2px solid #e8d5be;margin:8px 0;">
+                        <span style="font-size:2.8rem;">🐱</span>
+                        <span style="font-weight:500;">Привет! Я кот-учёный. Найди все 7 точек на картинке и выполни задания!</span>
+                    </div>
+                    <button class="btn btn-success" id="startBtn" style="font-size:1.4rem;padding:22px 48px;margin-top:12px;">🚀 Начать</button>
+                </div>
+            `;
+            content.innerHTML = html;
+            document.getElementById('startBtn').addEventListener('click', function() {
+                state.stage = 1;
+                renderGame();
+            });
+        }
+
+        // ---- СБРОС ----
+        function resetGame() {
+            state.totalScore = 0;
+            state.totalCorrect = 0;
+            state.totalWrong = 0;
+            state.found = [false,false,false,false,false,false,false];
+            state.inventory = [false,false,false,false,false,false,false];
+            state.gameComplete = false;
+            state.stage = 0;
+            state.popupOpen = false;
+            state.busy = false;
+            updateScoreUI();
+            showStartScreen();
+        }
+
+        // ---- ЗАПУСК ----
+        window.addEventListener('DOMContentLoaded', function() {
+            showStartScreen();
+        });
+
+        // сделать функции глобальными для перезапуска
+        window.resetGame = resetGame;
+        window.renderGame = renderGame;
+    })();
+</script>
+</body>
+</html>

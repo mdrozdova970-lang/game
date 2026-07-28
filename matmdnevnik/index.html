@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Математический дневник • 2 класс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', system-ui, sans-serif;
+            background: #f4f0eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 16px;
+        }
+        .game-container {
+            --game-bg: #f9f7f2;
+            --game-card: #ffffff;
+            --game-primary: #1e3a6f;
+            --game-accent: #4f7eb3;
+            --game-text: #1e2b3c;
+            --game-success: #2b7a4b;
+            --game-error: #b13e3e;
+            --game-muted: #8e9aaf;
+            max-width: 520px;
+            width: 100%;
+            background: var(--game-bg);
+            background-image: 
+                linear-gradient(rgba(200, 205, 215, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 205, 215, 0.2) 1px, transparent 1px);
+            background-size: 24px 24px;
+            border-radius: 32px 32px 28px 28px;
+            box-shadow: 0 12px 30px rgba(30, 42, 60, 0.12), inset 0 0 0 1px #d9d4cc;
+            padding: 20px 16px 24px;
+            position: relative;
+            min-height: 500px;
+            transition: all 0.2s;
+        }
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            right: 16px;
+            height: 4px;
+            background: repeating-linear-gradient(90deg, #c0b8aa 0px, #c0b8aa 4px, transparent 4px, transparent 12px);
+            opacity: 0.2;
+            border-radius: 2px;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding: 0 4px 8px 4px;
+            border-bottom: 2px solid #d0cbc2;
+            position: relative;
+        }
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--game-primary);
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .game-title span {
+            background: var(--game-primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: var(--game-card);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: var(--game-primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            border: 1px solid #d6d0c5;
+            font-size: 1.1rem;
+        }
+        .stage-indicator {
+            font-size: 0.85rem;
+            color: var(--game-muted);
+            background: #ede9e1;
+            padding: 4px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: var(--game-card);
+            border-radius: 28px;
+            padding: 20px 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), inset 0 0 0 1px #dfdad2;
+            margin-bottom: 16px;
+            transition: 0.2s;
+            border: 1px solid #e3ddd5;
+        }
+        .card-accent {
+            border-left: 6px solid var(--game-accent);
+        }
+
+        /* КНОПКИ — крупнее */
+        .btn {
+            background: var(--game-primary);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 18px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 0 #0f1e36;
+            transition: 0.05s linear;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #4a6b92;
+            letter-spacing: 0.3px;
+            width: auto;
+            min-width: 140px;
+            min-height: 60px;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #0f1e36;
+        }
+        .btn-secondary {
+            background: #eae5dc;
+            color: var(--game-text);
+            box-shadow: 0 5px 0 #b8b0a2;
+            border: 1px solid #cfc8bc;
+        }
+        .btn-success {
+            background: var(--game-success);
+            box-shadow: 0 5px 0 #1c5a37;
+            border-color: #398a59;
+        }
+        .btn-danger {
+            background: var(--game-error);
+            box-shadow: 0 5px 0 #7f2b2b;
+            border-color: #b34a4a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            transform: translateY(0);
+            box-shadow: 0 3px 0 #0f1e36;
+            pointer-events: none;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .jeopardy-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .jeopardy-cell {
+            background: var(--game-card);
+            border-radius: 18px;
+            padding: 14px 4px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            border: 1px solid #d6d0c5;
+            transition: 0.1s;
+            color: var(--game-primary);
+            box-shadow: 0 3px 0 #cbc4b8;
+            min-height: 68px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .jeopardy-cell.used {
+            opacity: 0.4;
+            background: #ece8e0;
+            pointer-events: none;
+            box-shadow: none;
+            color: #8b8479;
+            border-color: #ccc5b9;
+        }
+        .jeopardy-cell.category {
+            background: var(--game-primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 10px 2px;
+            border-color: #2a4b73;
+            box-shadow: 0 3px 0 #122b47;
+            cursor: default;
+            min-height: 56px;
+        }
+        .jeopardy-cell .price {
+            font-size: 1.1rem;
+        }
+
+        .board-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        .cell {
+            width: 52px;
+            height: 52px;
+            background: var(--game-card);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #d6d0c5;
+            box-shadow: 0 3px 0 #cbc4b8;
+            color: var(--game-primary);
+            transition: 0.1s;
+        }
+        .cell.current {
+            background: var(--game-accent);
+            color: white;
+            border-color: #3b6d9e;
+            box-shadow: 0 0 0 4px #b8d0e6;
+            transform: scale(1.08);
+        }
+        .cell.visited {
+            background: #dce3ed;
+            opacity: 0.7;
+        }
+        .cell.special {
+            background: #f0e6c9;
+            border-color: #c6b082;
+        }
+        .cell.finish {
+            background: var(--game-success);
+            color: white;
+            border-color: #1d6a3e;
+        }
+        .dice-btn {
+            font-size: 2.4rem;
+            background: var(--game-card);
+            border: 3px solid #cbc4b8;
+            border-radius: 60px;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px auto;
+            box-shadow: 0 6px 0 #b0a89a;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .dice-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b0a89a;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 14px 0;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 18px 20px;
+            border-radius: 40px;
+            border: 1px solid #d6d0c5;
+            background: white;
+            font-size: 1.2rem;
+            min-width: 160px;
+            min-height: 60px;
+        }
+        .input-group input:focus {
+            outline: 3px solid var(--game-accent);
+            border-color: transparent;
+        }
+
+        .progress-wrapper {
+            margin: 12px 0 8px;
+        }
+        .progress-bar {
+            height: 16px;
+            background: #e3ddd5;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #ccc5b9;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--game-primary);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: var(--game-muted);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .collection-slot {
+            aspect-ratio: 1/1;
+            background: #eae5dc;
+            border-radius: 20px;
+            border: 2px dashed #bfb6a8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--game-muted);
+            transition: 0.15s;
+        }
+        .collection-slot.opened {
+            background: var(--game-card);
+            border: 2px solid var(--game-accent);
+            color: var(--game-primary);
+        }
+
+        .feedback {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            min-height: 56px;
+            margin: 8px 0;
+            font-size: 1.1rem;
+            flex-wrap: wrap;
+        }
+        .shake {
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+        .confetti-piece {
+            display: inline-block;
+            animation: confettiFall 0.8s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-10px) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(24px) rotate(180deg); }
+        }
+
+        .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .mt-8 { margin-top: 8px; }
+        .mb-8 { margin-bottom: 8px; }
+        .gap-8 { gap: 8px; }
+
+        @media (max-width: 460px) {
+            .jeopardy-grid { gap: 6px; }
+            .jeopardy-cell { font-size: 0.8rem; min-height: 56px; padding: 8px 2px; }
+            .cell { width: 42px; height: 42px; font-size: 0.8rem; }
+            .game-title { font-size: 1.1rem; }
+            .btn { min-width: 120px; padding: 16px 24px; font-size: 1.1rem; min-height: 56px; }
+            .dice-btn { width: 76px; height: 76px; font-size: 2rem; }
+            .input-group input { font-size: 1rem; padding: 16px; min-height: 54px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="app">
+    <div class="game-header">
+        <div class="game-title">📘 Математика <span>2 класс</span></div>
+        <div class="score-badge">⭐ <span id="totalScore">0</span></div>
+    </div>
+    <div id="gameContent"></div>
+</div>
+
+<script>
+    (function() {
+        let state = {
+            stage: 0,
+            totalScore: 0,
+            totalCorrect: 0,
+            totalWrong: 0,
+            stageScores: [0,0,0],
+            collection: [false,false,false,false,false,false,false,false],
+            jCategories: ['Сложение', 'Вычитание', 'Умножение', 'Задачи'],
+            jQuestions: [
+                ['5 + 3 = ?', '8', '8', '8', '8', '8'],
+                ['12 + 7 = ?', '19', '19', '19', '19', '19'],
+                ['24 + 16 = ?', '40', '40', '40', '40', '40'],
+                ['45 + 28 = ?', '73', '73', '73', '73', '73'],
+                ['67 + 34 = ?', '101', '101', '101', '101', '101'],
+                ['9 - 4 = ?', '5', '5', '5', '5', '5'],
+                ['18 - 9 = ?', '9', '9', '9', '9', '9'],
+                ['32 - 17 = ?', '15', '15', '15', '15', '15'],
+                ['56 - 29 = ?', '27', '27', '27', '27', '27'],
+                ['83 - 47 = ?', '36', '36', '36', '36', '36'],
+                ['2 × 3 = ?', '6', '6', '6', '6', '6'],
+                ['4 × 5 = ?', '20', '20', '20', '20', '20'],
+                ['3 × 7 = ?', '21', '21', '21', '21', '21'],
+                ['6 × 6 = ?', '36', '36', '36', '36', '36'],
+                ['8 × 4 = ?', '32', '32', '32', '32', '32'],
+                ['У Маши 5 яблок, дали 3. Сколько?', '8', '8', '8', '8', '8'],
+                ['В автобусе 12 детей, вышли 5. Сколько?', '7', '7', '7', '7', '7'],
+                ['По 3 конфеты на 4 детей. Сколько всего?', '12', '12', '12', '12', '12'],
+                ['В коробке 24 карандаша, разложили в 4 пенала поровну. Сколько в каждом?', '6', '6', '6', '6', '6'],
+                ['Длина 8 см, ширина 3 см. Найди периметр прямоугольника.', '22', '22', '22', '22', '22']
+            ],
+            jUsed: Array(4).fill().map(() => Array(5).fill(false)),
+            jCurrent: null,
+            boardCells: [],
+            boardPos: 0,
+            boardSpecial: [],
+            boardVisited: [],
+            boardQuestions: [],
+            boardQuestionIndex: 0,
+            boardDone: false,
+            bank: [
+                { q: '8 + 3 = ?', a: '11' },
+                { q: '15 - 7 = ?', a: '8' },
+                { q: '4 × 6 = ?', a: '24' },
+                { q: '24 + 18 = ?', a: '42' },
+                { q: '50 - 26 = ?', a: '24' },
+                { q: '7 × 5 = ?', a: '35' },
+                { q: '36 + 19 = ?', a: '55' },
+                { q: '64 - 38 = ?', a: '26' },
+                { q: '9 × 4 = ?', a: '36' },
+                { q: '81 - 47 = ?', a: '34' }
+            ],
+            session: [],
+            sessionIndex: 0,
+            sessionDone: false,
+            sessionCorrect: 0,
+            sessionWrong: 0,
+            busy: false
+        };
+
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+        const content = document.getElementById('gameContent');
+        const scoreSpan = document.getElementById('totalScore');
+
+        function updateScoreUI() {
+            scoreSpan.textContent = state.totalScore;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function openCollectionSlot() {
+            for (let i = 0; i < state.collection.length; i++) {
+                if (!state.collection[i]) {
+                    state.collection[i] = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function isCollectionFull() {
+            return state.collection.every(v => v === true);
+        }
+
+        function renderStage1() {
+            let html = `<div class="stage-indicator">🎯 Своя игра · Этап 1</div>`;
+            html += `<div class="card"><div class="jeopardy-grid">`;
+            for (let c = 0; c < 4; c++) {
+                let cls = 'jeopardy-cell category';
+                if (state.jUsed[c].every(v => v === true)) cls += ' category-used';
+                html += `<div class="${cls}">${state.jCategories[c]}</div>`;
+            }
+            for (let row = 0; row < 5; row++) {
+                const prices = [100,200,300,400,500];
+                for (let col = 0; col < 4; col++) {
+                    const used = state.jUsed[col][row];
+                    const cls = used ? 'jeopardy-cell used' : 'jeopardy-cell';
+                    const price = prices[row];
+                    html += `<div class="${cls}" data-cat="${col}" data-idx="${row}">${used ? '✓' : price}</div>`;
+                }
+            }
+            html += `</div></div>`;
+            html += `<div id="jQuestionArea" class="card card-accent" style="min-height:110px;"></div>`;
+            html += `<div class="feedback" id="jFeedback"></div>`;
+            content.innerHTML = html;
+
+            $$('.jeopardy-cell:not(.used):not(.category)').forEach(el => {
+                el.addEventListener('click', function() {
+                    if (state.busy) return;
+                    const cat = parseInt(this.dataset.cat);
+                    const idx = parseInt(this.dataset.idx);
+                    if (state.jUsed[cat][idx]) return;
+                    state.jCurrent = { cat, idx };
+                    showJQuestion(cat, idx);
+                });
+            });
+            checkJFinish();
+        }
+
+        function showJQuestion(cat, idx) {
+            const qIndex = cat * 5 + idx;
+            const question = state.jQuestions[qIndex][0];
+            const answer = state.jQuestions[qIndex][1];
+            const area = document.getElementById('jQuestionArea');
+            area.innerHTML = `<div style="font-weight:600;font-size:1.2rem;">${question}</div>
+                <div class="input-group">
+                    <input type="text" id="jAnswerInput" placeholder="Ваш ответ" autocomplete="off">
+                    <button class="btn" id="jSubmitBtn">Ответить</button>
+                </div>`;
+            const input = document.getElementById('jAnswerInput');
+            const btn = document.getElementById('jSubmitBtn');
+            const fb = document.getElementById('jFeedback');
+            fb.innerHTML = '';
+            const handler = () => {
+                if (state.busy) return;
+                const val = input.value.trim();
+                if (!val) { fb.innerHTML = '✏️ Напиши ответ.'; return; }
+                state.busy = true;
+                const correct = val.toLowerCase() === answer.toLowerCase();
+                if (correct) {
+                    state.totalScore += 1;
+                    state.totalCorrect += 1;
+                    state.stageScores[0] += 1;
+                    fb.innerHTML = '✅ Верно! +1 балл';
+                    fb.style.color = 'var(--game-success)';
+                    launchConfetti(fb);
+                    openCollectionSlot();
+                    updateScoreUI();
+                } else {
+                    state.totalWrong += 1;
+                    fb.innerHTML = `❌ Неверно. Правильно: ${answer}`;
+                    fb.style.color = 'var(--game-error)';
+                    area.classList.add('shake');
+                    setTimeout(() => area.classList.remove('shake'), 500);
+                }
+                state.jUsed[cat][idx] = true;
+                state.busy = false;
+                renderStage1();
+                checkJFinish();
+            };
+            btn.addEventListener('click', handler);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function checkJFinish() {
+            const allUsed = state.jUsed.every(cat => cat.every(v => v === true));
+            if (allUsed) {
+                setTimeout(() => {
+                    if (state.stage === 1) {
+                        showStageComplete(1);
+                    }
+                }, 300);
+            }
+        }
+
+        function initBoard() {
+            const cells = [];
+            const specials = [];
+            for (let i = 0; i < 15; i++) {
+                let type = 'normal';
+                if (i === 0) type = 'start';
+                else if (i === 14) type = 'finish';
+                else {
+                    const r = Math.random();
+                    if (r < 0.15) type = 'bonus';
+                    else if (r < 0.30) type = 'penalty';
+                }
+                cells.push(type);
+                specials.push(type === 'bonus' || type === 'penalty');
+            }
+            let bonusCount = cells.filter(c => c === 'bonus').length;
+            let penaltyCount = cells.filter(c => c === 'penalty').length;
+            for (let i = 1; i < 14 && bonusCount < 2; i++) {
+                if (cells[i] === 'normal') { cells[i] = 'bonus'; bonusCount++; }
+            }
+            for (let i = 1; i < 14 && penaltyCount < 2; i++) {
+                if (cells[i] === 'normal') { cells[i] = 'penalty'; penaltyCount++; }
+            }
+            const qs = [
+                '8+7=?', '15-6=?', '3×4=?', '12+9=?', '24-8=?',
+                '5×5=?', '36+14=?', '62-27=?', '7×6=?', '45+28=?',
+                '81-39=?', '9×8=?', '56+37=?', '73-45=?'
+            ];
+            state.boardCells = cells;
+            state.boardPos = 0;
+            state.boardSpecial = specials;
+            state.boardVisited = [true];
+            state.boardQuestions = qs.slice(0, 14);
+            state.boardQuestionIndex = 0;
+            state.boardDone = false;
+        }
+
+        function renderStage2() {
+            if (!state.boardCells.length) initBoard();
+            const cells = state.boardCells;
+            const pos = state.boardPos;
+            let html = `<div class="stage-indicator">🎲 Бродилка · Этап 2</div>`;
+            const visitedCount = state.boardVisited.filter(v => v).length;
+            const pct = Math.min(100, Math.round((visitedCount / 15) * 100));
+            html += `<div class="progress-wrapper"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+                <div class="progress-text"><span>Пройдено ${visitedCount}/15</span><span>${pct}%</span></div></div>`;
+            html += `<div class="card"><div class="board-row">`;
+            for (let i = 0; i < cells.length; i++) {
+                let cls = 'cell';
+                if (i === pos) cls += ' current';
+                else if (state.boardVisited[i]) cls += ' visited';
+                if (cells[i] === 'bonus') cls += ' special';
+                if (cells[i] === 'penalty') cls += ' special';
+                if (cells[i] === 'finish') cls += ' finish';
+                let label = i+1;
+                if (cells[i] === 'bonus') label = '⭐';
+                else if (cells[i] === 'penalty') label = '⚡';
+                else if (cells[i] === 'finish') label = '🏁';
+                html += `<div class="${cls}">${label}</div>`;
+            }
+            html += `</div></div>`;
+            html += `<div class="flex-center"><div class="dice-btn" id="diceBtn">🎲</div></div>`;
+            html += `<div id="boardTask" class="card card-accent" style="min-height:90px;"></div>`;
+            html += `<div class="feedback" id="boardFeedback"></div>`;
+            content.innerHTML = html;
+
+            document.getElementById('diceBtn').addEventListener('click', function() {
+                if (state.busy || state.boardDone) return;
+                rollDice();
+            });
+
+            if (pos === 14) {
+                document.getElementById('boardTask').innerHTML = '🏆 Ты на финише!';
+                state.boardDone = true;
+                setTimeout(() => showStageComplete(2), 500);
+            } else if (!state.boardVisited[pos]) {
+                showBoardTask(pos);
+            }
+        }
+
+        function rollDice() {
+            if (state.busy || state.boardDone) return;
+            state.busy = true;
+            const dice = Math.floor(Math.random() * 6) + 1;
+            const fb = document.getElementById('boardFeedback');
+            fb.innerHTML = `🎲 Выпало ${dice}`;
+            let newPos = Math.min(14, state.boardPos + dice);
+            if (newPos >= 14) newPos = 14;
+            state.boardPos = newPos;
+            if (!state.boardVisited[newPos]) state.boardVisited[newPos] = true;
+
+            const cellType = state.boardCells[newPos];
+            if (cellType === 'bonus') {
+                state.totalScore += 2;
+                state.totalCorrect += 1;
+                fb.innerHTML += ' 🌟 Бонус! +2 балла';
+                openCollectionSlot();
+                updateScoreUI();
+            } else if (cellType === 'penalty') {
+                state.totalScore = Math.max(0, state.totalScore - 1);
+                state.totalWrong += 1;
+                fb.innerHTML += ' ⚡ Штраф! -1 балл';
+                updateScoreUI();
+            } else if (newPos === 14) {
+                state.boardDone = true;
+                fb.innerHTML += ' 🏁 Финиш!';
+                setTimeout(() => showStageComplete(2), 400);
+                state.busy = false;
+                renderStage2();
+                return;
+            } else {
+                showBoardTask(newPos);
+                state.busy = false;
+                renderStage2();
+                return;
+            }
+            state.busy = false;
+            renderStage2();
+        }
+
+        function showBoardTask(pos) {
+            const taskArea = document.getElementById('boardTask');
+            const qIndex = pos % state.boardQuestions.length;
+            const q = state.boardQuestions[qIndex];
+            const answer = q.split('=')[1]?.trim() || '0';
+            taskArea.innerHTML = `<div style="font-weight:600;font-size:1.2rem;">${q}</div>
+                <div class="input-group"><input type="text" id="boardAnswer" placeholder="Ответ" autocomplete="off">
+                <button class="btn" id="boardSubmit">Ответить</button></div>`;
+            const input = document.getElementById('boardAnswer');
+            const btn = document.getElementById('boardSubmit');
+            const fb = document.getElementById('boardFeedback');
+            const handler = () => {
+                if (state.busy) return;
+                const val = input.value.trim();
+                if (!val) { fb.innerHTML = '✏️ Напиши ответ.'; return; }
+                state.busy = true;
+                const correct = val === answer;
+                if (correct) {
+                    state.totalScore += 1;
+                    state.totalCorrect += 1;
+                    fb.innerHTML = '✅ Верно! +1';
+                    fb.style.color = 'var(--game-success)';
+                    launchConfetti(fb);
+                    openCollectionSlot();
+                    updateScoreUI();
+                } else {
+                    state.totalWrong += 1;
+                    fb.innerHTML = `❌ Неверно. Ответ: ${answer}`;
+                    fb.style.color = 'var(--game-error)';
+                    taskArea.classList.add('shake');
+                    setTimeout(() => taskArea.classList.remove('shake'), 500);
+                }
+                state.busy = false;
+                renderStage2();
+            };
+            btn.addEventListener('click', handler);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function initSession() {
+            const shuffled = shuffleArray([...state.bank]);
+            state.session = shuffled.slice(0, 5);
+            state.sessionIndex = 0;
+            state.sessionDone = false;
+            state.sessionCorrect = 0;
+            state.sessionWrong = 0;
+        }
+
+        function renderStage3() {
+            if (!state.session.length) initSession();
+            let html = `<div class="stage-indicator">🧮 Тренажёр · Этап 3</div>`;
+            const total = state.session.length;
+            const done = state.sessionIndex;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            html += `<div class="progress-wrapper"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+                <div class="progress-text"><span>Задание ${Math.min(done+1, total)} из ${total}</span><span>${pct}%</span></div></div>`;
+
+            if (state.sessionIndex < state.session.length && !state.sessionDone) {
+                const item = state.session[state.sessionIndex];
+                html += `<div class="card card-accent"><div style="font-weight:600;font-size:1.2rem;">${item.q}</div>
+                    <div class="input-group"><input type="text" id="trainInput" placeholder="Ответ" autocomplete="off">
+                    <button class="btn" id="trainSubmit">Ответить</button></div>
+                    <div class="feedback" id="trainFeedback"></div>
+                    <button class="btn btn-secondary" id="trainNext" disabled style="margin-top:10px;">Дальше ➜</button>
+                    </div>`;
+            } else {
+                const correct = state.sessionCorrect;
+                const wrong = state.sessionWrong;
+                const totalQ = state.session.length;
+                html += `<div class="card"><h3>📊 Результат тренажёра</h3>
+                    <p style="font-size:1.1rem;">Верно: ${correct}  |  Ошибок: ${wrong}</p>
+                    <p style="font-size:1.1rem;">Баллов: +${correct}</p>
+                    <button class="btn btn-success" id="trainRestart">🔄 Новая сессия</button></div>`;
+                if (!state.sessionDone) {
+                    state.sessionDone = true;
+                    state.totalScore += correct;
+                    state.totalCorrect += correct;
+                    state.totalWrong += wrong;
+                    updateScoreUI();
+                }
+                content.innerHTML = html;
+                document.getElementById('trainRestart')?.addEventListener('click', function() {
+                    initSession();
+                    renderStage3();
+                });
+                if (state.sessionDone && state.stage === 3) {
+                    setTimeout(() => showStageComplete(3), 400);
+                }
+                return;
+            }
+
+            content.innerHTML = html;
+            const input = document.getElementById('trainInput');
+            const submit = document.getElementById('trainSubmit');
+            const next = document.getElementById('trainNext');
+            const fb = document.getElementById('trainFeedback');
+            let answered = false;
+
+            const handleAnswer = () => {
+                if (answered || state.busy) return;
+                const val = input.value.trim();
+                if (!val) { fb.innerHTML = '✏️ Напиши ответ.'; return; }
+                const item = state.session[state.sessionIndex];
+                const correct = val.toLowerCase() === item.a.toLowerCase();
+                answered = true;
+                state.busy = true;
+                if (correct) {
+                    state.sessionCorrect += 1;
+                    fb.innerHTML = '✅ Верно! +1';
+                    fb.style.color = 'var(--game-success)';
+                    launchConfetti(fb);
+                    openCollectionSlot();
+                } else {
+                    state.sessionWrong += 1;
+                    fb.innerHTML = `❌ Неверно. Правильно: ${item.a}`;
+                    fb.style.color = 'var(--game-error)';
+                    document.querySelector('.card').classList.add('shake');
+                    setTimeout(() => document.querySelector('.card').classList.remove('shake'), 500);
+                }
+                submit.disabled = true;
+                input.disabled = true;
+                next.disabled = false;
+                state.busy = false;
+                const pct2 = Math.round(((state.sessionIndex+1) / state.session.length) * 100);
+                document.querySelector('.progress-fill').style.width = pct2 + '%';
+                document.querySelector('.progress-text span:first-child').textContent = `Задание ${state.sessionIndex+2} из ${state.session.length}`;
+            };
+
+            submit.addEventListener('click', handleAnswer);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAnswer(); });
+            next.addEventListener('click', function() {
+                state.sessionIndex++;
+                if (state.sessionIndex >= state.session.length) {
+                    state.sessionDone = true;
+                    renderStage3();
+                } else {
+                    renderStage3();
+                }
+            });
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function showStageComplete(stage) {
+            if (state.stage !== stage) return;
+            const stageNames = ['', 'Своя игра', 'Бродилка', 'Тренажёр'];
+            const html = `<div class="card flex-center" style="padding:28px 20px;">
+                <h2 style="color:var(--game-primary);font-size:1.8rem;">✅ Этап пройден!</h2>
+                <p style="font-size:1.2rem;">${stageNames[stage]} завершён</p>
+                <p style="font-size:1.1rem;">Баллов за этап: ${state.stageScores[stage-1]}</p>
+                <button class="btn btn-success" id="continueBtn" style="font-size:1.3rem;padding:20px 40px;">➜ Далее</button>
+            </div>`;
+            content.innerHTML = html;
+            document.getElementById('continueBtn').addEventListener('click', function() {
+                if (stage === 3) {
+                    showFinalScreen();
+                } else {
+                    state.stage = stage + 1;
+                    renderStage(state.stage);
+                }
+            });
+        }
+
+        function showFinalScreen() {
+            state.stage = 4;
+            const stars = state.totalScore >= 8 ? 3 : state.totalScore >= 5 ? 2 : 1;
+            const starStr = '⭐'.repeat(stars);
+            let msg = stars === 3 ? 'Отлично!' : stars === 2 ? 'Хорошо!' : 'Старайся!';
+            const html = `<div class="card flex-center" style="padding:28px 20px;">
+                <h2 style="color:var(--game-primary);font-size:2rem;">🏁 Игра завершена!</h2>
+                <div style="font-size:2.8rem;">${starStr}</div>
+                <p style="font-size:1.2rem;">Баллы: ${state.totalScore}  |  Верно: ${state.totalCorrect}  |  Ошибок: ${state.totalWrong}</p>
+                <p style="font-weight:600;font-size:1.2rem;">${msg}</p>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0;">
+                    ${state.collection.map((v,i) => `<div class="collection-slot ${v?'opened':''}" style="width:56px;height:56px;font-size:2rem;">${v ? '📘' : '❓'}</div>`).join('')}
+                </div>
+                ${isCollectionFull() ? '<p style="color:var(--game-success);font-size:1.2rem;">🎉 Полная коллекция!</p>' : ''}
+                <button class="btn btn-primary" id="restartBtn" style="font-size:1.3rem;padding:20px 40px;">🔄 Играть снова</button>
+            </div>`;
+            content.innerHTML = html;
+            document.getElementById('restartBtn').addEventListener('click', function() {
+                resetGame();
+            });
+        }
+
+        function showStartScreen() {
+            state.stage = 0;
+            const html = `<div class="card flex-center" style="padding:28px 20px;">
+                <h1 style="color:var(--game-primary);font-size:2rem;">📐 Математический дневник</h1>
+                <p style="text-align:center;color:var(--game-text);font-size:1.1rem;">2 класс · 3 этапа</p>
+                <p style="text-align:center;font-size:0.95rem;color:var(--game-muted);">Своя игра · Бродилка · Тренажёр</p>
+                <button class="btn btn-success" id="startBtn" style="font-size:1.4rem;padding:22px 48px;margin-top:12px;">🚀 Начать</button>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+                    ${state.collection.map((v,i) => `<div class="collection-slot ${v?'opened':''}" style="width:48px;height:48px;font-size:1.8rem;">${v ? '📘' : '❓'}</div>`).join('')}
+                </div>
+            </div>`;
+            content.innerHTML = html;
+            document.getElementById('startBtn').addEventListener('click', function() {
+                state.stage = 1;
+                renderStage(1);
+            });
+        }
+
+        function renderStage(stage) {
+            if (stage === 1) renderStage1();
+            else if (stage === 2) renderStage2();
+            else if (stage === 3) renderStage3();
+            else if (stage === 4) showFinalScreen();
+            else showStartScreen();
+            updateScoreUI();
+        }
+
+        function resetGame() {
+            state.totalScore = 0;
+            state.totalCorrect = 0;
+            state.totalWrong = 0;
+            state.stageScores = [0,0,0];
+            state.collection = [false,false,false,false,false,false,false,false];
+            state.jUsed = Array(4).fill().map(() => Array(5).fill(false));
+            state.jCurrent = null;
+            state.boardCells = [];
+            state.boardPos = 0;
+            state.boardVisited = [];
+            state.boardDone = false;
+            state.session = [];
+            state.sessionIndex = 0;
+            state.sessionDone = false;
+            state.sessionCorrect = 0;
+            state.sessionWrong = 0;
+            state.stage = 0;
+            updateScoreUI();
+            showStartScreen();
+        }
+
+        function launchConfetti(container) {
+            const emojis = ['✨','🌟','🎉','💫','⭐'];
+            for (let i = 0; i < 6; i++) {
+                const span = document.createElement('span');
+                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                span.className = 'confetti-piece';
+                span.style.display = 'inline-block';
+                span.style.margin = '0 3px';
+                span.style.fontSize = '1.4rem';
+                container.appendChild(span);
+                setTimeout(() => span.remove(), 1000);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            showStartScreen();
+        });
+
+        window.showStageComplete = showStageComplete;
+        window.renderStage = renderStage;
+    })();
+</script>
+</body>
+</html>
