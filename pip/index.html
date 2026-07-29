@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пингвин-путешественник: Найди все ошибки!</title>
+    <style>
+        /* ===== БАЗОВЫЕ СТИЛИ ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: #0a1628;
+        }
+
+        /* ===== ИГРОВОЙ КОНТЕЙНЕР ===== */
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===== ЭКРАНЫ ===== */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ===== ФОН АРКТИКИ ===== */
+        .bg-arctic {
+            background: linear-gradient(180deg, #0a1628 0%, #1a3a5c 30%, #2d6b9e 60%, #87ceeb 85%, #e8f4fd 100%);
+        }
+
+        .bg-cave {
+            background: linear-gradient(180deg, #1a2a4a 0%, #2a4a6a 40%, #3a6a8a 70%, #5a9aba 100%);
+        }
+
+        .bg-station {
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b3a5c 30%, #4a7a9a 60%, #c8e8f8 100%);
+        }
+
+        .bg-lake {
+            background: linear-gradient(180deg, #0a1628 0%, #1a4a6a 30%, #2a8aaa 60%, #4ac0e0 80%, #e0f8ff 100%);
+        }
+
+        .bg-walrus {
+            background: linear-gradient(180deg, #1a2a3a 0%, #3a5a6a 30%, #5a8a7a 60%, #8abaa0 80%, #d0f0e0 100%);
+        }
+
+        .bg-village {
+            background: linear-gradient(180deg, #0d1b2a 0%, #1a3050 30%, #3a5a7a 60%, #7aaaca 80%, #e0f0ff 100%);
+        }
+
+        .bg-aurora {
+            background: linear-gradient(180deg, #050a15 0%, #0a1a2a 20%, #1a2a4a 40%, #0a3a2a 60%, #2a5a3a 75%, #1a3a5a 100%);
+        }
+
+        /* ===== СНЕЖИНКИ ===== */
+        .snowflakes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1.2em;
+            animation: fall linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10%) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* ===== СЕВЕРНОЕ СИЯНИЕ ===== */
+        .aurora-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(0, 255, 100, 0.1) 20%, 
+                rgba(0, 200, 255, 0.15) 40%, 
+                rgba(100, 0, 255, 0.1) 60%, 
+                transparent 100%);
+            animation: aurora 4s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes aurora {
+            0% { opacity: 0.5; transform: scaleX(1); }
+            50% { opacity: 1; transform: scaleX(1.1); }
+            100% { opacity: 0.7; transform: scaleX(0.95); }
+        }
+
+        /* ===== ГЛАВНОЕ МЕНЮ ===== */
+        #menu-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: clamp(28px, 5vw, 52px);
+            color: #fff;
+            text-shadow: 0 3px 10px rgba(0,100,200,0.5), 0 0 40px rgba(100,200,255,0.3);
+            margin-bottom: 10px;
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .game-subtitle {
+            font-size: clamp(16px, 2.5vw, 24px);
+            color: #a0d8ef;
+            margin-bottom: 30px;
+        }
+
+        .penguin-hero {
+            font-size: clamp(60px, 12vw, 120px);
+            margin: 15px 0;
+            animation: penguinBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes penguinBounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .legend-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 20px 25px;
+            max-width: 600px;
+            margin: 15px auto;
+            color: #e0f0ff;
+            font-size: clamp(14px, 2vw, 18px);
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .legend-box p {
+            margin-bottom: 8px;
+        }
+
+        /* ===== КНОПКИ ===== */
+        .btn {
+            padding: 15px 35px;
+            font-size: clamp(16px, 2.5vw, 22px);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 8px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,119,182,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46,204,113,0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243,156,18,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231,76,60,0.4);
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: clamp(14px, 2vw, 16px);
+        }
+
+        .menu-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* ===== HUD ===== */
+        .hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .hud-item {
+            color: white;
+            font-size: clamp(14px, 2vw, 18px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hearts {
+            color: #e74c3c;
+            font-size: clamp(18px, 3vw, 24px);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin-top: 5px;
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b4d8, #2ecc71);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        /* ===== ЭКРАН УРОВНЯ ===== */
+        .level-intro {
+            text-align: center;
+            padding: 20px;
+            max-width: 700px;
+        }
+
+        .level-title {
+            font-size: clamp(24px, 4vw, 40px);
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 15px;
+        }
+
+        .level-description {
+            font-size: clamp(16px, 2.5vw, 20px);
+            color: #d0e8ff;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .location-emoji {
+            font-size: clamp(50px, 10vw, 90px);
+            margin: 15px 0;
+            animation: locationPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes locationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ===== ЭКРАН ЗАДАНИЯ ===== */
+        .task-screen {
+            padding: 60px 15px 15px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .task-container {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 700px;
+            width: 100%;
+            margin: 10px auto;
+        }
+
+        .task-question {
+            font-size: clamp(16px, 2.5vw, 22px);
+            color: #fff;
+            margin-bottom: 15px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .task-context {
+            font-size: clamp(14px, 2vw, 18px);
+            color: #a0d8ef;
+            margin-bottom: 15px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* ===== СОСТАВЛЕНИЕ ПРЕДЛОЖЕНИЙ ===== */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+            min-height: 50px;
+            padding: 10px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 15px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .word-chip {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #4a9eda, #2d7ab6);
+            color: white;
+            border-radius: 25px;
+            font-size: clamp(14px, 2vw, 18px);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            border: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .word-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .word-chip.selected {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+
+        .answer-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+            min-height: 60px;
+            padding: 15px;
+            border: 3px solid rgba(46,204,113,0.5);
+            border-radius: 15px;
+            background: rgba(46,204,113,0.1);
+        }
+
+        .answer-chip {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border-radius: 25px;
+            font-size: clamp(14px, 2vw, 18px);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            font-weight: 500;
+        }
+
+        .answer-chip:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .task-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== ПОДСКАЗКА ===== */
+        .hint-box {
+            background: rgba(243,156,18,0.2);
+            border: 2px solid rgba(243,156,18,0.5);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ffd700;
+            font-size: clamp(14px, 2vw, 17px);
+            text-align: center;
+            display: none;
+            animation: hintAppear 0.5s;
+        }
+
+        @keyframes hintAppear {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        /* ===== PENGUIN SPEECH ===== */
+        .penguin-speech {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 10px 0;
+            animation: speechAppear 0.5s;
+        }
+
+        @keyframes speechAppear {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .penguin-avatar {
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .speech-bubble {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 12px 18px;
+            border-radius: 18px;
+            border-top-left-radius: 5px;
+            font-size: clamp(14px, 2vw, 17px);
+            max-width: 80%;
+            line-height: 1.4;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* ===== РЕЗУЛЬТАТ ===== */
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s;
+        }
+
+        .result-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #1a3a5c, #2d6b9e);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: cardPop 0.5s;
+        }
+
+        @keyframes cardPop {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: clamp(22px, 4vw, 32px);
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .result-text {
+            font-size: clamp(14px, 2vw, 18px);
+            color: #a0d8ef;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .reward-display {
+            font-size: 40px;
+            margin: 10px 0;
+            animation: rewardSpin 1s ease-out;
+        }
+
+        @keyframes rewardSpin {
+            from { transform: rotateY(180deg) scale(0); }
+            to { transform: rotateY(0) scale(1); }
+        }
+
+        /* ===== КОНФЕТТИ ===== */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== ФИНАЛЬНЫЙ ЭКРАН ===== */
+        .final-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .gold-medal {
+            font-size: clamp(80px, 15vw, 150px);
+            animation: medalGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes medalGlow {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.1); filter: brightness(1.3); }
+        }
+
+        .final-title {
+            font-size: clamp(26px, 5vw, 44px);
+            color: #ffd700;
+            text-shadow: 0 2px 10px rgba(255,215,0,0.5);
+            margin: 15px 0;
+        }
+
+        .final-stats {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 400px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #e0f0ff;
+            font-size: clamp(14px, 2vw, 18px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        /* ===== ПРАВИЛА ===== */
+        .rules-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 15px auto;
+            color: #e0f0ff;
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.6;
+            text-align: left;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .rules-box h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: clamp(18px, 3vw, 24px);
+        }
+
+        .rules-box ul {
+            padding-left: 20px;
+        }
+
+        .rules-box li {
+            margin-bottom: 8px;
+        }
+
+        /* ===== GAME OVER ===== */
+        .game-over-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .game-over-emoji {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 600px) {
+            .hud {
+                padding: 8px 10px;
+            }
+            .task-container {
+                padding: 15px;
+            }
+            .word-chip, .answer-chip {
+                padding: 8px 14px;
+            }
+            .btn {
+                padding: 12px 25px;
+            }
+        }
+
+        /* ===== АНИМАЦИЯ ПРАВИЛЬНОГО ОТВЕТА ===== */
+        .correct-flash {
+            animation: correctFlash 0.6s;
+        }
+
+        @keyframes correctFlash {
+            0% { background: rgba(46,204,113,0.5); }
+            50% { background: rgba(46,204,113,0.8); }
+            100% { background: rgba(46,204,113,0.1); }
+        }
+
+        .wrong-flash {
+            animation: wrongFlash 0.6s;
+        }
+
+        @keyframes wrongFlash {
+            0% { background: rgba(231,76,60,0.5); }
+            50% { background: rgba(231,76,60,0.8); }
+            100% { background: rgba(231,76,60,0.1); }
+        }
+
+        /* ===== ЗАПутанные подсказки (препятствие) ===== */
+        .obstacle-box {
+            background: rgba(155, 89, 182, 0.2);
+            border: 2px solid rgba(155, 89, 182, 0.5);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #d4a5f5;
+            font-size: clamp(14px, 2vw, 17px);
+            text-align: center;
+        }
+
+        .obstacle-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #e8a0ff;
+        }
+
+        /* Звёзды за уровень */
+        .stars-display {
+            font-size: 36px;
+            margin: 10px 0;
+        }
+
+        .star-earned {
+            animation: starPop 0.5s ease-out;
+            display: inline-block;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            70% { transform: scale(1.3) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Level complete rewards */
+        .rewards-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .reward-item {
+            text-align: center;
+            animation: rewardFloat 1s ease-out;
+        }
+
+        @keyframes rewardFloat {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .reward-item .emoji {
+            font-size: 32px;
+        }
+
+        .reward-item .label {
+            font-size: 12px;
+            color: #a0d8ef;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- ГЛАВНОЕ МЕНЮ -->
+        <div id="menu-screen" class="screen active bg-arctic">
+            <div class="snowflakes" id="menu-snow"></div>
+            <div class="game-title">🐧 Пингвин-путешественник</div>
+            <div class="game-subtitle">Найди все ошибки в тексте!</div>
+            <div class="penguin-hero">🐧</div>
+            <div class="legend-box">
+                <p>🏔️ В далёкой Арктике, где льды встречаются с небом, живёт отважный Пингвин-путешественник по имени Пип. Он обошёл весь ледяной край вдоль и поперёк, но однажды обнаружил страшное бедствие — злая Вьюга-Путаница перемешала все надписи на указателях, перепутала буквы в важных посланиях и испортила тексты на ледяных табличках!</p>
+                <p>🗺️ Пип отправляется в опасное путешествие через шесть волшебных мест Арктики, чтобы найти и исправить все ошибки в текстах. Но Вьюга-Путаница подбрасывает запутанные подсказки, которые только сбивают с толку!</p>
+                <p>🏆 Если ты поможешь Пипу справиться со всеми заданиями и найти каждую ошибку — тебя ждёт заслуженная награда: <strong>Золотая медаль</strong> лучшего исправителя ошибок!</p>
+            </div>
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="startGame()">🎮 Начать игру</button>
+                <button class="btn btn-success" onclick="continueGame()" id="btn-continue" style="display:none">▶️ Продолжить</button>
+                <button class="btn btn-warning" onclick="showRules()">📖 Правила</button>
+            </div>
+        </div>
+
+        <!-- ПРАВИЛА -->
+        <div id="rules-screen" class="screen bg-arctic">
+            <div class="snowflakes" id="rules-snow"></div>
+            <div class="level-title" style="margin-top: 20px;">📖 Правила игры</div>
+            <div class="rules-box">
+                <h3>🎯 Цель игры</h3>
+                <p>Помоги Пингвину Пипу составить правильные предложения из перемешанных слов и найти все ошибки!</p>
+                <h3>🎮 Как играть</h3>
+                <ul>
+                    <li>Нажми на слова в нужном порядке, чтобы составить предложение</li>
+                    <li>Нажми «Проверить» когда составишь предложение</li>
+                    <li>Если ошибся — не расстраивайся, попробуй ещё раз!</li>
+                    <li>Используй подсказку, если совсем сложно</li>
+                </ul>
+                <h3>❤️ Жизни</h3>
+                <p>У тебя 3 жизни. Если потратишь все — начни уровень заново.</p>
+                <h3>⭐ Награды</h3>
+                <p>За каждый уровень ты получаешь звёзды и монеты. Пройди все 6 уровней и получи Золотую медаль!</p>
+                <h3>🌪️ Препятствие</h3>
+                <p>Вьюга-Путаница будет давать запутанные подсказки — не верь всему, что она говорит!</p>
+            </div>
+            <button class="btn btn-primary" onclick="showScreen('menu-screen')">← Назад</button>
+        </div>
+
+        <!-- ВСТУПЛЕНИЕ УРОВНЯ -->
+        <div id="level-intro-screen" class="screen">
+            <div class="snowflakes" id="intro-snow"></div>
+            <div class="level-intro">
+                <div class="level-title" id="intro-level-title"></div>
+                <div class="location-emoji" id="intro-location-emoji"></div>
+                <div class="level-description" id="intro-description"></div>
+                <div class="penguin-speech">
+                    <div class="penguin-avatar">🐧</div>
+                    <div class="speech-bubble" id="intro-penguin-speech"></div>
+                </div>
+                <button class="btn btn-success" onclick="startLevel()">🚀 Вперёд!</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН ЗАДАНИЯ -->
+        <div id="task-screen" class="screen">
+            <div class="hud">
+                <div class="hud-item">
+                    <span>Уровень:</span>
+                    <span id="hud-level">1</span>/6
+                </div>
+                <div class="hud-item">
+                    <span>⭐</span>
+                    <span id="hud-stars">0</span>
+                </div>
+                <div class="hud-item">
+                    <span>🪙</span>
+                    <span id="hud-coins">0</span>
+                </div>
+                <div class="hud-item hearts" id="hud-lives">❤️❤️❤️</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="hud-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="task-screen" style="padding-top: 70px;">
+                <div class="task-container" id="task-container">
+                    <div class="task-context" id="task-context"></div>
+                    <div class="task-question" id="task-question"></div>
+                    
+                    <div class="penguin-speech" id="penguin-hint-speech" style="display:none;">
+                        <div class="penguin-avatar">🐧</div>
+                        <div class="speech-bubble" id="penguin-hint-text"></div>
+                    </div>
+
+                    <div class="obstacle-box" id="obstacle-box" style="display:none;">
+                        <div class="obstacle-title">🌪️ Вьюга-Путаница шепчет:</div>
+                        <div id="obstacle-text"></div>
+                    </div>
+
+                    <div class="hint-box" id="hint-box"></div>
+
+                    <div style="text-align:center; color:#a0d8ef; font-size:14px; margin:5px 0;">Нажми на слова в правильном порядке ↓</div>
+                    
+                    <div class="answer-area" id="answer-area"></div>
+                    
+                    <div style="text-align:center; color:#a0d8ef; font-size:14px; margin:5px 0;">Доступные слова:</div>
+                    
+                    <div class="word-bank" id="word-bank"></div>
+
+                    <div class="task-buttons">
+                        <button class="btn btn-success" onclick="checkAnswer()">✅ Проверить</button>
+                        <button class="btn btn-warning btn-small" onclick="showHint()">💡 Подсказка</button>
+                        <button class="btn btn-danger btn-small" onclick="resetAnswer()">🔄 Сбросить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН ЗАВЕРШЕНИЯ УРОВНЯ -->
+        <div id="level-complete-screen" class="screen bg-arctic">
+            <div class="snowflakes" id="complete-snow"></div>
+            <div class="result-card">
+                <div class="result-emoji">🎉</div>
+                <div class="result-title" id="complete-title">Уровень пройден!</div>
+                <div class="stars-display" id="complete-stars"></div>
+                <div class="rewards-row" id="complete-rewards"></div>
+                <div class="result-text" id="complete-text"></div>
+                <div class="penguin-speech" style="justify-content:center;">
+                    <div class="penguin-avatar">🐧</div>
+                    <div class="speech-bubble" id="complete-penguin"></div>
+                </div>
+                <button class="btn btn-primary" id="btn-next-level" onclick="nextLevel()">Дальше →</button>
+            </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div id="gameover-screen" class="screen bg-arctic">
+            <div class="snowflakes" id="gameover-snow"></div>
+            <div class="game-over-screen">
+                <div class="game-over-emoji">😢</div>
+                <div class="level-title">Жизни закончились!</div>
+                <div class="penguin-speech" style="justify-content:center;">
+                    <div class="penguin-avatar">🐧</div>
+                    <div class="speech-bubble">Не расстраивайся! Попробуй ещё раз — у тебя обязательно получится!</div>
+                </div>
+                <div class="menu-buttons">
+                    <button class="btn btn-primary" onclick="retryLevel()">🔄 Попробовать снова</button>
+                    <button class="btn btn-warning" onclick="showScreen('menu-screen')">🏠 В меню</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ФИНАЛЬНЫЙ ЭКРАН -->
+        <div id="final-screen" class="screen bg-aurora">
+            <div class="aurora-effect"></div>
+            <div class="snowflakes" id="final-snow"></div>
+            <div class="final-screen">
+                <div class="gold-medal">🏅</div>
+                <div class="final-title">Поздравляем!</div>
+                <div class="penguin-speech" style="justify-content:center;">
+                    <div class="penguin-avatar">🐧</div>
+                    <div class="speech-bubble">Ты настоящий герой! Все ошибки исправлены, и Арктика снова в порядке! Эта Золотая медаль — твоя!</div>
+                </div>
+                <div class="final-stats" id="final-stats"></div>
+                <div class="menu-buttons">
+                    <button class="btn btn-primary" onclick="resetGame()">🔄 Играть снова</button>
+                    <button class="btn btn-warning" onclick="showScreen('menu-screen')">🏠 В меню</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OVERLAY РЕЗУЛЬТАТА -->
+        <div class="result-overlay" id="result-overlay">
+            <div class="result-card" id="result-card"></div>
+        </div>
+
+        <!-- КОНФЕТТИ -->
+        <div class="confetti-container" id="confetti-container"></div>
+    </div>
+
+    <script>
+        // ===== ДАННЫЕ ИГРЫ =====
+        const gameState = {
+            currentLevel: 0,
+            currentTask: 0,
+            lives: 3,
+            stars: 0,
+            coins: 0,
+            totalCorrect: 0,
+            totalAttempts: 0,
+            startTime: null,
+            levelStars: [0, 0, 0, 0, 0, 0],
+            selectedWords: [],
+            hintUsed: false,
+            attempts: 0
+        };
+
+        // ===== ДАННЫЕ УРОВНЕЙ =====
+        const levels = [
+            {
+                name: "Ледяная пещера",
+                emoji: "🧊",
+                bgClass: "bg-cave",
+                description: "Пип входит в сверкающую ледяную пещеру. На стенах — древние надписи, но Вьюга-Путаница перемешала все слова!",
+                penguinIntro: "Ого! Смотри, слова на стенах совсем перепутались! Давай составим из них правильные предложения!",
+                tasks: [
+                    {
+                        context: "🧊 Пещера хранит древние записи...",
+                        question: "Составь предложение о зимней природе:",
+                        words: ["Белый", "снег", "покрыл", "землю"],
+                        answer: "Белый снег покрыл землю.",
+                        hint: "Подумай: что покрыло землю? Что было белым?",
+                        obstacle: "Может быть: «Землю белый снег покрыл»? Или «Снег белый землю покрыл»? Хм-м-м..."
+                    },
+                    {
+                        context: "🌬️ Холодный воздух заполняет пещеру...",
+                        question: "Составь предложение о ветре:",
+                        words: ["Холодный", "ветер", "дует", "с", "севера"],
+                        answer: "Холодный ветер дует с севера.",
+                        hint: "Какой ветер? Что он делает? Откуда?",
+                        obstacle: "А может: «Севера с дует ветер холодный»? Нет-нет, это я шутю... или нет?"
+                    },
+                    {
+                        context: "🐧 У входа в пещеру кто-то машет крыльями...",
+                        question: "Составь предложение о маленьком пингвине:",
+                        words: ["Маленький", "пингвин", "плывёт", "по", "воде"],
+                        answer: "Маленький пингвин плывёт по воде.",
+                        hint: "Кто плывёт? Какой он? Где плывёт?",
+                        obstacle: "«По воде пингвин маленький плывёт» — тоже вроде подходит! Или нет? Решай сам!"
+                    }
+                ],
+                completePenguin: "Отлично! Стены пещеры снова читаются! Идём дальше!"
+            },
+            {
+                name: "Полярная станция",
+                emoji: "🏠",
+                bgClass: "bg-station",
+                description: "Пип добирается до полярной станции. Учёные оставили важные записи, но слова в них перепутаны!",
+                penguinIntro: "Здесь учёные изучают Арктику! Их записи тоже пострадали от Вьюги. Поможем?",
+                tasks: [
+                    {
+                        context: "🔬 Учёные ведут исследования...",
+                        question: "Составь предложение об учёных:",
+                        words: ["Учёные", "изучают", "льды", "Арктики"],
+                        answer: "Учёные изучают льды Арктики.",
+                        hint: "Кто изучает? Что изучает? Чего?",
+                        obstacle: "«Арктики льды изучают учёные» — звучит загадочно! Но правильно ли по-русски?"
+                    },
+                    {
+                        context: "👩‍🔬 На станции работают люди...",
+                        question: "Составь предложение о людях на станции:",
+                        words: ["На", "станции", "живут", "смелые", "исследователи"],
+                        answer: "На станции живут смелые исследователи.",
+                        hint: "Где живут? Кто живёт? Какие они?",
+                        obstacle: "«Смелые на станции живут исследователи» — а так можно? Подумай!"
+                    },
+                    {
+                        context: "❄️ Океан вокруг покрыт льдом...",
+                        question: "Составь предложение о льде:",
+                        words: ["Толстый", "слой", "льда", "покрывает", "океан"],
+                        answer: "Толстый слой льда покрывает океан.",
+                        hint: "Какой слой? Чего? Что делает?",
+                        obstacle: "«Океан покрывает толстый слой льда» — подожди, тут смысл меняется! Кто кого покрывает?"
+                    },
+                    {
+                        context: "📝 В журнале станции есть запись...",
+                        question: "Составь предложение о записи:",
+                        words: ["В", "журнале", "записали", "температуру", "воздуха"],
+                        answer: "В журнале записали температуру воздуха.",
+                        hint: "Где записали? Что записали? Чего?",
+                        obstacle: "«Воздуха температуру записали в журнале» — я запуталась! А ты?"
+                    }
+                ],
+                completePenguin: "Ура! Записи учёных восстановлены! Они очень благодарны!"
+            },
+            {
+                name: "Ледниковое озеро",
+                emoji: "🏞️",
+                bgClass: "bg-lake",
+                description: "Перед Пипом — красивейшее ледниковое озеро. На берегу стоит табличка, но текст на ней рассыпался!",
+                penguinIntro: "Как красиво тут! Ой, смотри — табличка у озера вся перепутана. Давай прочитаем, что на ней написано!",
+                tasks: [
+                    {
+                        context: "🐟 В озере водится рыба...",
+                        question: "Составь предложение о рыбе в озере:",
+                        words: ["В", "холодном", "озере", "плавает", "большая", "рыба"],
+                        answer: "В холодном озере плавает большая рыба.",
+                        hint: "Где плавает? В каком озере? Какая рыба?",
+                        obstacle: "«Рыба большая плавает в озере холодном» — Вьюга опять путает порядок слов!"
+                    },
+                    {
+                        context: "🏔️ Озеро очень красивое...",
+                        question: "Составь предложение о красоте озера:",
+                        words: ["Красивое", "северное", "озеро", "покрыто", "льдом"],
+                        answer: "Красивое северное озеро покрыто льдом.",
+                        hint: "Какое озеро? Что с ним?",
+                        obstacle: "«Льдом покрыто озеро северное красивое» — совсем запутала! Разбирайся сам!"
+                    },
+                    {
+                        context: "🎣 Местные жители рыбачат...",
+                        question: "Составь предложение о рыбалке:",
+                        words: ["Рыбаки", "ловят", "рыбу", "на", "ледяном", "озере"],
+                        answer: "Рыбаки ловят рыбу на ледяном озере.",
+                        hint: "Кто ловит? Что ловит? Где?",
+                        obstacle: "«На озере ледяном рыбу ловят рыбаки» — почти правильно, но порядок слов странный!"
+                    }
+                ],
+                completePenguin: "Табличка снова читается! Озеро будто улыбается нам!"
+            },
+            {
+                name: "Лежбище моржей",
+                emoji: "🦭",
+                bgClass: "bg-walrus",
+                description: "На берегу отдыхают моржи. Рядом стоит информационный щит, но Вьюга испортила все надписи!",
+                penguinIntro: "Осторожно, тут моржи! Они добрые, но щит с информацией о них сломан. Починим?",
+                tasks: [
+                    {
+                        context: "🦭 Морж отдыхает на камне...",
+                        question: "Составь предложение о морже:",
+                        words: ["Тяжёлый", "морж", "лежит", "на", "тёплом", "камне"],
+                        answer: "Тяжёлый морж лежит на тёплом камне.",
+                        hint: "Какой морж? Что делает? На чём?",
+                        obstacle: "«На тёплом камне морж тяжёлый лежит» — вроде все слова есть, но звучит кривовато!"
+                    },
+                    {
+                        context: "👶 Маленькие моржата играют...",
+                        question: "Составь предложение о моржатах:",
+                        words: ["Маленькие", "моржата", "играют", "у", "берега"],
+                        answer: "Маленькие моржата играют у берега.",
+                        hint: "Кто играет? Какие они? Где?",
+                        obstacle: "«У берега играют моржата маленькие» — я так говорю, когда путаюсь! А ты не путайся!"
+                    },
+                    {
+                        context: "🦷 У моржей есть особенные зубы...",
+                        question: "Составь предложение о клыках моржа:",
+                        words: ["У", "моржа", "длинные", "острые", "клыки"],
+                        answer: "У моржа длинные острые клыки.",
+                        hint: "У кого? Какие клыки?",
+                        obstacle: "«Острые клыки длинные у моржа» — нет, так не говорят! Подумай ещё!"
+                    },
+                    {
+                        context: "🌊 Моржи любят воду...",
+                        question: "Составь предложение о моржах в воде:",
+                        words: ["Моржи", "любят", "плавать", "в", "холодной", "воде"],
+                        answer: "Моржи любят плавать в холодной воде.",
+                        hint: "Кто любит? Что любит? Где плавать? В какой воде?",
+                        obstacle: "«В холодной воде плавать любят моржи» — загадочно, но порядок хромает!"
+                    }
+                ],
+                completePenguin: "Моржи одобрительно хлопают ластами! Щит снова в порядке!"
+            },
+            {
+                name: "Поселение эскимосов",
+                emoji: "🛖",
+                bgClass: "bg-village",
+                description: "Пип добирается до поселения эскимосов. Дети оставили записки, но Вьюга их перемешала!",
+                penguinIntro: "Здесь живут дружные эскимосы! Их дети написали записки для нас, но Вьюга их растрепала!",
+                tasks: [
+                    {
+                        context: "🏗️ Эскимосы строят жилища...",
+                        question: "Составь предложение о строительстве:",
+                        words: ["Эскимосы", "строят", "дома", "из", "снега", "и", "льда"],
+                        answer: "Эскимосы строят дома из снега и льда.",
+                        hint: "Кто строит? Что строит? Из чего?",
+                        obstacle: "«Из снега и льда дома строят эскимосы» — а так? Хм, вроде можно... но лучше по порядку!"
+                    },
+                    {
+                        context: "🐕 Дети катаются на собаках...",
+                        question: "Составь предложение о детях:",
+                        words: ["Дети", "катаются", "на", "упряжках", "с", "собаками"],
+                        answer: "Дети катаются на упряжках с собаками.",
+                        hint: "Кто катается? На чём катается? С кем?",
+                        obstacle: "«С собаками на упряжках дети катаются» — запутанно! Разложи по полочкам!"
+                    },
+                    {
+                        context: "🏠 В иглу тепло...",
+                        question: "Составь предложение об иглу:",
+                        words: ["В", "иглу", "тепло", "даже", "в", "сильный", "мороз"],
+                        answer: "В иглу тепло даже в сильный мороз.",
+                        hint: "Где тепло? Когда тепло? Даже когда?",
+                        obstacle: "«В сильный мороз даже в иглу тепло» — нет, смысл поменялся! Будь внимателен!"
+                    }
+                ],
+                completePenguin: "Дети эскимосов радуются! Они дарят нам тёплые шарфики! 🧣"
+            },
+            {
+                name: "Северное сияние",
+                emoji: "🌌",
+                bgClass: "bg-aurora",
+                description: "Финальное испытание! Под северным сиянием Пип находит последний свиток с самыми сложными заданиями!",
+                penguinIntro: "Мы почти у цели! Осталось последнее испытание под северным сиянием. Это самые сложные предложения — ты справишься!",
+                tasks: [
+                    {
+                        context: "✨ Сияние освещает небо...",
+                        question: "Составь предложение о северном сиянии:",
+                        words: ["Яркое", "северное", "сияние", "освещает", "ночное", "небо"],
+                        answer: "Яркое северное сияние освещает ночное небо.",
+                        hint: "Какое сияние? Что делает? Какое небо?",
+                        obstacle: "«Ночное небо освещает сияние яркое северное» — Вьюга совсем разошлась! Не поддавайся!"
+                    },
+                    {
+                        context: "🐧 Пип любуется красотой...",
+                        question: "Составь предложение о путешественнике:",
+                        words: ["Путешественник", "долго", "любовался", "красивым", "сиянием"],
+                        answer: "Путешественник долго любовался красивым сиянием.",
+                        hint: "Кто любовался? Как долго? Чем любовался? Каким?",
+                        obstacle: "«Красивым сиянием любовался долго путешественник» — я чуть сама не запуталась!"
+                    },
+                    {
+                        context: "🌈 Огни танцуют над пустыней...",
+                        question: "Составь предложение о огнях сияния:",
+                        words: ["Разноцветные", "огни", "танцуют", "над", "ледяной", "пустыней"],
+                        answer: "Разноцветные огни танцуют над ледяной пустыней.",
+                        hint: "Какие огни? Что делают? Над чем?",
+                        obstacle: "«Над ледяной пустыней танцуют огни разноцветные» — красиво, но порядок не тот!"
+                    },
+                    {
+                        context: "🏆 Финальное задание!",
+                        question: "Составь предложение о победе:",
+                        words: ["Пингвин", "Пип", "благодарит", "тебя", "за", "помощь"],
+                        answer: "Пингвин Пип благодарит тебя за помощь.",
+                        hint: "Кто благодарит? Кого? За что?",
+                        obstacle: "«За помощь благодарит тебя Пип пингвин» — последнее испытание! Ты сможешь!"
+                    }
+                ],
+                completePenguin: "НЕВЕРОЯТНО! Ты справился со всеми заданиями! Арктика спасена!"
+            }
+        ];
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        function init() {
+            createSnowflakes('menu-snow');
+            loadGame();
+            checkContinue();
+        }
+
+        // ===== СНЕЖИНКИ =====
+        function createSnowflakes(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            const flakes = ['❄', '❅', '❆', '•', '∗'];
+            for (let i = 0; i < 30; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                flake.style.fontSize = (Math.random() * 15 + 8) + 'px';
+                container.appendChild(flake);
+            }
+        }
+
+        // ===== УПРАВЛЕНИЕ ЭКРАНАМИ =====
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            // Создаём снежинки для нового экрана
+            const snowMap = {
+                'menu-screen': 'menu-snow',
+                'rules-screen': 'rules-snow',
+                'level-intro-screen': 'intro-snow',
+                'level-complete-screen': 'complete-snow',
+                'gameover-screen': 'gameover-snow',
+                'final-screen': 'final-snow'
+            };
+            if (snowMap[screenId]) {
+                createSnowflakes(snowMap[screenId]);
+            }
+        }
+
+        // ===== СОХРАНЕНИЕ/ЗАГРУЗКА =====
+        function saveGame() {
+            const saveData = {
+                currentLevel: gameState.currentLevel,
+                stars: gameState.stars,
+                coins: gameState.coins,
+                totalCorrect: gameState.totalCorrect,
+                totalAttempts: gameState.totalAttempts,
+                startTime: gameState.startTime,
+                levelStars: gameState.levelStars
+            };
+            localStorage.setItem('penguinGame', JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const data = localStorage.getItem('penguinGame');
+            if (data) {
+                const saveData = JSON.parse(data);
+                gameState.currentLevel = saveData.currentLevel || 0;
+                gameState.stars = saveData.stars || 0;
+                gameState.coins = saveData.coins || 0;
+                gameState.totalCorrect = saveData.totalCorrect || 0;
+                gameState.totalAttempts = saveData.totalAttempts || 0;
+                gameState.startTime = saveData.startTime || null;
+                gameState.levelStars = saveData.levelStars || [0, 0, 0, 0, 0, 0];
+            }
+        }
+
+        function checkContinue() {
+            const data = localStorage.getItem('penguinGame');
+            if (data) {
+                const saveData = JSON.parse(data);
+                if (saveData.currentLevel > 0) {
+                    document.getElementById('btn-continue').style.display = 'inline-block';
+                }
+            }
+        }
+
+        // ===== НАЧАЛО ИГРЫ =====
+        function startGame() {
+            gameState.currentLevel = 0;
+            gameState.stars = 0;
+            gameState.coins = 0;
+            gameState.totalCorrect = 0;
+            gameState.totalAttempts = 0;
+            gameState.startTime = Date.now();
+            gameState.levelStars = [0, 0, 0, 0, 0, 0];
+            gameState.lives = 3;
+            saveGame();
+            showLevelIntro();
+        }
+
+        function continueGame() {
+            gameState.lives = 3;
+            showLevelIntro();
+        }
+
+        function showRules() {
+            showScreen('rules-screen');
+        }
+
+        // ===== ВСТУПЛЕНИЕ УРОВНЯ =====
+        function showLevelIntro() {
+            const level = levels[gameState.currentLevel];
+            document.getElementById('intro-level-title').textContent = `Уровень ${gameState.currentLevel + 1}: ${level.name}`;
+            document.getElementById('intro-location-emoji').textContent = level.emoji;
+            document.getElementById('intro-description').textContent = level.description;
+            document.getElementById('intro-penguin-speech').textContent = level.penguinIntro;
+            
+            // Устанавливаем фон
+            const introScreen = document.getElementById('level-intro-screen');
+            introScreen.className = `screen active ${level.bgClass}`;
+            
+            showScreen('level-intro-screen');
+        }
+
+        // ===== НАЧАЛО УРОВНЯ =====
+        function startLevel() {
+            gameState.currentTask = 0;
+            gameState.lives = 3;
+            showTask();
+        }
+
+        // ===== ПОКАЗ ЗАДАНИЯ =====
+        function showTask() {
+            const level = levels[gameState.currentLevel];
+            const task = level.tasks[gameState.currentTask];
+            
+            gameState.selectedWords = [];
+            gameState.hintUsed = false;
+            gameState.attempts = 0;
+
+            // Обновляем HUD
+            updateHUD();
+
+            // Устанавливаем фон
+            const taskScreen = document.getElementById('task-screen');
+            taskScreen.className = `screen active ${level.bgClass}`;
+
+            // Контекст
+            document.getElementById('task-context').textContent = task.context;
+            document.getElementById('task-question').textContent = task.question;
+
+            // Препятствие (запутанная подсказка)
+            const obstacleBox = document.getElementById('obstacle-box');
+            if (task.obstacle && gameState.currentTask === level.tasks.length - 1) {
+                // Показываем препятствие на последнем задании уровня
+                obstacleBox.style.display = 'block';
+                document.getElementById('obstacle-text').textContent = task.obstacle;
+            } else if (task.obstacle && Math.random() > 0.5) {
+                obstacleBox.style.display = 'block';
+                document.getElementById('obstacle-text').textContent = task.obstacle;
+            } else {
+                obstacleBox.style.display = 'none';
+            }
+
+            // Скрываем подсказку
+            document.getElementById('hint-box').classList.remove('show');
+            document.getElementById('penguin-hint-speech').style.display = 'none';
+
+            // Создаём слова (перемешанные)
+            renderWordBank(task.words);
+            renderAnswerArea();
+
+            showScreen('task-screen');
+        }
+
+        // ===== РЕНДЕР СЛОВ =====
+        function renderWordBank(words) {
+            const bank = document.getElementById('word-bank');
+            bank.innerHTML = '';
+            
+            // Перемешиваем слова
+            const shuffled = [...words].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach((word, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.textContent = word;
+                chip.dataset.word = word;
+                chip.dataset.index = index;
+                chip.onclick = () => selectWord(chip);
+                bank.appendChild(chip);
+            });
+        }
+
+        function renderAnswerArea() {
+            const area = document.getElementById('answer-area');
+            area.innerHTML = '';
+            
+            gameState.selectedWords.forEach((word, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'answer-chip';
+                chip.textContent = word;
+                chip.onclick = () => removeWord(index);
+                area.appendChild(chip);
+            });
+
+            // Placeholder
+            if (gameState.selectedWords.length === 0) {
+                area.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 16px;">Нажимай на слова ниже...</span>';
+            }
+        }
+
+        // ===== ВЫБОР/УДАЛЕНИЕ СЛОВ =====
+        function selectWord(chip) {
+            if (chip.classList.contains('selected')) return;
+            
+            chip.classList.add('selected');
+            gameState.selectedWords.push(chip.dataset.word);
+            renderAnswerArea();
+        }
+
+        function removeWord(index) {
+            const word = gameState.selectedWords[index];
+            gameState.selectedWords.splice(index, 1);
+            
+            // Снимаем выделение с соответствующего слова в банке
+            const bankChips = document.querySelectorAll('.word-chip.selected');
+            let found = false;
+            document.querySelectorAll('.word-chip').forEach(chip => {
+                if (chip.dataset.word === word && chip.classList.contains('selected') && !found) {
+                    chip.classList.remove('selected');
+                    found = true;
+                }
+            });
+            
+            renderAnswerArea();
+        }
+
+        function resetAnswer() {
+            gameState.selectedWords = [];
+            document.querySelectorAll('.word-chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            renderAnswerArea();
+        }
+
+        // ===== ПРОВЕРКА ОТВЕТА =====
+        function checkAnswer() {
+            const level = levels[gameState.currentLevel];
+            const task = level.tasks[gameState.currentTask];
+            
+            if (gameState.selectedWords.length === 0) {
+                showPenguinHint("Сначала составь предложение из слов! 😉");
+                return;
+            }
+
+            if (gameState.selectedWords.length !== task.words.length) {
+                showPenguinHint("Ты использовал не все слова! Нажми на все слова в правильном порядке.");
+                return;
+            }
+
+            gameState.totalAttempts++;
+            gameState.attempts++;
+
+            // Формируем предложение из выбранных слов
+            const userSentence = gameState.selectedWords.join(' ') + '.';
+            const correctAnswer = task.answer;
+
+            if (userSentence === correctAnswer) {
+                // Правильный ответ!
+                gameState.totalCorrect++;
+                if (!gameState.hintUsed) {
+                    gameState.stars++;
+                    gameState.coins += 10;
+                } else {
+                    gameState.coins += 5;
+                }
+                
+                // Анимация правильного ответа
+                document.getElementById('task-container').classList.add('correct-flash');
+                setTimeout(() => {
+                    document.getElementById('task-container').classList.remove('correct-flash');
+                }, 600);
+
+                showPenguinHint(getRandomPraise());
+                createMiniConfetti();
+
+                setTimeout(() => {
+                    nextTask();
+                }, 1500);
+            } else {
+                // Неправильный ответ
+                gameState.lives--;
+                
+                document.getElementById('task-container').classList.add('wrong-flash');
+                setTimeout(() => {
+                    document.getElementById('task-container').classList.remove('wrong-flash');
+                }, 600);
+
+                if (gameState.lives <= 0) {
+                    // Жизни кончились
+                    setTimeout(() => {
+                        showScreen('gameover-screen');
+                    }, 800);
+                    return;
+                }
+
+                // Подсказка после ошибки
+                if (gameState.attempts >= 3) {
+                    // После 3 попыток показываем ответ
+                    showPenguinHint(`Правильный ответ: «${correctAnswer}» Запомни его!`);
+                    setTimeout(() => {
+                        nextTask();
+                    }, 3000);
+                } else {
+                    showPenguinHint(getEncouragement());
+                }
+
+                updateHUD();
+            }
+
+            saveGame();
+        }
+
+        // ===== СЛЕДУЮЩЕЕ ЗАДАНИЕ =====
+        function nextTask() {
+            const level = levels[gameState.currentLevel];
+            gameState.currentTask++;
+
+            if (gameState.currentTask >= level.tasks.length) {
+                // Уровень пройден!
+                levelComplete();
+            } else {
+                showTask();
+            }
+        }
+
+        // ===== ЗАВЕРШЕНИЕ УРОВНЯ =====
+        function levelComplete() {
+            const level = levels[gameState.currentLevel];
+            
+            // Подсчёт звёзд за уровень
+            const tasksCount = level.tasks.length;
+            const levelStars = Math.min(3, Math.ceil((gameState.totalCorrect / Math.max(1, gameState.totalAttempts)) * 3));
+            gameState.levelStars[gameState.currentLevel] = levelStars;
+            
+            // Бонусные монеты
+            gameState.coins += 20;
+            gameState.stars += levelStars;
+
+            // Обновляем экран завершения
+            document.getElementById('complete-title').textContent = `${level.name} — пройдено!`;
+            
+            // Звёзды
+            let starsHTML = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < levelStars) {
+                    starsHTML += `<span class="star-earned" style="animation-delay: ${i * 0.2}s">⭐</span>`;
+                } else {
+                    starsHTML += `<span style="opacity: 0.3">⭐</span>`;
+                }
+            }
+            document.getElementById('complete-stars').innerHTML = starsHTML;
+
+            // Награды
+            document.getElementById('complete-rewards').innerHTML = `
+                <div class="reward-item"><div class="emoji">🪙</div><div class="label">+20 монет</div></div>
+                <div class="reward-item"><div class="emoji">⭐</div><div class="label">+${levelStars} звёзд</div></div>
+                <div class="reward-item"><div class="emoji">${level.emoji}</div><div class="label">Новая локация!</div></div>
+            `;
+
+            document.getElementById('complete-text').textContent = `Правильных ответов: ${gameState.totalCorrect} из ${gameState.totalAttempts}`;
+            document.getElementById('complete-penguin').textContent = level.completePenguin;
+
+            // Кнопка "Дальше"
+            const btnNext = document.getElementById('btn-next-level');
+            if (gameState.currentLevel >= levels.length - 1) {
+                btnNext.textContent = '🏆 Завершить игру!';
+                btnNext.onclick = showFinalScreen;
+            } else {
+                btnNext.textContent = 'Дальше →';
+                btnNext.onclick = nextLevel;
+            }
+
+            // Конфетти!
+            createConfetti();
+
+            gameState.currentLevel++;
+            saveGame();
+
+            showScreen('level-complete-screen');
+        }
+
+        // ===== СЛЕДУЮЩИЙ УРОВЕНЬ =====
+        function nextLevel() {
+            gameState.lives = 3;
+            showLevelIntro();
+        }
+
+        // ===== ПОВТОР УРОВНЯ =====
+        function retryLevel() {
+            gameState.lives = 3;
+            gameState.currentTask = 0;
+            showLevelIntro();
+        }
+
+        // ===== ФИНАЛЬНЫЙ ЭКРАН =====
+        function showFinalScreen() {
+            const elapsed = Date.now() - (gameState.startTime || Date.now());
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+
+            document.getElementById('final-stats').innerHTML = `
+                <div class="stat-row"><span>⭐ Всего звёзд:</span><span>${gameState.stars}</span></div>
+                <div class="stat-row"><span>🪙 Монет собрано:</span><span>${gameState.coins}</span></div>
+                <div class="stat-row"><span>✅ Правильных ответов:</span><span>${gameState.totalCorrect}</span></div>
+                <div class="stat-row"><span>📊 Попыток:</span><span>${gameState.totalAttempts}</span></div>
+                <div class="stat-row"><span>⏱️ Время:</span><span>${minutes} мин ${seconds} сек</span></div>
+                <div class="stat-row"><span>🏅 Награда:</span><span>Золотая медаль!</span></div>
+            `;
+
+            createConfetti();
+            showScreen('final-screen');
+            localStorage.removeItem('penguinGame');
+        }
+
+        // ===== СБРОС ИГРЫ =====
+        function resetGame() {
+            localStorage.removeItem('penguinGame');
+            gameState.currentLevel = 0;
+            gameState.stars = 0;
+            gameState.coins = 0;
+            gameState.totalCorrect = 0;
+            gameState.totalAttempts = 0;
+            gameState.startTime = null;
+            gameState.levelStars = [0, 0, 0, 0, 0, 0];
+            document.getElementById('btn-continue').style.display = 'none';
+            showScreen('menu-screen');
+        }
+
+        // ===== ПОДСКАЗКА =====
+        function showHint() {
+            const level = levels[gameState.currentLevel];
+            const task = level.tasks[gameState.currentTask];
+            
+            gameState.hintUsed = true;
+            
+            const hintBox = document.getElementById('hint-box');
+            hintBox.textContent = '💡 ' + task.hint;
+            hintBox.classList.add('show');
+        }
+
+        // ===== РЕПЛИКИ ПИНГВИНА =====
+        function showPenguinHint(text) {
+            const speech = document.getElementById('penguin-hint-speech');
+            const speechText = document.getElementById('penguin-hint-text');
+            speech.style.display = 'flex';
+            speechText.textContent = text;
+        }
+
+        function getRandomPraise() {
+            const praises = [
+                "Молодец! Отличная работа! 🌟",
+                "Великолепно! Ты настоящий герой! 🎉",
+                "Так держать! Пип гордится тобой! 🐧",
+                "Браво! Предложение составлено верно! ✨",
+                "Умница! Вьюга-Путаница в шоке! 😄",
+                "Превосходно! Ещё чуть-чуть! 💪",
+                "Отлично! Ты справляешься! 🏆"
+            ];
+            return praises[Math.floor(Math.random() * praises.length)];
+        }
+
+        function getEncouragement() {
+            const encouragements = [
+                "Почти! Попробуй ещё разок! 🐧",
+                "Не сдавайся! Подумай о порядке слов! 💪",
+                "Ой, не совсем... Давай попробуем снова! 🌟",
+                "Ммм, ошибка! Но ты справишься! Верю в тебя! ✨",
+                "Вьюга запутала! Распутай слова заново! 🌪️"
+            ];
+            return encouragements[Math.floor(Math.random() * encouragements.length)];
+        }
+
+        // ===== HUD =====
+        function updateHUD() {
+            document.getElementById('hud-level').textContent = gameState.currentLevel + 1;
+            document.getElementById('hud-stars').textContent = gameState.stars;
+            document.getElementById('hud-coins').textContent = gameState.coins;
+            
+            let heartsStr = '';
+            for (let i = 0; i < 3; i++) {
+                heartsStr += i < gameState.lives ? '❤️' : '🖤';
+            }
+            document.getElementById('hud-lives').textContent = heartsStr;
+
+            // Прогресс
+            const totalTasks = levels.reduce((sum, l) => sum + l.tasks.length, 0);
+            let completedTasks = 0;
+            for (let i = 0; i < gameState.currentLevel; i++) {
+                completedTasks += levels[i].tasks.length;
+            }
+            completedTasks += gameState.currentTask;
+            const progress = (completedTasks / totalTasks) * 100;
+            document.getElementById('hud-progress').style.width = progress + '%';
+        }
+
+        // ===== КОНФЕТТИ =====
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ff9f43'];
+            
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 1 + 's';
+                confetti.style.width = (Math.random() * 8 + 5) + 'px';
+                confetti.style.height = (Math.random() * 8 + 5) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => { container.innerHTML = ''; }, 4000);
+        }
+
+        function createMiniConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#2ecc71', '#ffd700', '#00b4d8'];
+            
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = (30 + Math.random() * 40) + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 1.5 + 1) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.width = (Math.random() * 6 + 4) + 'px';
+                confetti.style.height = (Math.random() * 6 + 4) + 'px';
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+
+        // ===== ЗАПУСК =====
+        init();
+    </script>
+</body>
+</html>

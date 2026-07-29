@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пингвин-путешественник в Парке аттракционов</title>
+    <style>
+        /* === БАЗОВЫЕ СТИЛИ === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #333;
+        }
+
+        #game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-menu {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: bounceIn 1s ease;
+        }
+
+        .game-subtitle {
+            font-size: 1.3em;
+            color: #f0e6ff;
+            margin-bottom: 30px;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .penguin-character {
+            width: 180px;
+            height: 180px;
+            margin: 20px auto;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .penguin-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .menu-btn {
+            display: block;
+            width: 280px;
+            margin: 12px auto;
+            padding: 16px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .menu-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-continue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-rules {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .legend-box {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .legend-box::before {
+            content: '📖';
+            font-size: 2em;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .legend-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #444;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .rules-box {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .rules-box h2 {
+            text-align: center;
+            color: #764ba2;
+            margin-bottom: 20px;
+        }
+
+        .rules-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-box li {
+            padding: 10px 0;
+            padding-left: 35px;
+            position: relative;
+            font-size: 1em;
+        }
+
+        .rules-box li::before {
+            content: '⭐';
+            position: absolute;
+            left: 5px;
+        }
+
+        .game-header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .header-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .lives {
+            color: #e74c3c;
+            font-size: 1.3em;
+        }
+
+        .coins {
+            color: #f39c12;
+        }
+
+        .stars {
+            color: #f1c40f;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.3);
+            border-radius: 25px;
+            height: 25px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+            border-radius: 25px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .level-intro {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .level-intro h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .level-intro p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .location-icon {
+            font-size: 4em;
+            margin: 15px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .task-box {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .task-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .task-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .task-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+            transform: scale(1.02);
+        }
+
+        .option-btn.selected {
+            border-color: #667eea;
+            background: #e8e0ff;
+        }
+
+        .option-btn.correct {
+            border-color: #27ae60;
+            background: #d4efdf;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option-btn.wrong {
+            border-color: #e74c3c;
+            background: #fadbd8;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .input-answer {
+            width: 100%;
+            max-width: 200px;
+            padding: 12px 20px;
+            font-size: 1.3em;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-answer:focus {
+            border-color: #667eea;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .hint-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-top: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        .hint-box p {
+            color: #856404;
+            font-size: 1em;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4efdf;
+            border: 2px solid #27ae60;
+            color: #1e8449;
+        }
+
+        .feedback.wrong {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+            color: #922b21;
+        }
+
+        .penguin-helper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+            z-index: 100;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .penguin-helper:hover {
+            transform: scale(1.1);
+        }
+
+        .penguin-speech {
+            position: fixed;
+            bottom: 110px;
+            right: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            max-width: 250px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 100;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .penguin-speech.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .penguin-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 30px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid white;
+        }
+
+        .reward-screen {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .reward-icon {
+            font-size: 5em;
+            animation: bounceIn 1s ease;
+            margin-bottom: 20px;
+        }
+
+        .reward-title {
+            font-size: 1.8em;
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .reward-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #777;
+        }
+
+        .final-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .medal {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            animation: spin 3s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .final-title {
+            font-size: 2.2em;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .final-stats {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall 3s ease-in forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .obstacle-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .obstacle-box h3 {
+            color: #c0392b;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        .obstacle-paths {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .path-btn {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: 3px solid #e74c3c;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .path-btn:hover {
+            background: #ffeaa7;
+            transform: scale(1.05);
+        }
+
+        .path-btn.correct-path {
+            border-color: #27ae60;
+            background: #d4efdf;
+        }
+
+        .path-btn.wrong-path {
+            border-color: #e74c3c;
+            background: #fadbd8;
+        }
+
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 1.8em;
+            }
+
+            .task-options {
+                grid-template-columns: 1fr;
+            }
+
+            .game-header {
+                justify-content: center;
+            }
+
+            .menu-btn {
+                width: 90%;
+            }
+
+            .penguin-helper {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8em;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .penguin-speech {
+                right: 10px;
+                bottom: 80px;
+                max-width: 200px;
+            }
+
+            .reward-stats {
+                gap: 15px;
+            }
+        }
+
+        .transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            flex-direction: column;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .transition-overlay.show {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .transition-text {
+            animation: pulse 1.5s infinite;
+        }
+
+        .star-animation {
+            display: inline-block;
+            animation: starPop 0.5s ease;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+
+        .badges-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: bounceIn 0.5s ease;
+        }
+
+        .badge-locked {
+            background: #ddd;
+            filter: grayscale(1);
+        }
+
+        .badge-unlocked {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .location-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: background 1s ease;
+        }
+
+        .bg-ferris {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .bg-shooting {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .bg-mirrors {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+
+        .bg-fountain {
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+        }
+
+        .bg-carousel {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .bg-coaster {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="location-bg" id="locationBg"></div>
+    <div class="confetti-container" id="confettiContainer"></div>
+    <div class="transition-overlay" id="transitionOverlay">
+        <div class="transition-text" id="transitionText">🎡 Едем дальше...</div>
+    </div>
+
+    <div id="game-container">
+        <div class="screen active" id="menuScreen">
+            <div class="main-menu">
+                <h1 class="game-title">🐧 Пингвин-путешественник</h1>
+                <p class="game-subtitle">в Парке аттракционов</p>
+                
+                <div class="penguin-character">
+                    <svg class="penguin-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="100" cy="120" rx="55" ry="65" fill="#2c3e50"/>
+                        <ellipse cx="100" cy="125" rx="35" ry="50" fill="#ecf0f1"/>
+                        <circle cx="100" cy="60" r="40" fill="#2c3e50"/>
+                        <circle cx="85" cy="55" r="10" fill="white"/>
+                        <circle cx="115" cy="55" r="10" fill="white"/>
+                        <circle cx="87" cy="55" r="5" fill="#2c3e50"/>
+                        <circle cx="117" cy="55" r="5" fill="#2c3e50"/>
+                        <circle cx="89" cy="53" r="2" fill="white"/>
+                        <circle cx="119" cy="53" r="2" fill="white"/>
+                        <polygon points="100,65 93,72 107,72" fill="#f39c12"/>
+                        <ellipse cx="100" cy="30" rx="30" ry="12" fill="#8e44ad"/>
+                        <rect x="75" y="20" width="50" height="15" rx="5" fill="#8e44ad"/>
+                        <circle cx="100" cy="18" r="5" fill="#f1c40f"/>
+                        <ellipse cx="50" cy="115" rx="15" ry="35" fill="#2c3e50" transform="rotate(-10, 50, 115)"/>
+                        <ellipse cx="150" cy="115" rx="15" ry="35" fill="#2c3e50" transform="rotate(10, 150, 115)"/>
+                        <ellipse cx="80" cy="180" rx="15" ry="8" fill="#f39c12"/>
+                        <ellipse cx="120" cy="180" rx="15" ry="8" fill="#f39c12"/>
+                        <rect x="115" y="85" width="25" height="30" rx="5" fill="#e74c3c"/>
+                        <rect x="120" y="80" width="15" height="5" rx="2" fill="#c0392b"/>
+                    </svg>
+                </div>
+
+                <button class="menu-btn btn-start" onclick="startGame()">🎮 Начать игру</button>
+                <button class="menu-btn btn-continue" id="continueBtn" onclick="continueGame()">▶ Продолжить</button>
+                <button class="menu-btn btn-rules" onclick="showRules()">📋 Правила</button>
+            </div>
+        </div>
+
+        <div class="screen" id="legendScreen">
+            <div class="legend-box">
+                <p class="legend-text">
+                    Далеко-далеко, в волшебном <strong>Парке аттракционов</strong>, живёт отважный <strong>Пингвин-путешественник</strong> по имени Пинни. Он объездил весь свет, но однажды в парке случилось несчастье — хитрые <strong>Ложные пути</strong> перепутали все аттракционы, и посетители не могут найти дорогу!
+                </p>
+                <p class="legend-text" style="margin-top: 15px;">
+                    Пинни просит тебя о помощи: нужно <strong>решить все математические задачи</strong>, чтобы разгадать коды аттракционов и восстановить порядок в парке. За каждое задание ты получишь звёздочку, а если пройдёшь все 6 уровней — тебя ждёт великолепная <strong>Золотая медаль</strong> настоящего героя! Но будь осторожен — <strong>Ложные пути</strong> будут пытаться сбить тебя с дороги!
+                </p>
+                <p class="legend-text" style="margin-top: 15px; font-style: italic; color: #764ba2;">
+                    Готов помочь Пинни? Тогда вперёд — к приключениям! 🚀
+                </p>
+            </div>
+            <button class="menu-btn btn-start" onclick="startLevel(1)" style="margin-top: 20px;">🎉 Вперёд!</button>
+        </div>
+
+        <div class="screen" id="rulesScreen">
+            <div class="rules-box">
+                <h2>📋 Правила игры</h2>
+                <ul>
+                    <li>Тебя ждут 6 уровней в разных аттракционах парка</li>
+                    <li>На каждом уровне — математические задачи</li>
+                    <li>У тебя 3 жизни (❤️❤️❤️) — береги их!</li>
+                    <li>За правильные ответы получаешь звёзды и монеты</li>
+                    <li>Если сложно — нажми «Подсказка»</li>
+                    <li>Остерегайся Ложных путей — они забирают жизни!</li>
+                    <li>Пройди все уровни и получи Золотую медаль!</li>
+                    <li>Игра сохраняется автоматически</li>
+                </ul>
+            </div>
+            <button class="menu-btn btn-rules" onclick="showScreen('menuScreen')" style="margin-top: 20px;">← Назад в меню</button>
+        </div>
+
+        <div class="screen" id="gameScreen">
+            <div class="game-header">
+                <div class="header-item">
+                    <span>📍</span>
+                    <span id="levelName">Уровень 1</span>
+                </div>
+                <div class="header-item lives">
+                    <span id="livesDisplay">❤️❤️❤️</span>
+                </div>
+                <div class="header-item coins">
+                    <span>🪙</span>
+                    <span id="coinsDisplay">0</span>
+                </div>
+                <div class="header-item stars">
+                    <span>⭐</span>
+                    <span id="starsDisplay">0</span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+            </div>
+
+            <div id="levelContent"></div>
+        </div>
+
+        <div class="screen" id="levelCompleteScreen">
+            <div class="reward-screen">
+                <div class="reward-icon" id="rewardIcon">🌟</div>
+                <h2 class="reward-title" id="rewardTitle">Уровень пройден!</h2>
+                <div class="reward-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statCorrect">0</div>
+                        <div class="stat-label">Правильных</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statCoins">0</div>
+                        <div class="stat-label">Монет</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statStars">0</div>
+                        <div class="stat-label">Звёзд</div>
+                    </div>
+                </div>
+                <div class="badges-container" id="badgesContainer"></div>
+                <p id="rewardMessage" style="margin: 15px 0; color: #555;"></p>
+                <button class="menu-btn btn-start" id="nextLevelBtn" onclick="goNextLevel()">Дальше →</button>
+            </div>
+        </div>
+
+        <div class="screen" id="finalScreen">
+            <div class="final-screen">
+                <h1 class="final-title">🎉 Поздравляем! 🎉</h1>
+                <div class="medal">
+                    <svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="75" cy="85" r="55" fill="#f1c40f" stroke="#f39c12" stroke-width="4"/>
+                        <circle cx="75" cy="85" r="45" fill="#f39c12"/>
+                        <circle cx="75" cy="85" r="38" fill="#f1c40f"/>
+                        <text x="75" y="92" text-anchor="middle" font-size="24" fill="#c0392b" font-weight="bold">★</text>
+                        <polygon points="75,10 65,35 40,35 60,50 52,75 75,60 98,75 90,50 110,35 85,35" fill="#e74c3c"/>
+                        <rect x="60" y="5" width="30" height="15" rx="3" fill="#3498db"/>
+                    </svg>
+                </div>
+                <p style="color: #f0e6ff; font-size: 1.3em; margin: 15px 0;">Ты получил Золотую медаль!</p>
+                <div class="final-stats">
+                    <h3 style="color: #764ba2; margin-bottom: 15px;">📊 Твои результаты</h3>
+                    <div class="reward-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="finalCorrect">0</div>
+                            <div class="stat-label">Правильных ответов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="finalCoins">0</div>
+                            <div class="stat-label">Монет собрано</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="finalStars">0</div>
+                            <div class="stat-label">Звёзд получено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="finalTime">0</div>
+                            <div class="stat-label">Минут потрачено</div>
+                        </div>
+                    </div>
+                    <p id="finalMessage" style="margin-top: 20px; font-size: 1.1em; color: #555;"></p>
+                </div>
+                <button class="menu-btn btn-start" onclick="resetGame()" style="margin-top: 20px;">🔄 Играть снова</button>
+                <button class="menu-btn btn-rules" onclick="showScreen('menuScreen')" style="margin-top: 10px;">🏠 В меню</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="penguin-helper" id="penguinHelper" onclick="togglePenguinSpeech()" style="display:none;">🐧</div>
+    <div class="penguin-speech" id="penguinSpeech"></div>
+
+    <script>
+        let gameState = {
+            currentLevel: 1,
+            currentTask: 0,
+            lives: 3,
+            coins: 0,
+            stars: 0,
+            totalCorrect: 0,
+            totalWrong: 0,
+            startTime: null,
+            levelCorrect: 0,
+            badges: [],
+            hintsUsed: 0
+        };
+
+        const levels = [
+            {
+                id: 1,
+                name: "Колесо обозрения",
+                icon: "🎡",
+                bgClass: "bg-ferris",
+                intro: "Пинни поднимается на Колесо обозрения! Но кабинки перепутаны — нужно решить задачки, чтобы каждая встала на своё место!",
+                tasks: [
+                    {
+                        text: "На колесе обозрения 8 кабинкок. Приехали ещё 8 кабинкок. Сколько всего кабинкок?",
+                        type: "choice",
+                        options: ["14", "16", "15", "17"],
+                        correct: 1,
+                        hint: "Сложи 8 и 8. Вспомни: 8 + 8 = ?",
+                        praise: "Отлично! 8 + 8 = 16 кабинкок! 🎡"
+                    },
+                    {
+                        text: "На колесе обозрения каталось 45 человек. 20 человек ушли. Сколько осталось?",
+                        type: "choice",
+                        options: ["25", "35", "15", "65"],
+                        correct: 0,
+                        hint: "Из 45 вычти 20. Сколько останется?",
+                        praise: "Верно! 45 - 20 = 25 человек! 👏"
+                    },
+                    {
+                        text: "Вычисли: 37 + 23 = ?",
+                        type: "input",
+                        correct: "60",
+                        hint: "Сначала единицы: 7 + 3 = 10. Запиши 0, перенеси 1. Потом десятки: 3 + 2 + 1 = 6.",
+                        praise: "Молодец! 37 + 23 = 60! 🌟"
+                    },
+                    {
+                        text: "Вычисли: 80 - 35 = ?",
+                        type: "input",
+                        correct: "45",
+                        hint: "Из 80 вычти 30, потом ещё 5. 80 - 30 = 50, 50 - 5 = ?",
+                        praise: "Супер! 80 - 35 = 45! 🎉"
+                    }
+                ],
+                obstacle: {
+                    text: "Ложный путь! Колесо обозрения крутится не туда! Выбери верное направление:",
+                    question: "Какое число самое большое?",
+                    options: ["47", "74", "56"],
+                    correct: 1
+                },
+                reward: { icon: "🎫", title: "Билет на колесо!", message: "Пинни получил золотой билет!" },
+                badge: "🎡"
+            },
+            {
+                id: 2,
+                name: "Тир",
+                icon: "🎯",
+                bgClass: "bg-shooting",
+                intro: "Пинни в Тире! Здесь нужно метко попадать в правильные ответы, как в мишени! Будь внимателен!",
+                tasks: [
+                    {
+                        text: "В тире 3 ряда мишеней. В каждом ряду по 5 мишеней. Сколько всего мишеней?",
+                        type: "choice",
+                        options: ["8", "15", "12", "20"],
+                        correct: 1,
+                        hint: "3 ряда по 5 — это 3 раза по 5, то есть 5 + 5 + 5 = ?",
+                        praise: "Точно в цель! 3 × 5 = 15 мишеней! 🎯"
+                    },
+                    {
+                        text: "Стрелок попал в 28 мишеней из 40. Сколько мишеней он пропустил?",
+                        type: "input",
+                        correct: "12",
+                        hint: "Из 40 вычти 28. 40 - 28 = ?",
+                        praise: "Меткий глаз! 40 - 28 = 12! 💫"
+                    },
+                    {
+                        text: "За каждый попадание дают 3 очка. Пинни попал 7 раз. Сколько очков?",
+                        type: "choice",
+                        options: ["10", "24", "21", "18"],
+                        correct: 2,
+                        hint: "7 раз по 3 очка — это 3 × 7 = ?",
+                        praise: "Превосходно! 3 × 7 = 21 очко! 🏆"
+                    },
+                    {
+                        text: "Вычисли: 56 + 27 = ?",
+                        type: "input",
+                        correct: "83",
+                        hint: "Единицы: 6 + 7 = 13. Запиши 3, перенеси 1. Десятки: 5 + 2 + 1 = 8.",
+                        praise: "Отличное попадание! 56 + 27 = 83! 🎯"
+                    }
+                ],
+                obstacle: {
+                    text: "Ложный путь! Мишени перепутались! Найди правильную:",
+                    question: "Какое выражение равно 50?",
+                    options: ["25 + 35", "30 + 20", "40 + 15"],
+                    correct: 1
+                },
+                reward: { icon: "🏹", title: "Золотая стрела!", message: "Пинни получил награду меткого стрелка!" },
+                badge: "🎯"
+            },
+            {
+                id: 3,
+                name: "Зал зеркал",
+                icon: "🪞",
+                bgClass: "bg-mirrors",
+                intro: "Зал зеркал искажает всё вокруг! Числа увеличиваются и уменьшаются. Помоги Пинни увидеть настоящие числа!",
+                tasks: [
+                    {
+                        text: "Зеркало увеличило число 45 в 2 раза. Какое число получилось?",
+                        type: "choice",
+                        options: ["47", "90", "85", "80"],
+                        correct: 1,
+                        hint: "Увеличить в 2 раза — значит умножить на 2. 45 × 2 = ?",
+                        praise: "Верно! 45 × 2 = 90! Зеркало не обмануло! 🪞"
+                    },
+                    {
+                        text: "Кривое зеркало показало число 73, но настоящее число на 38 меньше. Какое настоящее число?",
+                        type: "input",
+                        correct: "35",
+                        hint: "73 - 38 = ? Вычти сначала 30, потом 8.",
+                        praise: "Ты увидел правду! 73 - 38 = 35! 👀"
+                    },
+                    {
+                        text: "В зале 27 зеркал. Третья часть — кривые. Сколько кривых зеркал?",
+                        type: "choice",
+                        options: ["9", "7", "3", "12"],
+                        correct: 0,
+                        hint: "Третья часть от 27 — это 27 ÷ 3 = ?",
+                        praise: "Отлично! 27 ÷ 3 = 9 кривых зеркал! 🪞"
+                    },
+                    {
+                        text: "Сравни: 4 дм 5 см ... 54 см. Какой знак пропущен?",
+                        type: "choice",
+                        options: [">", "<", "="],
+                        correct: 1,
+                        hint: "Переведи в сантиметры: 4 дм 5 см = 40 см + 5 см = 45 см. Сравни 45 и 54.",
+                        praise: "Правильно! 45 см < 54 см! 🪞"
+                    },
+                    {
+                        text: "Вычисли: 100 - 46 = ?",
+                        type: "input",
+                        correct: "54",
+                        hint: "100 - 46: сначала 100 - 40 = 60, потом 60 - 6 = ?",
+                        praise: "Блестяще! 100 - 46 = 54! 🌟"
+                    }
+                ],
+                obstacle: {
+                    text: "Ложный путь! Зеркала показывают разные числа! Какое настоящее?",
+                    question: "Какое число НЕ является зеркальным отражением (перевёртышем) числа 12?",
+                    options: ["21", "12", "11"],
+                    correct: 2
+                },
+                reward: { icon: "🔮", title: "Волшебное зеркало!", message: "Пинни видит истину сквозь любые зеркала!" },
+                badge: "🪞"
+            },
+            {
+                id: 4,
+                name: "Площадь фонтанов",
+                icon: "⛲",
+                bgClass: "bg-fountain",
+                intro: "На Площади фонтанов вода бьёт ключом! Струи воды образуют числа и примеры. Реши их, чтобы фонтаны запели!",
+                tasks: [
+                    {
+                        text: "Фонтан бьёт на высоту 3 м, а второй — на 4 м выше. Какова высота второго фонтана?",
+                        type: "choice",
+                        options: ["7 м", "12 м", "1 м", "10 м"],
+                        correct: 0,
+                        hint: "3 м + 4 м = ?",
+                        praise: "Верно! 3 + 4 = 7 метров! Фонтан запел! ⛲"
+                    },
+                    {
+                        text: "В бассейне фонтана плавает 6 рыбок. Это одна четвёртая всех рыбок в парке. Сколько рыбок в парке?",
+                        type: "choice",
+                        options: ["10", "24", "12", "18"],
+                        correct: 1,
+                        hint: "Если 6 — это четверть (1/4), то всего в 4 раза больше. 6 × 4 = ?",
+                        praise: "Отлично! 6 × 4 = 24 рыбки! 🐠"
+                    },
+                    {
+                        text: "Вычисли: 4 × 8 + 12 = ?",
+                        type: "input",
+                        correct: "44",
+                        hint: "Сначала умножение: 4 × 8 = 32. Потом прибавь 12: 32 + 12 = ?",
+                        praise: "Супер! 4 × 8 + 12 = 44! 💦"
+                    },
+                    {
+                        text: "Периметр квадратной площадки фонтана равен 24 м. Чему равна сторона?",
+                        type: "input",
+                        correct: "6",
+                        hint: "У квадрата 4 равные стороны. Периметр = сторона × 4. Значит сторона = 24 ÷ 4 = ?",
+                        praise: "Молодец! 24 ÷ 4 = 6 метров! 📐"
+                    }
+                ],
+                obstacle: {
+                    text: "Ложный путь! Фонтаны бьют не туда! Выбери правильный:",
+                    question: "Какой фонтан (пример) даёт ответ 36?",
+                    options: ["4 × 8", "6 × 6", "9 × 3"],
+                    correct: 1
+                },
+                reward: { icon: "💧", title: "Капля мудрости!", message: "Пинни получил волшебную каплю — она светится!" },
+                badge: "⛲"
+            },
+            {
+                id: 5,
+                name: "Карусель",
+                icon: "🎠",
+                bgClass: "bg-carousel",
+                intro: "Карусель кружит голову! Задачи становятся сложнее — нужно быть очень внимательным, чтобы не запутаться!",
+                tasks: [
+                    {
+                        text: "На карусели 5 лошадок и 3 каретки. На каждой лошадке 1 человек, в каждой каретке 2 человека. Сколько всего людей?",
+                        type: "choice",
+                        options: ["8", "11", "13", "10"],
+                        correct: 1,
+                        hint: "Лошадки: 5 × 1 = 5. Каретки: 3 × 2 = 6. Всего: 5 + 6 = ?",
+                        praise: "Верно! 5 + 6 = 11 человек! 🎠"
+                    },
+                    {
+                        text: "Карусель делает 1 оборот за 2 минуты. Сколько оборотов она сделает за 14 минут?",
+                        type: "input",
+                        correct: "7",
+                        hint: "14 ÷ 2 = ?",
+                        praise: "Отлично! 14 ÷ 2 = 7 оборотов! 🌀"
+                    },
+                    {
+                        text: "Вычисли: 7 × 5 - 17 = ?",
+                        type: "input",
+                        correct: "18",
+                        hint: "Сначала 7 × 5 = 35. Потом 35 - 17 = ?",
+                        praise: "Браво! 35 - 17 = 18! 👏"
+                    },
+                    {
+                        text: "Длина карусели 9 м, а ширина 4 м. Чему равен периметр?",
+                        type: "choice",
+                        options: ["13 м", "26 м", "36 м", "22 м"],
+                        correct: 1,
+                        hint: "Периметр прямоугольника = (длина + ширина) × 2. (9 + 4) × 2 = ?",
+                        praise: "Супер! (9 + 4) × 2 = 26 м! 📏"
+                    },
+                    {
+                        text: "В парке 56 детей. 28 катаются на карусели, а остальные ждут. Сколько ждут?",
+                        type: "input",
+                        correct: "28",
+                        hint: "56 - 28 = ?",
+                        praise: "Верно! 56 - 28 = 28 детей ждут! 🎪"
+                    }
+                ],
+                obstacle: {
+                    text: "Ложный путь! Карусель крутится не в ту сторону! Выбери правильный пример:",
+                    question: "Какой пример решён ПРАВИЛЬНО?",
+                    options: ["6 × 4 = 20", "8 × 3 = 24", "5 × 7 = 30"],
+                    correct: 1
+                },
+                reward: { icon: "🗝️", title: "Золотой ключ!", message: "Пинни получил ключ от последнего аттракциона!" },
+                badge: "🎠"
+            },
+            {
+                id: 6,
+                name: "Американские горки",
+                icon: "🎢",
+                bgClass: "bg-coaster",
+                intro: "Финальный аттракцион! Американские горки — самые быстрые и сложные! Реши все задачи, чтобы получить Золотую медаль!",
+                tasks: [
+                    {
+                        text: "Горка имеет 3 спуска. Первый — 45 м, второй на 15 м короче первого, третий — 30 м. Какова общая длина?",
+                        type: "choice",
+                        options: ["90 м", "105 м", "120 м", "100 м"],
+                        correct: 1,
+                        hint: "Второй спуск: 45 - 15 = 30 м. Всего: 45 + 30 + 30 = ?",
+                        praise: "Отлично! 45 + 30 + 30 = 105 м! 🎢"
+                    },
+                    {
+                        text: "В вагонетке 4 ряда по 2 места. За день прокатилось 10 вагонеток (все заполнены). Сколько человек?",
+                        type: "input",
+                        correct: "80",
+                        hint: "В одной вагонетке: 4 × 2 = 8 мест. Всего: 8 × 10 = ?",
+                        praise: "Невероятно! 8 × 10 = 80 человек! 🏆"
+                    },
+                    {
+                        text: "Вычисли: 9 × 6 + 38 = ?",
+                        type: "input",
+                        correct: "92",
+                        hint: "Сначала 9 × 6 = 54. Потом 54 + 38 = ?",
+                        praise: "Блестяще! 54 + 38 = 92! ⭐"
+                    },
+                    {
+                        text: "Пинни прошёл половину пути по парку. Если весь путь 12 м, сколько метров он уже прошёл?",
+                        type: "choice",
+                        options: ["6 м", "4 м", "8 м", "24 м"],
+                        correct: 0,
+                        hint: "Половина — это 1/2. Раздели 12 на 2: 12 ÷ 2 = ?",
+                        praise: "Финальный рывок! 12 ÷ 2 = 6 м! 🎉"
+                    },
+                    {
+                        text: "На горке 72 билета продали за 9 одинаковых касс. Сколько билетов продала каждая касса?",
+                        type: "input",
+                        correct: "8",
+                        hint: "72 ÷ 9 = ?",
+                        praise: "ПОТРЯСАЮЩЕ! 72 ÷ 9 = 8! Ты почти у цели! 🌟"
+                    }
+                ],
+                obstacle: {
+                    text: "Финальный ложный путь! Горки ведут в пропасть! Спаси Пинни!",
+                    question: "Реши: 8 × 7 - 20 = ?",
+                    options: ["36", "56", "76"],
+                    correct: 0
+                },
+                reward: { icon: "🏅", title: "Золотая медаль!", message: "Пинни вручает тебе Золотую медаль героя!" },
+                badge: "🎢"
+            }
+        ];
+
+        const penguinPhrases = {
+            start: ["Давай начнём! 🎉", "Я верю в тебя!", "Вперёд к приключениям!"],
+            correct: ["Ура! Правильно! 🌟", "Ты молодец! 💪", "Так держать! 👏", "Супер-пупер! 🎉"],
+            wrong: ["Не переживай, попробуй ещё! 💪", "Почти! Подумай ещё разок 🤔", "Ничего страшного! Попробуй снова 😊"],
+            hint: ["Вот подсказка! Используй её 💡", "Подумай над подсказкой! 🤓"],
+            levelComplete: ["Мы справились! 🎉", "Ты настоящий герой! 🏆", "Ещё чуть-чуть! 💫"],
+            obstacle: ["Осторожно, ложный путь! 👀", "Будь внимателен! 🧐"],
+            final: ["Ты лучший! 🏅", "Поздравляю, герой! 🎊"]
+        };
+
+        function init() {
+            loadGame();
+            updateContinueButton();
+        }
+
+        function saveGame() {
+            localStorage.setItem('penguinGame', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('penguinGame');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                gameState = { ...gameState, ...parsed };
+            }
+        }
+
+        function updateContinueButton() {
+            const btn = document.getElementById('continueBtn');
+            if (gameState.currentLevel > 1 || gameState.currentTask > 0) {
+                btn.classList.remove('btn-disabled');
+            } else {
+                btn.classList.add('btn-disabled');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            gameState = {
+                currentLevel: 1,
+                currentTask: 0,
+                lives: 3,
+                coins: 0,
+                stars: 0,
+                totalCorrect: 0,
+                totalWrong: 0,
+                startTime: Date.now(),
+                levelCorrect: 0,
+                badges: [],
+                hintsUsed: 0
+            };
+            saveGame();
+            showScreen('legendScreen');
+        }
+
+        function continueGame() {
+            if (gameState.currentLevel <= 1 && gameState.currentTask === 0) {
+                startGame();
+                return;
+            }
+            showScreen('gameScreen');
+            document.getElementById('penguinHelper').style.display = 'flex';
+            renderLevel();
+        }
+
+        function showRules() {
+            showScreen('rulesScreen');
+        }
+
+        function startLevel(levelNum) {
+            gameState.currentLevel = levelNum;
+            gameState.currentTask = 0;
+            gameState.levelCorrect = 0;
+            saveGame();
+            showScreen('gameScreen');
+            document.getElementById('penguinHelper').style.display = 'flex';
+            renderLevel();
+            showPenguinPhrase('start');
+        }
+
+        function renderLevel() {
+            const level = levels[gameState.currentLevel - 1];
+            
+            document.getElementById('locationBg').className = 'location-bg ' + level.bgClass;
+            document.getElementById('levelName').textContent = `Ур. ${level.id}: ${level.name}`;
+            updateHeader();
+            updateProgress();
+
+            const content = document.getElementById('levelContent');
+            
+            if (gameState.currentTask < level.tasks.length) {
+                if (gameState.currentTask === 0) {
+                    content.innerHTML = `
+                        <div class="level-intro">
+                            <div class="location-icon">${level.icon}</div>
+                            <h2>${level.name}</h2>
+                            <p>${level.intro}</p>
+                            <button class="menu-btn btn-start" onclick="showTask()" style="margin-top: 20px;">Начать! 🚀</button>
+                        </div>
+                    `;
+                } else {
+                    showTask();
+                }
+            } else {
+                showObstacle();
+            }
+        }
+
+        function showTask() {
+            const level = levels[gameState.currentLevel - 1];
+            const task = level.tasks[gameState.currentTask];
+            const content = document.getElementById('levelContent');
+            
+            let taskHTML = `
+                <div class="task-box">
+                    <span class="task-number">Задание ${gameState.currentTask + 1} из ${level.tasks.length}</span>
+                    <p class="task-text">${task.text}</p>
+            `;
+
+            if (task.type === 'choice') {
+                taskHTML += `<div class="task-options">`;
+                task.options.forEach((opt, idx) => {
+                    taskHTML += `<button class="option-btn" onclick="selectOption(this, ${idx})" data-index="${idx}">${opt}</button>`;
+                });
+                taskHTML += `</div>`;
+            } else if (task.type === 'input') {
+                taskHTML += `
+                    <div style="text-align: center;">
+                        <input type="number" class="input-answer" id="answerInput" placeholder="?" onkeypress="if(event.key==='Enter')checkAnswer()">
+                    </div>
+                `;
+            }
+
+            taskHTML += `
+                    <div class="hint-box" id="hintBox">
+                        <p>💡 ${task.hint}</p>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="task-actions">
+                        <button class="action-btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
+                        <button class="action-btn btn-hint" onclick="showHint()">💡 Подсказка</button>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = taskHTML;
+            updateProgress();
+        }
+
+        let selectedOption = null;
+
+        function selectOption(btn, index) {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedOption = index;
+        }
+
+        function checkAnswer() {
+            const level = levels[gameState.currentLevel - 1];
+            const task = level.tasks[gameState.currentTask];
+            let isCorrect = false;
+
+            if (task.type === 'choice') {
+                if (selectedOption === null) {
+                    showPenguinMessage("Выбери ответ! 👆");
+                    return;
+                }
+                isCorrect = selectedOption === task.correct;
+                
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons[task.correct].classList.add('correct');
+                if (!isCorrect) {
+                    buttons[selectedOption].classList.add('wrong');
+                }
+            } else if (task.type === 'input') {
+                const input = document.getElementById('answerInput');
+                const userAnswer = input.value.trim();
+                if (!userAnswer) {
+                    showPenguinMessage("Введи ответ! ✏️");
+                    return;
+                }
+                isCorrect = userAnswer === task.correct;
+            }
+
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = `✅ ${task.praise}`;
+                gameState.coins += 10;
+                gameState.stars += 1;
+                gameState.totalCorrect++;
+                gameState.levelCorrect++;
+                showPenguinPhrase('correct');
+                createMiniConfetti();
+                
+                document.querySelectorAll('.option-btn').forEach(b => b.onclick = null);
+                const checkBtn = document.querySelector('.btn-check');
+                if (checkBtn) {
+                    checkBtn.textContent = 'Дальше →';
+                    checkBtn.onclick = nextTask;
+                    checkBtn.className = 'action-btn btn-next';
+                }
+            } else {
+                feedback.className = 'feedback wrong show';
+                feedback.innerHTML = `❌ Не совсем... Попробуй ещё раз!`;
+                gameState.totalWrong++;
+                showPenguinPhrase('wrong');
+                
+                selectedOption = null;
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'wrong'));
+                
+                if (task.type === 'input') {
+                    const input = document.getElementById('answerInput');
+                    input.value = '';
+                    input.focus();
+                }
+            }
+
+            updateHeader();
+            saveGame();
+        }
+
+        function nextTask() {
+            gameState.currentTask++;
+            selectedOption = null;
+            saveGame();
+            
+            const level = levels[gameState.currentLevel - 1];
+            if (gameState.currentTask >= level.tasks.length) {
+                showObstacle();
+            } else {
+                showTask();
+            }
+        }
+
+        function showHint() {
+            const hintBox = document.getElementById('hintBox');
+            hintBox.classList.add('show');
+            gameState.hintsUsed++;
+            showPenguinPhrase('hint');
+        }
+
+        function showObstacle() {
+            const level = levels[gameState.currentLevel - 1];
+            const obstacle = level.obstacle;
+            const content = document.getElementById('levelContent');
+            
+            showPenguinPhrase('obstacle');
+            
+            let html = `
+                <div class="obstacle-box">
+                    <h3>⚠️ ${obstacle.text}</h3>
+                    <p style="font-size: 1.1em; margin: 15px 0;">${obstacle.question}</p>
+                    <div class="obstacle-paths">
+            `;
+            
+            obstacle.options.forEach((opt, idx) => {
+                html += `<button class="path-btn" onclick="checkObstacle(this, ${idx}, ${obstacle.correct})">${opt}</button>`;
+            });
+            
+            html += `
+                    </div>
+                    <div class="feedback" id="obstacleFeedback"></div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        function checkObstacle(btn, selected, correct) {
+            const feedback = document.getElementById('obstacleFeedback');
+            const allBtns = document.querySelectorAll('.path-btn');
+            
+            if (selected === correct) {
+                btn.classList.add('correct-path');
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ Верно! Ты нашёл правильный путь! 🎉';
+                gameState.coins += 15;
+                gameState.stars += 2;
+                gameState.totalCorrect++;
+                showPenguinPhrase('correct');
+                createMiniConfetti();
+                
+                allBtns.forEach(b => b.onclick = null);
+                
+                setTimeout(() => {
+                    const obstacleBox = document.querySelector('.obstacle-box');
+                    obstacleBox.innerHTML += `<button class="menu-btn btn-start" onclick="completeLevel()" style="margin-top: 20px;">Получить награду! 🏆</button>`;
+                }, 1000);
+            } else {
+                btn.classList.add('wrong-path');
+                btn.onclick = null;
+                gameState.lives--;
+                updateHeader();
+                
+                if (gameState.lives <= 0) {
+                    feedback.className = 'feedback wrong show';
+                    feedback.innerHTML = '💔 Жизни закончились... Но не сдавайся! Правильный ответ: ' + (levels[gameState.currentLevel-1].obstacle.options[correct] || '');
+                    setTimeout(() => completeLevel(), 2000);
+                } else {
+                    feedback.className = 'feedback wrong show';
+                    feedback.innerHTML = `❌ Это ложный путь! Осталось жизней: ${'❤️'.repeat(gameState.lives)}. Попробуй ещё!`;
+                    showPenguinPhrase('wrong');
+                }
+            }
+            
+            saveGame();
+        }
+
+        function completeLevel() {
+            const level = levels[gameState.currentLevel - 1];
+            
+            if (!gameState.badges.includes(level.badge)) {
+                gameState.badges.push(level.badge);
+            }
+            
+            document.getElementById('rewardIcon').textContent = level.reward.icon;
+            document.getElementById('rewardTitle').textContent = level.reward.title;
+            document.getElementById('statCorrect').textContent = gameState.levelCorrect;
+            document.getElementById('statCoins').textContent = gameState.coins;
+            document.getElementById('statStars').textContent = gameState.stars;
+            document.getElementById('rewardMessage').textContent = level.reward.message;
+            
+            const badgesContainer = document.getElementById('badgesContainer');
+            badgesContainer.innerHTML = '';
+            levels.forEach((l, idx) => {
+                const unlocked = gameState.badges.includes(l.badge);
+                badgesContainer.innerHTML += `<div class="badge ${unlocked ? 'badge-unlocked' : 'badge-locked'}">${l.badge}</div>`;
+            });
+            
+            const nextBtn = document.getElementById('nextLevelBtn');
+            if (gameState.currentLevel >= 6) {
+                nextBtn.textContent = '🏅 Получить медаль!';
+                nextBtn.onclick = showFinalScreen;
+            } else {
+                nextBtn.textContent = 'Дальше →';
+                nextBtn.onclick = goNextLevel;
+            }
+            
+            showScreen('levelCompleteScreen');
+            showPenguinPhrase('levelComplete');
+            createConfetti();
+            saveGame();
+        }
+
+        function goNextLevel() {
+            gameState.currentLevel++;
+            gameState.currentTask = 0;
+            gameState.levelCorrect = 0;
+            saveGame();
+            
+            const overlay = document.getElementById('transitionOverlay');
+            const nextLevel = levels[gameState.currentLevel - 1];
+            document.getElementById('transitionText').textContent = `${nextLevel.icon} Едем на: ${nextLevel.name}...`;
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                showScreen('gameScreen');
+                renderLevel();
+            }, 2000);
+        }
+
+        function showFinalScreen() {
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 60000);
+            
+            document.getElementById('finalCorrect').textContent = gameState.totalCorrect;
+            document.getElementById('finalCoins').textContent = gameState.coins;
+            document.getElementById('finalStars').textContent = gameState.stars;
+            document.getElementById('finalTime').textContent = elapsed || '< 1';
+            
+            let message = '';
+            if (gameState.totalCorrect >= 20) {
+                message = '🌟 Ты настоящий математический герой! Пинни гордится тобой!';
+            } else if (gameState.totalCorrect >= 15) {
+                message = '👏 Отличная работа! Ты справился со всеми заданиями!';
+            } else {
+                message = '💪 Хороший результат! Попробуй ещё раз для лучшего результата!';
+            }
+            document.getElementById('finalMessage').textContent = message;
+            
+            showScreen('finalScreen');
+            showPenguinPhrase('final');
+            createConfetti();
+            setTimeout(createConfetti, 1500);
+            setTimeout(createConfetti, 3000);
+            
+            localStorage.removeItem('penguinGame');
+        }
+
+        function resetGame() {
+            localStorage.removeItem('penguinGame');
+            gameState = {
+                currentLevel: 1,
+                currentTask: 0,
+                lives: 3,
+                coins: 0,
+                stars: 0,
+                totalCorrect: 0,
+                totalWrong: 0,
+                startTime: Date.now(),
+                levelCorrect: 0,
+                badges: [],
+                hintsUsed: 0
+            };
+            document.getElementById('penguinHelper').style.display = 'none';
+            document.getElementById('locationBg').className = 'location-bg';
+            showScreen('menuScreen');
+            updateContinueButton();
+        }
+
+        function updateHeader() {
+            document.getElementById('livesDisplay').textContent = '❤️'.repeat(gameState.lives) + '🖤'.repeat(3 - gameState.lives);
+            document.getElementById('coinsDisplay').textContent = gameState.coins;
+            document.getElementById('starsDisplay').textContent = gameState.stars;
+        }
+
+        function updateProgress() {
+            const totalTasks = levels.reduce((sum, l) => sum + l.tasks.length + 1, 0);
+            let completedTasks = 0;
+            
+            for (let i = 0; i < gameState.currentLevel - 1; i++) {
+                completedTasks += levels[i].tasks.length + 1;
+            }
+            completedTasks += gameState.currentTask;
+            
+            const percent = Math.round((completedTasks / totalTasks) * 100);
+            const bar = document.getElementById('progressBar');
+            bar.style.width = percent + '%';
+            bar.textContent = percent + '%';
+        }
+
+        function togglePenguinSpeech() {
+            const speech = document.getElementById('penguinSpeech');
+            if (speech.classList.contains('show')) {
+                speech.classList.remove('show');
+            } else {
+                showPenguinPhrase('start');
+            }
+        }
+
+        function showPenguinPhrase(category) {
+            const phrases = penguinPhrases[category];
+            const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+            showPenguinMessage(phrase);
+        }
+
+        function showPenguinMessage(message) {
+            const speech = document.getElementById('penguinSpeech');
+            speech.textContent = message;
+            speech.classList.add('show');
+            setTimeout(() => speech.classList.remove('show'), 3000);
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#f093fb', '#f5576c', '#4facfe', '#43e97b', '#f1c40f', '#667eea'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                confetti.style.width = (5 + Math.random() * 10) + 'px';
+                confetti.style.height = (5 + Math.random() * 10) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        function createMiniConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#43e97b', '#38f9d7', '#f1c40f'];
+            
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = (30 + Math.random() * 40) + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (1.5 + Math.random() * 1) + 's';
+                confetti.style.width = (4 + Math.random() * 6) + 'px';
+                confetti.style.height = (4 + Math.random() * 6) + 'px';
+                confetti.style.borderRadius = '50%';
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
