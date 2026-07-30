@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Спасение на ферме — математическое приключение</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif; }
+html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
+body {
+  background: linear-gradient(180deg, #87ceeb 0%, #b8e3a8 60%, #8bc34a 100%);
+  color: #3e2723;
+  user-select: none;
+}
+
+.screen { display: none; min-height: 100vh; padding: 20px; animation: fadeIn 0.5s ease; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+.btn {
+  background: linear-gradient(180deg, #ffca28, #ff9800);
+  border: 4px solid #5d4037;
+  border-radius: 20px;
+  padding: 14px 28px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #3e2723;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #5d4037, 0 8px 15px rgba(0,0,0,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+  min-width: 180px;
+  margin: 8px;
+}
+.btn:hover { transform: translateY(2px); box-shadow: 0 4px 0 #5d4037, 0 6px 12px rgba(0,0,0,0.3); }
+.btn:active { transform: translateY(6px); box-shadow: 0 0 0 #5d4037; }
+.btn.small { font-size: 18px; padding: 10px 20px; min-width: 120px; }
+.btn.green { background: linear-gradient(180deg, #81c784, #388e3c); color: white; }
+.btn.red { background: linear-gradient(180deg, #ef5350, #c62828); color: white; }
+.btn.blue { background: linear-gradient(180deg, #64b5f6, #1976d2); color: white; }
+
+#menu {
+  background: 
+    linear-gradient(180deg, rgba(135,206,235,0.3) 0%, rgba(184,227,168,0.3) 50%, rgba(124,179,66,0.3) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%2387ceeb" width="800" height="600"/><circle cx="150" cy="100" r="60" fill="%23fff" opacity="0.8"/><circle cx="180" cy="90" r="50" fill="%23fff" opacity="0.8"/><circle cx="120" cy="95" r="45" fill="%23fff" opacity="0.8"/><circle cx="650" cy="120" r="55" fill="%23fff" opacity="0.8"/><circle cx="680" cy="110" r="48" fill="%23fff" opacity="0.8"/><rect fill="%238bc34a" y="400" width="800" height="200"/><rect fill="%23d2691e" x="100" y="350" width="120" height="150" rx="5"/><rect fill="%238b4513" x="110" y="360" width="100" height="80"/><polygon fill="%23a0522d" points="90,350 160,300 230,350"/><rect fill="%23d2691e" x="500" y="380" width="100" height="120" rx="5"/><polygon fill="%23a0522d" points="490,380 550,340 610,380"/><circle fill="%23ffd700" cx="700" cy="80" r="40"/></svg>');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+#menu::before {
+  content: '🌾🌻🌾🌻🌾🌻🌾🌻🌾🌻🌾🌻🌾🌻🌾';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  font-size: 40px;
+  text-align: center;
+  opacity: 0.6;
+  z-index: 0;
+}
+.menu-wrap { position: relative; z-index: 2; text-align: center; max-width: 700px; }
+.title {
+  font-size: 54px;
+  color: #fff;
+  text-shadow: 4px 4px 0 #5d4037, 6px 6px 0 rgba(0,0,0,0.3);
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+.subtitle {
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 2px 2px 0 #5d4037;
+  margin-bottom: 30px;
+}
+.hero-big {
+  font-size: 120px;
+  margin: 10px 0;
+  animation: bounce 2s infinite;
+  filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.3));
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; }
+
+#legend { 
+  background: 
+    linear-gradient(180deg, rgba(255,249,196,0.9) 0%, rgba(255,224,130,0.9) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23fff9c4" width="800" height="600"/><text x="50" y="100" font-size="60" opacity="0.2">📖</text><text x="650" y="500" font-size="60" opacity="0.2">📖</text></svg>');
+  background-size: cover;
+}
+.legend-box {
+  background: white;
+  border: 5px solid #5d4037;
+  border-radius: 25px;
+  padding: 30px;
+  max-width: 700px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  position: relative;
+}
+.legend-box h2 { font-size: 34px; color: #c62828; text-align: center; margin-bottom: 20px; }
+.legend-text { font-size: 22px; line-height: 1.6; color: #3e2723; text-align: justify; }
+.legend-emoji { font-size: 60px; text-align: center; margin: 15px 0; }
+
+.hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, #5d4037, #3e2723);
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  border-bottom: 4px solid #ffca28;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.hud-item { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: bold; }
+.hud-item .icon { font-size: 26px; }
+.progress-bar {
+  width: 200px;
+  height: 20px;
+  background: #3e2723;
+  border: 3px solid #ffca28;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #66bb6a, #ffca28);
+  transition: width 0.5s;
+  width: 0%;
+}
+.lives { display: flex; gap: 4px; }
+.life { font-size: 26px; transition: transform 0.3s; }
+.life.lost { filter: grayscale(1); opacity: 0.3; transform: scale(0.8); }
+
+#levelIntro, #levelComplete {
+  background: linear-gradient(180deg, rgba(255,243,224,0.95) 0%, rgba(255,204,128,0.95) 100%);
+  padding-top: 80px;
+}
+.level-card {
+  background: white;
+  border: 5px solid #5d4037;
+  border-radius: 25px;
+  padding: 30px;
+  max-width: 650px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.level-card h2 { font-size: 36px; color: #c62828; margin-bottom: 15px; }
+.level-card .location-emoji { font-size: 80px; margin: 10px 0; }
+.level-card p { font-size: 22px; line-height: 1.5; margin: 15px 0; }
+
+#taskScreen {
+  background: 
+    linear-gradient(180deg, rgba(225,245,254,0.9) 0%, rgba(179,229,252,0.9) 50%, rgba(129,212,250,0.9) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23e1f5fe" width="800" height="600"/><text x="100" y="150" font-size="80" opacity="0.15">🐄</text><text x="600" y="450" font-size="80" opacity="0.15">🐔</text><text x="350" y="300" font-size="80" opacity="0.15">🐑</text></svg>');
+  background-size: cover;
+  padding-top: 80px;
+}
+.task-card {
+  background: white;
+  border: 5px solid #5d4037;
+  border-radius: 25px;
+  padding: 25px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  position: relative;
+}
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 3px dashed #ffca28;
+}
+.task-number { font-size: 20px; color: #c62828; font-weight: bold; }
+.task-location { font-size: 18px; color: #5d4037; }
+
+.hero-speech {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #fff9c4;
+  border: 3px solid #f57f17;
+  border-radius: 20px;
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.hero-avatar { font-size: 50px; flex-shrink: 0; }
+.speech-bubble { font-size: 20px; color: #3e2723; line-height: 1.4; }
+
+.task-question {
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff59d, #fff176);
+  border-radius: 15px;
+  border: 3px solid #f57f17;
+  color: #3e2723;
+  line-height: 1.4;
+}
+
+.answer-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  font-size: 28px;
+  text-align: center;
+  border: 4px solid #5d4037;
+  border-radius: 15px;
+  background: white;
+  margin: 15px auto;
+  display: block;
+  font-family: inherit;
+  font-weight: bold;
+}
+.answer-input:focus { outline: none; border-color: #ff9800; box-shadow: 0 0 10px rgba(255,152,0,0.5); }
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.option {
+  background: linear-gradient(180deg, #fff, #e0e0e0);
+  border: 4px solid #5d4037;
+  border-radius: 15px;
+  padding: 18px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #3e2723;
+}
+.option:hover { transform: scale(1.05); background: linear-gradient(180deg, #fff9c4, #ffecb3); }
+.option.selected { background: linear-gradient(180deg, #81c784, #4caf50); color: white; border-color: #2e7d32; }
+.option.correct { background: linear-gradient(180deg, #81c784, #4caf50); color: white; animation: pulse 0.5s; }
+.option.wrong { background: linear-gradient(180deg, #ef5350, #c62828); color: white; animation: shake 0.4s; }
+
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+
+.buttons-row { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+.feedback {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 15px;
+  border-radius: 15px;
+  margin-top: 15px;
+  display: none;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s; }
+.feedback.correct { background: #c8e6c9; color: #1b5e20; border: 3px solid #388e3c; }
+.feedback.wrong { background: #ffcdd2; color: #b71c1c; border: 3px solid #c62828; }
+
+#mazeScreen {
+  background: 
+    linear-gradient(180deg, rgba(215,204,200,0.95) 0%, rgba(141,110,99,0.95) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23d7ccc8" width="800" height="600"/><path d="M 0 300 Q 200 250 400 300 T 800 300" stroke="%238d6e63" stroke-width="20" fill="none" opacity="0.3"/><path d="M 0 350 Q 200 300 400 350 T 800 350" stroke="%238d6e63" stroke-width="20" fill="none" opacity="0.3"/></svg>');
+  background-size: cover;
+  padding-top: 80px;
+}
+.maze-card {
+  background: white;
+  border: 5px solid #5d4037;
+  border-radius: 25px;
+  padding: 25px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.maze-card h2 { font-size: 32px; color: #c62828; text-align: center; margin-bottom: 15px; }
+
+.maze-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.maze-step {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #efebe9;
+  border: 3px solid #5d4037;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+.maze-step.done { background: #81c784; }
+.maze-step.current { background: #ffca28; animation: pulse 1s infinite; }
+.maze-arrow { font-size: 24px; color: #5d4037; }
+
+.maze-question {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #fff59d, #fff176);
+  border: 3px solid #f57f17;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.maze-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+.maze-option {
+  background: linear-gradient(180deg, #fff, #e0e0e0);
+  border: 4px solid #5d4037;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #3e2723;
+  text-align: center;
+}
+.maze-option:hover { transform: scale(1.05); background: linear-gradient(180deg, #fff9c4, #ffecb3); }
+.maze-option.correct { background: linear-gradient(180deg, #81c784, #4caf50); color: white; border-color: #2e7d32; animation: pulse 0.5s; }
+.maze-option.wrong { background: linear-gradient(180deg, #ef5350, #c62828); color: white; animation: shake 0.4s; }
+
+.reward-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.3s;
+}
+.reward-popup.show { display: flex; }
+.reward-content {
+  background: linear-gradient(180deg, #fff9c4, #ffecb3);
+  border: 6px solid #ffca28;
+  border-radius: 30px;
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: popIn 0.5s;
+}
+@keyframes popIn { 0%{transform:scale(0.3); opacity:0;} 70%{transform:scale(1.1);} 100%{transform:scale(1); opacity:1;} }
+.reward-content .emoji { font-size: 100px; margin: 10px 0; animation: bounce 1.5s infinite; }
+.reward-content h3 { font-size: 32px; color: #c62828; margin-bottom: 15px; }
+.reward-content p { font-size: 22px; color: #3e2723; margin-bottom: 20px; }
+
+#finalScreen {
+  background: 
+    radial-gradient(ellipse at center, rgba(255,249,196,0.95) 0%, rgba(255,202,40,0.95) 50%, rgba(255,152,0,0.95) 100%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23fff9c4" width="800" height="600"/><text x="100" y="150" font-size="100" opacity="0.2">🏆</text><text x="600" y="500" font-size="100" opacity="0.2">🏆</text></svg>');
+  background-size: cover;
+  padding-top: 80px;
+}
+.final-card {
+  background: white;
+  border: 6px solid #ffca28;
+  border-radius: 30px;
+  padding: 40px;
+  max-width: 650px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.final-card h1 {
+  font-size: 48px;
+  color: #c62828;
+  text-shadow: 3px 3px 0 #ffca28;
+  margin-bottom: 20px;
+}
+.medal {
+  font-size: 150px;
+  margin: 20px 0;
+  animation: spin 3s linear infinite;
+  filter: drop-shadow(0 0 20px gold);
+}
+@keyframes spin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+.stats {
+  background: #fff9c4;
+  border: 3px solid #f57f17;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 20px;
+  border-bottom: 2px dashed #ffca28;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row strong { color: #c62828; }
+
+.confetti {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 300;
+  animation: fall 3s linear forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  .title { font-size: 36px; }
+  .subtitle { font-size: 18px; }
+  .hero-big { font-size: 80px; }
+  .btn { font-size: 18px; padding: 12px 20px; min-width: 150px; }
+  .task-question, .maze-question { font-size: 20px; padding: 15px; }
+  .options, .maze-options { grid-template-columns: 1fr; }
+  .hud-item { font-size: 16px; }
+  .hud-item .icon { font-size: 20px; }
+  .progress-bar { width: 120px; }
+  .medal { font-size: 100px; }
+  .final-card h1 { font-size: 32px; }
+  .maze-step { width: 40px; height: 40px; font-size: 18px; }
+}
+
+#rulesScreen {
+  background: linear-gradient(180deg, rgba(255,243,224,0.95) 0%, rgba(255,204,128,0.95) 100%);
+  padding-top: 80px;
+}
+.rules-card {
+  background: white;
+  border: 5px solid #5d4037;
+  border-radius: 25px;
+  padding: 30px;
+  max-width: 650px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.rules-card h2 { font-size: 34px; color: #c62828; text-align: center; margin-bottom: 20px; }
+.rules-card ul { list-style: none; padding: 0; }
+.rules-card li {
+  font-size: 20px;
+  padding: 12px 0;
+  border-bottom: 2px dashed #ffca28;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rules-card li:last-child { border-bottom: none; }
+.rules-card li .emoji { font-size: 32px; }
+
+#gameOverScreen {
+  background: linear-gradient(180deg, rgba(255,205,210,0.95) 0%, rgba(239,154,154,0.95) 100%);
+  padding-top: 80px;
+}
+.gameover-card {
+  background: white;
+  border: 5px solid #c62828;
+  border-radius: 25px;
+  padding: 40px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.gameover-card h2 { font-size: 40px; color: #c62828; margin-bottom: 15px; }
+.gameover-card .emoji { font-size: 100px; margin: 15px 0; }
+.gameover-card p { font-size: 22px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div id="menu" class="screen active">
+  <div class="menu-wrap">
+    <div class="hero-big">🧒</div>
+    <h1 class="title">СПАСЕНИЕ НА ФЕРМЕ</h1>
+    <p class="subtitle">Математическое приключение для юных героев!</p>
+    <div class="menu-buttons">
+      <button class="btn" onclick="startNewGame()">🎮 Начать игру</button>
+      <button class="btn blue" onclick="continueGame()" id="continueBtn" style="display:none;">▶️ Продолжить</button>
+      <button class="btn small green" onclick="showScreen('rulesScreen')">📜 Правила</button>
+    </div>
+  </div>
+</div>
+
+<div id="rulesScreen" class="screen">
+  <div class="rules-card">
+    <h2>📜 Правила игры</h2>
+    <ul>
+      <li><span class="emoji">🧒</span> Ты — юный путешественник на ферме</li>
+      <li><span class="emoji">🎯</span> Реши математические задачи, чтобы спасти животных</li>
+      <li><span class="emoji">❤️</span> У тебя 3 жизни — береги их!</li>
+      <li><span class="emoji">🏆</span> За каждый уровень получишь награду</li>
+      <li><span class="emoji">🗺️</span> Пройди через лабиринт, выбрав правильный ответ</li>
+      <li><span class="emoji">🥇</span> Собери все 6 звёзд и получи Золотую медаль!</li>
+    </ul>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn" onclick="showScreen('menu')">← Назад</button>
+    </div>
+  </div>
+</div>
+
+<div id="legend" class="screen">
+  <div class="legend-box">
+    <h2>📖 Легенда</h2>
+    <div class="legend-emoji">🌾🐄🐔🐑</div>
+    <p class="legend-text">
+      На далёкой волшебной ферме жили-были добрые животные: коровы, овечки, курочки и поросята. 
+      Они были счастливы, пока однажды не появились злые охотники, которые хотели увезти всех друзей в тёмный лес! 
+      Юный путешественник узнал об этом и бросился на помощь. Но чтобы добраться до животных, ему придётся пройти 
+      через запутанный лабиринт и решить много математических задач. Только настоящий герой, знающий сложение и вычитание, 
+      сможет спасти ферму и получить <strong>Золотую медаль</strong> настоящего спасителя!
+    </p>
+    <div style="text-align:center; margin-top:25px;">
+      <button class="btn green" onclick="startAdventure()">🚀 Вперёд, на помощь!</button>
+    </div>
+  </div>
+</div>
+
+<div id="levelIntro" class="screen">
+  <div class="level-card">
+    <div id="levelEmoji" class="location-emoji">🐄</div>
+    <h2 id="levelTitle">Уровень 1: Коровник</h2>
+    <p id="levelDescription">Описание уровня</p>
+    <div class="hero-speech" style="margin-top:20px;">
+      <div class="hero-avatar">🧒</div>
+      <div class="speech-bubble" id="heroIntroSpeech">Давай спасать животных!</div>
+    </div>
+    <button class="btn green" onclick="startLevelTasks()">📝 Начать задания</button>
+  </div>
+</div>
+
+<div id="taskScreen" class="screen">
+  <div class="task-card">
+    <div class="task-header">
+      <div class="task-number" id="taskNumber">Задание 1/5</div>
+      <div class="task-location" id="taskLocation">📍 Коровник</div>
+    </div>
+    <div class="hero-speech">
+      <div class="hero-avatar">🧒</div>
+      <div class="speech-bubble" id="heroTaskSpeech">Реши задачу!</div>
+    </div>
+    <div class="task-question" id="taskQuestion">Сколько будет 25 + 30?</div>
+    <div id="taskAnswerArea"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="buttons-row">
+      <button class="btn small green" onclick="checkAnswer()" id="checkBtn">✅ Проверить</button>
+    </div>
+  </div>
+</div>
+
+<div id="mazeScreen" class="screen">
+  <div class="maze-card">
+    <h2>🗺️ Лабиринт</h2>
+    <div class="hero-speech">
+      <div class="hero-avatar">🧒</div>
+      <div class="speech-bubble" id="mazeSpeech">Выбери правильный ответ, чтобы пройти дальше!</div>
+    </div>
+    <div class="maze-visual" id="mazeVisual"></div>
+    <div class="maze-question" id="mazeQuestion">Реши пример!</div>
+    <div class="maze-options" id="mazeOptions"></div>
+    <div class="feedback" id="mazeFeedback"></div>
+  </div>
+</div>
+
+<div id="levelComplete" class="screen">
+  <div class="level-card">
+    <div class="location-emoji" id="completeEmoji">⭐</div>
+    <h2 id="completeTitle">Уровень пройден!</h2>
+    <p id="completeText">Ты спас животных!</p>
+    <div class="hero-speech" style="margin:20px 0;">
+      <div class="hero-avatar">🧒</div>
+      <div class="speech-bubble" id="heroCompleteSpeech">Отличная работа!</div>
+    </div>
+    <div id="levelRewards" style="font-size:40px; margin:15px 0;"></div>
+    <button class="btn green" onclick="nextLevel()" id="nextLevelBtn">➡️ Дальше</button>
+  </div>
+</div>
+
+<div id="finalScreen" class="screen">
+  <div class="final-card">
+    <h1>🎉 ПОБЕДА! 🎉</h1>
+    <div class="medal">🥇</div>
+    <h2 style="font-size:32px; color:#c62828; margin-bottom:15px;">Золотая медаль твоя!</h2>
+    <p style="font-size:22px; margin-bottom:20px;">Ты спас всех животных на ферме и стал настоящим героем!</p>
+    <div class="hero-speech">
+      <div class="hero-avatar">🧒</div>
+      <div class="speech-bubble">Спасибо тебе, друг! Без тебя бы я не справился. Ты настоящий математический герой!</div>
+    </div>
+    <div class="stats" id="finalStats"></div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px;">
+      <button class="btn green" onclick="startNewGame()">🔁 Играть снова</button>
+      <button class="btn" onclick="showScreen('menu')">🏠 В меню</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameOverScreen" class="screen">
+  <div class="gameover-card">
+    <h2>Ох нет!</h2>
+    <div class="emoji">😢</div>
+    <p>Жизни закончились... Но не сдавайся! Настоящие герои всегда пробуют снова!</p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn green" onclick="retryLevel()">🔄 Попробовать уровень</button>
+      <button class="btn" onclick="showScreen('menu')">🏠 В меню</button>
+    </div>
+  </div>
+</div>
+
+<div class="hud" id="hud" style="display:none;">
+  <div class="hud-item"><span class="icon">⭐</span><span id="hudLevel">Уровень 1</span></div>
+  <div class="hud-item">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="hud-item"><span class="icon">🪙</span><span id="hudCoins">0</span></div>
+  <div class="hud-item lives" id="hudLives">
+    <span class="life">❤️</span><span class="life">❤️</span><span class="life">❤️</span>
+  </div>
+</div>
+
+<div class="reward-popup" id="rewardPopup">
+  <div class="reward-content">
+    <div class="emoji" id="rewardEmoji">⭐</div>
+    <h3 id="rewardTitle">Награда!</h3>
+    <p id="rewardText">Ты получил награду!</p>
+    <button class="btn" onclick="closeReward()">👍 Ура!</button>
+  </div>
+</div>
+
+<script>
+const gameState = {
+  currentLevel: 0,
+  currentTask: 0,
+  lives: 3,
+  coins: 0,
+  stars: 0,
+  correctAnswers: 0,
+  wrongAnswers: 0,
+  startTime: null,
+  taskAttempts: 0,
+  selectedAnswer: null,
+  badges: []
+};
+
+const levels = [
+  {
+    name: "Коровник",
+    emoji: "🐄",
+    description: "В коровнике коровы Мурка и Зорька ждут помощи! Реши примеры, чтобы открыть ворота и выпустить их на луг.",
+    heroIntro: "Слышишь? Коровки мычат! Давай решим примеры и откроем ворота!",
+    heroComplete: "Ура! Коровки на свободе! Они так рады тебе!",
+    reward: { emoji: "🥛", title: "Молочный ключ", text: "Ты получил Молочный ключ!" },
+    tasks: [
+      { q: "У коровы Мурки дали 25 литров молока, а у Зорьки — 30 литров. Сколько всего литров молока дали коровы?", a: 55, type: "input" },
+      { q: "На ферме было 60 животных, 20 увезли охотники. Сколько животных осталось?", a: 40, type: "input" },
+      { q: "Сколько будет: 32 + 17?", a: 49, type: "options", options: [49, 59, 39, 45] },
+      { q: "В стаде было 50 овец, 15 убежали. Сколько овец осталось?", a: 35, type: "input" },
+      { q: "Сколько будет: 80 - 25?", a: 55, type: "options", options: [55, 65, 45, 50] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 20 + 30 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 45 - 15 = ?", correct: 30, wrong: [20, 35, 25] },
+      { q: "Реши: 40 + 5 = ?", correct: 45, wrong: [35, 55, 50] },
+      { q: "Реши: 60 - 20 = ?", correct: 40, wrong: [30, 50, 35] }
+    ]
+  },
+  {
+    name: "Огород",
+    emoji: "🥕",
+    description: "На огороде хитрые охотники спрятали морковку и капусту в запертые ящики. Открой их, решив задачи!",
+    heroIntro: "Смотри, какой урожай! Но ящики заперты. Давай их откроем!",
+    heroComplete: "Все ящики открыты! Овощи спасены!",
+    reward: { emoji: "🥕", title: "Морковный бейдж", text: "Ты получил Морковный бейдж!" },
+    tasks: [
+      { q: "На грядке росло 35 морковок, а потом выросло ещё 25. Сколько морковок стало?", a: 60, type: "input" },
+      { q: "Было 75 огурцов, 28 съели. Сколько огурцов осталось?", a: 47, type: "input" },
+      { q: "Сколько будет: 47 + 36?", a: 83, type: "options", options: [83, 73, 93, 81] },
+      { q: "В корзине было 64 яблока, 37 отдали. Сколько яблок осталось?", a: 27, type: "input" },
+      { q: "Сколько будет: 90 - 45?", a: 45, type: "options", options: [45, 55, 35, 50] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 25 + 25 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 50 - 20 = ?", correct: 30, wrong: [20, 40, 25] },
+      { q: "Реши: 30 + 15 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 70 - 30 = ?", correct: 40, wrong: [30, 50, 35] }
+    ]
+  },
+  {
+    name: "Сеновал",
+    emoji: "🌾",
+    description: "На сеновале заперты маленькие козлята. Чтобы освободить их, нужно посчитать тюки сена!",
+    heroIntro: "Козлята жалобно блеют! Посчитаем тюки и выпустим их!",
+    heroComplete: "Козлята прыгают от радости! Ты молодец!",
+    reward: { emoji: "🌾", title: "Сноп славы", text: "Ты получил Сноп славы!" },
+    tasks: [
+      { q: "На сеновале было 38 тюков сена, привезли ещё 45. Сколько всего тюков?", a: 83, type: "input" },
+      { q: "Было 95 тюков сена, коровам дали 47. Сколько тюков осталось?", a: 48, type: "input" },
+      { q: "Сколько будет: 56 + 27?", a: 83, type: "options", options: [83, 73, 93, 81] },
+      { q: "Фермер накосил 82 тюка утром, 34 увезли. Сколько осталось?", a: 48, type: "input" },
+      { q: "Сколько будет: 75 - 38?", a: 37, type: "options", options: [37, 47, 27, 43] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 20 + 30 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 60 - 25 = ?", correct: 35, wrong: [25, 45, 30] },
+      { q: "Реши: 35 + 10 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 80 - 40 = ?", correct: 40, wrong: [30, 50, 35] }
+    ]
+  },
+  {
+    name: "Сад",
+    emoji: "🍎",
+    description: "В саду охотники расставили ловушки для яблонь. Обезвредь их, решив задачи про фрукты!",
+    heroIntro: "Яблони в опасности! Давай решим задачки и спасём сад!",
+    heroComplete: "Сад спасён! Яблоки будут сладкими!",
+    reward: { emoji: "🍎", title: "Яблочко мужества", text: "Ты получил Яблочко мужества!" },
+    tasks: [
+      { q: "В саду росло 38 яблонь, посадили ещё 47. Сколько всего яблонь?", a: 85, type: "input" },
+      { q: "Собрали 92 яблока, 45 продали. Сколько яблок осталось?", a: 47, type: "input" },
+      { q: "Сколько будет: 59 + 26?", a: 85, type: "options", options: [85, 75, 95, 83] },
+      { q: "На дереве было 73 яблока, 36 упали. Сколько осталось?", a: 37, type: "input" },
+      { q: "Сколько будет: 64 - 28?", a: 36, type: "options", options: [36, 46, 26, 44] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 30 + 20 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 75 - 30 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 15 + 30 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 90 - 50 = ?", correct: 40, wrong: [30, 50, 45] }
+    ]
+  },
+  {
+    name: "Поле пшеницы",
+    emoji: "🌾",
+    description: "На пшеничном поле охотники спрятали поросят. Собери колоски с правильными ответами!",
+    heroIntro: "Поросята хрюкают где-то в пшенице! Собирай колоски!",
+    heroComplete: "Поросята найдены! Они такие милые!",
+    reward: { emoji: "🌽", title: "Золотой колос", text: "Ты получил Золотой колос!" },
+    tasks: [
+      { q: "На поле росло 47 колосков пшеницы, а рядом выросло ещё 35. Сколько всего?", a: 82, type: "input" },
+      { q: "Комбайн намолотил 92 центнера пшеницы, 45 центнеров увезли. Сколько осталось?", a: 47, type: "input" },
+      { q: "Сколько будет: 68 + 24?", a: 92, type: "options", options: [92, 82, 94, 90] },
+      { q: "Фермер прополол 85 грядок, 48 закончил. Сколько осталось?", a: 37, type: "input" },
+      { q: "Сколько будет: 73 - 36?", a: 37, type: "options", options: [37, 47, 27, 43] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 15 + 35 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 80 - 35 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 30 + 15 = ?", correct: 45, wrong: [35, 55, 40] },
+      { q: "Реши: 60 - 25 = ?", correct: 35, wrong: [25, 45, 30] }
+    ]
+  },
+  {
+    name: "Мельница",
+    emoji: "🏭",
+    description: "Финальная битва! На мельнице главный охотник! Реши самые сложные задачи и спаси ферму навсегда!",
+    heroIntro: "Это финал! Главный охотник здесь! Покажи всё, чему научился!",
+    heroComplete: "Охотник побеждён! Ферма спасена! Ты настоящий герой!",
+    reward: { emoji: "🥇", title: "Золотая медаль", text: "Ты получил Золотую медаль спасителя!" },
+    tasks: [
+      { q: "На мельнице было 47 мешков муки, привезли ещё 36. Сколько всего?", a: 83, type: "input" },
+      { q: "Мельник смолол 95 кг зерна, 48 кг израсходовали. Сколько осталось?", a: 47, type: "input" },
+      { q: "Сколько будет: 59 + 28?", a: 87, type: "options", options: [87, 77, 97, 85] },
+      { q: "В амбаре было 84 мешка, 47 продали. Сколько осталось?", a: 37, type: "input" },
+      { q: "Сколько будет: 91 - 54?", a: 37, type: "options", options: [37, 47, 27, 43] }
+    ],
+    mazeSteps: [
+      { q: "Реши: 25 + 25 = ?", correct: 50, wrong: [40, 60, 45] },
+      { q: "Реши: 70 - 35 = ?", correct: 35, wrong: [25, 45, 30] },
+      { q: "Реши: 20 + 25 = ?", correct: 45, wrong: [40, 55, 35] },
+      { q: "Реши: 85 - 40 = ?", correct: 45, wrong: [35, 55, 40] }
+    ]
+  }
+];
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  const hud = document.getElementById('hud');
+  const showHud = ['levelIntro','taskScreen','mazeScreen','levelComplete','finalScreen','gameOverScreen'].includes(screenId);
+  hud.style.display = showHud ? 'flex' : 'none';
+  window.scrollTo(0, 0);
+}
+
+function startNewGame() {
+  gameState.currentLevel = 0;
+  gameState.lives = 3;
+  gameState.coins = 0;
+  gameState.stars = 0;
+  gameState.correctAnswers = 0;
+  gameState.wrongAnswers = 0;
+  gameState.startTime = Date.now();
+  gameState.badges = [];
+  saveGame();
+  showScreen('legend');
+}
+
+function continueGame() {
+  const saved = localStorage.getItem('farmGameSave');
+  if (saved) {
+    const data = JSON.parse(saved);
+    Object.assign(gameState, data);
+    showLevelIntro();
+  }
+}
+
+function startAdventure() {
+  showLevelIntro();
+}
+
+function showLevelIntro() {
+  const level = levels[gameState.currentLevel];
+  document.getElementById('levelEmoji').textContent = level.emoji;
+  document.getElementById('levelTitle').textContent = `Уровень ${gameState.currentLevel + 1}: ${level.name}`;
+  document.getElementById('levelDescription').textContent = level.description;
+  document.getElementById('heroIntroSpeech').textContent = level.heroIntro;
+  updateHUD();
+  showScreen('levelIntro');
+}
+
+function startLevelTasks() {
+  gameState.currentTask = 0;
+  gameState.taskAttempts = 0;
+  showTask();
+}
+
+function showTask() {
+  const level = levels[gameState.currentLevel];
+  const task = level.tasks[gameState.currentTask];
+  gameState.selectedAnswer = null;
+  gameState.taskAttempts = 0;
+
+  document.getElementById('taskNumber').textContent = `Задание ${gameState.currentTask + 1}/${level.tasks.length}`;
+  document.getElementById('taskLocation').textContent = `📍 ${level.name}`;
+  document.getElementById('taskQuestion').textContent = task.q;
+  document.getElementById('heroTaskSpeech').textContent = getHeroTaskPhrase();
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+
+  const area = document.getElementById('taskAnswerArea');
+  area.innerHTML = '';
+  
+  if (task.type === 'input') {
+    area.innerHTML = `<input type="number" class="answer-input" id="answerInput" placeholder="?" autocomplete="off">`;
+    setTimeout(() => {
+      const inp = document.getElementById('answerInput');
+      if (inp) {
+        inp.focus();
+        inp.addEventListener('keypress', e => { if (e.key === 'Enter') checkAnswer(); });
+      }
+    }, 100);
+  } else if (task.type === 'options') {
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'options';
+    const shuffledOptions = [...task.options];
+    shuffleArray(shuffledOptions);
+    shuffledOptions.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = opt;
+      btn.onclick = () => selectOption(btn, opt);
+      optsDiv.appendChild(btn);
+    });
+    area.appendChild(optsDiv);
+  }
+
+  updateHUD();
+  showScreen('taskScreen');
+}
+
+function getHeroTaskPhrase() {
+  const phrases = [
+    "Ты справишься! Я в тебя верю!",
+    "Подумай хорошенько!",
+    "Считай внимательно!",
+    "У тебя всё получится!",
+    "Давай, герой!"
+  ];
+  return phrases[Math.floor(Math.random() * phrases.length)];
+}
+
+function selectOption(btn, value) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  gameState.selectedAnswer = value;
+}
+
+function checkAnswer() {
+  const level = levels[gameState.currentLevel];
+  const task = level.tasks[gameState.currentTask];
+  let userAnswer;
+
+  if (task.type === 'input') {
+    const inp = document.getElementById('answerInput');
+    userAnswer = parseInt(inp.value);
+    if (isNaN(userAnswer)) {
+      showFeedback('Введи число!', 'wrong');
+      return;
+    }
+  } else {
+    if (gameState.selectedAnswer === null) {
+      showFeedback('Выбери один из вариантов!', 'wrong');
+      return;
+    }
+    userAnswer = gameState.selectedAnswer;
+  }
+
+  if (userAnswer === task.a) {
+    showFeedback('✅ Правильно! Молодец!', 'correct');
+    gameState.correctAnswers++;
+    gameState.coins += 10;
+    if (task.type === 'options') {
+      document.querySelectorAll('.option.selected').forEach(o => o.classList.add('correct'));
+    }
+    playSound('correct');
+    setTimeout(() => {
+      gameState.currentTask++;
+      if (gameState.currentTask >= level.tasks.length) {
+        completeLevelTasks();
+      } else {
+        showTask();
+      }
+    }, 1500);
+  } else {
+    gameState.taskAttempts++;
+    if (task.type === 'options') {
+      document.querySelectorAll('.option.selected').forEach(o => o.classList.add('wrong'));
+      setTimeout(() => {
+        document.querySelectorAll('.option').forEach(o => o.classList.remove('wrong','selected'));
+        gameState.selectedAnswer = null;
+      }, 800);
+    }
+
+    if (gameState.taskAttempts >= 3) {
+      showFeedback(`Правильный ответ: ${task.a}`, 'wrong');
+      gameState.wrongAnswers++;
+      gameState.lives--;
+      updateLives();
+      playSound('wrong');
+      if (gameState.lives <= 0) {
+        setTimeout(() => showScreen('gameOverScreen'), 2000);
+        return;
+      }
+      setTimeout(() => {
+        gameState.currentTask++;
+        if (gameState.currentTask >= level.tasks.length) {
+          completeLevelTasks();
+        } else {
+          showTask();
+        }
+      }, 3000);
+    } else {
+      showFeedback(`Не совсем... Попробуй ещё раз! Осталось попыток: ${3 - gameState.taskAttempts}`, 'wrong');
+      playSound('wrong');
+    }
+  }
+  saveGame();
+}
+
+function showFeedback(text, type) {
+  const fb = document.getElementById('feedback');
+  fb.textContent = text;
+  fb.className = `feedback show ${type}`;
+}
+
+function completeLevelTasks() {
+  gameState.stars++;
+  buildMaze();
+  showScreen('mazeScreen');
+}
+
+let mazeState = { currentStep: 0, totalSteps: 0, locked: false };
+
+function buildMaze() {
+  const level = levels[gameState.currentLevel];
+  mazeState.currentStep = 0;
+  mazeState.totalSteps = level.mazeSteps.length;
+  mazeState.locked = false;
+  
+  document.getElementById('mazeSpeech').textContent = `Выбери правильный ответ, чтобы пройти через лабиринт! Осталось шагов: ${mazeState.totalSteps}`;
+  document.getElementById('mazeFeedback').className = 'feedback';
+  document.getElementById('mazeFeedback').textContent = '';
+  
+  renderMazeVisual();
+  showMazeQuestion();
+}
+
+function renderMazeVisual() {
+  const visual = document.getElementById('mazeVisual');
+  visual.innerHTML = '';
+  
+  for (let i = 0; i < mazeState.totalSteps; i++) {
+    const step = document.createElement('div');
+    step.className = 'maze-step';
+    if (i < mazeState.currentStep) step.classList.add('done');
+    if (i === mazeState.currentStep) step.classList.add('current');
+    step.textContent = i < mazeState.currentStep ? '✅' : (i === mazeState.currentStep ? '🧒' : '❓');
+    visual.appendChild(step);
+    
+    if (i < mazeState.totalSteps - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'maze-arrow';
+      arrow.textContent = '→';
+      visual.appendChild(arrow);
+    }
+  }
+  
+  const finish = document.createElement('div');
+  finish.className = 'maze-step';
+  finish.textContent = '🏠';
+  const arrow = document.createElement('div');
+  arrow.className = 'maze-arrow';
+  arrow.textContent = '→';
+  visual.appendChild(arrow);
+  visual.appendChild(finish);
+}
+
+function showMazeQuestion() {
+  const level = levels[gameState.currentLevel];
+  const step = level.mazeSteps[mazeState.currentStep];
+  
+  document.getElementById('mazeQuestion').textContent = step.q;
+  
+  const optionsDiv = document.getElementById('mazeOptions');
+  optionsDiv.innerHTML = '';
+  
+  const allOptions = [step.correct, ...step.wrong];
+  shuffleArray(allOptions);
+  
+  allOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'maze-option';
+    btn.textContent = opt;
+    btn.onclick = () => clickMazeOption(btn, opt, step.correct);
+    optionsDiv.appendChild(btn);
+  });
+}
+
+function clickMazeOption(btn, selected, correct) {
+  if (mazeState.locked) return;
+  mazeState.locked = true;
+  
+  const fb = document.getElementById('mazeFeedback');
+  
+  if (selected === correct) {
+    btn.classList.add('correct');
+    fb.textContent = '✅ Правильно! Идём дальше!';
+    fb.className = 'feedback show correct';
+    playSound('correct');
+    gameState.coins += 5;
+    
+    setTimeout(() => {
+      mazeState.currentStep++;
+      if (mazeState.currentStep >= mazeState.totalSteps) {
+        showLevelComplete();
+      } else {
+        renderMazeVisual();
+        showMazeQuestion();
+        fb.className = 'feedback';
+        fb.textContent = '';
+        mazeState.locked = false;
+        document.getElementById('mazeSpeech').textContent = `Отлично! Осталось шагов: ${mazeState.totalSteps - mazeState.currentStep}`;
+      }
+      updateHUD();
+      saveGame();
+    }, 1200);
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = `❌ Неверно! Правильный ответ: ${correct}. Попробуй быть внимательнее!`;
+    fb.className = 'feedback show wrong';
+    playSound('wrong');
+    gameState.lives--;
+    updateLives();
+    
+    if (gameState.lives <= 0) {
+      setTimeout(() => showScreen('gameOverScreen'), 1500);
+      return;
+    }
+    
+    setTimeout(() => {
+      showMazeQuestion();
+      fb.className = 'feedback';
+      fb.textContent = '';
+      mazeState.locked = false;
+    }, 2000);
+  }
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showLevelComplete() {
+  const level = levels[gameState.currentLevel];
+  document.getElementById('completeEmoji').textContent = level.reward.emoji;
+  document.getElementById('completeTitle').textContent = `Уровень ${gameState.currentLevel + 1} пройден!`;
+  document.getElementById('completeText').textContent = `Ты спас животных в локации "${level.name}"!`;
+  document.getElementById('heroCompleteSpeech').textContent = level.heroComplete;
+  document.getElementById('levelRewards').textContent = `${level.reward.emoji} +10 🪙`;
+  
+  if (gameState.currentLevel === levels.length - 1) {
+    document.getElementById('nextLevelBtn').textContent = '🏆 Получить награду!';
+  } else {
+    document.getElementById('nextLevelBtn').textContent = '➡️ Дальше';
+  }
+  
+  gameState.coins += 20;
+  gameState.badges.push(level.reward.title);
+  updateHUD();
+  showScreen('levelComplete');
+  showRewardPopup(level.reward.emoji, level.reward.title, level.reward.text);
+  launchConfetti();
+  saveGame();
+}
+
+function nextLevel() {
+  gameState.currentLevel++;
+  if (gameState.currentLevel >= levels.length) {
+    showFinalScreen();
+  } else {
+    showLevelIntro();
+  }
+}
+
+function retryLevel() {
+  gameState.lives = 3;
+  updateLives();
+  showLevelIntro();
+}
+
+function showFinalScreen() {
+  const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  
+  const stats = document.getElementById('finalStats');
+  stats.innerHTML = `
+    <div class="stat-row"><span>⭐ Правильных ответов:</span><strong>${gameState.correctAnswers}</strong></div>
+    <div class="stat-row"><span>❌ Ошибок:</span><strong>${gameState.wrongAnswers}</strong></div>
+    <div class="stat-row"><span>⏱️ Время:</span><strong>${minutes} мин ${seconds} с</strong></div>
+    <div class="stat-row"><span>🪙 Монет:</span><strong>${gameState.coins}</strong></div>
+    <div class="stat-row"><span>🏅 Наград:</span><strong>${gameState.badges.length}</strong></div>
+  `;
+  
+  showScreen('finalScreen');
+  launchConfetti();
+  setTimeout(launchConfetti, 1000);
+  setTimeout(launchConfetti, 2000);
+  localStorage.removeItem('farmGameSave');
+}
+
+function updateHUD() {
+  document.getElementById('hudLevel').textContent = `Уровень ${gameState.currentLevel + 1}`;
+  document.getElementById('hudCoins').textContent = gameState.coins;
+  const progress = ((gameState.currentLevel) / levels.length) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  updateLives();
+}
+
+function updateLives() {
+  const livesDiv = document.getElementById('hudLives');
+  livesDiv.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const span = document.createElement('span');
+    span.className = 'life' + (i >= gameState.lives ? ' lost' : '');
+    span.textContent = '❤️';
+    livesDiv.appendChild(span);
+  }
+}
+
+function showRewardPopup(emoji, title, text) {
+  document.getElementById('rewardEmoji').textContent = emoji;
+  document.getElementById('rewardTitle').textContent = title;
+  document.getElementById('rewardText').textContent = text;
+  document.getElementById('rewardPopup').classList.add('show');
+}
+
+function closeReward() {
+  document.getElementById('rewardPopup').classList.remove('show');
+}
+
+function launchConfetti() {
+  const colors = ['#ffca28','#ef5350','#66bb6a','#42a5f5','#ab47bc','#ff7043'];
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 2 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+let audioCtx = null;
+function playSound(type) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    if (type === 'correct') {
+      osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+      osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.4);
+    } else if (type === 'wrong') {
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(200, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+  } catch(e) {}
+}
+
+function saveGame() {
+  localStorage.setItem('farmGameSave', JSON.stringify({
+    currentLevel: gameState.currentLevel,
+    lives: gameState.lives,
+    coins: gameState.coins,
+    stars: gameState.stars,
+    correctAnswers: gameState.correctAnswers,
+    wrongAnswers: gameState.wrongAnswers,
+    startTime: gameState.startTime,
+    badges: gameState.badges
+  }));
+  if (gameState.currentLevel > 0 || gameState.coins > 0) {
+    document.getElementById('continueBtn').style.display = 'block';
+  }
+}
+
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('farmGameSave');
+  if (saved) {
+    document.getElementById('continueBtn').style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>

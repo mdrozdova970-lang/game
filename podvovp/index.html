@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подводное путешествие с Черепашкой-мудрецом</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    overflow-x: hidden;
+    background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+    min-height: 100vh;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+#mainMenu {
+    background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+    justify-content: center;
+}
+
+.menu-container { text-align: center; z-index: 10; padding: 20px; max-width: 700px; }
+
+.game-title {
+    font-size: 42px;
+    color: #FFD700;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.turtle-hero {
+    width: 180px;
+    height: 180px;
+    margin: 15px auto;
+    background: url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/110a6e0b5-b941-47b1-9915-25dfe05faaa6.png') center/contain no-repeat;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.legend-text {
+    background: rgba(255,255,255,0.95);
+    padding: 20px;
+    border-radius: 20px;
+    margin: 15px auto;
+    font-size: 17px;
+    line-height: 1.6;
+    color: #333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: left;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+.btn {
+    padding: 14px 35px;
+    font-size: 19px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Comic Sans MS', cursive;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    min-width: 250px;
+}
+
+.btn:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+.btn-secondary { background: linear-gradient(135deg, #87CEEB, #4682B4); color: white; }
+.btn-success { background: linear-gradient(135deg, #90EE90, #32CD32); color: white; }
+
+#gameScreen {
+    background-size: cover;
+    background-position: center;
+    background-color: #4682B4;
+    transition: background-image 0.5s;
+    padding-top: 110px;
+    justify-content: flex-start;
+}
+
+.game-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,50,100,0.85);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.level-info { color: white; font-size: 18px; font-weight: bold; }
+
+.stats { display: flex; gap: 15px; color: white; font-size: 17px; flex-wrap: wrap; }
+.stat-item { display: flex; align-items: center; gap: 5px; }
+
+.progress-bar {
+    position: fixed;
+    top: 65px;
+    left: 20px;
+    right: 20px;
+    height: 14px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    transition: width 0.5s;
+    border-radius: 10px;
+}
+
+.game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    z-index: 10;
+}
+
+.task-container {
+    background: rgba(255,255,255,0.97);
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+}
+
+.task-title {
+    font-size: 22px;
+    color: #4682B4;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.task-description {
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    text-align: center;
+    font-weight: bold;
+}
+
+.text-block {
+    background: linear-gradient(135deg, #E0F7FF, #B8E4F0);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #222;
+    border-left: 5px solid #4682B4;
+}
+
+.text-block .text-title {
+    font-weight: bold;
+    color: #4682B4;
+    margin-bottom: 10px;
+    font-size: 19px;
+    text-align: center;
+}
+
+.matching-game {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.matching-column { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+.matching-item {
+    padding: 14px;
+    background: linear-gradient(135deg, #87CEEB, #4682B4);
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    font-size: 15px;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    user-select: none;
+}
+
+.matching-item:hover { transform: scale(1.03); }
+.matching-item.selected { background: linear-gradient(135deg, #FFD700, #FFA500); transform: scale(1.05); }
+.matching-item.matched { background: linear-gradient(135deg, #90EE90, #32CD32); cursor: default; }
+.matching-item.wrong { background: linear-gradient(135deg, #FFB6C1, #FF69B4); animation: shake 0.5s; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.task-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-small { padding: 10px 22px; font-size: 15px; min-width: auto; }
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.active { display: flex; }
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    animation: slideIn 0.3s;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-title { font-size: 26px; color: #4682B4; margin-bottom: 15px; }
+.modal-text { font-size: 17px; color: #333; margin-bottom: 15px; line-height: 1.5; }
+
+.reward-display {
+    font-size: 60px;
+    margin: 15px 0;
+    animation: rewardBounce 1s infinite;
+}
+
+@keyframes rewardBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+#finalScreen {
+    background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+    justify-content: center;
+}
+
+.final-container { text-align: center; z-index: 10; padding: 20px; max-width: 600px; }
+.final-title { font-size: 42px; color: white; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); margin-bottom: 15px; }
+
+.final-medal {
+    width: 200px;
+    height: 200px;
+    margin: 15px auto;
+    background: url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/10a49fe26-4cce-44da-933f-eb74e2511be4.png') center/contain no-repeat;
+    animation: medalSpin 3s ease-in-out infinite;
+}
+
+@keyframes medalSpin {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.1); }
+}
+
+.final-stats {
+    background: rgba(255,255,255,0.95);
+    padding: 20px;
+    border-radius: 20px;
+    margin: 15px auto;
+    font-size: 18px;
+    color: #333;
+}
+
+.stat-row { margin: 8px 0; }
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    animation: confettiFall 3s linear;
+    z-index: 999;
+    pointer-events: none;
+}
+
+@keyframes confettiFall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.bubble {
+    position: fixed;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    animation: bubbleRise 4s ease-in infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes bubbleRise {
+    to { transform: translateY(-100vh); opacity: 0; }
+}
+
+.turtle-says {
+    background: linear-gradient(135deg, #FFF8DC, #FFEFD5);
+    border: 3px solid #FFD700;
+    border-radius: 20px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    position: relative;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.turtle-says::before {
+    content: "🐢 Черепашка-мудрец говорит:";
+    display: block;
+    font-weight: bold;
+    color: #4682B4;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .game-title { font-size: 28px; }
+    .turtle-hero { width: 130px; height: 130px; }
+    .legend-text { font-size: 15px; padding: 15px; }
+    .btn { padding: 12px 25px; font-size: 16px; min-width: 200px; }
+    .matching-game { flex-direction: column; gap: 12px; }
+    .task-container { padding: 15px; }
+    .task-title { font-size: 19px; }
+    .task-description { font-size: 15px; }
+    .text-block { font-size: 15px; padding: 15px; }
+    .matching-item { font-size: 14px; padding: 10px; }
+    .game-header { padding: 8px 12px; }
+    .level-info { font-size: 15px; }
+    .stats { font-size: 14px; gap: 10px; }
+    #gameScreen { padding-top: 100px; }
+    .final-title { font-size: 30px; }
+    .final-medal { width: 150px; height: 150px; }
+}
+</style>
+</head>
+<body>
+
+<div id="mainMenu" class="screen active">
+    <div class="menu-container">
+        <h1 class="game-title">🐢 Подводное путешествие</h1>
+        <div class="turtle-hero"></div>
+        <div class="legend-text">
+            <strong>📖 Легенда игры:</strong><br><br>
+            В глубинах волшебного океана живёт мудрая Черепашка по имени Тортила. Она хранит древние свитки с знаниями и учит всех морских обитателей работать с информацией. Но однажды злые маги наложили на подводный мир магические барьеры, которые заблокировали все тексты и знания! Только ты можешь помочь Черепашке-мудрецу — читай тексты, выполняй задания и строй модели знаний, чтобы снять чары. Пройди все 6 уровней, победи магические барьеры и получи заслуженную Золотую медаль хранителя подводных тайн! 🏆
+        </div>
+        <div class="menu-buttons">
+            <button class="btn btn-primary" onclick="startGame()">🎮 Начать игру</button>
+            <button class="btn btn-secondary" onclick="continueGame()">▶️ Продолжить</button>
+            <button class="btn btn-secondary" onclick="showRules()">📖 Правила</button>
+        </div>
+    </div>
+</div>
+
+<div id="gameScreen" class="screen">
+    <div class="game-header">
+        <div class="level-info"><span id="levelName">Уровень 1</span></div>
+        <div class="stats">
+            <div class="stat-item"><span>⭐</span><span id="scoreDisplay">0</span></div>
+            <div class="stat-item"><span>❤️</span><span id="livesDisplay">3</span></div>
+            <div class="stat-item"><span>📍</span><span id="progressDisplay">1/6</span></div>
+        </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+    <div class="game-content">
+        <div class="task-container" id="taskContainer"></div>
+    </div>
+</div>
+
+<div id="levelCompleteModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">🎉 Уровень пройден!</h2>
+        <div class="reward-display" id="rewardEmoji">⭐</div>
+        <p class="modal-text" id="rewardText">Ты получил награду!</p>
+        <button class="btn btn-primary" onclick="nextLevel()">Дальше ➡️</button>
+    </div>
+</div>
+
+<div id="hintModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">💡 Подсказка</h2>
+        <p class="modal-text" id="hintText">Подсказка</p>
+        <button class="btn btn-secondary" onclick="closeHint()">Понятно!</button>
+    </div>
+</div>
+
+<div id="rulesModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">📖 Правила игры</h2>
+        <div class="modal-text" style="text-align: left;">
+            <p>🎯 <strong>Цель:</strong> Пройти 6 уровней и получить золотую медаль</p>
+            <p>📚 <strong>Задания:</strong> Читай текст и соединяй линиями пары</p>
+            <p>❤️ <strong>Жизни:</strong> У тебя 3 жизни. Ошибки отнимают жизнь</p>
+            <p>⭐ <strong>Очки:</strong> За каждое правильное соединение — 10 очков</p>
+            <p>🔮 <strong>Барьеры:</strong> Реши все задания — и барьер исчезнет!</p>
+            <p>💡 <strong>Подсказки:</strong> Если трудно — нажми «Подсказка»</p>
+        </div>
+        <button class="btn btn-secondary" onclick="closeRules()">Закрыть</button>
+    </div>
+</div>
+
+<div id="finalScreen" class="screen">
+    <div class="final-container">
+        <h1 class="final-title">🏆 Поздравляем!</h1>
+        <div class="final-medal"></div>
+        <div class="final-stats">
+            <p style="font-size: 20px; margin-bottom: 15px;">🐢 Черепашка Тортила говорит:</p>
+            <p style="font-style: italic; margin-bottom: 15px;">«Ты настоящий хранитель знаний! Все магические барьеры сняты, а подводный мир снова полон мудрости!»</p>
+            <div class="stat-row">⭐ Очки: <strong><span id="finalScore">0</span></strong></div>
+            <div class="stat-row">✅ Правильных ответов: <strong><span id="finalCorrect">0</span></strong></div>
+            <div class="stat-row">🎯 Пройдено уровней: <strong><span id="finalLevels">6</span></strong></div>
+            <div class="stat-row">🏅 Награда: <strong>Золотая медаль!</strong></div>
+        </div>
+        <div class="menu-buttons">
+            <button class="btn btn-primary" onclick="restartGame()">🔄 Играть снова</button>
+            <button class="btn btn-secondary" onclick="showMainMenu()">🏠 В главное меню</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const gameData = {
+    currentLevel: 1,
+    score: 0,
+    lives: 3,
+    correctAnswers: 0,
+    currentTask: 0,
+    selectedItems: [],
+    matchedPairs: 0,
+    startTime: Date.now()
+};
+
+const levels = [
+    {
+        name: "Водорослевый лес",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1da6f935c-2f24-48bf-93ce-07bdd579166b.png')",
+        intro: "Добро пожаловать в Водорослевый лес! 🌿 Здесь растут огромные водоросли. Черепашка Тортила протянула тебе первый свиток: «Прочитай текст и найди в нём важную информацию!»",
+        turtleSays: "Внимательно прочитай текст. Информация — это всё, что мы узнаём из текста, картинок и разговоров.",
+        text: {
+            title: "🌿 Водоросли — лёгкие океана",
+            content: "Водоросли — это растения, которые растут в воде. Они бывают зелёные, бурые и красные. Самые большие водоросли — ламинарии — вырастают до 20 метров в длину. Водоросли выделяют в воду кислород, которым дышат рыбы и другие морские жители. Из водорослей люди делают лекарства и даже конфеты!"
+        },
+        tasks: [
+            {
+                title: "Задание 1. Что говорится в тексте?",
+                description: "Соедини вопрос с ответом из текста",
+                left: ["Что такое водоросли?", "Какого цвета бывают водоросли?", "Какая самая большая водоросль?", "Что выделяют водоросли?"],
+                right: ["Растения, которые растут в воде", "Зелёные, бурые и красные", "Ламинария — до 20 метров", "Кислород для рыб"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Перечитай текст ещё раз. Ответы прячутся в каждом предложении!"
+            },
+            {
+                title: "Задание 2. Источники информации",
+                description: "Соедини, откуда можно узнать информацию",
+                left: ["Из текста про водоросли", "Из разговора с другом", "Из картинки с рыбами"],
+                right: ["Чтение", "Слушание", "Наблюдение"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Подумай: текст мы читаем, разговор — слушаем, а картинку — рассматриваем."
+            }
+        ],
+        reward: "⭐ Первая звезда знаний",
+        rewardEmoji: "⭐"
+    },
+    {
+        name: "Коралловый риф",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1d985f874-6e1e-4e4b-9983-2cf1b1592906.png')",
+        intro: "Мы на Коралловом рифе! 🐠 Здесь пёстрые рыбки рассказывают истории. Тортила шепчет: «Теперь текст посложнее. Будь внимателен к деталям!»",
+        turtleSays: "Когда читаешь текст — обращай внимание на каждое слово. Из маленьких деталей складывается большая информация!",
+        text: {
+            title: "🐠 Коралловый риф — подводный город",
+            content: "Коралловый риф — это настоящий подводный город. Его строят маленькие животные — коралловые полипы. Каждый полип очень маленький, но вместе они образуют огромные рифы. В рифах живут рыбы-клоуны, морские звёзды, осьминоги и черепахи. Рыба-клоун прячется в щупальцах актинии — так она защищается от врагов. Коралловые рифы занимают меньше 1% дна океана, но в них живёт четверть всех морских животных!"
+        },
+        tasks: [
+            {
+                title: "Задание 1. Найди детали в тексте",
+                description: "Соедини факт с правильной информацией из текста",
+                left: ["Кто строит риф?", "Где прячется рыба-клоун?", "Сколько дна океана занимают рифы?", "Сколько морских животных живёт в рифах?"],
+                right: ["Коралловые полипы", "В щупальцах актинии", "Меньше 1%", "Четверть всех"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Ищи в тексте точные цифры и названия — это важная информация!"
+            },
+            {
+                title: "Задание 2. Главная мысль текста",
+                description: "Соедини часть текста с её смыслом",
+                left: ["Начало текста", "Середина текста", "Конец текста"],
+                right: ["Рассказывает, что такое риф", "Описывает жителей рифа", "Показывает важность рифа"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "В начале обычно говорят, о чём текст. В середине — подробности. В конце — вывод."
+            },
+            {
+                title: "Задание 3. Что мы узнали?",
+                description: "Соедини вопрос с ответом",
+                left: ["Зачем рыба-клоун прячется в актинии?", "Почему риф называют городом?", "Что такое коралловый полип?"],
+                right: ["Чтобы защититься от врагов", "Потому что в нём много жителей", "Маленькое животное, строящее риф"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Подумай, почему автор написал каждый факт."
+            }
+        ],
+        reward: "🌟 Вторая звезда",
+        rewardEmoji: "🌟"
+    },
+    {
+        name: "Затонувший корабль",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1290b9ac9-5d1f-4d27-9e00-da3763298b88.png')",
+        intro: "Ого! Затонувший корабль! 🚢 В трюме — старые карты и журналы. Тортила говорит: «Информацию нужно не только найти, но и правильно понять!»",
+        turtleSays: "У каждого текста есть главная мысль — самое важное, о чём хотел сказать автор. Попробуй её найти!",
+        text: {
+            title: "🚢 Старый корабль",
+            content: "Давно-давно по океану плавал большой деревянный корабль «Морская звезда». На нём путешественники везли редкие ракушки и жемчуг. Однажды поднялась сильная буря. Волны били о борт корабля. Моряки не смогли удержать судно, и оно опустилось на дно. Прошли годы. Корпус корабля оброс водорослями. Теперь в его каютах живут морские ежи и крабы. А матросы-рыбки рассказывают своим детям легенды о старом корабле."
+        },
+        tasks: [
+            {
+                title: "Задание 1. Составь план текста",
+                description: "Соедини часть текста с её содержанием",
+                left: ["1. Начало рассказа", "2. Главная часть", "3. Конец рассказа"],
+                right: ["Корабль «Морская звезда» плавал по океану", "Буря погубила корабль", "Теперь в корабле живут морские жители"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "В начале мы узнаём героев. В середине — что с ними случилось. В конце — что стало потом."
+            },
+            {
+                title: "Задание 2. Главная мысль текста",
+                description: "О чём этот текст? Соедини вопрос с ответом",
+                left: ["О чём этот текст?", "Какая главная мысль?", "Чему учит текст?"],
+                right: ["О старом корабле, на котором теперь живёт много морских жителей", "Старый корабль стал новым домом для морских жителей", "Даже после беды жизнь продолжается — в море много жителей"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Прочитай текст до конца. Что случилось с кораблём в конце? Кто теперь там живёт?"
+            },
+            {
+                title: "Задание 3. Ответы в тексте",
+                description: "Соедини вопрос с правильным ответом",
+                left: ["Как назывался корабль?", "Что везли путешественники?", "Что случилось с кораблём?", "Кто теперь живёт в каютах?"],
+                right: ["«Морская звезда»", "Ракушки и жемчуг", "Он утонул во время бури", "Морские ежи и крабы"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Возвращайся к тексту и ищи нужные слова — они там точно есть!"
+            },
+            {
+                title: "Задание 4. Слова-помощники",
+                description: "Соедини слово с его ролью в тексте",
+                left: ["«Давно-давно»", "«Однажды»", "«Прошли годы»"],
+                right: ["Начало истории", "Событие, которое всё изменило", "Прошло много времени"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Эти слова помогают понять, КОГДА всё происходило."
+            }
+        ],
+        reward: "🗝️ Ключ от сундука знаний",
+        rewardEmoji: "🗝️"
+    },
+    {
+        name: "Остров русалок",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1578d9149-7806-4b54-a21a-c93360a89968.png')",
+        intro: "Волшебный Остров русалок! 🧜‍♀️ Русалки поют песни, в которых зашифрованы знания. Тортила говорит: «Теперь нужно не просто найти информацию, а понять, достоверная она или нет!»",
+        turtleSays: "Не всякая информация правдива! Учёные всегда проверяют факты — это очень важно.",
+        text: {
+            title: "🧜‍♀️ Русалка Коралла и её друзья",
+            content: "Русалка Коралла жила в красивой раковине на Острове русалок. У неё было три лучших друга: дельфин Блик, черепаха Тортила и осьминог Чернилка. Каждый день они вместе изучали океан. Блик плавал быстро и находил новые места. Тортила знала много старинных историй. Чернилка умел рисовать карты щупальцами. Однажды друзья нашли на дне старую бутылку с запиской. В записке было написано: «Кто дружит — тот силен!» Коралла повесила записку на стену раковины, чтобы никогда её не забыть."
+        },
+        tasks: [
+            {
+                title: "Задание 1. Герои и их умения",
+                description: "Соедини героя с его умением",
+                left: ["Дельфин Блик", "Черепаха Тортила", "Осьминог Чернилка", "Русалка Коралла"],
+                right: ["Быстро плавает и находит новые места", "Знает старинные истории", "Рисует карты щупальцами", "Собрала друзей и хранит записку"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Вернись к тексту и найди, что делал каждый герой."
+            },
+            {
+                title: "Задание 2. Верно или неверно?",
+                description: "Соедини утверждение с ответом",
+                left: ["У Кораллы было 2 друга", "Чернилка рисовал карты", "В бутылке была карта сокровищ", "Записка висит на стене раковины"],
+                right: ["Неверно (было 3 друга)", "Верно", "Неверно (была записка)", "Верно"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Сравни каждое утверждение с текстом. Будь внимателен к цифрам и деталям!"
+            },
+            {
+                title: "Задание 3. Главная мысль",
+                description: "Соедини текст с его главной мыслью",
+                left: ["Что хотел сказать автор?", "Чему учит эта история?", "О чём этот текст?"],
+                right: ["Дружба — это сила", "Нужно беречь друзей", "О дружбе морских жителей"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Главная мысль — это самое важное, что хотел сказать автор."
+            }
+        ],
+        reward: "🧩 Часть карты сокровищ",
+        rewardEmoji: "🧩"
+    },
+    {
+        name: "Подводная лодка",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1e9a220b6-c6c1-435f-973c-9325f573649c.png')",
+        intro: "Мы в подводной лодке! 🛥️ На столе — научные статьи. Тортила говорит: «Теперь ты настоящий исследователь! Работай с текстом как учёный!»",
+        turtleSays: "Учёные всегда задают вопросы к тексту: Кто? Что? Когда? Где? Почему? Это помогает понять информацию!",
+        text: {
+            title: "🐙 Удивительный осьминог",
+            content: "Осьминог — одно из самых умных беспозвоночных животных. У него восемь щупалец, или «рук». На каждой «руке» есть присоски — ими осьминог пробует предметы на вкус! У осьминога три сердца и голубая кровь. Он может менять цвет за одну секунду. Если осьминогу грозит опасность, он выпускает чёрные чернила и уплывает. Учёные заметили: осьминоги умеют открывать банки с крышкой и даже играть с игрушками!"
+        },
+        tasks: [
+            {
+                title: "Задание 1. Вопросы к тексту",
+                description: "Соедини вопрос учёного с ответом",
+                left: ["КТО такой осьминог?", "ЧТО у него на руках?", "СКОЛЬКО у него сердец?", "ЧТО он делает при опасности?", "ЧТО умеют осьминоги?"],
+                right: ["Умное беспозвоночное животное", "Присоски, которыми пробуют вкус", "Три сердца", "Выпускает чернила и уплывает", "Открывать банки и играть"],
+                correct: [[0,0],[1,1],[2,2],[3,3],[4,4]],
+                hint: "Учёные задают вопросы: Кто? Что? Сколько? Что делает? Ищи ответы в тексте!"
+            },
+            {
+                title: "Задание 2. Факты и мнения",
+                description: "Соедини предложение с его типом",
+                left: ["«Осьминог — умное животное»", "«Осьминоги — самые красивые»", "«У осьминога три сердца»", "«Осьминоги — лучшие питомцы»"],
+                right: ["Факт (проверено учёными)", "Мнение (так думает человек)", "Факт (научное знание)", "Мнение (так думает человек)"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Факт — это то, что можно проверить. Мнение — это то, что кто-то думает."
+            },
+            {
+                title: "Задание 3. Пересказ",
+                description: "Соедини вид пересказа с его описанием",
+                left: ["Подробный пересказ", "Краткий пересказ", "Пересказ по плану"],
+                right: ["Со всеми деталями текста", "Только самое главное", "По частям: начало, середина, конец"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Подумай, чем отличаются разные виды пересказа."
+            },
+            {
+                title: "Задание 4. Заголовок текста",
+                description: "Соедини заголовок с тем, о чём он говорит",
+                left: ["«Удивительный осьминог»", "«Три сердца»", "«Мастер маскировки»"],
+                right: ["Обо всех фактах про осьминога", "Только про сердца осьминога", "Только про умение менять цвет"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Заголовок должен отражать тему текста. Подумай, о чём весь текст, а не только часть."
+            }
+        ],
+        reward: "🔑 Золотой ключ",
+        rewardEmoji: "🔑"
+    },
+    {
+        name: "Подводный дворец",
+        background: "url('https://image.qwenlm.ai/public_source/cd852132-165b-438c-9e67-22c9b4843584/1ee663fa8-6758-4553-80f0-7933d14bb32d.png')",
+        intro: "Подводный дворец! 🏰 Здесь хранятся все знания океана. Тортила торжественно говорит: «Последнее испытание! Покажи всё, чему научился!»",
+        turtleSays: "Ты уже настоящий знаток! Вспомни всё: что такое информация, как работать с текстом, как находить главное!",
+        text: {
+            title: "🏰 Тайны Подводного дворца",
+            content: "Подводный дворец стоит на самом дне океана. Его построили древние морские мудрецы много лет назад. Стены дворца сделаны из перламутра, а крыша сверкает жемчугом. Во дворце живёт Хранитель Знаний — мудрый кит по имени Океанус. Каждый день к нему приплывают рыбы, черепахи и дельфины, чтобы узнать что-то новое. Океанус рассказывает им о звёздах, течениях и островах. Он учит: «Информация — это богатство. Кто умеет её искать, читать и понимать — тот настоящий мудрец!» Однажды во дворец приплыла маленькая черепашка Тортила. Океанус взял её в ученики. Прошли годы — и Тортила сама стала мудрецом. Теперь она учит других тому, чему научилась."
+        },
+        tasks: [
+            {
+                title: "Задание 1. Вся информация из текста",
+                description: "Соедини вопрос с ответом из текста",
+                left: ["Где стоит дворец?", "Из чего сделаны стены?", "Кто живёт во дворце?", "К чему приплывают жители?", "Чему учит Океанус?"],
+                right: ["На самом дне океана", "Из перламутра", "Мудрый кит Океанус", "Узнать что-то новое", "Информация — это богатство"],
+                correct: [[0,0],[1,1],[2,2],[3,3],[4,4]],
+                hint: "Читай текст внимательно и ищи нужные слова!"
+            },
+            {
+                title: "Задание 2. План истории",
+                description: "Соедини часть плана с содержанием",
+                left: ["1. Что такое дворец", "2. Кто такой Океанус", "3. Чему он учит", "4. История Тортилы", "5. Вывод"],
+                right: ["Дворец на дне океана из перламутра", "Мудрый кит — Хранитель Знаний", "Информация — это богатство", "Тортила стала ученицей и выросла в мудреца", "Теперь Тортила учит других"],
+                correct: [[0,0],[1,1],[2,2],[3,3],[4,4]],
+                hint: "План — это скелет текста. Каждая часть плана = одна мысль текста."
+            },
+            {
+                title: "Задание 3. Работа с информацией",
+                description: "Соедини действие с примером",
+                left: ["Поиск информации", "Чтение текста", "Понимание текста", "Запоминание", "Передача знаний"],
+                right: ["Нашла Тортила дворец", "Читает свиток со знаниями", "Поняла, что информация — богатство", "Запомнила уроки Океануса", "Тортила учит других"],
+                correct: [[0,0],[1,1],[2,2],[3,3],[4,4]],
+                hint: "Работа с информацией — это целый путь: от поиска до передачи другим."
+            },
+            {
+                title: "Задание 4. Финальное: виды информации",
+                description: "Соедини вид информации с примером из дворца",
+                left: ["Текстовая информация", "Числовая информация", "Графическая информация", "Слуховая информация"],
+                right: ["Свиток с учением Океануса", "Возраст дворца в годах", "Карта океана на стене", "Рассказ Океануса о звёздах"],
+                correct: [[0,0],[1,1],[2,2],[3,3]],
+                hint: "Вспомни: текст — это слова, числа — это цифры, графика — это рисунки, звук — это уши."
+            },
+            {
+                title: "Задание 5. Главная мысль истории",
+                description: "Соедини вопрос с правильным ответом",
+                left: ["О чём эта история?", "Чему она учит?", "Какая главная мысль?"],
+                right: ["О пути Тортилы к мудрости", "Что знания нужно беречь и передавать", "Кто учится и делится знаниями — становится мудрецом"],
+                correct: [[0,0],[1,1],[2,2]],
+                hint: "Главная мысль — это самое важное, что хотел сказать автор всей историей."
+            }
+        ],
+        reward: "🏆 Золотая медаль!",
+        rewardEmoji: "🏆"
+    }
+];
+
+function init() {
+    loadGame();
+    createBubbles();
+}
+
+function createBubbles() {
+    setInterval(() => {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.style.left = Math.random() * 100 + '%';
+        bubble.style.bottom = '0';
+        const size = Math.random() * 25 + 10;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        document.body.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 4000);
+    }, 800);
+}
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+function startGame() {
+    gameData.currentLevel = 1;
+    gameData.score = 0;
+    gameData.lives = 3;
+    gameData.correctAnswers = 0;
+    gameData.currentTask = 0;
+    gameData.startTime = Date.now();
+    saveGame();
+    showScreen('gameScreen');
+    startLevel();
+}
+
+function continueGame() {
+    const saved = localStorage.getItem('turtleGame');
+    if (saved) {
+        showScreen('gameScreen');
+        startLevel();
+    } else {
+        alert('Нет сохранённой игры. Начни новую!');
+    }
+}
+
+function showRules() {
+    document.getElementById('rulesModal').classList.add('active');
+}
+
+function closeRules() {
+    document.getElementById('rulesModal').classList.remove('active');
+}
+
+function startLevel() {
+    const level = levels[gameData.currentLevel - 1];
+    document.getElementById('gameScreen').style.backgroundImage = level.background;
+    document.getElementById('levelName').textContent = `Уровень ${gameData.currentLevel}: ${level.name}`;
+    updateStats();
+    gameData.currentTask = 0;
+    showTaskIntro();
+}
+
+function showTaskIntro() {
+    const level = levels[gameData.currentLevel - 1];
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2 class="modal-title">📍 ${level.name}</h2>
+            <p class="modal-text">${level.intro}</p>
+            <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove(); loadTask();">Начать! 🚀</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function loadTask() {
+    const level = levels[gameData.currentLevel - 1];
+    if (gameData.currentTask >= level.tasks.length) {
+        completeLevel();
+        return;
+    }
+
+    const task = level.tasks[gameData.currentTask];
+    const container = document.getElementById('taskContainer');
+    
+    let html = '';
+    if (gameData.currentTask === 0) {
+        html += `<div class="turtle-says">${level.turtleSays}</div>`;
+        html += `<div class="text-block">
+            <div class="text-title">${level.text.title}</div>
+            <div>${level.text.content}</div>
+        </div>`;
+    }
+    
+    html += `<h2 class="task-title">${task.title}</h2>`;
+    html += `<p class="task-description">${task.description}</p>`;
+    html += `<div class="matching-game" id="matchingGame">
+        <div class="matching-column" id="leftColumn"></div>
+        <div class="matching-column" id="rightColumn"></div>
+    </div>`;
+    html += `<div class="task-actions">
+        <button class="btn btn-secondary btn-small" onclick="showHint()">💡 Подсказка</button>
+    </div>`;
+    
+    container.innerHTML = html;
+    
+    const leftCol = document.getElementById('leftColumn');
+    const rightCol = document.getElementById('rightColumn');
+    
+    const rightIndices = task.right.map((_, i) => i);
+    const shuffledRight = [...rightIndices].sort(() => Math.random() - 0.5);
+    
+    task.left.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'matching-item';
+        div.textContent = item;
+        div.dataset.side = 'left';
+        div.dataset.index = index;
+        div.onclick = () => selectItem(div);
+        leftCol.appendChild(div);
+    });
+    
+    shuffledRight.forEach(originalIndex => {
+        const div = document.createElement('div');
+        div.className = 'matching-item';
+        div.textContent = task.right[originalIndex];
+        div.dataset.side = 'right';
+        div.dataset.index = originalIndex;
+        div.onclick = () => selectItem(div);
+        rightCol.appendChild(div);
+    });
+    
+    gameData.selectedItems = [];
+    gameData.matchedPairs = 0;
+    updateStats();
+}
+
+function selectItem(element) {
+    if (element.classList.contains('matched')) return;
+    
+    const side = element.dataset.side;
+    const index = parseInt(element.dataset.index);
+    
+    const existingSelection = gameData.selectedItems.find(item => item.side === side);
+    if (existingSelection) {
+        existingSelection.element.classList.remove('selected');
+        gameData.selectedItems = gameData.selectedItems.filter(item => item.side !== side);
+    }
+    
+    element.classList.add('selected');
+    gameData.selectedItems.push({ side, index, element });
+    
+    if (gameData.selectedItems.length === 2) {
+        setTimeout(checkMatch, 300);
+    }
+}
+
+function checkMatch() {
+    const level = levels[gameData.currentLevel - 1];
+    const task = level.tasks[gameData.currentTask];
+    
+    const leftItem = gameData.selectedItems.find(item => item.side === 'left');
+    const rightItem = gameData.selectedItems.find(item => item.side === 'right');
+    
+    const isCorrect = task.correct.some(pair => 
+        pair[0] === leftItem.index && pair[1] === rightItem.index
+    );
+    
+    if (isCorrect) {
+        leftItem.element.classList.remove('selected');
+        rightItem.element.classList.remove('selected');
+        leftItem.element.classList.add('matched');
+        rightItem.element.classList.add('matched');
+        gameData.matchedPairs++;
+        gameData.score += 10;
+        gameData.correctAnswers++;
+        
+        showFeedback('✅ Отлично! Молодец!', 'success');
+        
+        if (gameData.matchedPairs === task.left.length) {
+            setTimeout(() => {
+                gameData.currentTask++;
+                loadTask();
+            }, 1500);
+        }
+    } else {
+        leftItem.element.classList.remove('selected');
+        rightItem.element.classList.remove('selected');
+        leftItem.element.classList.add('wrong');
+        rightItem.element.classList.add('wrong');
+        gameData.lives--;
+        
+        showFeedback('❌ Неверно! Попробуй ещё раз 💪', 'error');
+        
+        setTimeout(() => {
+            leftItem.element.classList.remove('wrong');
+            rightItem.element.classList.remove('wrong');
+        }, 800);
+        
+        if (gameData.lives <= 0) {
+            setTimeout(gameOver, 1000);
+        }
+    }
+    
+    gameData.selectedItems = [];
+    updateStats();
+    saveGame();
+}
+
+function showFeedback(message, type) {
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: ${type === 'success' ? '#90EE90' : '#FFB6C1'};
+        padding: 20px 40px;
+        border-radius: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        color: white;
+        z-index: 2000;
+        animation: slideIn 0.3s;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        text-align: center;
+    `;
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    setTimeout(() => feedback.remove(), 1500);
+}
+
+function showHint() {
+    const level = levels[gameData.currentLevel - 1];
+    const task = level.tasks[gameData.currentTask];
+    document.getElementById('hintText').textContent = task.hint;
+    document.getElementById('hintModal').classList.add('active');
+}
+
+function closeHint() {
+    document.getElementById('hintModal').classList.remove('active');
+}
+
+function completeLevel() {
+    const level = levels[gameData.currentLevel - 1];
+    document.getElementById('rewardEmoji').textContent = level.rewardEmoji;
+    document.getElementById('rewardText').textContent = `Ты получил: ${level.reward}!`;
+    document.getElementById('levelCompleteModal').classList.add('active');
+    createConfetti();
+    saveGame();
+}
+
+function createConfetti() {
+    for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-10px';
+            confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            const size = Math.random() * 8 + 6;
+            confetti.style.width = size + 'px';
+            confetti.style.height = size + 'px';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 40);
+    }
+}
+
+function nextLevel() {
+    document.getElementById('levelCompleteModal').classList.remove('active');
+    gameData.currentLevel++;
+    
+    if (gameData.currentLevel > levels.length) {
+        showFinalScreen();
+    } else {
+        startLevel();
+    }
+}
+
+function showFinalScreen() {
+    document.getElementById('finalScore').textContent = gameData.score;
+    document.getElementById('finalCorrect').textContent = gameData.correctAnswers;
+    document.getElementById('finalLevels').textContent = levels.length;
+    showScreen('finalScreen');
+    createConfetti();
+    localStorage.removeItem('turtleGame');
+}
+
+function gameOver() {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2 class="modal-title">💔 Ой-ой!</h2>
+            <p class="modal-text">Все жизни закончились... Но не расстраивайся! Черепашка Тортила верит в тебя — попробуй ещё раз!</p>
+            <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove(); startGame();">🔄 Начать заново</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="this.parentElement.parentElement.remove(); showMainMenu();">🏠 В меню</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function updateStats() {
+    document.getElementById('scoreDisplay').textContent = gameData.score;
+    document.getElementById('livesDisplay').textContent = gameData.lives;
+    document.getElementById('progressDisplay').textContent = `${gameData.currentLevel}/6`;
+    document.getElementById('progressFill').style.width = `${((gameData.currentLevel - 1) / 6) * 100}%`;
+}
+
+function saveGame() {
+    localStorage.setItem('turtleGame', JSON.stringify(gameData));
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('turtleGame');
+    if (saved) {
+        const data = JSON.parse(saved);
+        Object.assign(gameData, data);
+    }
+}
+
+function restartGame() {
+    startGame();
+}
+
+function showMainMenu() {
+    showScreen('mainMenu');
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
