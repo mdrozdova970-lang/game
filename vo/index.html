@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Заря и Воздушные острова — Приключение знаний</title>
+<style>
+  /* ===== БАЗОВЫЕ СТИЛИ ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 40%, #FFE4B5 70%, #FFDAB9 100%);
+    color: #2c3e50;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ===== ОБЩИЕ СТИЛИ ЭКРАНОВ ===== */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    animation: fadeIn 0.5s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
+
+  /* ===== ПЛАВАЮЩИЕ ОБЛАКА (ФОН) ===== */
+  .clouds {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: floatCloud linear infinite;
+    box-shadow: 30px 10px 0 -5px white, 60px 0 0 -10px white, -30px 10px 0 -5px white;
+  }
+  @keyframes floatCloud {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+
+  /* ===== ПЛАВАЮЩИЕ ОСТРОВА ===== */
+  .island {
+    position: fixed;
+    bottom: -50px;
+    width: 180px; height: 90px;
+    background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    z-index: 0;
+    animation: floatIsland 6s ease-in-out infinite;
+  }
+  .island::before {
+    content: ''; position: absolute; top: -30px; left: 10px; right: 10px; height: 40px;
+    background: linear-gradient(180deg, #90EE90 0%, #228B22 100%);
+    border-radius: 50%;
+  }
+  .island.i1 { left: 5%; animation-delay: 0s; }
+  .island.i2 { right: 5%; bottom: -30px; width: 140px; height: 70px; animation-delay: 2s; }
+  .island.i3 { left: 40%; bottom: -70px; width: 220px; height: 110px; animation-delay: 4s; }
+  @keyframes floatIsland {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* ===== КОНТЕЙНЕРЫ ===== */
+  .card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2), inset 0 -5px 0 rgba(0,0,0,0.05);
+    border: 4px solid #FFD700;
+    max-width: 700px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ===== ЗАГОЛОВКИ ===== */
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    color: #FF6B9D;
+    text-align: center;
+    text-shadow: 3px 3px 0 #FFD700, 6px 6px 15px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: clamp(22px, 4vw, 32px);
+    color: #4A90E2;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  h3 { font-size: 22px; color: #FF6B9D; margin-bottom: 10px; }
+
+  /* ===== КНОПКИ ===== */
+  .btn {
+    background: linear-gradient(180deg, #FF9A56 0%, #FF6B35 100%);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #D84315, 0 8px 20px rgba(0,0,0,0.2);
+    transition: all 0.15s;
+    font-family: inherit;
+    margin: 8px;
+    min-width: 180px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #D84315, 0 10px 25px rgba(0,0,0,0.25); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #D84315; }
+  .btn.btn-green { background: linear-gradient(180deg, #7ED957 0%, #4CAF50 100%); box-shadow: 0 6px 0 #2E7D32, 0 8px 20px rgba(0,0,0,0.2); }
+  .btn.btn-green:hover { box-shadow: 0 8px 0 #2E7D32, 0 10px 25px rgba(0,0,0,0.25); }
+  .btn.btn-green:active { box-shadow: 0 2px 0 #2E7D32; }
+  .btn.btn-blue { background: linear-gradient(180deg, #56CCF2 0%, #2F80ED 100%); box-shadow: 0 6px 0 #1565C0, 0 8px 20px rgba(0,0,0,0.2); }
+  .btn.btn-blue:hover { box-shadow: 0 8px 0 #1565C0, 0 10px 25px rgba(0,0,0,0.25); }
+  .btn.btn-blue:active { box-shadow: 0 2px 0 #1565C0; }
+  .btn.btn-purple { background: linear-gradient(180deg, #B39DDB 0%, #7E57C2 100%); box-shadow: 0 6px 0 #4527A0, 0 8px 20px rgba(0,0,0,0.2); }
+  .btn.btn-purple:hover { box-shadow: 0 8px 0 #4527A0, 0 10px 25px rgba(0,0,0,0.25); }
+  .btn.btn-purple:active { box-shadow: 0 2px 0 #4527A0; }
+  .btn.btn-small { padding: 10px 20px; font-size: 16px; min-width: 120px; }
+
+  /* ===== ГЕРОЙ ===== */
+  .hero {
+    width: 120px; height: 120px;
+    position: relative;
+    margin: 10px auto;
+    animation: heroFloat 3s ease-in-out infinite;
+  }
+  @keyframes heroFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+  .hero-body {
+    width: 80px; height: 80px;
+    background: linear-gradient(180deg, #FF6B9D 0%, #E91E63 100%);
+    border-radius: 50%;
+    position: absolute;
+    left: 20px; top: 20px;
+    border: 4px solid #C2185B;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2);
+  }
+  .hero-face {
+    position: absolute;
+    width: 60px; height: 60px;
+    left: 30px; top: 30px;
+    background: #FFE0B2;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .hero-eye {
+    position: absolute;
+    width: 8px; height: 10px;
+    background: #2c3e50;
+    border-radius: 50%;
+    top: 22px;
+  }
+  .hero-eye.left { left: 15px; }
+  .hero-eye.right { right: 15px; }
+  .hero-mouth {
+    position: absolute;
+    width: 20px; height: 10px;
+    border-bottom: 3px solid #C2185B;
+    border-radius: 0 0 50% 50%;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .hero-hair {
+    position: absolute;
+    width: 70px; height: 35px;
+    background: #5D4037;
+    border-radius: 50% 50% 20% 20%;
+    top: 15px; left: 25px;
+    z-index: 1;
+  }
+  .hero-cape {
+    position: absolute;
+    width: 50px; height: 60px;
+    background: linear-gradient(180deg, #FFD700 0%, #FFA000 100%);
+    border-radius: 0 0 50% 50%;
+    top: 50px; left: 35px;
+    z-index: -1;
+    transform-origin: top;
+    animation: capeWave 2s ease-in-out infinite;
+  }
+  @keyframes capeWave {
+    0%, 100% { transform: skewX(-5deg); }
+    50% { transform: skewX(5deg); }
+  }
+  .hero-star {
+    position: absolute;
+    top: 5px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: starSpin 4s linear infinite;
+  }
+  @keyframes starSpin {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+  }
+
+  /* ===== ПАНЕЛЬ СТАТУСА ===== */
+  .status-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(255,255,255,0.9);
+    padding: 12px 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  .status-item .icon { font-size: 24px; }
+
+  /* ===== ПРОГРЕСС-БАР ===== */
+  .progress-wrap {
+    width: 100%;
+    height: 24px;
+    background: #E0E0E0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0;
+    border: 3px solid #FFD700;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7ED957 0%, #FFD700 100%);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: progressShine 2s linear infinite;
+  }
+  @keyframes progressShine {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+
+  /* ===== ЗАДАНИЯ ===== */
+  .task-container {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%);
+    padding: 20px;
+    border-radius: 20px;
+    margin: 15px 0;
+    border: 3px dashed #FF9800;
+    min-height: 200px;
+  }
+  .task-question {
+    font-size: clamp(18px, 3vw, 24px);
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    font-weight: bold;
+  }
+  .task-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px 20px;
+    font-size: 24px;
+    text-align: center;
+    border: 4px solid #4A90E2;
+    border-radius: 15px;
+    background: white;
+    font-family: inherit;
+    outline: none;
+    margin: 10px auto;
+    display: block;
+  }
+  .task-input:focus { border-color: #FF6B9D; box-shadow: 0 0 15px rgba(255,107,157,0.3); }
+
+  /* ===== ВЫПАДАЮЩИЙ СПИСОК ===== */
+  .task-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px 20px;
+    font-size: 28px;
+    text-align: center;
+    border: 4px solid #4A90E2;
+    border-radius: 15px;
+    background: white;
+    font-family: inherit;
+    outline: none;
+    margin: 10px auto;
+    display: block;
+    cursor: pointer;
+    font-weight: bold;
+    color: #2c3e50;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%234A90E2' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 50px;
+  }
+  .task-select:focus { border-color: #FF6B9D; box-shadow: 0 0 15px rgba(255,107,157,0.3); }
+  .task-select option {
+    font-size: 24px;
+    padding: 10px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+  }
+  .option-btn {
+    background: linear-gradient(180deg, #ffffff 0%, #F5F5F5 100%);
+    border: 3px solid #4A90E2;
+    padding: 14px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    color: #2c3e50;
+  }
+  .option-btn:hover { transform: scale(1.05); background: #E3F2FD; }
+  .option-btn.selected { background: #BBDEFB; border-color: #1976D2; }
+  .option-btn.correct { background: #C8E6C9; border-color: #4CAF50; animation: correctPulse 0.5s; }
+  .option-btn.wrong { background: #FFCDD2; border-color: #F44336; animation: shake 0.4s; }
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* ===== СООБЩЕНИЯ ===== */
+  .feedback {
+    padding: 15px;
+    border-radius: 15px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .feedback.success { background: #C8E6C9; color: #1B5E20; border: 3px solid #4CAF50; }
+  .feedback.error { background: #FFCDD2; color: #B71C1C; border: 3px solid #F44336; }
+  .feedback.hint { background: #FFF9C4; color: #F57F17; border: 3px solid #FFC107; }
+
+  /* ===== ЛАБИРИНТ ===== */
+  .maze-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .maze-grid {
+    display: grid;
+    gap: 4px;
+    margin: 15px auto;
+    background: #4A148C;
+    padding: 8px;
+    border-radius: 15px;
+    width: fit-content;
+    border: 4px solid #FFD700;
+  }
+  .maze-cell {
+    width: clamp(38px, 8vw, 52px);
+    height: clamp(38px, 8vw, 52px);
+    background: #E1BEE7;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 4vw, 24px);
+    transition: all 0.2s;
+    position: relative;
+    border: 2px solid transparent;
+  }
+  .maze-cell.wall { 
+    background: #4A148C; 
+    cursor: not-allowed;
+    border-color: #311B92;
+  }
+  .maze-cell.path { 
+    background: #FFF59D; 
+    cursor: pointer;
+  }
+  .maze-cell.path:hover {
+    background: #FFF176;
+    transform: scale(1.05);
+  }
+  .maze-cell.current { 
+    background: #FF6B9D; 
+    animation: pulse 1s infinite;
+    border-color: #C2185B;
+  }
+  .maze-cell.visited { 
+    background: #B39DDB; 
+    cursor: pointer;
+  }
+  .maze-cell.visited:hover {
+    background: #9575CD;
+    transform: scale(1.05);
+  }
+  .maze-cell.goal { 
+    background: #FFD700; 
+    animation: goalGlow 1.5s infinite;
+    border-color: #FFA000;
+  }
+  .maze-cell.adjacent {
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  @keyframes goalGlow {
+    0%, 100% { box-shadow: 0 0 10px #FFD700; }
+    50% { box-shadow: 0 0 25px #FFD700, 0 0 40px #FFA000; }
+  }
+  
+  .maze-controls {
+    display: grid;
+    grid-template-areas: 
+      ". up ."
+      "left . right"
+      ". down .";
+    gap: 8px;
+    margin: 10px auto;
+  }
+  .maze-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #56CCF2 0%, #2F80ED 100%);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1565C0;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .maze-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #1565C0; }
+  .maze-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1565C0; }
+  .maze-btn.up { grid-area: up; }
+  .maze-btn.down { grid-area: down; }
+  .maze-btn.left { grid-area: left; }
+  .maze-btn.right { grid-area: right; }
+
+  /* ===== НАГРАДЫ ===== */
+  .reward-container {
+    text-align: center;
+    padding: 20px;
+  }
+  .reward-icon {
+    font-size: 80px;
+    animation: rewardBounce 1s ease;
+    display: inline-block;
+  }
+  @keyframes rewardBounce {
+    0% { transform: scale(0) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(360deg); }
+    100% { transform: scale(1) rotate(720deg); }
+  }
+
+  /* ===== КОНФЕТТИ ===== */
+  .confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    from { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== МЕДАЛЬ ===== */
+  .medal {
+    width: 180px; height: 180px;
+    margin: 20px auto;
+    position: relative;
+    animation: medalSpin 3s ease-in-out infinite;
+  }
+  @keyframes medalSpin {
+    0%, 100% { transform: rotateY(0deg); }
+    50% { transform: rotateY(180deg); }
+  }
+  .medal-circle {
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at 30% 30%, #FFF59D 0%, #FFD700 40%, #FFA000 100%);
+    border-radius: 50%;
+    border: 8px solid #FF8F00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    box-shadow: 0 10px 30px rgba(255,140,0,0.5), inset 0 -10px 20px rgba(0,0,0,0.2);
+  }
+  .medal-ribbon {
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 60px;
+    background: linear-gradient(180deg, #E91E63 0%, #C2185B 100%);
+    clip-path: polygon(0 0, 100% 0, 80% 100%, 50% 70%, 20% 100%);
+  }
+
+  /* ===== ДИАЛОГ ГЕРОЯ ===== */
+  .hero-dialog {
+    background: white;
+    border: 4px solid #FF6B9D;
+    border-radius: 20px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    position: relative;
+    font-size: 18px;
+    line-height: 1.5;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  .hero-dialog::before {
+    content: '';
+    position: absolute;
+    bottom: -15px; left: 30px;
+    width: 0; height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #FF6B9D;
+  }
+
+  /* ===== ЛОКАЦИЯ ===== */
+  .location-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  .location-banner .loc-icon { font-size: 40px; display: block; margin-bottom: 5px; }
+  .location-banner .loc-name { font-size: 22px; font-weight: bold; }
+
+  /* ===== МЕНЮ ===== */
+  .menu-buttons { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: 20px; }
+
+  /* ===== ПРАВИЛА ===== */
+  .rules-list { list-style: none; padding: 0; }
+  .rules-list li {
+    padding: 10px 15px;
+    margin: 8px 0;
+    background: #E3F2FD;
+    border-radius: 12px;
+    border-left: 5px solid #4A90E2;
+    font-size: 17px;
+  }
+
+  /* ===== АДАПТИВНОСТЬ ===== */
+  @media (max-width: 600px) {
+    .card { padding: 20px 15px; border-radius: 20px; }
+    .btn { padding: 12px 20px; font-size: 17px; min-width: 150px; }
+    .hero { width: 90px; height: 90px; }
+    .hero-body { width: 60px; height: 60px; left: 15px; top: 15px; }
+    .hero-face { width: 45px; height: 45px; left: 22px; top: 22px; }
+    .hero-eye { width: 6px; height: 8px; top: 16px; }
+    .hero-eye.left { left: 11px; }
+    .hero-eye.right { right: 11px; }
+    .hero-hair { width: 55px; height: 28px; top: 10px; left: 17px; }
+    .hero-cape { width: 40px; height: 45px; top: 38px; left: 25px; }
+    .hero-mouth { width: 15px; height: 8px; bottom: 10px; }
+    .hero-star { font-size: 18px; }
+    .status-item { font-size: 15px; }
+    .status-item .icon { font-size: 20px; }
+    .medal { width: 140px; height: 140px; }
+    .medal-circle { font-size: 60px; }
+    .maze-btn { width: 50px; height: 50px; font-size: 22px; }
+  }
+
+  /* ===== СКРОЛЛ ===== */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.3); }
+  ::-webkit-scrollbar-thumb { background: #FF6B9D; border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- Фоновые элементы -->
+<div class="clouds" id="clouds"></div>
+<div class="island i1"></div>
+<div class="island i2"></div>
+<div class="island i3"></div>
+
+<!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
+<div class="screen active" id="screen-menu">
+  <div class="card" style="text-align:center;">
+    <div class="hero">
+      <div class="hero-star">⭐</div>
+      <div class="hero-hair"></div>
+      <div class="hero-body"></div>
+      <div class="hero-face">
+        <div class="hero-eye left"></div>
+        <div class="hero-eye right"></div>
+        <div class="hero-mouth"></div>
+      </div>
+      <div class="hero-cape"></div>
+    </div>
+    <h1>Заря и Воздушные острова</h1>
+    <h2>🌟 Приключение знаний 🌟</h2>
+    <div class="menu-buttons">
+      <button class="btn btn-green" onclick="startGame()">🚀 Начать игру</button>
+      <button class="btn btn-blue" onclick="showScreen('screen-continue')" id="btn-continue">▶ Продолжить</button>
+      <button class="btn btn-purple" onclick="showScreen('screen-rules')">📖 Правила</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ПРАВИЛА ===== -->
+<div class="screen" id="screen-rules">
+  <div class="card">
+    <h2>📖 Как играть</h2>
+    <ul class="rules-list">
+      <li>🦸‍♀️ Помоги девочке-супергерою Заре вернуть украденные знания!</li>
+      <li>🏝️ Пройди 4 волшебных уровня на Воздушных островах</li>
+      <li>📝 Решай задания по математике и русскому языку</li>
+      <li>🌀 Проходи Лабиринт, чтобы попасть на следующий уровень</li>
+      <li>❤️ У тебя 3 жизни — береги их!</li>
+      <li>⭐ Собирай звёзды и монеты за правильные ответы</li>
+      <li>🏆 Получи Золотую медаль в конце пути!</li>
+    </ul>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn" onclick="showScreen('screen-menu')">← Назад</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЛЕГЕНДА ===== -->
+<div class="screen" id="screen-intro">
+  <div class="card">
+    <div class="hero">
+      <div class="hero-star">⭐</div>
+      <div class="hero-hair"></div>
+      <div class="hero-body"></div>
+      <div class="hero-face">
+        <div class="hero-eye left"></div>
+        <div class="hero-eye right"></div>
+        <div class="hero-mouth"></div>
+      </div>
+      <div class="hero-cape"></div>
+    </div>
+    <h2>📜 Легенда</h2>
+    <div class="hero-dialog">
+      На высоких Воздушных островах, где облака касаются земли, жила отважная девочка-супергерой по имени Заря. Однажды злой колдун Забывалус украл все знания детей и спрятал их в четырёх заколдованных местах! Чтобы вернуть знания и получить Золотую медаль, Заре предстоит пройти опасный Лабиринт и раскрыть все тайны. Помоги ей справиться с этим заданием — от тебя зависит судьба всех учеников!
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn btn-green" onclick="startLevel(0)">🚀 В путь!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== НАЧАЛО УРОВНЯ ===== -->
+<div class="screen" id="screen-level-intro">
+  <div class="card">
+    <div class="location-banner">
+      <span class="loc-icon" id="levelIcon">🧪</span>
+      <span class="loc-name" id="levelName">Секретная лаборатория</span>
+    </div>
+    <div class="hero">
+      <div class="hero-star">⭐</div>
+      <div class="hero-hair"></div>
+      <div class="hero-body"></div>
+      <div class="hero-face">
+        <div class="hero-eye left"></div>
+        <div class="hero-eye right"></div>
+        <div class="hero-mouth"></div>
+      </div>
+      <div class="hero-cape"></div>
+    </div>
+    <div class="hero-dialog" id="levelStory"></div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="levelProgress" style="width:0%"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-green" onclick="startLevelTasks()">📝 Начать задания</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЗАДАНИЕ ===== -->
+<div class="screen" id="screen-task">
+  <div class="card">
+    <div class="status-bar">
+      <div class="status-item"><span class="icon">❤️</span><span id="livesCount">3</span></div>
+      <div class="status-item"><span class="icon">⭐</span><span id="starsCount">0</span></div>
+      <div class="status-item"><span class="icon">🪙</span><span id="coinsCount">0</span></div>
+      <div class="status-item"><span class="icon">📍</span><span id="levelIndicator">1/4</span></div>
+    </div>
+    <div class="location-banner">
+      <span class="loc-icon" id="taskLocIcon">🧪</span>
+      <span class="loc-name" id="taskLocName">Секретная лаборатория</span>
+    </div>
+    <div class="task-container">
+      <div class="task-question" id="taskQuestion">Вопрос</div>
+      <div id="taskInputArea"></div>
+    </div>
+    <div class="feedback" id="feedback" style="display:none;"></div>
+    <div style="text-align:center; display:flex; justify-content:center; flex-wrap:wrap; gap:10px;">
+      <button class="btn btn-blue btn-small" id="btnHint" onclick="showHint()">💡 Подсказка</button>
+      <button class="btn btn-green btn-small" id="btnCheck" onclick="checkAnswer()">✅ Проверить</button>
+      <button class="btn btn-small" id="btnNext" onclick="nextTask()" style="display:none;">Дальше →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЛАБИРИНТ ===== -->
+<div class="screen" id="screen-maze">
+  <div class="card">
+    <h2>🌀 Лабиринт знаний</h2>
+    <div class="hero-dialog" id="mazeStory">Помоги Заре пройти лабиринт! Нажимай на кнопки-стрелки или на соседние клетки, чтобы добраться до золотой звезды ⭐</div>
+    <div class="maze-container">
+      <div class="maze-grid" id="mazeGrid"></div>
+      <div class="maze-controls">
+        <button class="maze-btn up" onclick="moveMaze(0,-1)">↑</button>
+        <button class="maze-btn left" onclick="moveMaze(-1,0)">←</button>
+        <button class="maze-btn right" onclick="moveMaze(1,0)">→</button>
+        <button class="maze-btn down" onclick="moveMaze(0,1)">↓</button>
+      </div>
+    </div>
+    <div class="status-bar">
+      <div class="status-item"><span class="icon">👣</span>Шаги: <span id="mazeSteps">0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== КОНЕЦ УРОВНЯ ===== -->
+<div class="screen" id="screen-level-end">
+  <div class="card">
+    <h2 id="levelEndTitle">🎉 Уровень пройден!</h2>
+    <div class="reward-container">
+      <div class="reward-icon" id="rewardIcon">🗝️</div>
+      <h3 id="rewardText">Ты получил ключ!</h3>
+      <p id="rewardStats" style="font-size:18px; margin-top:10px;"></p>
+    </div>
+    <div class="hero-dialog" id="levelEndStory"></div>
+    <div style="text-align:center;">
+      <button class="btn btn-green" id="btnNextLevel" onclick="goToNextLevel()">Дальше →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ФИНАЛ ===== -->
+<div class="screen" id="screen-final">
+  <div class="card">
+    <h1>🏆 ПОБЕДА! 🏆</h1>
+    <div class="medal">
+      <div class="medal-ribbon"></div>
+      <div class="medal-circle">🏅</div>
+    </div>
+    <h2>Заря вручает тебе Золотую медаль!</h2>
+    <div class="hero-dialog">
+      Ты настоящий герой! Благодаря тебе все знания возвращены детям, а злой колдун Забывалус побеждён! Я горжусь тобой! 🌟
+    </div>
+    <div class="status-bar">
+      <div class="status-item"><span class="icon">⭐</span>Звёзд: <span id="finalStars">0</span></div>
+      <div class="status-item"><span class="icon">🪙</span>Монет: <span id="finalCoins">0</span></div>
+      <div class="status-item"><span class="icon">✅</span>Правильных: <span id="finalCorrect">0</span>/<span id="finalTotal">0</span></div>
+    </div>
+    <div style="text-align:center; display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+      <button class="btn btn-green" onclick="restartGame()">🔄 Играть снова</button>
+      <button class="btn btn-blue" onclick="showScreen('screen-menu')">🏠 В меню</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ПРОИГРЫШ ===== -->
+<div class="screen" id="screen-gameover">
+  <div class="card">
+    <h2>💔 Ох, жизни закончились...</h2>
+    <div class="hero">
+      <div class="hero-star">⭐</div>
+      <div class="hero-hair"></div>
+      <div class="hero-body"></div>
+      <div class="hero-face">
+        <div class="hero-eye left"></div>
+        <div class="hero-eye right"></div>
+        <div class="hero-mouth"></div>
+      </div>
+      <div class="hero-cape"></div>
+    </div>
+    <div class="hero-dialog">Не расстраивайся! Настоящие герои всегда пробуют снова. Давай вместе вернём знания!</div>
+    <div style="text-align:center;">
+      <button class="btn btn-green" onclick="restartGame()">🔄 Начать заново</button>
+      <button class="btn btn-blue" onclick="showScreen('screen-menu')">🏠 В меню</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ПРОДОЛЖИТЬ (пустой экран для кнопки) ===== -->
+<div class="screen" id="screen-continue">
+  <div class="card">
+    <h2>📂 Продолжить игру</h2>
+    <div class="hero-dialog" id="continueInfo">Сохранённой игры не найдено.</div>
+    <div style="text-align:center;">
+      <button class="btn btn-green" id="btnLoadGame" onclick="loadGame()" style="display:none;">▶ Продолжить</button>
+      <button class="btn" onclick="showScreen('screen-menu')">← Назад</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== ДАННЫЕ ИГРЫ ===== */
+const LEVELS = [
+  {
+    name: "Секретная лаборатория",
+    icon: "🧪",
+    color: "#4FC3F7",
+    story: "Заря попала в Секретную лабораторию! Здесь злой колдун спрятал первые украденные знания. Чтобы их вернуть, реши математические задачки!",
+    endStory: "Молодец! Знания математики освобождены! Впереди ждёт Волшебный лес...",
+    rewardIcon: "🗝️",
+    rewardText: "Первый ключ знаний!",
+    tasks: [
+      { q: "Вставь пропущенное число: 25 + ___ = 30", a: "5", hint: "Подумай: сколько нужно прибавить к 25, чтобы получить 30?", type: "input" },
+      { q: "Реши пример: 47 − 20 = ___", a: "27", hint: "От 47 отними 2 десятка", type: "input" },
+      { q: "Какое число пропущено? 12, 15, 18, ___, 24", a: "21", hint: "Каждое следующее число больше предыдущего на 3", type: "input" },
+      { q: "Выбери правильный ответ: 8 + 7 = ?", a: "15", options: ["14", "15", "16", "13"], hint: "Сначала 8+2=10, потом ещё 5", type: "choice" },
+      { q: "Вставь знак сравнения: 34 ___ 29", a: ">", hint: "Какое число больше — 34 или 29?", type: "select", options: [">", "<", "="] }
+    ]
+  },
+  {
+    name: "Волшебный лес",
+    icon: "🌳",
+    color: "#81C784",
+    story: "Заря оказалась в Волшебном лесу! Деревья здесь шепчут загадки о русском языке. Помоги Заре вставить пропущенные буквы!",
+    endStory: "Превосходно! Слова ожили! Впереди — Загадочный замок...",
+    rewardIcon: "🔑",
+    rewardText: "Второй ключ знаний!",
+    tasks: [
+      { q: "Вставь безударную гласную: л_сной (лес)", a: "е", hint: "Проверочное слово — лес", type: "input" },
+      { q: "Вставь парную согласную: ду_", a: "б", options: ["б", "п"], hint: "На конце оглушается — проверь: дуб-дубы", type: "choice" },
+      { q: "Вставь разделительный ъ или ь: под_езд", a: "ъ", hint: "После приставки перед е, ё, ю, я пишется ъ", type: "input" },
+      { q: "Какое слово является именем прилагательным?", a: "синий", options: ["дом", "синий", "бежать", "солнце"], hint: "Прилагательное отвечает на вопрос: какой?", type: "choice" },
+      { q: "Вставь пропущенную букву: м_дведь (медведь)", a: "е", hint: "Проверочное слово — мЕдведи", type: "input" }
+    ]
+  },
+  {
+    name: "Загадочный замок",
+    icon: "🏰",
+    color: "#BA68C8",
+    story: "Заря вошла в Загадочный замок! Здесь хранятся знания об умножении и делении. Реши задания, чтобы открыть следующую дверь!",
+    endStory: "Отлично! Таблицы умножения покорены! Осталась Таинственная пещера...",
+    rewardIcon: "🗝️",
+    rewardText: "Третий ключ знаний!",
+    tasks: [
+      { q: "Вставь число: 3 × 4 = ___", a: "12", hint: "Три раза по четыре", type: "input" },
+      { q: "Реши: 18 : 2 = ___", a: "9", hint: "Сколько раз 2 помещается в 18?", type: "input" },
+      { q: "Выбери верный ответ: 5 × 5 = ?", a: "25", options: ["20", "25", "30", "15"], hint: "Пять пятёрок", type: "choice" },
+      { q: "Вставь число: 7 × ___ = 21", a: "3", hint: "Какое число умножить на 7, чтобы получить 21?", type: "input" },
+      { q: "Вставь знак сравнения: 6 × 3 ___ 20", a: "<", hint: "Сначала реши 6×3=18, потом сравни с 20", type: "select", options: [">", "<", "="] }
+    ]
+  },
+  {
+    name: "Таинственная пещера",
+    icon: "🕳️",
+    color: "#FF8A65",
+    story: "Заря в Таинственной пещере! Здесь спрятаны самые важные знания. Это последнее испытание — реши самые сложные задания!",
+    endStory: "Невероятно! Все знания возвращены! Зара несёт тебе Золотую медаль!",
+    rewardIcon: "🏅",
+    rewardText: "Золотая медаль!",
+    tasks: [
+      { q: "Реши: 56 + 38 = ___", a: "94", hint: "Сначала единицы: 6+8=14, запиши 4, запомни 1. Потом десятки: 5+3+1=9", type: "input" },
+      { q: "Вставь букву: к_ртина (картина)", a: "а", hint: "Проверочное слово — кАртинки", type: "input" },
+      { q: "Сколько будет: 9 × 6 − 14 = ___", a: "40", hint: "Сначала 9×6=54, потом 54−14", type: "input" },
+      { q: "Какое слово является глаголом?", a: "прыгать", options: ["мяч", "весёлый", "прыгать", "школа"], hint: "Глагол отвечает на вопрос: что делать?", type: "choice" },
+      { q: "Вставь знак сравнения: 100 − 47 ___ 53", a: "=", hint: "Реши 100−47=53 и сравни с 53", type: "select", options: [">", "<", "="] }
+    ]
+  }
+];
+
+/* ===== СОСТОЯНИЕ ИГРЫ ===== */
+let gameState = {
+  currentLevel: 0,
+  currentTask: 0,
+  lives: 3,
+  stars: 0,
+  coins: 0,
+  correctAnswers: 0,
+  totalAnswers: 0,
+  attempts: 0,
+  startTime: Date.now()
+};
+
+/* ===== ИНИЦИАЛИЗАЦИЯ ===== */
+function init() {
+  createClouds();
+  checkSavedGame();
+}
+
+function createClouds() {
+  const cloudsContainer = document.getElementById('clouds');
+  for (let i = 0; i < 5; i++) {
+    const cloud = document.createElement('div');
+    cloud.className = 'cloud';
+    const size = 40 + Math.random() * 40;
+    cloud.style.width = size + 'px';
+    cloud.style.height = size * 0.6 + 'px';
+    cloud.style.top = (Math.random() * 60) + '%';
+    cloud.style.animationDuration = (30 + Math.random() * 40) + 's';
+    cloud.style.animationDelay = (-Math.random() * 40) + 's';
+    cloudsContainer.appendChild(cloud);
+  }
+}
+
+function checkSavedGame() {
+  const saved = localStorage.getItem('zaryaGame');
+  const btnCont = document.getElementById('btn-continue');
+  if (saved) {
+    btnCont.style.display = 'inline-block';
+    document.getElementById('continueInfo').textContent = 'Найдена сохранённая игра! Продолжить приключение?';
+    document.getElementById('btnLoadGame').style.display = 'inline-block';
+  } else {
+    btnCont.style.display = 'none';
+  }
+}
+
+/* ===== УПРАВЛЕНИЕ ЭКРАНАМИ ===== */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ===== СТАРТ ИГРЫ ===== */
+function startGame() {
+  gameState = {
+    currentLevel: 0,
+    currentTask: 0,
+    lives: 3,
+    stars: 0,
+    coins: 0,
+    correctAnswers: 0,
+    totalAnswers: 0,
+    attempts: 0,
+    startTime: Date.now()
+  };
+  showScreen('screen-intro');
+}
+
+function restartGame() {
+  localStorage.removeItem('zaryaGame');
+  startGame();
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('zaryaGame');
+  if (saved) {
+    gameState = JSON.parse(saved);
+    startLevel(gameState.currentLevel);
+  }
+}
+
+function saveGame() {
+  localStorage.setItem('zaryaGame', JSON.stringify(gameState));
+}
+
+/* ===== УРОВНИ ===== */
+function startLevel(levelIdx) {
+  if (levelIdx >= LEVELS.length) {
+    showFinal();
+    return;
+  }
+  gameState.currentLevel = levelIdx;
+  gameState.currentTask = 0;
+  const level = LEVELS[levelIdx];
+  
+  document.getElementById('levelIcon').textContent = level.icon;
+  document.getElementById('levelName').textContent = level.name;
+  document.getElementById('levelStory').textContent = level.story;
+  
+  const progress = (levelIdx / LEVELS.length) * 100;
+  document.getElementById('levelProgress').style.width = progress + '%';
+  
+  showScreen('screen-level-intro');
+  saveGame();
+}
+
+function startLevelTasks() {
+  showTask();
+}
+
+/* ===== ЗАДАНИЯ ===== */
+function showTask() {
+  const level = LEVELS[gameState.currentLevel];
+  const task = level.tasks[gameState.currentTask];
+  gameState.attempts = 0;
+  selectedOption = null;
+  selectedOptionValue = null;
+  
+  document.getElementById('taskLocIcon').textContent = level.icon;
+  document.getElementById('taskLocName').textContent = level.name;
+  document.getElementById('taskQuestion').textContent = task.q;
+  document.getElementById('livesCount').textContent = gameState.lives;
+  document.getElementById('starsCount').textContent = gameState.stars;
+  document.getElementById('coinsCount').textContent = gameState.coins;
+  document.getElementById('levelIndicator').textContent = (gameState.currentLevel + 1) + '/4';
+  
+  const inputArea = document.getElementById('taskInputArea');
+  inputArea.innerHTML = '';
+  
+  if (task.type === 'input') {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'task-input';
+    input.id = 'answerInput';
+    input.placeholder = 'Введи ответ';
+    input.autocomplete = 'off';
+    inputArea.appendChild(input);
+    setTimeout(() => input.focus(), 100);
+  } else if (task.type === 'select') {
+    const select = document.createElement('select');
+    select.className = 'task-select';
+    select.id = 'answerSelect';
+    
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = '— выбери знак —';
+    defaultOpt.disabled = true;
+    defaultOpt.selected = true;
+    select.appendChild(defaultOpt);
+    
+    task.options.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt;
+      select.appendChild(option);
+    });
+    
+    inputArea.appendChild(select);
+  } else if (task.type === 'choice' || task.options) {
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    task.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = () => selectOption(btn, opt);
+      grid.appendChild(btn);
+    });
+    inputArea.appendChild(grid);
+  }
+  
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btnCheck').style.display = 'inline-block';
+  document.getElementById('btnHint').style.display = 'inline-block';
+  document.getElementById('btnNext').style.display = 'none';
+  
+  showScreen('screen-task');
+}
+
+let selectedOption = null;
+let selectedOptionValue = null;
+
+function selectOption(btn, value) {
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedOption = btn;
+  selectedOptionValue = value;
+}
+
+function showHint() {
+  const level = LEVELS[gameState.currentLevel];
+  const task = level.tasks[gameState.currentTask];
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback hint';
+  fb.innerHTML = '💡 ' + task.hint;
+  fb.style.display = 'flex';
+}
+
+function checkAnswer() {
+  const level = LEVELS[gameState.currentLevel];
+  const task = level.tasks[gameState.currentTask];
+  const fb = document.getElementById('feedback');
+  
+  let userAnswer = '';
+  if (task.type === 'input') {
+    userAnswer = document.getElementById('answerInput').value.trim().toLowerCase().replace(/\s+/g, '');
+  } else if (task.type === 'select') {
+    const select = document.getElementById('answerSelect');
+    userAnswer = select.value.trim();
+    if (!userAnswer) {
+      fb.className = 'feedback hint';
+      fb.innerHTML = '👆 Выбери знак из списка!';
+      fb.style.display = 'flex';
+      return;
+    }
+  } else {
+    if (!selectedOptionValue) {
+      fb.className = 'feedback hint';
+      fb.innerHTML = '👆 Выбери ответ!';
+      fb.style.display = 'flex';
+      return;
+    }
+    userAnswer = selectedOptionValue;
+  }
+  
+  const correctAnswer = task.a;
+  gameState.totalAnswers++;
+  gameState.attempts++;
+  
+  if (userAnswer === correctAnswer) {
+    // Правильный ответ
+    gameState.correctAnswers++;
+    gameState.stars++;
+    gameState.coins += 10;
+    
+    fb.className = 'feedback success';
+    const praises = ['🎉 Отлично!', '✨ Молодец!', '🌟 Супер!', '👏 Браво!', '💫 Великолепно!'];
+    fb.innerHTML = praises[Math.floor(Math.random() * praises.length)] + ' Правильный ответ!';
+    fb.style.display = 'flex';
+    
+    if (selectedOption) selectedOption.classList.add('correct');
+    
+    createConfetti();
+    playSuccessSound();
+    
+    document.getElementById('btnCheck').style.display = 'none';
+    document.getElementById('btnHint').style.display = 'none';
+    document.getElementById('btnNext').style.display = 'inline-block';
+    
+    updateStatusBar();
+    saveGame();
+  } else {
+    // Неправильный ответ
+    gameState.lives--;
+    
+    if (selectedOption) selectedOption.classList.add('wrong');
+    
+    if (gameState.lives <= 0) {
+      setTimeout(() => showScreen('screen-gameover'), 1000);
+      return;
+    }
+    
+    if (gameState.attempts >= 3) {
+      // Показать правильный ответ
+      fb.className = 'feedback error';
+      fb.innerHTML = '🤔 Правильный ответ: <b>' + task.a + '</b>. ' + task.hint;
+      fb.style.display = 'flex';
+      document.getElementById('btnCheck').style.display = 'none';
+      document.getElementById('btnHint').style.display = 'none';
+      document.getElementById('btnNext').style.display = 'inline-block';
+    } else {
+      fb.className = 'feedback error';
+      const hints = ['😕 Попробуй ещё раз!', '🤔 Почти! Подумай ещё!', '💭 Не сдавайся!'];
+      fb.innerHTML = hints[Math.min(gameState.attempts - 1, 2)] + ' Осталось жизней: ❤️ ' + gameState.lives;
+      fb.style.display = 'flex';
+    }
+    
+    updateStatusBar();
+    saveGame();
+    
+    // Сброс выбора
+    setTimeout(() => {
+      if (selectedOption) selectedOption.classList.remove('wrong');
+      selectedOption = null;
+      selectedOptionValue = null;
+    }, 600);
+  }
+}
+
+function nextTask() {
+  gameState.currentTask++;
+  const level = LEVELS[gameState.currentLevel];
+  
+  if (gameState.currentTask >= level.tasks.length) {
+    // Уровень пройден — лабиринт
+    startMaze();
+  } else {
+    showTask();
+  }
+}
+
+function updateStatusBar() {
+  document.getElementById('livesCount').textContent = gameState.lives;
+  document.getElementById('starsCount').textContent = gameState.stars;
+  document.getElementById('coinsCount').textContent = gameState.coins;
+}
+
+/* ===== ЛАБИРИНТ ===== */
+let maze = [];
+let mazeStart = {x: 0, y: 0};
+let mazeGoal = {x: 0, y: 0};
+let mazeCurrent = {x: 0, y: 0};
+let mazeSteps = 0;
+const MAZE_SIZE = 7;
+let mazeCompleted = false;
+
+function startMaze() {
+  generateMaze();
+  renderMaze();
+  mazeSteps = 0;
+  mazeCompleted = false;
+  document.getElementById('mazeSteps').textContent = '0';
+  showScreen('screen-maze');
+}
+
+function generateMaze() {
+  // Создаём простой лабиринт с гарантированным путём
+  maze = [];
+  for (let y = 0; y < MAZE_SIZE; y++) {
+    const row = [];
+    for (let x = 0; x < MAZE_SIZE; x++) {
+      row.push(0); // 0 = путь, 1 = стена
+    }
+    maze.push(row);
+  }
+  
+  // Стены (проверенный лабиринт с гарантированным путём)
+  const walls = [
+    [1,1],[1,3],[1,5],
+    [2,1],[2,3],[2,5],
+    [3,1],[3,3],[3,5],
+    [4,1],[4,3],[4,5],
+    [5,1],[5,3],[5,5]
+  ];
+  
+  walls.forEach(([y,x]) => {
+    if (y < MAZE_SIZE && x < MAZE_SIZE) maze[y][x] = 1;
+  });
+  
+  // Создаём проходы
+  const passages = [
+    [0,1],[0,3],[0,5],
+    [1,2],[1,4],[1,6],
+    [2,2],[2,4],[2,6],
+    [3,2],[3,4],[3,6],
+    [4,2],[4,4],[4,6],
+    [5,2],[5,4],[5,6],
+    [6,1],[6,3],[6,5]
+  ];
+  
+  passages.forEach(([y,x]) => {
+    if (y < MAZE_SIZE && x < MAZE_SIZE) maze[y][x] = 0;
+  });
+  
+  mazeStart = {x: 0, y: 0};
+  mazeGoal = {x: MAZE_SIZE - 1, y: MAZE_SIZE - 1};
+  mazeCurrent = {x: 0, y: 0};
+  maze[0][0] = 0;
+  maze[MAZE_SIZE-1][MAZE_SIZE-1] = 0;
+}
+
+function renderMaze() {
+  const grid = document.getElementById('mazeGrid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${MAZE_SIZE}, 1fr)`;
+  
+  for (let y = 0; y < MAZE_SIZE; y++) {
+    for (let x = 0; x < MAZE_SIZE; x++) {
+      const cell = document.createElement('div');
+      cell.className = 'maze-cell';
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+      
+      if (maze[y][x] === 1) {
+        cell.classList.add('wall');
+        cell.textContent = '🪨';
+      } else if (x === mazeGoal.x && y === mazeGoal.y) {
+        cell.classList.add('goal');
+        cell.textContent = '⭐';
+      } else if (x === mazeCurrent.x && y === mazeCurrent.y) {
+        cell.classList.add('current');
+        cell.textContent = '🦸‍♀️';
+      } else {
+        cell.classList.add('path');
+        // Подсветка соседних клеток
+        const dx = Math.abs(x - mazeCurrent.x);
+        const dy = Math.abs(y - mazeCurrent.y);
+        if (dx + dy === 1) {
+          cell.classList.add('adjacent');
+        }
+      }
+      
+      cell.onclick = () => handleMazeClick(x, y);
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function handleMazeClick(x, y) {
+  if (mazeCompleted) return;
+  
+  // Проверяем, является ли клетка соседней с текущей (только по горизонтали/вертикали)
+  const dx = Math.abs(x - mazeCurrent.x);
+  const dy = Math.abs(y - mazeCurrent.y);
+  
+  // Должна быть соседняя клетка (расстояние Манхэттена = 1)
+  if (dx + dy !== 1) return;
+  
+  // Не должна быть стеной
+  if (maze[y][x] === 1) return;
+  
+  // Перемещаемся
+  mazeCurrent = {x, y};
+  mazeSteps++;
+  document.getElementById('mazeSteps').textContent = mazeSteps;
+  
+  renderMaze();
+  
+  // Проверка достижения цели
+  if (x === mazeGoal.x && y === mazeGoal.y) {
+    mazeCompleted = true;
+    setTimeout(() => completeMaze(), 400);
+  }
+}
+
+function moveMaze(dx, dy) {
+  if (mazeCompleted) return;
+  
+  const newX = mazeCurrent.x + dx;
+  const newY = mazeCurrent.y + dy;
+  
+  // Проверка границ
+  if (newX < 0 || newX >= MAZE_SIZE || newY < 0 || newY >= MAZE_SIZE) return;
+  
+  // Проверка стены
+  if (maze[newY][newX] === 1) return;
+  
+  // Перемещаемся
+  mazeCurrent = {x: newX, y: newY};
+  mazeSteps++;
+  document.getElementById('mazeSteps').textContent = mazeSteps;
+  
+  renderMaze();
+  
+  // Проверка достижения цели
+  if (newX === mazeGoal.x && newY === mazeGoal.y) {
+    mazeCompleted = true;
+    setTimeout(() => completeMaze(), 400);
+  }
+}
+
+function completeMaze() {
+  createConfetti();
+  playSuccessSound();
+  gameState.coins += 20;
+  gameState.stars += 2;
+  showLevelEnd();
+}
+
+/* ===== КОНЕЦ УРОВНЯ ===== */
+function showLevelEnd() {
+  const level = LEVELS[gameState.currentLevel];
+  document.getElementById('levelEndTitle').textContent = '🎉 ' + level.name + ' пройден!';
+  document.getElementById('rewardIcon').textContent = level.rewardIcon;
+  document.getElementById('rewardText').textContent = level.rewardText;
+  document.getElementById('rewardStats').innerHTML = 
+    `⭐ Звёзд: ${gameState.stars} | 🪙 Монет: ${gameState.coins} | ❤️ Жизней: ${gameState.lives}`;
+  document.getElementById('levelEndStory').textContent = level.endStory;
+  
+  if (gameState.currentLevel === LEVELS.length - 1) {
+    document.getElementById('btnNextLevel').textContent = '🏆 К награде!';
+  } else {
+    document.getElementById('btnNextLevel').textContent = 'Дальше →';
+  }
+  
+  showScreen('screen-level-end');
+  saveGame();
+}
+
+function goToNextLevel() {
+  gameState.currentLevel++;
+  if (gameState.currentLevel >= LEVELS.length) {
+    showFinal();
+  } else {
+    startLevel(gameState.currentLevel);
+  }
+}
+
+/* ===== ФИНАЛ ===== */
+function showFinal() {
+  document.getElementById('finalStars').textContent = gameState.stars;
+  document.getElementById('finalCoins').textContent = gameState.coins;
+  document.getElementById('finalCorrect').textContent = gameState.correctAnswers;
+  document.getElementById('finalTotal').textContent = gameState.totalAnswers;
+  
+  showScreen('screen-final');
+  createConfetti();
+  createConfetti();
+  playSuccessSound();
+  localStorage.removeItem('zaryaGame');
+}
+
+/* ===== ЭФФЕКТЫ ===== */
+function createConfetti() {
+  const colors = ['#FF6B9D', '#FFD700', '#4A90E2', '#7ED957', '#B39DDB', '#FF9A56'];
+  for (let i = 0; i < 40; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+    if (Math.random() > 0.5) {
+      confetti.style.borderRadius = '50%';
+    }
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4500);
+  }
+}
+
+function playSuccessSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.1);
+      gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.3);
+      osc.start(ctx.currentTime + i * 0.1);
+      osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+    });
+  } catch(e) {}
+}
+
+/* ===== ОБРАБОТКА КЛАВИШ ===== */
+document.addEventListener('keydown', (e) => {
+  // Enter для проверки/перехода
+  if (e.key === 'Enter') {
+    const checkBtn = document.getElementById('btnCheck');
+    const nextBtn = document.getElementById('btnNext');
+    if (checkBtn && checkBtn.style.display !== 'none' && document.getElementById('screen-task').classList.contains('active')) {
+      checkAnswer();
+    } else if (nextBtn && nextBtn.style.display !== 'none') {
+      nextTask();
+    }
+  }
+  
+  // Стрелки для лабиринта
+  if (document.getElementById('screen-maze').classList.contains('active')) {
+    if (e.key === 'ArrowUp') { e.preventDefault(); moveMaze(0, -1); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); moveMaze(0, 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); moveMaze(-1, 0); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); moveMaze(1, 0); }
+  }
+});
+
+/* ===== СТАРТ ===== */
+init();
+</script>
+</body>
+</html>
