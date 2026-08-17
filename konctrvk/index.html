@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Волшебный карандаш — фоны</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+    }
+    body {
+      background: linear-gradient(145deg, #e8f0f5 0%, #d0e2ed 100%);
+      min-height: 100vh;
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      max-width: 1150px;
+      width: 100%;
+      background: rgba(255, 252, 248, 0.95);
+      backdrop-filter: blur(4px);
+      padding: 22px 25px;
+      border-radius: 50px;
+      box-shadow: 0 20px 40px rgba(0, 20, 30, 0.25), 0 0 0 6px #d6e9f2, 0 0 0 10px #7fb4cc;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1a3b4a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+      text-shadow: 3px 3px 0 #c2dce8;
+    }
+    h1 small {
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #30738f;
+      color: #f0fbff;
+      padding: 4px 16px;
+      border-radius: 60px;
+      text-shadow: none;
+      box-shadow: inset 0 -3px 0 #184c61;
+    }
+    .subhead {
+      font-size: 1rem;
+      color: #1f4d61;
+      background: #d7ecf5;
+      padding: 8px 18px;
+      border-radius: 60px;
+      display: inline-block;
+      margin-bottom: 18px;
+      border: 2px dashed #5d97b3;
+      font-weight: 500;
+    }
+    .mode-switch {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      padding: 10px 24px;
+      border-radius: 60px;
+      border: 3px solid #b3ccda;
+      background: #ecf6fb;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #1a3b4a;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .mode-btn.active {
+      background: #30738f;
+      color: white;
+      border-color: #184c61;
+      box-shadow: 0 4px 12px rgba(48, 115, 143, 0.3);
+    }
+    .mode-btn:hover {
+      transform: scale(1.02);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 15px 0 18px;
+      transition: 0.3s;
+    }
+    .grid.hidden {
+      display: none;
+    }
+    .card {
+      background: #f7fcfe;
+      border-radius: 30px;
+      padding: 10px 10px 14px;
+      box-shadow: inset 0 -5px 0 #b3ccda, 0 6px 10px rgba(0,0,0,0.05);
+      border: 2px solid #c4dce8;
+    }
+    .card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .card-label {
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      color: #1e5268;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      border-bottom: 3px dotted #cde1ec;
+      padding-bottom: 5px;
+    }
+    .card-label span {
+      background: #30738f;
+      color: white;
+      border-radius: 40px;
+      padding: 0 10px;
+      font-size: 0.5rem;
+    }
+    .card-label .lock {
+      background: #f44336;
+      color: white;
+      border-radius: 40px;
+      padding: 0 10px;
+      font-size: 0.5rem;
+      margin-left: auto;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+    .option-group::-webkit-scrollbar {
+      width: 3px;
+    }
+    .option-group::-webkit-scrollbar-thumb {
+      background: #b3ccda;
+      border-radius: 10px;
+    }
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #ecf6fb;
+      padding: 2px 8px;
+      border-radius: 40px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.1s;
+      flex-shrink: 0;
+    }
+    .option-item:hover {
+      background: #dceef7;
+    }
+    .option-item.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .option-item input[type="radio"], 
+    .option-item input[type="checkbox"] {
+      accent-color: #30738f;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .option-item input:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .option-item label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #103442;
+      cursor: pointer;
+      flex: 1;
+      line-height: 1.2;
+    }
+    .option-item label.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 10px;
+    }
+    .btn {
+      background: #cee6f0;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #123a4b;
+      border-bottom: 4px solid #7fb4cc;
+      transition: 0.08s linear;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+    .btn:active {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+    }
+    .btn-primary {
+      background: #83bed9;
+      border-bottom-color: #2b6f8f;
+      color: #04222e;
+      flex: 2;
+    }
+    .btn-secondary {
+      background: #ecf6fb;
+      border-bottom-color: #8fb4c7;
+    }
+    .result-box {
+      background: #0f2c39;
+      border-radius: 40px;
+      padding: 16px 20px;
+      margin: 8px 0 14px;
+      border: 5px solid #b8d6e5;
+      box-shadow: inset 0 0 0 3px #30738f;
+    }
+    .result-box .label {
+      color: #98bfd2;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .result-box .prompt-output textarea {
+      width: 100%;
+      background: #1a3a4a;
+      color: #eff9ff;
+      border: 2px solid #30738f;
+      border-radius: 20px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-family: 'Segoe UI', sans-serif;
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+    .result-box .prompt-output textarea:focus {
+      outline: none;
+      border-color: #6fbb8a;
+      box-shadow: 0 0 0 3px rgba(48, 115, 143, 0.3);
+    }
+    .copy-feedback {
+      color: #9ed4b5;
+      font-size: 0.7rem;
+      background: #1a3a2b;
+      padding: 2px 12px;
+      border-radius: 60px;
+      display: inline-block;
+      opacity: 0;
+      transition: 0.2s;
+    }
+    .copy-feedback.show {
+      opacity: 1;
+    }
+    .footer-notes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 10px;
+      color: #1d4d61;
+      font-size: 0.65rem;
+      background: #dcecf5;
+      border-radius: 60px;
+      padding: 6px 14px;
+      margin-top: 10px;
+      border: 2px solid #b8d0dc;
+    }
+    .footer-notes span {
+      background: #30738f;
+      color: white;
+      border-radius: 40px;
+      padding: 0 10px;
+      font-weight: 600;
+    }
+    .word-counter {
+      font-size: 0.9rem;
+      color: #9ed4b5;
+      background: #1a3a2b;
+      padding: 2px 14px;
+      border-radius: 40px;
+      display: inline-block;
+      font-weight: 700;
+    }
+    .style-emoji {
+      font-size: 0.9rem;
+      margin-right: 3px;
+    }
+    .check-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .check-group .option-item {
+      padding: 1px 6px;
+    }
+    .check-group .option-item label {
+      font-size: 0.65rem;
+    }
+    .style-count {
+      background: #30738f;
+      color: white;
+      border-radius: 40px;
+      padding: 0 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .hero-count {
+      background: #4caf50;
+      color: white;
+      border-radius: 40px;
+      padding: 0 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .design-toggle {
+      background: #e8f5e9;
+      border-radius: 16px;
+      padding: 6px 12px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid #81c784;
+      flex-wrap: wrap;
+    }
+    .design-toggle input {
+      accent-color: #30738f;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .design-toggle label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1a3b4a;
+      cursor: pointer;
+    }
+    .design-toggle select {
+      padding: 2px 10px;
+      border-radius: 40px;
+      border: 2px solid #8fb4c7;
+      background: white;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #1a3b4a;
+    }
+    .info-hint {
+      font-size: 0.65rem;
+      color: #6f9bb3;
+      margin-top: 4px;
+      padding: 4px 10px;
+      background: #ecf6fb;
+      border-radius: 30px;
+      display: inline-block;
+    }
+    .blocked-hint {
+      background: #ffebee;
+      color: #c62828;
+      border-radius: 30px;
+      padding: 4px 12px;
+      font-size: 0.65rem;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 14px 12px; }
+      h1 { font-size: 1.5rem; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .check-group { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 400px) {
+      .grid { grid-template-columns: 1fr; }
+      .action-bar { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+
+  <h1>
+    ✏️ Волшебный карандаш
+    <small>фоны</small>
+  </h1>
+  <div class="subhead">🎨 <span class="hero-count">{{ backgrounds.length }}</span> фонов · <span class="style-count">{{ bgStyles.length }}</span> стилей</div>
+
+  <!-- Переключатель режимов -->
+  <div class="mode-switch">
+    <button class="mode-btn" :class="{ active: mode === 'characters' }" @click="mode = 'characters'">🧑 Персонажи</button>
+    <button class="mode-btn" :class="{ active: mode === 'backgrounds' }" @click="mode = 'backgrounds'">🖼️ Фоны</button>
+  </div>
+
+  <!-- РЕЖИМ: ПЕРСОНАЖИ -->
+  <div :class="['grid', mode === 'characters' ? '' : 'hidden']">
+
+    <div class="card">
+      <div class="card-label">🧑 1. Кто <span>{{ heroes.length }}</span></div>
+      <div class="option-group" style="max-height:220px;">
+        <div class="option-item" v-for="hero in heroes" :key="hero.value">
+          <input type="radio" name="hero" :value="hero.value" v-model="selected.hero" :id="'h'+hero.value">
+          <label :for="'h'+hero.value">{{ hero.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🏃 2. Действие</div>
+      <div class="option-group">
+        <div class="option-item" v-for="action in actions" :key="action.value">
+          <input type="radio" name="action" :value="action.value" v-model="selected.action" :id="'a'+action.value">
+          <label :for="'a'+action.value">{{ action.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" :class="{ disabled: isCuttingMode }">
+      <div class="card-label">
+        📍 3. Где 
+        <span v-if="!isCuttingMode">{{ places.length }}</span>
+        <span class="lock" v-if="isCuttingMode">🔒 только белый фон</span>
+      </div>
+      <div class="option-group">
+        <div class="option-item" v-for="place in places" :key="place.value" :class="{ disabled: isCuttingMode && place.value !== 'на белом фоне' }">
+          <input type="radio" name="place" :value="place.value" v-model="selected.place" :id="'p'+place.value" :disabled="isCuttingMode && place.value !== 'на белом фоне'">
+          <label :for="'p'+place.value" :class="{ disabled: isCuttingMode && place.value !== 'на белом фоне' }">{{ place.label }}</label>
+        </div>
+      </div>
+      <div class="blocked-hint" v-if="isCuttingMode">🔒 Для вырезания доступен только «белый фон»</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🎨 4. Стиль <span>{{ styles.length }}</span></div>
+      <div class="option-group" style="max-height:160px;">
+        <div class="option-item" v-for="style in styles" :key="style.value">
+          <input type="radio" name="style" :value="style.value" v-model="selected.style" :id="'s'+style.value">
+          <label :for="'s'+style.value">
+            <span class="style-emoji">{{ style.emoji }}</span>
+            {{ style.label }}
+          </label>
+        </div>
+      </div>
+      <div class="design-toggle">
+        <input type="checkbox" id="wholeImage" v-model="selected.wholeImage" :disabled="isCuttingMode">
+        <label for="wholeImage" :class="{ disabled: isCuttingMode }">🎨 Весь рисунок в стиле</label>
+      </div>
+      <div class="info-hint" v-if="isCuttingMode">⚠️ При вырезании «Весь рисунок в стиле» отключен</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">😊 5. Настроение</div>
+      <div class="option-group check-group">
+        <div class="option-item" v-for="mood in moods" :key="mood.value">
+          <input type="checkbox" :value="mood.value" v-model="selected.moods" :id="'m'+mood.value">
+          <label :for="'m'+mood.value">{{ mood.label }}</label>
+        </div>
+      </div>
+      <div style="margin-top:5px;">
+        <div class="option-item" style="background:#f0f7fa; border:2px solid #b3ccda;">
+          <input type="checkbox" id="bigEyes" v-model="selected.bigEyes">
+          <label for="bigEyes">👀 большие глаза</label>
+        </div>
+        <div class="design-toggle" style="background:#e3f2fd; border-color:#64b5f6; margin-top:4px;">
+          <input type="checkbox" id="transparentBg" v-model="selected.transparentBg">
+          <label for="transparentBg">⬜ Без фона (белый фон)</label>
+          <span class="tag">✂️</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ОФОРМЛЕНИЕ -->
+    <div class="card" style="grid-column: span 1; background: #faf5eb; border-color: #c4a88a;">
+      <div class="card-label">🎨 Оформление <span>декор</span></div>
+      <div class="option-group" style="max-height:180px;">
+        <div class="option-item" v-for="decor in decorations" :key="decor.value" :class="{ disabled: isCuttingMode }">
+          <input type="checkbox" :value="decor.value" v-model="selected.decorations" :id="'d'+decor.value" :disabled="isCuttingMode">
+          <label :for="'d'+decor.value" :class="{ disabled: isCuttingMode }">{{ decor.label }}</label>
+        </div>
+      </div>
+      <div style="margin-top:4px;">
+        <div class="design-toggle" style="background:#f5ede6; border-color:#c4a88a;">
+          <input type="checkbox" id="textOnImage" v-model="selected.textOnImage" :disabled="isCuttingMode">
+          <label for="textOnImage" :class="{ disabled: isCuttingMode }">📝 Подпись</label>
+          <input type="text" v-model="selected.customText" placeholder="Текст..." style="border-radius:40px; border:2px solid #c4a88a; padding:2px 12px; font-size:0.7rem; width:100px; background:white;" :disabled="isCuttingMode">
+        </div>
+        <div class="design-toggle" style="background:#f5ede6; border-color:#c4a88a; margin-top:3px;">
+          <input type="checkbox" id="frame" v-model="selected.frame" :disabled="isCuttingMode">
+          <label for="frame" :class="{ disabled: isCuttingMode }">🖼️ Рамка</label>
+          <select v-model="selected.frameStyle" style="padding:2px 10px; border-radius:40px; border:2px solid #c4a88a; background:white; font-size:0.65rem;" :disabled="isCuttingMode">
+            <option value="круглая">круглая</option>
+            <option value="полароид">полароид</option>
+            <option value="виньетка">виньетка</option>
+            <option value="детская">детская</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- РЕЖИМ: ФОНЫ -->
+  <div :class="['grid', mode === 'backgrounds' ? '' : 'hidden']">
+
+    <div class="card">
+      <div class="card-label">🖼️ 1. Тема фона <span>{{ backgrounds.length }}</span></div>
+      <div class="option-group" style="max-height:220px;">
+        <div class="option-item" v-for="bg in backgrounds" :key="bg.value">
+          <input type="radio" name="bg" :value="bg.value" v-model="selected.bg" :id="'b'+bg.value">
+          <label :for="'b'+bg.value">{{ bg.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🎨 2. Стиль фона <span>{{ bgStyles.length }}</span></div>
+      <div class="option-group" style="max-height:200px;">
+        <div class="option-item" v-for="style in bgStyles" :key="style.value">
+          <input type="radio" name="bgStyle" :value="style.value" v-model="selected.bgStyle" :id="'bs'+style.value">
+          <label :for="'bs'+style.value">
+            <span class="style-emoji">{{ style.emoji }}</span>
+            {{ style.label }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">📐 3. Формат</div>
+      <div class="option-group">
+        <div class="option-item" v-for="format in formats" :key="format.value">
+          <input type="radio" name="format" :value="format.value" v-model="selected.format" :id="'f'+format.value">
+          <label :for="'f'+format.value">{{ format.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">😊 4. Настроение</div>
+      <div class="option-group check-group">
+        <div class="option-item" v-for="mood in moods" :key="mood.value">
+          <input type="checkbox" :value="mood.value" v-model="selected.bgMoods" :id="'bm'+mood.value">
+          <label :for="'bm'+mood.value">{{ mood.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: span 1; background: #faf5eb; border-color: #c4a88a;">
+      <div class="card-label">🎨 5. Оформление</div>
+      <div class="option-group" style="max-height:180px;">
+        <div class="option-item" v-for="decor in bgDecorations" :key="decor.value">
+          <input type="checkbox" :value="decor.value" v-model="selected.bgDecorations" :id="'bd'+decor.value">
+          <label :for="'bd'+decor.value">{{ decor.label }}</label>
+        </div>
+      </div>
+      <div style="margin-top:4px;">
+        <div class="design-toggle" style="background:#f5ede6; border-color:#c4a88a;">
+          <input type="checkbox" id="bgText" v-model="selected.bgText">
+          <label for="bgText">📝 Текст на фоне</label>
+          <input type="text" v-model="selected.bgTextValue" placeholder="Текст..." style="border-radius:40px; border:2px solid #c4a88a; padding:2px 12px; font-size:0.7rem; width:100px; background:white;">
+        </div>
+        <div class="design-toggle" style="background:#f5ede6; border-color:#c4a88a; margin-top:3px;">
+          <input type="checkbox" id="bgFrame" v-model="selected.bgFrame">
+          <label for="bgFrame">🖼️ Рамка вокруг фона</label>
+          <select v-model="selected.bgFrameStyle" style="padding:2px 10px; border-radius:40px; border:2px solid #c4a88a; background:white; font-size:0.65rem;">
+            <option value="простая">простая</option>
+            <option value="виньетка">виньетка</option>
+            <option value="цветная">цветная</option>
+            <option value="детская">детская</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+    <span style="font-size:0.8rem; color:#1f4d61;">📊 слов: <span class="word-counter">{{ promptLength }}</span></span>
+    <span style="font-size:0.7rem; color:#30738f;">✏️ редактируй прямо в поле</span>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" @click="generatePrompt">✨ Собрать промпт</button>
+    <button class="btn btn-secondary" @click="copyPrompt">📋 Копировать</button>
+    <button class="btn btn-secondary" @click="resetSelection">🔄 Сброс</button>
+  </div>
+
+  <div class="result-box">
+    <div class="label">
+      <span>📝 ПРОМПТ (можно редактировать)</span>
+      <span class="copy-feedback" :class="{ show: copied }">✓ скопировано!</span>
+    </div>
+    <div class="prompt-output">
+      <textarea v-model="generatedPrompt" placeholder="Выберите опции и нажмите «Собрать промпт»"></textarea>
+    </div>
+  </div>
+
+  <div class="footer-notes">
+    <span>🐌 50+ персонажей</span> 
+    <span>🖼️ 17 фонов</span> 
+    <span>🎨 14 стилей</span> 
+    <span>🖼️ рамки</span> 
+    <span>📝 подписи</span> 
+    <span>⭐ декор</span> 
+    <span>✅ Шедеврум</span>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      mode: 'characters',
+      selected: {
+        hero: 'улитка',
+        action: 'сидит на пеньке, улыбается',
+        place: 'на белом фоне',
+        style: 'чёрно-белый контур, толстые линии, как в раскраске',
+        moods: ['весёлое', 'удивлённое'],
+        bigEyes: true,
+        wholeImage: false,
+        decorations: [],
+        textOnImage: false,
+        customText: 'Урок 1',
+        frame: false,
+        frameStyle: 'детская',
+        transparentBg: true,
+        bg: 'сказочная лаборатория',
+        bgStyle: 'волшебный, магический, светящийся',
+        format: 'широкий 16:9',
+        bgMoods: ['волшебное', 'таинственное'],
+        bgDecorations: [],
+        bgText: false,
+        bgTextValue: 'Урок 1',
+        bgFrame: false,
+        bgFrameStyle: 'простая'
+      },
+      heroes: [
+        { value: 'мишка', label: '🐻 мишка' },
+        { value: 'зайка', label: '🐰 зайка' },
+        { value: 'лисичка', label: '🦊 лисичка' },
+        { value: 'котёнок', label: '🐱 котёнок' },
+        { value: 'слонёнок', label: '🐘 слонёнок' },
+        { value: 'жираф', label: '🦒 жираф' },
+        { value: 'волшебник', label: '🧙 волшебник' },
+        { value: 'пингвин', label: '🐧 пингвин' },
+        { value: 'ребёнок', label: '🧒 ребёнок' },
+        { value: 'учительница', label: '👩‍🏫 учительница' },
+        { value: 'улитка', label: '🐌 улитка' },
+        { value: 'бабочка', label: '🦋 бабочка' },
+        { value: 'робот', label: '🤖 робот' },
+        { value: 'волшебная книга', label: '📖 волшебная книга' },
+        { value: 'панда', label: '🐼 панда' },
+        { value: 'мышка', label: '🐭 мышка' },
+        { value: 'ёжик', label: '🦔 ёжик' },
+        { value: 'гусеница', label: '🐛 гусеница' },
+        { value: 'рыбка', label: '🐟 рыбка' },
+        { value: 'бобр', label: '🦫 бобр' },
+        { value: 'коала', label: '🐨 коала' },
+        { value: 'сова', label: '🦉 сова' },
+        { value: 'пчела', label: '🐝 пчела' },
+        { value: 'божья коровка', label: '🐞 божья коровка' },
+        { value: 'волчонок', label: '🐺 волчонок' },
+        { value: 'медвежонок', label: '🐻 медвежонок' },
+        { value: 'енот', label: '🦝 енот' },
+        { value: 'белочка', label: '🐿️ белочка' },
+        { value: 'обезьянка', label: '🐒 обезьянка' },
+        { value: 'попугай', label: '🦜 попугай' },
+        { value: 'черепаха', label: '🐢 черепаха' },
+        { value: 'осьминог', label: '🐙 осьминог' },
+        { value: 'краб', label: '🦀 краб' },
+        { value: 'кит', label: '🐳 кит' },
+        { value: 'крокодил', label: '🐊 крокодил' },
+        { value: 'динозавр', label: '🦕 динозавр' },
+        { value: 'дракон', label: '🐉 дракон' },
+        { value: 'дракоша', label: '🐲 дракоша' },
+        { value: 'фея', label: '🧚 фея' },
+        { value: 'единорог', label: '🦄 единорог' },
+        { value: 'волшебная палочка', label: '🪄 волшебная палочка' }
+      ],
+      actions: [
+        { value: 'сидит, подпер голову рукой, задумался', label: '🤔 задумался' },
+        { value: 'прыгает от радости, руки вверх', label: '🙌 прыгает' },
+        { value: 'указывает пальцем, удивлённый', label: '👉 указывает' },
+        { value: 'машет рукой, улыбается', label: '👋 машет' },
+        { value: 'читает книгу, сидит на стуле', label: '📖 читает' },
+        { value: 'рисует на доске, стоит', label: '✏️ рисует' },
+        { value: 'обнимает друга, счастливый', label: '🤗 обнимает' },
+        { value: 'танцует, руки в стороны', label: '💃 танцует' },
+        { value: 'играет в мяч, бегает', label: '⚽ играет' },
+        { value: 'сидит на пеньке, улыбается', label: '🪵 сидит на пеньке' },
+        { value: 'летит на метле', label: '🧹 летит' },
+        { value: 'смотрит в микроскоп', label: '🔬 смотрит' },
+        { value: 'ползёт, медленно', label: '🐌 ползёт' },
+        { value: 'порхает, летает', label: '🦋 порхает' }
+      ],
+      places: [
+        { value: 'на белом фоне', label: '⬜ белый фон' },
+        { value: 'в лесу', label: '🌲 в лесу' },
+        { value: 'в классе', label: '🏫 в классе' },
+        { value: 'в парке', label: '🌳 в парке' },
+        { value: 'на улице', label: '🏙️ на улице' },
+        { value: 'в замке', label: '🏰 в замке' },
+        { value: 'на море', label: '🏖️ на море' },
+        { value: 'в саду', label: '🌻 в саду' },
+        { value: 'в лаборатории', label: '🔬 в лаборатории' },
+        { value: 'в космосе', label: '🚀 в космосе' },
+        { value: 'под водой', label: '🌊 под водой' },
+        { value: 'в цирке', label: '🎪 в цирке' },
+        { value: 'на празднике', label: '🎉 на празднике' },
+        { value: 'на полянке', label: '🌸 на полянке' },
+        { value: 'на речке', label: '🏞️ на речке' }
+      ],
+      styles: [
+        { value: 'детский рисунок карандашами', label: '🖍️ детский рисунок', emoji: '🖍️' },
+        { value: 'мультяшный 3d', label: '🧸 3D мультфильм', emoji: '🧸' },
+        { value: 'советский мультфильм', label: '🎞️ советский', emoji: '🎞️' },
+        { value: 'акварель', label: '🎨 акварель', emoji: '🎨' },
+        { value: 'книжная иллюстрация', label: '📚 книжная', emoji: '📚' },
+        { value: 'чёрно-белый контур, толстые линии, как в раскраске', label: '⚫ ч/б контур', emoji: '⚫' },
+        { value: 'комикс, толстый контур, чёткие границы', label: '💥 комикс', emoji: '💥' },
+        { value: 'карандашный набросок', label: '✏️ карандаш', emoji: '✏️' },
+        { value: 'вязаный крючком', label: '🧶 вязаный', emoji: '🧶' },
+        { value: 'мягкая игрушка', label: '🧸 мягкая игрушка', emoji: '🧸' },
+        { value: 'аппликация', label: '✂️ аппликация', emoji: '✂️' },
+        { value: 'пэчворк', label: '🧵 пэчворк', emoji: '🧵' },
+        { value: 'пластилиновый', label: '🎨 пластилин', emoji: '🎨' },
+        { value: 'деревянный', label: '🪵 деревянный', emoji: '🪵' },
+        { value: 'тряпичный', label: '🧵 тряпичный', emoji: '🧵' },
+        { value: 'морской', label: '🌊 морской', emoji: '🌊' },
+        { value: 'подводный', label: '🐠 подводный', emoji: '🐠' },
+        { value: 'эко', label: '🌿 эко', emoji: '🌿' },
+        { value: 'цветочный', label: '🌸 цветочный', emoji: '🌸' },
+        { value: 'ледяной', label: '❄️ ледяной', emoji: '❄️' },
+        { value: 'огненный', label: '🔥 огненный', emoji: '🔥' },
+        { value: 'сказочный', label: '✨ сказочный', emoji: '✨' },
+        { value: 'фэнтези', label: '🐉 фэнтези', emoji: '🐉' },
+        { value: 'кукольный', label: '🎭 кукольный', emoji: '🎭' },
+        { value: 'пряничный', label: '🍪 пряничный', emoji: '🍪' },
+        { value: 'папирус', label: '📜 папирус', emoji: '📜' },
+        { value: 'гжель', label: '🫖 гжель', emoji: '🫖' },
+        { value: 'хохлома', label: '🥄 хохлома', emoji: '🥄' },
+        { value: 'городецкая', label: '🎨 городецкая', emoji: '🎨' },
+        { value: 'доисторический', label: '🦕 доисторический', emoji: '🦕' },
+        { value: 'футуризм', label: '🚀 футуризм', emoji: '🚀' },
+        { value: 'космический', label: '🌌 космический', emoji: '🌌' },
+        { value: 'стимпанк', label: '⚙️ стимпанк', emoji: '⚙️' },
+        { value: 'механический', label: '🤖 механический', emoji: '🤖' },
+        { value: 'геометрический', label: '🔷 геометрический', emoji: '🔷' },
+        { value: 'поп-арт', label: '🍭 поп-арт', emoji: '🍭' },
+        { value: 'мозаика', label: '🧩 мозаика', emoji: '🧩' },
+        { value: 'масляная живопись', label: '🎨 масляная', emoji: '🎨' },
+        { value: 'пастель', label: '🌈 пастель', emoji: '🌈' },
+        { value: 'песочный', label: '🏖️ песочный', emoji: '🏖️' },
+        { value: 'цирк', label: '🎪 цирк', emoji: '🎪' },
+        { value: 'праздничный', label: '🎉 праздничный', emoji: '🎉' },
+        { value: 'лаборатория', label: '🔬 лаборатория', emoji: '🔬' },
+        { value: 'плюшевый', label: '🧸 плюшевый', emoji: '🧸' }
+      ],
+      moods: [
+        { value: 'весёлое', label: '😄 весёлое' },
+        { value: 'удивлённое', label: '😮 удивлённое' },
+        { value: 'доброе', label: '🤝 доброе' },
+        { value: 'спокойное', label: '😌 спокойное' },
+        { value: 'забавное', label: '😂 забавное' },
+        { value: 'волшебное', label: '✨ волшебное' },
+        { value: 'уютное', label: '🏠 уютное' },
+        { value: 'таинственное', label: '🔮 таинственное' },
+        { value: 'героическое', label: '🦸 героическое' }
+      ],
+      backgrounds: [
+        { value: 'лесная поляна', label: '🌲 Лесная поляна' },
+        { value: 'морской берег', label: '🏖️ Морской берег' },
+        { value: 'звёздное небо', label: '🌌 Звёздное небо' },
+        { value: 'цветущий сад', label: '🌻 Цветущий сад' },
+        { value: 'горный пейзаж', label: '🏔️ Горный пейзаж' },
+        { value: 'осенний парк', label: '🍂 Осенний парк' },
+        { value: 'зимний лес', label: '❄️ Зимний лес' },
+        { value: 'подводный мир', label: '🐠 Подводный мир' },
+        { value: 'сказочный замок', label: '🏰 Сказочный замок' },
+        { value: 'космическое пространство', label: '🚀 Космос' },
+        { value: 'радужный фон', label: '🌈 Радужный' },
+        { value: 'абстрактные узоры', label: '🔷 Абстрактный' },
+        // НОВЫЕ ТЕМЫ
+        { value: 'сказочная лаборатория, колбы, магия', label: '🧪 Сказочная лаборатория' },
+        { value: 'школа магии, волшебные книги, свечи', label: '🪄 Школа магии' },
+        { value: 'пиратский остров, сокровища, пальмы', label: '🏴‍☠️ Пиратский остров' },
+        { value: 'доисторический мир, динозавры, папоротники', label: '🦕 Доисторический мир' },
+        { value: 'кондитерская фабрика, конфеты, сладости', label: '🍭 Кондитерская фабрика' }
+      ],
+      bgStyles: [
+        { value: 'акварель, мягкие переходы, нежные тона', label: '🎨 акварель', emoji: '🎨' },
+        { value: 'детский рисунок карандашами, яркий', label: '🖍️ детский рисунок', emoji: '🖍️' },
+        { value: 'мультяшный, яркий, 3d', label: '🧸 мультяшный', emoji: '🧸' },
+        { value: 'пастель, мягкие цвета, нежный', label: '🌈 пастель', emoji: '🌈' },
+        { value: 'космический, футуристичный', label: '🚀 космический', emoji: '🚀' },
+        { value: 'сказочный, волшебный', label: '✨ сказочный', emoji: '✨' },
+        { value: 'геометрический, абстрактный', label: '🔷 геометрический', emoji: '🔷' },
+        // НОВЫЕ СТИЛИ
+        { value: 'волшебный, магический, светящийся', label: '✨ волшебный', emoji: '✨' },
+        { value: 'стимпанк, механизмы, пар', label: '⚙️ стимпанк', emoji: '⚙️' },
+        { value: 'фэнтезийный, драконы, магия', label: '🐉 фэнтезийный', emoji: '🐉' },
+        { value: 'детская комната, уютный, игрушки', label: '🧸 детская комната', emoji: '🧸' },
+        { value: 'школьная доска, мел, учебный', label: '📝 школьный', emoji: '📝' },
+        { value: 'сказочный лес, светлячки, чаща', label: '🌲 сказочный лес', emoji: '🌲' },
+        { value: 'пиратский, карта сокровищ, приключения', label: '🏴‍☠️ пиратский', emoji: '🏴‍☠️' }
+      ],
+      formats: [
+        { value: 'широкий 16:9', label: '📽️ Широкий (16:9) — для презентаций' },
+        { value: 'вертикальный 9:16', label: '📱 Вертикальный (9:16) — для телефона' },
+        { value: 'квадратный 1:1', label: '⬜ Квадратный (1:1) — для обложек' },
+        { value: 'альбомный 4:3', label: '🖼️ Альбомный (4:3) — для распечатки' }
+      ],
+      decorations: [
+        { value: 'конфетти по краям', label: '🎊 конфетти' },
+        { value: 'звёздочки и сердечки', label: '⭐ звёздочки' },
+        { value: 'цветочный орнамент', label: '🌸 орнамент' },
+        { value: 'снежинки по краям', label: '❄️ снежинки' },
+        { value: 'карандаши по углам', label: '✏️ карандаши' },
+        { value: 'листочки по краям', label: '🍃 листочки' }
+      ],
+      bgDecorations: [
+        { value: 'бабочки летают', label: '🦋 бабочки' },
+        { value: 'цветы по краям', label: '🌸 цветы' },
+        { value: 'звёзды и искорки', label: '⭐ звёзды' },
+        { value: 'облака плывут', label: '☁️ облака' },
+        { value: 'радуга', label: '🌈 радуга' },
+        { value: 'снежинки', label: '❄️ снежинки' },
+        { value: 'волшебные искры', label: '✨ волшебные искры' },
+        { value: 'красочные пузыри', label: '🫧 пузыри' }
+      ],
+      generatedPrompt: '',
+      copied: false
+    },
+    computed: {
+      isCuttingMode() {
+        return this.selected.transparentBg;
+      },
+      promptLength() {
+        if (!this.generatedPrompt) return 0;
+        return this.generatedPrompt.split(/\s+/).length;
+      }
+    },
+    watch: {
+      isCuttingMode(val) {
+        if (val) {
+          this.selected.place = 'на белом фоне';
+          this.selected.decorations = [];
+          this.selected.textOnImage = false;
+          this.selected.frame = false;
+          this.selected.wholeImage = false;
+        }
+      }
+    },
+    methods: {
+      generatePrompt() {
+        if (this.mode === 'characters') {
+          if (this.isCuttingMode) {
+            this.selected.place = 'на белом фоне';
+          }
+
+          const hero = this.selected.hero;
+          const action = this.selected.action;
+          const place = this.selected.place;
+          const style = this.selected.style;
+          const moods = this.selected.moods.length ? this.selected.moods.join(', ') : 'весёлое';
+          const bigEyes = this.selected.bigEyes ? 'милые персонажи с большими глазами' : '';
+          
+          let wholeImage = '';
+          if (this.selected.wholeImage && !this.isCuttingMode) {
+            wholeImage = ` Вся картинка в стиле ${style}. Фон тоже в этом стиле.`;
+          }
+          
+          const decorations = this.selected.decorations.length && !this.isCuttingMode ? ` Украшения: ${this.selected.decorations.join(', ')}.` : '';
+          const frame = this.selected.frame && !this.isCuttingMode ? ` Рамка: ${this.selected.frameStyle}.` : '';
+          const text = this.selected.textOnImage && !this.isCuttingMode && this.selected.customText ? ` Надпись на картинке: "${this.selected.customText}". Крупный детский шрифт.` : '';
+          
+          let transparent = '';
+          if (this.selected.transparentBg) {
+            transparent = ' На белом фоне, без лишних деталей.';
+          }
+
+          let prompt = `${hero} ${action} ${place}. Стиль: ${style}. Настроение: ${moods}.`;
+          if (wholeImage) prompt += wholeImage;
+          if (bigEyes) prompt += ` ${bigEyes}.`;
+          if (decorations) prompt += decorations;
+          if (frame) prompt += frame;
+          if (text) prompt += text;
+          if (transparent) prompt += transparent;
+
+          this.generatedPrompt = prompt.trim();
+
+        } else {
+          // Генерация фона
+          const bg = this.selected.bg;
+          const style = this.selected.bgStyle;
+          const format = this.selected.format;
+          const moods = this.selected.bgMoods.length ? this.selected.bgMoods.join(', ') : 'спокойное';
+          const decorations = this.selected.bgDecorations.length ? ` Украшения: ${this.selected.bgDecorations.join(', ')}.` : '';
+          const text = this.selected.bgText && this.selected.bgTextValue ? ` На фоне надпись: "${this.selected.bgTextValue}". Крупный шрифт.` : '';
+          const frame = this.selected.bgFrame ? ` Рамка: ${this.selected.bgFrameStyle}.` : '';
+
+          let prompt = `Красивый фон: ${bg}. Стиль: ${style}. Формат: ${format}. Настроение: ${moods}.`;
+          if (decorations) prompt += decorations;
+          if (text) prompt += text;
+          if (frame) prompt += frame;
+          prompt += ' Без персонажей, только фон.';
+
+          this.generatedPrompt = prompt.trim();
+        }
+
+        const words = this.generatedPrompt.split(/\s+/);
+        if (words.length > 50) {
+          this.generatedPrompt = words.slice(0, 47).join(' ') + '.';
+        }
+
+        this.copied = false;
+      },
+      copyPrompt() {
+        if (!this.generatedPrompt) {
+          alert('Сначала соберите промпт!');
+          return;
+        }
+        const textarea = document.createElement('textarea');
+        textarea.value = this.generatedPrompt;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        this.copied = true;
+        setTimeout(() => { this.copied = false; }, 3000);
+      },
+      resetSelection() {
+        this.selected.hero = 'улитка';
+        this.selected.action = 'сидит на пеньке, улыбается';
+        this.selected.place = 'на белом фоне';
+        this.selected.style = 'чёрно-белый контур, толстые линии, как в раскраске';
+        this.selected.moods = ['весёлое', 'удивлённое'];
+        this.selected.bigEyes = true;
+        this.selected.wholeImage = false;
+        this.selected.decorations = [];
+        this.selected.textOnImage = false;
+        this.selected.customText = 'Урок 1';
+        this.selected.frame = false;
+        this.selected.frameStyle = 'детская';
+        this.selected.transparentBg = true;
+        this.selected.bg = 'сказочная лаборатория';
+        this.selected.bgStyle = 'волшебный, магический, светящийся';
+        this.selected.format = 'широкий 16:9';
+        this.selected.bgMoods = ['волшебное', 'таинственное'];
+        this.selected.bgDecorations = [];
+        this.selected.bgText = false;
+        this.selected.bgTextValue = 'Урок 1';
+        this.selected.bgFrame = false;
+        this.selected.bgFrameStyle = 'простая';
+        this.generatedPrompt = '';
+        this.copied = false;
+      }
+    }
+  });
+</script>
+</body>
+</html>
