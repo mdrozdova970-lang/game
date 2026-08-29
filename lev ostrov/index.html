@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦁 Лев-король и Остров Сокровищ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif; }
+  html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
+  body {
+    background: linear-gradient(180deg, #87ceeb 0%, #4fc3f7 40%, #29b6f6 100%);
+    color: #2c3e50;
+    user-select: none;
+  }
+  #app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+  .screen {
+    width: 100%;
+    max-width: 900px;
+    background: rgba(255,255,255,0.97);
+    border: 6px solid #2c3e50;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 0 #2c3e50, 0 20px 40px rgba(0,0,0,0.3);
+    position: relative;
+    animation: popIn 0.5s ease;
+    overflow: hidden;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  h1 {
+    font-size: 2.5em;
+    color: #e67e22;
+    text-align: center;
+    text-shadow: 3px 3px 0 #2c3e50;
+    margin-bottom: 15px;
+  }
+  h2 {
+    font-size: 1.8em;
+    color: #c0392b;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  p { font-size: 1.2em; line-height: 1.5; margin-bottom: 12px; }
+  .legend {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border: 4px dashed #e67e22;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    font-size: 1.25em;
+    font-family: 'Caveat', cursive;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 15px 35px;
+    font-size: 1.3em;
+    font-weight: bold;
+    border: 4px solid #2c3e50;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin: 8px;
+    font-family: inherit;
+    box-shadow: 0 5px 0 #2c3e50;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #2c3e50; }
+  .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #2c3e50; }
+  .btn-primary { background: #f39c12; color: white; }
+  .btn-success { background: #27ae60; color: white; }
+  .btn-danger { background: #e74c3c; color: white; }
+  .btn-info { background: #3498db; color: white; }
+  .btn-small { padding: 10px 20px; font-size: 1em; }
+
+  .menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: 20px; }
+
+  /* Картинки */
+  .hero-img {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    border: 5px solid #8b4513;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+    margin: 10px auto;
+    display: block;
+  }
+  .location-img {
+    width: 100%;
+    max-width: 700px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 5px solid #2c3e50;
+    box-shadow: 0 6px 0 #2c3e50;
+    margin: 10px auto;
+    display: block;
+  }
+  .dragon-img {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    animation: dragonFloat 2s ease-in-out infinite;
+  }
+  @keyframes dragonFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .ribbon-img {
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
+    animation: ribbonSpin 3s ease-in-out infinite;
+  }
+  @keyframes ribbonSpin {
+    0%, 100% { transform: scale(1) rotate(-3deg); }
+    50% { transform: scale(1.05) rotate(3deg); }
+  }
+  .lion-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid #8b4513;
+    object-fit: cover;
+    box-shadow: 0 4px 0 #8b4513;
+  }
+
+  /* HUD */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #34495e, #2c3e50);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+    border: 3px solid #f39c12;
+  }
+  .hud-item { display: flex; align-items: center; gap: 8px; font-size: 1.2em; font-weight: bold; }
+  .hearts { display: flex; gap: 3px; }
+  .heart { font-size: 1.5em; }
+  .heart.lost { opacity: 0.3; filter: grayscale(1); }
+
+  .progress-bar {
+    width: 100%;
+    height: 25px;
+    background: #ecf0f1;
+    border: 3px solid #2c3e50;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  /* Задание */
+  .task-box {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 4px solid #e67e22;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  .task-question {
+    font-size: 1.8em;
+    color: #c0392b;
+    font-weight: bold;
+    margin: 15px 0;
+    line-height: 1.4;
+  }
+  .task-input {
+    font-size: 1.5em;
+    padding: 12px 20px;
+    border: 4px solid #2c3e50;
+    border-radius: 15px;
+    text-align: center;
+    width: 150px;
+    font-family: inherit;
+    font-weight: bold;
+    margin: 10px;
+  }
+  .task-input:focus { outline: none; border-color: #f39c12; }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+  }
+  .option-btn {
+    padding: 15px;
+    font-size: 1.3em;
+    background: white;
+    border: 4px solid #2c3e50;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.15s;
+    font-family: inherit;
+    box-shadow: 0 4px 0 #2c3e50;
+  }
+  .option-btn:hover { background: #fff9c4; }
+  .option-btn.correct { background: #27ae60; color: white; border-color: #27ae60; }
+  .option-btn.wrong { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+  /* Выпадающий список */
+  .select-wrap {
+    margin: 15px auto;
+    display: inline-block;
+  }
+  .task-select {
+    font-size: 1.4em;
+    padding: 12px 25px;
+    border: 4px solid #2c3e50;
+    border-radius: 15px;
+    background: white;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 250px;
+    box-shadow: 0 4px 0 #2c3e50;
+    transition: all 0.15s;
+    color: #2c3e50;
+  }
+  .task-select:focus {
+    outline: none;
+    border-color: #f39c12;
+    box-shadow: 0 4px 0 #f39c12;
+  }
+  .task-select:hover {
+    background: #fff9c4;
+  }
+  .task-select.correct {
+    background: #27ae60;
+    color: white;
+    border-color: #27ae60;
+  }
+  .task-select.wrong {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+  }
+
+  .feedback {
+    padding: 15px;
+    border-radius: 15px;
+    margin: 15px 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    display: none;
+  }
+  .feedback.show { display: block; animation: popIn 0.3s; }
+  .feedback.success { background: #d4edda; color: #155724; border: 3px solid #27ae60; }
+  .feedback.error { background: #f8d7da; color: #721c24; border: 3px solid #e74c3c; }
+  .feedback.hint { background: #fff3cd; color: #856404; border: 3px solid #f39c12; }
+
+  /* Реплика героя */
+  .speech-bubble {
+    background: white;
+    border: 4px solid #2c3e50;
+    border-radius: 20px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    position: relative;
+    font-size: 1.15em;
+    box-shadow: 0 4px 0 #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 80px;
+    border: 10px solid transparent;
+    border-top-color: #2c3e50;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -14px; left: 83px;
+    border: 7px solid transparent;
+    border-top-color: white;
+  }
+
+  /* Награды */
+  .reward-box {
+    background: linear-gradient(135deg, #fff59d, #ffd54f);
+    border: 5px solid #f57f17;
+    border-radius: 25px;
+    padding: 30px;
+    text-align: center;
+    animation: rewardPop 0.6s ease;
+  }
+  @keyframes rewardPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .reward-icon { font-size: 5em; margin: 10px 0; }
+
+  /* Конфетти */
+  .confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    z-index: 9999;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(100vh) rotate(720deg); }
+  }
+
+  /* Лента победителя */
+  .winner-ribbon {
+    background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
+    border: 6px solid #8b4513;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    animation: ribbonGlow 2s infinite;
+  }
+  @keyframes ribbonGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+    50% { box-shadow: 0 0 50px rgba(255, 215, 0, 1); }
+  }
+  .ribbon-text {
+    font-size: 2.2em;
+    color: #8b4513;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #fff;
+  }
+
+  /* Правила */
+  .rules-box {
+    background: #fffde7;
+    border: 4px solid #fbc02d;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 15px 0;
+  }
+  .rules-box li {
+    margin: 10px 0;
+    font-size: 1.1em;
+    list-style: none;
+    padding-left: 30px;
+    position: relative;
+  }
+  .rules-box li::before {
+    content: '👑';
+    position: absolute;
+    left: 0;
+  }
+
+  .hidden { display: none !important; }
+
+  .center { text-align: center; }
+  .mt-10 { margin-top: 10px; }
+  .mt-20 { margin-top: 20px; }
+
+  .hero-section {
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8em; }
+    h2 { font-size: 1.4em; }
+    .task-question { font-size: 1.4em; }
+    .btn { padding: 12px 25px; font-size: 1.1em; }
+    .screen { padding: 15px; }
+    .location-img { height: 150px; }
+    .dragon-img { width: 120px; height: 120px; }
+    .task-select { min-width: 200px; font-size: 1.2em; }
+    .speech-bubble { flex-direction: column; }
+    .speech-bubble::before, .speech-bubble::after { left: 50%; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ============ КАРТИНКИ ============
+const IMAGES = {
+  lion: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/1c96a165b-caf0-459f-a1a9-b310ffb3542d.png',
+  beach: null,
+  ship: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/18383a622-d222-4141-b9e9-2adf6c4d0ae3.png',
+  palm: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/1641b0f85-426d-4dcc-b334-efd2b799eca3.png',
+  cave: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/15cf86782-b055-459a-9b1a-636093ae5135.png',
+  lighthouse: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/18c8ac2a7-46c4-4056-be12-2b6f005796d5.png',
+  dragon: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/11c426efe-1152-43e2-b904-855592bf9792.png',
+  ribbon: 'https://image.qwenlm.ai/public_source/9521303d-fe12-4011-abda-0c5c7a135999/18c3538a8-6ab6-4337-b3ce-c39ca071a88a.png'
+};
+
+// ============ ДАННЫЕ ИГРЫ ============
+const GAME_DATA = {
+  levels: [
+    {
+      id: 1,
+      name: "Пляж",
+      emoji: "🏖️",
+      image: IMAGES.beach,
+      intro: "Лев-король высадился на Остров Сокровищ! Золотой песок блестит на солнце, но путь преграждает первая загадка.",
+      tasks: [
+        { type: "input", q: "Сложи: 25 + 17 = ?", answer: "42", hint: "Сначала сложи единицы: 5+7=12, запиши 2 и запомни 1. Потом десятки: 2+1+1=4." },
+        { type: "input", q: "Вычти: 63 - 28 = ?", answer: "35", hint: "Из 3 нельзя вычесть 8, займи у десятков. 13-8=5, а 5-2=3." },
+        { type: "choice", q: "Сравни: 45 ... 54. Какой знак?", answer: "<", options: [">", "<", "="], hint: "45 меньше, чем 54, потому что в 45 десятков меньше." },
+        { type: "input", q: "На пляже нашли 34 ракушки, а потом ещё 29. Сколько всего?", answer: "63", hint: "34 + 29: единицы 4+9=13, десятки 3+2+1=6. Ответ 63." }
+      ],
+      reward: { icon: "⭐", name: "Морская Звезда", text: "Лев-король нашёл первую часть карты!" },
+      dragonPhrase: "Рррр! Ты ещё пожалеешь, что ступил на мой остров!"
+    },
+    {
+      id: 2,
+      name: "Корабль",
+      emoji: "⛵",
+      image: IMAGES.ship,
+      intro: "Чтобы доплыть до следующей части острова, Льву-королю нужно починить старый пиратский корабль!",
+      tasks: [
+        { type: "choice", q: "Какое число больше: 76 или 67?", answer: "76", options: ["76", "67", "Равны"], hint: "Сравнивай сначала десятки: 7 десятков больше, чем 6." },
+        { type: "input", q: "На корабле 48 матросов. Ушло 19. Сколько осталось?", answer: "29", hint: "48 - 19: из 8 нельзя вычесть 9, займи. 18-9=9, 3-1=2." },
+        { type: "input", q: "Реши: 50 + 37 = ?", answer: "87", hint: "50+30=80, 80+7=87." },
+        { type: "choice", q: "Поставь знак: 91 ... 90 + 1", answer: "=", options: [">", "<", "="], hint: "90+1=91, значит числа равны." },
+        { type: "input", q: "100 - 46 = ?", answer: "54", hint: "Из 100 вычесть 46: 10-6=4, 9-4=5. Ответ 54." }
+      ],
+      reward: { icon: "🗝️", name: "Золотой Ключ", text: "Ключ от сундука в твоих лапах!" },
+      dragonPhrase: "Ха-ха! Этот корабль не доплывёт!"
+    },
+    {
+      id: 3,
+      name: "Пальмовая роща",
+      emoji: "🌴",
+      image: IMAGES.palm,
+      intro: "Густая пальмовая роща скрывает тропу к сокровищам. Чтобы пройти, нужно решить задачи мудрой черепахи.",
+      tasks: [
+        { type: "input", q: "Умножь: 6 × 7 = ?", answer: "42", hint: "Вспомни таблицу умножения: 6×7=42." },
+        { type: "input", q: "Раздели: 36 ÷ 6 = ?", answer: "6", hint: "Сколько раз 6 помещается в 36? 6 раз." },
+        { type: "choice", q: "На пальме 8 веток, на каждой по 5 кокосов. Сколько кокосов?", answer: "40", options: ["13", "40", "45"], hint: "Это умножение: 8 × 5 = 40." },
+        { type: "input", q: "Реши: 4 × 8 = ?", answer: "32", hint: "4×8=32. Запомни: четыре восьмёрки — тридцать два." },
+        { type: "input", q: "45 кокосов разложили поровну в 9 корзин. Сколько в каждой?", answer: "5", hint: "45 ÷ 9 = 5. Вспомни: 5×9=45." }
+      ],
+      reward: { icon: "💎", name: "Драгоценный Камень", text: "Сокровище всё ближе!" },
+      dragonPhrase: "Моя роща тебя не выпустит!"
+    },
+    {
+      id: 4,
+      name: "Пещера",
+      emoji: "🕳️",
+      image: IMAGES.cave,
+      intro: "Тёмная пещера полна загадок! Стены светятся, но чтобы пройти дальше, нужно решить задачи в два действия.",
+      tasks: [
+        { type: "input", q: "В пещере было 35 летучих мышей. Прилетело 17, а улетело 22. Сколько осталось?", answer: "30", hint: "Сначала 35+17=52, потом 52-22=30." },
+        { type: "input", q: "Найди: 7 × 5 + 18 = ?", answer: "53", hint: "Сначала умножение: 7×5=35, потом 35+18=53." },
+        { type: "input", q: "Реши: 80 - 4 × 9 = ?", answer: "44", hint: "Сначала умножение: 4×9=36, потом 80-36=44." },
+        { type: "choice", q: "В сундуке 48 монет. Разделили поровну между 6 пиратами, потом каждый получил ещё 5. Сколько у каждого стало?", answer: "13", options: ["8", "13", "18"], hint: "Сначала 48÷6=8, потом 8+5=13." },
+        { type: "input", q: "Реши: 56 ÷ 8 + 3 × 9 = ?", answer: "34", hint: "56÷8=7, 3×9=27, 7+27=34." }
+      ],
+      reward: { icon: "📜", name: "Древний Свиток", text: "Карта почти собрана!" },
+      dragonPhrase: "Ты не уйдёшь из моей пещеры!"
+    },
+    {
+      id: 5,
+      name: "Маяк",
+      emoji: "",
+      image: IMAGES.lighthouse,
+      intro: "Финальное испытание! На вершине маяка Злой дракон охраняет ленту победителя. Реши все задачи, чтобы победить!",
+      tasks: [
+        { type: "input", q: "Реши: 78 + 22 - 35 = ?", answer: "65", hint: "78+22=100, 100-35=65." },
+        { type: "input", q: "9 × 6 - 14 = ?", answer: "40", hint: "9×6=54, 54-14=40." },
+        { type: "select", q: "Что больше: 7 × 8 или 60?", answer: "60", options: ["7 × 8 = 56", "60", "Они равны"], hint: "7×8=56, а 56 меньше 60. Значит 60 больше!" },
+        { type: "input", q: "Восстанови пропуск: 45 + ? = 100", answer: "55", hint: "100 - 45 = 55." },
+        { type: "input", q: "Реши: 64 ÷ 8 × 7 = ?", answer: "56", hint: "64÷8=8, 8×7=56." }
+      ],
+      reward: { icon: "🏆", name: "ЛЕНТА ПОБЕДИТЕЛЯ", text: "Ты победил Злого дракона!" },
+      dragonPhrase: "Нет! Ты слишком умный для меня!"
+    }
+  ]
+};
+
+// ============ СОСТОЯНИЕ ИГРЫ ============
+let state = {
+  screen: "menu",
+  currentLevel: 0,
+  currentTask: 0,
+  lives: 3,
+  score: 0,
+  correctAnswers: 0,
+  totalAnswers: 0,
+  attempts: 0,
+  startTime: null,
+  rewards: [],
+  hintUsed: false
+};
+
+function loadGame() {
+  try {
+    const saved = localStorage.getItem('lionKingGame');
+    if (saved) {
+      const s = JSON.parse(saved);
+      if (s.currentLevel > 0) return s;
+    }
+  } catch(e) {}
+  return null;
+}
+
+function saveGame() {
+  try {
+    localStorage.setItem('lionKingGame', JSON.stringify(state));
+  } catch(e) {}
+}
+
+function resetGame() {
+  state = {
+    screen: "menu",
+    currentLevel: 0,
+    currentTask: 0,
+    lives: 3,
+    score: 0,
+    correctAnswers: 0,
+    totalAnswers: 0,
+    attempts: 0,
+    startTime: Date.now(),
+    rewards: [],
+    hintUsed: false
+  };
+  try { localStorage.removeItem('lionKingGame'); } catch(e) {}
+}
+
+const app = document.getElementById('app');
+
+function render() {
+  switch(state.screen) {
+    case "menu": renderMenu(); break;
+    case "rules": renderRules(); break;
+    case "intro": renderIntro(); break;
+    case "game": renderGame(); break;
+    case "reward": renderReward(); break;
+    case "final": renderFinal(); break;
+    case "gameover": renderGameOver(); break;
+  }
+}
+
+function renderMenu() {
+  const saved = loadGame();
+  const hasSave = saved && saved.currentLevel > 0;
+  app.innerHTML = `
+    <div class="screen">
+      <img src="${IMAGES.lion}" class="hero-img" alt="Лев-король">
+      <h1>🦁 Лев-король и Остров Сокровищ 🏝️</h1>
+      <div class="legend">
+        <p>🌊 Далеко-далеко, в синих водах океана, лежит таинственный <b>Остров Сокровищ</b>. Когда-то давным-давно Злой дракон похитил волшебную <b>Ленту Победителя</b> и спрятал её на вершине старого Маяка!</p>
+        <p>👑 Храбрый <b>Лев-король</b> отправился в опасное путешествие, чтобы вернуть реликвию. Но чтобы пройти все испытания, ему нужна твоя помощь — твой ум и смекалка!</p>
+        <p>🐉 Пройди <b>5 уровней</b>, реши математические задачи, перехитри дракона и стань настоящим героем Острова Сокровищ!</p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn btn-primary" onclick="startNewGame()">🎮 Начать игру</button>
+        ${hasSave ? '<button class="btn btn-success" onclick="continueGame()">▶️ Продолжить</button>' : ''}
+        <button class="btn btn-info" onclick="showRules()">📖 Правила</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderRules() {
+  app.innerHTML = `
+    <div class="screen">
+      <h1>📖 Правила игры</h1>
+      <div class="rules-box">
+        <ul>
+          <li>Тебя ждут <b>5 уровней</b> на разных локациях Острова Сокровищ</li>
+          <li>На каждом уровне нужно решить <b>математические задачи</b> в пределах 100</li>
+          <li>У тебя есть <b>3 жизни</b> ❤️❤️❤️ — береги их!</li>
+          <li>За каждое правильное решение получаешь <b>очки</b> и <b>награды</b></li>
+          <li>Если ошибёшься — не расстраивайся, будет <b>подсказка</b></li>
+          <li>Кнопка <b>«Подсказка»</b> поможет, если совсем сложно</li>
+          <li>В конце тебя ждёт <b>Лента Победителя</b> 🏆</li>
+          <li>Главное — не спеши и думай! 🧠</li>
+        </ul>
+      </div>
+      <div class="center mt-20">
+        <button class="btn btn-primary" onclick="backToMenu()">← Назад в меню</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderIntro() {
+  const level = GAME_DATA.levels[state.currentLevel];
+  const imageHTML = level.image ? `<img src="${level.image}" class="location-img" alt="${level.name}">` : '';
+  app.innerHTML = `
+    <div class="screen">
+      ${imageHTML}
+      <h1>Уровень ${level.id}: ${level.name} ${level.emoji}</h1>
+      <div class="speech-bubble">
+        <img src="${IMAGES.lion}" class="lion-avatar" alt="Лев">
+        <div>${level.intro}</div>
+      </div>
+      <div class="center">
+        <p style="font-size:1.3em;"><b>Лев-король:</b> «Вперёд, друг! У нас всё получится!»</p>
+        <button class="btn btn-success" onclick="startLevel()">🚀 Начать испытание!</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGame() {
+  const level = GAME_DATA.levels[state.currentLevel];
+  const task = level.tasks[state.currentTask];
+  const progress = ((state.currentLevel * 5 + state.currentTask) / (GAME_DATA.levels.length * 5)) * 100;
+  
+  let taskHTML = '';
+  if (task.type === 'input') {
+    taskHTML = `
+      <div class="task-input-wrap">
+        <input type="text" class="task-input" id="answerInput" placeholder="?" autocomplete="off">
+      </div>
+      <button class="btn btn-success" onclick="checkInputAnswer()">✅ Проверить</button>
+    `;
+  } else if (task.type === 'choice') {
+    taskHTML = `
+      <div class="options" id="optionsBox">
+        ${task.options.map(opt => `<button class="option-btn" onclick="checkChoiceAnswer('${opt.replace(/'/g,"\\'")}', this)">${opt}</button>`).join('')}
+      </div>
+    `;
+  } else if (task.type === 'select') {
+    taskHTML = `
+      <div class="select-wrap">
+        <select class="task-select" id="selectAnswer">
+          <option value="">👇 Выбери ответ...</option>
+          ${task.options.map(opt => `<option value="${opt.replace(/"/g,'&quot;')}">${opt}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn btn-success" onclick="checkSelectAnswer()">✅ Проверить</button>
+    `;
+  }
+
+  const imageHTML = level.image ? `<img src="${level.image}" class="location-img" alt="${level.name}" style="height:180px;">` : '';
+
+  app.innerHTML = `
+    <div class="screen">
+      ${imageHTML}
+      <div class="hud">
+        <div class="hud-item">📍 ${level.emoji} ${level.name}</div>
+        <div class="hud-item">⭐ ${state.score}</div>
+        <div class="hud-item hearts">
+          ${Array(3).fill(0).map((_, i) => `<span class="heart ${i < state.lives ? '' : 'lost'}">❤️</span>`).join('')}
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${progress}%">${Math.round(progress)}%</div>
+      </div>
+      <div class="task-box">
+        <div style="font-size:1em; color:#7f8c8d;">Задание ${state.currentTask + 1} из ${level.tasks.length}</div>
+        <div class="task-question">${task.q}</div>
+        ${taskHTML}
+        <div class="mt-10">
+          <button class="btn btn-info btn-small" onclick="showHint()">💡 Подсказка</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+  `;
+  
+  if (task.type === 'input') {
+    setTimeout(() => {
+      const inp = document.getElementById('answerInput');
+      if (inp) {
+        inp.focus();
+        inp.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') checkInputAnswer();
+        });
+      }
+    }, 100);
+  }
+}
+
+function renderReward() {
+  const level = GAME_DATA.levels[state.currentLevel];
+  const reward = level.reward;
+  state.rewards.push(reward);
+  
+  launchConfetti();
+  
+  app.innerHTML = `
+    <div class="screen">
+      <h1>🎉 Уровень пройден!</h1>
+      <div class="reward-box">
+        <div class="reward-icon">${reward.icon}</div>
+        <h2>${reward.name}</h2>
+        <p>${reward.text}</p>
+      </div>
+      <div class="speech-bubble">
+        <img src="${IMAGES.dragon}" class="dragon-img" alt="Дракон">
+        <div><b>Злой дракон:</b> «${level.dragonPhrase}»</div>
+      </div>
+      <div class="center mt-20">
+        ${state.currentLevel < GAME_DATA.levels.length - 1 
+          ? '<button class="btn btn-success" onclick="nextLevel()">➡️ Следующий уровень</button>'
+          : '<button class="btn btn-primary" onclick="showFinal()">🏆 Забрать награду!</button>'}
+      </div>
+    </div>
+  `;
+}
+
+function renderFinal() {
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  const accuracy = state.totalAnswers > 0 ? Math.round((state.correctAnswers / state.totalAnswers) * 100) : 0;
+  
+  launchConfetti();
+  setTimeout(launchConfetti, 500);
+  setTimeout(launchConfetti, 1000);
+  
+  app.innerHTML = `
+    <div class="screen">
+      <img src="${IMAGES.lion}" class="hero-img" alt="Лев-король" style="max-width:300px;">
+      <h1>🎊 ПОБЕДА! 🎊</h1>
+      <div class="winner-ribbon">
+        <img src="${IMAGES.ribbon}" class="ribbon-img" alt="Лента победителя">
+        <div class="ribbon-text">ЛЕНТА ПОБЕДИТЕЛЯ</div>
+        <p style="font-size:1.2em; margin-top:10px;">Ты — настоящий герой Острова Сокровищ!</p>
+      </div>
+      <div class="speech-bubble">
+        <img src="${IMAGES.lion}" class="lion-avatar" alt="Лев">
+        <div><b>Лев-король:</b> «Ура! Мы победили Злого дракона и вернули Ленту Победителя! Ты — самый умный и смелый герой! Я горжусь тобой, друг!» 🦁👑</div>
+      </div>
+      <div class="task-box">
+        <h2>📊 Твои достижения</h2>
+        <p>⭐ Очки: <b>${state.score}</b></p>
+        <p>✅ Правильных ответов: <b>${state.correctAnswers} из ${state.totalAnswers}</b> (${accuracy}%)</p>
+        <p>⏱️ Время: <b>${minutes} мин ${seconds} сек</b></p>
+        <p>❤️ Жизней осталось: <b>${state.lives}</b></p>
+        <p>🎖️ Наград собрано: <b>${state.rewards.length}</b></p>
+      </div>
+      <div class="center mt-20">
+        <button class="btn btn-primary" onclick="startNewGame()">🔄 Играть снова</button>
+        <button class="btn btn-info" onclick="backToMenu()">🏠 В меню</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGameOver() {
+  app.innerHTML = `
+    <div class="screen">
+      <img src="${IMAGES.dragon}" class="dragon-img" alt="Дракон" style="width:200px; height:200px;">
+      <h1>😢 О нет!</h1>
+      <p style="text-align:center; font-size:1.3em;">Злой дракон оказался хитрее... Но не сдавайся! Настоящие герои всегда пробуют снова!</p>
+      <div class="speech-bubble">
+        <img src="${IMAGES.lion}" class="lion-avatar" alt="Лев">
+        <div><b>Лев-король:</b> «Не волнуйся, друг! Давай попробуем ещё раз — у нас всё получится!» 🦁💪</div>
+      </div>
+      <div class="center mt-20">
+        <button class="btn btn-primary" onclick="startNewGame()">🔄 Начать заново</button>
+        <button class="btn btn-info" onclick="backToMenu()">🏠 В меню</button>
+      </div>
+    </div>
+  `;
+}
+
+function startNewGame() {
+  resetGame();
+  state.startTime = Date.now();
+  state.screen = "intro";
+  state.currentLevel = 0;
+  state.currentTask = 0;
+  saveGame();
+  render();
+}
+
+function continueGame() {
+  const saved = loadGame();
+  if (saved) {
+    state = saved;
+    state.screen = "intro";
+    render();
+  }
+}
+
+function showRules() {
+  state.screen = "rules";
+  render();
+}
+
+function backToMenu() {
+  state.screen = "menu";
+  render();
+}
+
+function startLevel() {
+  state.screen = "game";
+  state.currentTask = 0;
+  state.attempts = 0;
+  state.hintUsed = false;
+  render();
+}
+
+function nextLevel() {
+  state.currentLevel++;
+  state.currentTask = 0;
+  state.attempts = 0;
+  state.hintUsed = false;
+  if (state.currentLevel >= GAME_DATA.levels.length) {
+    state.screen = "final";
+  } else {
+    state.screen = "intro";
+  }
+  saveGame();
+  render();
+}
+
+function showFinal() {
+  state.screen = "final";
+  saveGame();
+  render();
+}
+
+function showFeedback(type, text) {
+  const fb = document.getElementById('feedback');
+  if (!fb) return;
+  fb.className = `feedback show ${type}`;
+  fb.innerHTML = text;
+}
+
+function showHint() {
+  const level = GAME_DATA.levels[state.currentLevel];
+  const task = level.tasks[state.currentTask];
+  showFeedback('hint', `💡 <b>Подсказка:</b> ${task.hint}`);
+  state.hintUsed = true;
+}
+
+function handleCorrect() {
+  const points = state.hintUsed ? 5 : 10;
+  state.score += points;
+  state.correctAnswers++;
+  state.totalAnswers++;
+  playSound('success');
+  showFeedback('success', `✅ <b>Молодец!</b> Правильно! +${points} очков 🎉`);
+  
+  setTimeout(() => {
+    const level = GAME_DATA.levels[state.currentLevel];
+    state.currentTask++;
+    state.attempts = 0;
+    state.hintUsed = false;
+    
+    if (state.currentTask >= level.tasks.length) {
+      state.screen = "reward";
+      saveGame();
+      render();
+    } else {
+      saveGame();
+      render();
+    }
+  }, 1500);
+}
+
+function handleWrong() {
+  state.totalAnswers++;
+  state.attempts++;
+  playSound('error');
+  
+  if (state.attempts >= 3) {
+    const level = GAME_DATA.levels[state.currentLevel];
+    const task = level.tasks[state.currentTask];
+    showFeedback('error', `❌ Правильный ответ: <b>${task.answer}</b>. ${task.hint}`);
+    state.lives--;
+    saveGame();
+    
+    setTimeout(() => {
+      if (state.lives <= 0) {
+        state.screen = "gameover";
+        render();
+      } else {
+        state.currentTask++;
+        state.attempts = 0;
+        state.hintUsed = false;
+        const lvl = GAME_DATA.levels[state.currentLevel];
+        if (state.currentTask >= lvl.tasks.length) {
+          state.screen = "reward";
+          saveGame();
+          render();
+        } else {
+          saveGame();
+          render();
+        }
+      }
+    }, 2500);
+  } else {
+    const level = GAME_DATA.levels[state.currentLevel];
+    const task = level.tasks[state.currentTask];
+    showFeedback('error', `❌ Не совсем... Попробуй ещё раз! (Попытка ${state.attempts}/3)<br>💡 Подсказка: ${task.hint}`);
+  }
+}
+
+function checkInputAnswer() {
+  const inp = document.getElementById('answerInput');
+  if (!inp) return;
+  const userAnswer = inp.value.trim().replace(/\s+/g, '');
+  if (!userAnswer) return;
+  
+  const level = GAME_DATA.levels[state.currentLevel];
+  const task = level.tasks[state.currentTask];
+  
+  if (userAnswer === String(task.answer)) {
+    inp.style.background = '#d4edda';
+    handleCorrect();
+  } else {
+    inp.style.background = '#f8d7da';
+    setTimeout(() => { if (inp) inp.style.background = 'white'; }, 800);
+    handleWrong();
+  }
+}
+
+function checkChoiceAnswer(answer, btn) {
+  const level = GAME_DATA.levels[state.currentLevel];
+  const task = level.tasks[state.currentTask];
+  
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  
+  if (answer === task.answer) {
+    btn.classList.add('correct');
+    handleCorrect();
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.textContent === task.answer) b.classList.add('correct');
+    });
+    handleWrong();
+  }
+}
+
+function checkSelectAnswer() {
+  const sel = document.getElementById('selectAnswer');
+  if (!sel) return;
+  const userAnswer = sel.value;
+  if (!userAnswer) {
+    showFeedback('error', '⚠️ Сначала выбери ответ из списка!');
+    return;
+  }
+  
+  const level = GAME_DATA.levels[state.currentLevel];
+  const task = level.tasks[state.currentTask];
+  
+  if (userAnswer === task.answer) {
+    sel.classList.add('correct');
+    sel.disabled = true;
+    handleCorrect();
+  } else {
+    sel.classList.add('wrong');
+    setTimeout(() => { sel.classList.remove('wrong'); }, 800);
+    handleWrong();
+  }
+}
+
+// ============ ЗВУКИ ============
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+
+function playSound(type) {
+  const ctx = getAudio();
+  if (!ctx) return;
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    if (type === 'success') {
+      osc.frequency.setValueAtTime(523, ctx.currentTime);
+      osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } else if (type === 'error') {
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    }
+  } catch(e) {}
+}
+
+// ============ КОНФЕТТИ ============
+function launchConfetti() {
+  const colors = ['#e74c3c', '#f39c12', '#f1c40f', '#27ae60', '#3498db', '#9b59b6', '#e91e63'];
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    if (Math.random() > 0.5) c.style.borderRadius = '50%';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+// ============ СТАРТ ============
+render();
+</script>
+</body>
+</html>
