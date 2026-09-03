@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Филворд (Венгерский кроссворд) — только русские буквы</title>
+    <!-- Подключаем html2canvas для создания PNG -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Подключаем jspdf для генерации PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none; /* улучшение для drag, но текст в полях ввода остаётся доступным */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* главный контейнер: две колонки */
+        .app-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-wrap: wrap;
+            overflow: hidden;
+            backdrop-filter: blur(0px);
+        }
+
+        /* ЛЕВАЯ ПАНЕЛЬ (меню) */
+        .menu-panel {
+            flex: 0 0 300px;
+            background: #f8fafc;
+            border-right: 1px solid #dce4ec;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.02);
+        }
+
+        /* стили блоков окон */
+        .widget {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid #e2edf2;
+            transition: all 0.1s ease;
+        }
+
+        .widget h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e2f3e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        .widget label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        select, input, textarea, button {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #cbdde6;
+            background: white;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        textarea {
+            border-radius: 20px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            background: #fefefe;
+        }
+
+        button {
+            background: #f1f5f9;
+            cursor: pointer;
+            font-weight: 600;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            transition: 0.15s;
+            margin-top: 8px;
+        }
+
+        button.primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        button.primary:hover {
+            background: #2563eb;
+            transform: scale(0.98);
+        }
+
+        button.answer-btn {
+            background: #f59e0b;
+            border-color: #f59e0b;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        button.answer-btn:hover {
+            background: #d97706;
+            transform: scale(0.98);
+        }
+
+        button.export-btn {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+            margin-top: 8px;
+        }
+
+        button.export-btn:hover {
+            background: #059669;
+            transform: scale(0.98);
+        }
+
+        button:hover {
+            background: #e6edf4;
+        }
+
+        .grid-size-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .grid-size-row input {
+            text-align: center;
+            width: 80px;
+        }
+
+        .font-preview {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 8px 12px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #1e293b;
+        }
+
+        .clear-btn {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .clear-btn:hover {
+            background: #fecaca;
+        }
+
+        /* ПРАВАЯ ПАНЕЛЬ: предварительный просмотр филворда */
+        .preview-panel {
+            flex: 1;
+            background: #ffffff;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-x: auto;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 12px;
+        }
+
+        .preview-header h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1e3c72, #2b4c7c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .stats {
+            font-size: 0.85rem;
+            background: #eef2ff;
+            padding: 6px 12px;
+            border-radius: 50px;
+            color: #1e40af;
+        }
+
+        .grid-wrapper {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 16px 0;
+        }
+
+        .filword-grid {
+            display: grid;
+            background: #f9f7f3;
+            border-radius: 20px;
+            padding: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9eef3;
+        }
+
+        .cell {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-family, 'Segoe UI', 'Courier New', monospace);
+            font-size: 1.5rem;
+            font-weight: 600;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin: 3px;
+            transition: 0.05s linear;
+            color: #0f172a;
+            text-transform: uppercase;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        /* класс для подсветки ответов (слов) */
+        .cell.highlight-answer {
+            background-color: #fef9c3;
+            border-color: #facc15;
+            color: #854d0e;
+            box-shadow: 0 0 0 2px #fde047;
+        }
+
+        /* подсказка */
+        .info-message {
+            margin-top: 24px;
+            background: #f1f6fe;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 0.85rem;
+            color: #2c5282;
+            border-left: 5px solid #3b82f6;
+        }
+
+        @media (max-width: 780px) {
+            .menu-panel {
+                flex: 0 0 100%;
+                border-right: none;
+                border-bottom: 1px solid #dce4ec;
+            }
+            .cell {
+                width: 38px;
+                height: 38px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ЛЕВОЕ МЕНЮ -->
+    <div class="menu-panel">
+        <!-- Окно "Выбор сетки" -->
+        <div class="widget">
+            <h3>📐 Выбор сетки</h3>
+            <div class="grid-size-row">
+                <div style="flex:1">
+                    <label>Ширина (столбцы)</label>
+                    <input type="number" id="gridCols" min="5" max="20" value="10" step="1">
+                </div>
+                <div style="flex:1">
+                    <label>Высота (строки)</label>
+                    <input type="number" id="gridRows" min="5" max="20" value="10" step="1">
+                </div>
+            </div>
+            <button id="applyGridBtn" class="primary" style="margin-top: 12px;">🔄 Применить сетку</button>
+        </div>
+
+        <!-- Окно для вставки слов для создания филворда -->
+        <div class="widget">
+            <h3>📝 Слова для филворда</h3>
+            <label>Введите слова через запятую или пробел (только русские буквы):</label>
+            <textarea id="wordsInput" rows="4" placeholder="Пример: кот, дом, лес, море, солнце, роза, ветер, луна, звезда, книга"></textarea>
+            <button id="generateBtn" class="primary" style="margin-top: 12px;">✨ Сгенерировать филворд</button>
+            <div style="font-size: 0.7rem; margin-top: 8px; color:#5b7a9a;">Слова будут размещены (горизонталь, вертикаль). Сетка заполнится случайными РУССКИМИ буквами.</div>
+        </div>
+
+        <!-- НОВАЯ КНОПКА: Показать ответы -->
+        <div class="widget">
+            <h3>🔍 Ответы</h3>
+            <button id="showAnswersBtn" class="answer-btn">📖 Показать ответы</button>
+            <div style="font-size: 0.7rem; margin-top: 8px; color:#5b7a9a;">Подсветит ячейки, входящие в размещённые слова. Повторное нажатие скроет подсветку.</div>
+        </div>
+
+        <!-- БЛОК СКАЧИВАНИЯ: PNG и PDF -->
+        <div class="widget">
+            <h3>💾 Скачать</h3>
+            <button id="downloadPngBtn" class="export-btn">🖼️ Скачать как PNG</button>
+            <button id="downloadPdfBtn" class="export-btn" style="margin-top: 8px;">📄 Скачать как PDF</button>
+            <div style="font-size: 0.7rem; margin-top: 8px; color:#5b7a9a;">Сохранит текущий вид филворда (с учётом подсветки ответов).</div>
+        </div>
+
+        <!-- Окно "Выбор шрифта" -->
+        <div class="widget">
+            <h3>🔤 Выбор шрифта</h3>
+            <select id="fontSelect">
+                <option value="'Segoe UI', 'Courier New', monospace">Системный (Segoe)</option>
+                <option value="'Courier New', monospace">Моноширинный (Courier)</option>
+                <option value="'Georgia', serif">Антиква (Georgia)</option>
+                <option value="'Comic Neue', 'Comic Sans MS', cursive">Игривый (Comic)</option>
+                <option value="'Roboto Mono', monospace">Roboto Mono</option>
+            </select>
+            <div class="font-preview" id="fontPreviewText">Аа Бб Вв 123</div>
+        </div>
+
+        <!-- Окно "Очистить" -->
+        <div class="widget">
+            <h3>🧹 Очистить</h3>
+            <button id="clearAllBtn" class="clear-btn">🗑️ Очистить всё</button>
+            <div style="font-size: 0.7rem; margin-top: 10px;">Сбросит сетку, слова и вернёт состояние по умолчанию.</div>
+        </div>
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ: предпросмотр -->
+    <div class="preview-panel">
+        <div class="preview-header">
+            <h2>🔍 Филворд — предпросмотр</h2>
+            <div class="stats" id="statsLabel">Сетка: 10x10 | Слов: 0</div>
+        </div>
+        <div class="grid-wrapper" id="gridWrapperForExport">
+            <div id="filwordGridContainer" class="filword-grid" style="--font-family: 'Segoe UI', 'Courier New', monospace;"></div>
+        </div>
+        <div class="info-message" id="infoMessage">
+            💡 Совет: введите слова только русскими буквами. Нажмите "Сгенерировать филворд". Слова разместятся в сетке, пустые ячейки заполнятся случайными РУССКИМИ буквами. Кнопка "Показать ответы" подсветит расположенные слова. Экспорт в PNG/PDF сохранит внешний вид.
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- Глобальные переменные ----------
+    let currentGrid = [];        // 2D массив символов (строки x столбцы)
+    let currentRows = 10;
+    let currentCols = 10;
+    let currentWordsList = [];   // массив слов, которые удалось разместить (для инфо)
+    let placedWordsPositions = []; // храним позиции каждого размещённого слова: {word, cells: [{row, col}]}
+    let answerHighlightActive = false; // состояние подсветки ответов
+    
+    // РУССКИЙ АЛФАВИТ (включая Ё)
+    const RUSSIAN_ALPHABET = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+    
+    // DOM элементы
+    const gridContainer = document.getElementById('filwordGridContainer');
+    const colsInput = document.getElementById('gridCols');
+    const rowsInput = document.getElementById('gridRows');
+    const applyGridBtn = document.getElementById('applyGridBtn');
+    const wordsTextarea = document.getElementById('wordsInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const fontSelect = document.getElementById('fontSelect');
+    const fontPreview = document.getElementById('fontPreviewText');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const showAnswersBtn = document.getElementById('showAnswersBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const statsLabel = document.getElementById('statsLabel');
+    const infoMsgDiv = document.getElementById('infoMessage');
+
+    // вспомогательные функции
+    function updateStats() {
+        if (currentGrid.length && currentGrid[0]) {
+            statsLabel.innerText = `Сетка: ${currentRows}×${currentCols} | Слов размещено: ${currentWordsList.length}`;
+        } else {
+            statsLabel.innerText = `Сетка: ${currentRows}×${currentCols} | Нет данных`;
+        }
+    }
+
+    // отрисовка сетки с учётом подсветки ответов (если active)
+    function renderGrid() {
+        if (!currentGrid.length || currentGrid.length === 0) {
+            gridContainer.innerHTML = '<div style="padding:40px; text-align:center;">⚠️ Сетка пуста, примените размер или сгенерируйте</div>';
+            updateStats();
+            return;
+        }
+        const fontFamily = fontSelect.value;
+        gridContainer.style.setProperty('--font-family', fontFamily);
+        const colTemplate = `repeat(${currentCols}, auto)`;
+        gridContainer.style.display = 'grid';
+        gridContainer.style.gridTemplateColumns = colTemplate;
+        gridContainer.style.gap = '4px';
+        gridContainer.style.justifyContent = 'center';
+        
+        // создаём сет для быстрой проверки, какие ячейки подсвечивать (если включены ответы)
+        let highlightSet = new Set();
+        if (answerHighlightActive && placedWordsPositions.length > 0) {
+            for (let item of placedWordsPositions) {
+                for (let cell of item.cells) {
+                    highlightSet.add(`${cell.row},${cell.col}`);
+                }
+            }
+        }
+        
+        let html = '';
+        for (let r = 0; r < currentRows; r++) {
+            for (let c = 0; c < currentCols; c++) {
+                const letter = currentGrid[r][c] || '?';
+                const isHighlight = highlightSet.has(`${r},${c}`);
+                const highlightClass = isHighlight ? 'cell highlight-answer' : 'cell';
+                html += `<div class="${highlightClass}" style="font-family: ${fontFamily};">${letter.toUpperCase()}</div>`;
+            }
+        }
+        gridContainer.innerHTML = html;
+        updateStats();
+    }
+
+    // заполнить сетку случайными РУССКИМИ буквами (только кириллица)
+    function fillRandomLetters(grid, rows, cols) {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (!grid[i][j] || grid[i][j] === '') {
+                    const randIndex = Math.floor(Math.random() * RUSSIAN_ALPHABET.length);
+                    const randChar = RUSSIAN_ALPHABET[randIndex];
+                    grid[i][j] = randChar;
+                }
+            }
+        }
+    }
+
+    // создание пустой сетки (заполнена пустыми строками)
+    function createEmptyGrid(rows, cols) {
+        let grid = Array(rows).fill().map(() => Array(cols).fill(''));
+        return grid;
+    }
+
+    // инициализация сетки по умолчанию (10x10 со случайными русскими буквами)
+    function initDefaultGrid() {
+        currentRows = 10;
+        currentCols = 10;
+        colsInput.value = currentCols;
+        rowsInput.value = currentRows;
+        const empty = createEmptyGrid(currentRows, currentCols);
+        fillRandomLetters(empty, currentRows, currentCols);
+        currentGrid = empty;
+        currentWordsList = [];
+        placedWordsPositions = [];
+        answerHighlightActive = false;
+        renderGrid();
+    }
+
+    // проверка, что символ — русская буква (кириллица)
+    function isRussianLetter(ch) {
+        return /[А-ЯЁ]/i.test(ch);
+    }
+
+    // попытка разместить слово в сетке (горизонтально или вертикально) с сохранением координат
+    // теперь слова и сетка используют ТОЛЬКО русские буквы
+    function tryPlaceWordWithPositions(grid, word, rows, cols) {
+        const upperWord = word.toUpperCase();
+        const len = upperWord.length;
+        if (len === 0) return null;
+        if (len > rows && len > cols) return null;
+        
+        let positions = [];
+        // горизонтальные
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c <= cols - len; c++) {
+                let conflict = false;
+                for (let i = 0; i < len; i++) {
+                    const cellChar = grid[r][c + i];
+                    // Если ячейка не пустая и не совпадает с нужной буквой - конфликт
+                    if (cellChar !== '' && cellChar !== upperWord[i]) {
+                        conflict = true;
+                        break;
+                    }
+                    // Если ячейка пустая — всё ок, позже запишем
+                }
+                if (!conflict) {
+                    positions.push({ row: r, col: c, dir: 'H' });
+                }
+            }
+        }
+        // вертикальные
+        for (let c = 0; c < cols; c++) {
+            for (let r = 0; r <= rows - len; r++) {
+                let conflict = false;
+                for (let i = 0; i < len; i++) {
+                    const cellChar = grid[r + i][c];
+                    if (cellChar !== '' && cellChar !== upperWord[i]) {
+                        conflict = true;
+                        break;
+                    }
+                }
+                if (!conflict) {
+                    positions.push({ row: r, col: c, dir: 'V' });
+                }
+            }
+        }
+        
+        if (positions.length === 0) return null;
+        const pos = positions[Math.floor(Math.random() * positions.length)];
+        const cells = [];
+        // размещаем слово и запоминаем координаты
+        for (let i = 0; i < len; i++) {
+            let row, col;
+            if (pos.dir === 'H') {
+                row = pos.row;
+                col = pos.col + i;
+                grid[row][col] = upperWord[i];
+            } else {
+                row = pos.row + i;
+                col = pos.col;
+                grid[row][col] = upperWord[i];
+            }
+            cells.push({ row, col });
+        }
+        return { word: upperWord, cells: cells };
+    }
+
+    // главная генерация филворда
+    function generateFilword() {
+        answerHighlightActive = false;
+        
+        let rawWords = wordsTextarea.value;
+        if (!rawWords.trim()) {
+            infoMsgDiv.innerHTML = '⚠️ Введите хотя бы одно слово в поле "Слова для филворда"!';
+            return;
+        }
+        // Разделяем слова и оставляем только русские буквы (кириллица)
+        let wordsArray = rawWords.split(/[ ,\n\t]+/).filter(w => w.trim().length > 0);
+        wordsArray = wordsArray.map(w => {
+            // Оставляем только русские буквы (верхний и нижний регистр) и приводим к верхнему
+            let filtered = w.toUpperCase().replace(/[^А-ЯЁ]/g, '');
+            return filtered;
+        }).filter(w => w.length > 0);
+        
+        if (wordsArray.length === 0) {
+            infoMsgDiv.innerHTML = '❌ Не удалось распознать слова. Используйте только русские буквы. Пример: кот, дом, лес';
+            return;
+        }
+        
+        let newRows = parseInt(rowsInput.value, 10);
+        let newCols = parseInt(colsInput.value, 10);
+        if (isNaN(newRows) || isNaN(newCols)) {
+            newRows = 10; newCols = 10;
+        }
+        newRows = Math.min(20, Math.max(5, newRows));
+        newCols = Math.min(20, Math.max(5, newCols));
+        currentRows = newRows;
+        currentCols = newCols;
+        rowsInput.value = currentRows;
+        colsInput.value = currentCols;
+        
+        let freshGrid = createEmptyGrid(currentRows, currentCols);
+        // сортируем слова от длинных к коротким для лучшего заполнения
+        const sortedWords = [...wordsArray].sort((a,b) => b.length - a.length);
+        let placedData = [];
+        
+        for (let w of sortedWords) {
+            const result = tryPlaceWordWithPositions(freshGrid, w, currentRows, currentCols);
+            if (result) {
+                placedData.push(result);
+            } else {
+                console.warn(`Не удалось разместить слово: ${w}`);
+            }
+        }
+        
+        if (placedData.length === 0 && sortedWords.length > 0) {
+            infoMsgDiv.innerHTML = '⚠️ Не удалось разместить ни одного слова. Увеличьте сетку или используйте более короткие слова.';
+            // Всё равно заполняем сетку русскими буквами
+            fillRandomLetters(freshGrid, currentRows, currentCols);
+            currentGrid = freshGrid;
+            currentWordsList = [];
+            placedWordsPositions = [];
+            renderGrid();
+            return;
+        }
+        
+        // Заполняем оставшиеся пустые ячейки случайными РУССКИМИ буквами
+        fillRandomLetters(freshGrid, currentRows, currentCols);
+        currentGrid = freshGrid;
+        currentWordsList = placedData.map(item => item.word);
+        placedWordsPositions = placedData;
+        renderGrid();
+        
+        if (placedData.length === wordsArray.length) {
+            infoMsgDiv.innerHTML = `✅ Успешно! Размещено ${placedData.length} слов. Нажмите "Показать ответы" для подсветки.`;
+        } else {
+            infoMsgDiv.innerHTML = `⚠️ Размещено ${placedData.length} из ${wordsArray.length} слов. Некоторые не влезли (попробуйте увеличить сетку или укоротить слова).`;
+        }
+    }
+    
+    function applyGridSize() {
+        let newRows = parseInt(rowsInput.value, 10);
+        let newCols = parseInt(colsInput.value, 10);
+        if (isNaN(newRows)) newRows = 10;
+        if (isNaN(newCols)) newCols = 10;
+        newRows = Math.min(20, Math.max(5, newRows));
+        newCols = Math.min(20, Math.max(5, newCols));
+        currentRows = newRows;
+        currentCols = newCols;
+        rowsInput.value = currentRows;
+        colsInput.value = currentCols;
+        
+        const empty = createEmptyGrid(currentRows, currentCols);
+        fillRandomLetters(empty, currentRows, currentCols);
+        currentGrid = empty;
+        currentWordsList = [];
+        placedWordsPositions = [];
+        answerHighlightActive = false;
+        renderGrid();
+        infoMsgDiv.innerHTML = `📐 Сетка изменена на ${currentRows}×${currentCols} (только русские буквы). Теперь можно вставить слова и нажать "Сгенерировать".`;
+    }
+    
+    function fullClear() {
+        wordsTextarea.value = '';
+        currentRows = 10;
+        currentCols = 10;
+        colsInput.value = 10;
+        rowsInput.value = 10;
+        const emptyGrid = createEmptyGrid(10, 10);
+        fillRandomLetters(emptyGrid, 10, 10);
+        currentGrid = emptyGrid;
+        currentWordsList = [];
+        placedWordsPositions = [];
+        answerHighlightActive = false;
+        fontSelect.value = "'Segoe UI', 'Courier New', monospace";
+        renderGrid();
+        infoMsgDiv.innerHTML = '🧹 Всё очищено! Сетка сброшена до 10×10 со случайными РУССКИМИ буквами. Введите новые слова.';
+    }
+    
+    function toggleAnswers() {
+        if (!currentGrid.length || currentGrid.length === 0) {
+            infoMsgDiv.innerHTML = '⚠️ Сначала создайте филворд (сгенерируйте слова).';
+            return;
+        }
+        if (placedWordsPositions.length === 0) {
+            infoMsgDiv.innerHTML = 'ℹ️ Нет размещённых слов для подсветки. Сначала сгенерируйте филворд со словами.';
+            return;
+        }
+        answerHighlightActive = !answerHighlightActive;
+        renderGrid();
+        if (answerHighlightActive) {
+            infoMsgDiv.innerHTML = `✨ Ответы видны: подсвечены ячейки со словами. Нажмите ещё раз, чтобы скрыть.`;
+        } else {
+            infoMsgDiv.innerHTML = `🔍 Подсветка ответов скрыта.`;
+        }
+    }
+    
+    // Функция экспорта: захват области с филвордом
+    async function captureGridElement() {
+        const element = document.getElementById('gridWrapperForExport');
+        if (!element) throw new Error('Элемент для экспорта не найден');
+        const originalBg = element.style.backgroundColor;
+        element.style.backgroundColor = '#ffffff';
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: false
+            });
+            return canvas;
+        } finally {
+            element.style.backgroundColor = originalBg;
+        }
+    }
+    
+    async function downloadAsPNG() {
+        if (!currentGrid.length) {
+            infoMsgDiv.innerHTML = '❌ Нет сетки для сохранения. Сначала создайте филворд.';
+            return;
+        }
+        try {
+            infoMsgDiv.innerHTML = '⏳ Создаём изображение...';
+            const canvas = await captureGridElement();
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+            link.download = `filword_${timestamp}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            infoMsgDiv.innerHTML = '✅ Изображение PNG сохранено!';
+        } catch (err) {
+            console.error(err);
+            infoMsgDiv.innerHTML = '❌ Ошибка при создании PNG. Попробуйте ещё раз.';
+        }
+    }
+    
+    async function downloadAsPDF() {
+        if (!currentGrid.length) {
+            infoMsgDiv.innerHTML = '❌ Нет сетки для сохранения. Сначала создайте филворд.';
+            return;
+        }
+        try {
+            infoMsgDiv.innerHTML = '⏳ Генерируем PDF...';
+            const canvas = await captureGridElement();
+            const { jsPDF } = window.jspdf;
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let pdf = new jsPDF('p', 'mm', 'a4');
+            let position = 0;
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            if (imgHeight > pageHeight) {
+                let remaining = imgHeight - pageHeight;
+                let currentPos = -pageHeight;
+                while (remaining > 0) {
+                    pdf.addPage();
+                    currentPos -= pageHeight;
+                    pdf.addImage(imgData, 'PNG', 0, currentPos, imgWidth, imgHeight);
+                    remaining -= pageHeight;
+                }
+            }
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+            pdf.save(`filword_${timestamp}.pdf`);
+            infoMsgDiv.innerHTML = '✅ PDF файл сохранён!';
+        } catch (err) {
+            console.error(err);
+            infoMsgDiv.innerHTML = '❌ Ошибка при создании PDF. Проверьте консоль.';
+        }
+    }
+    
+    function updateFontAndRender() {
+        const selectedFont = fontSelect.value;
+        fontPreview.style.fontFamily = selectedFont;
+        fontPreview.style.fontSize = '1rem';
+        if (currentGrid && currentGrid.length) {
+            renderGrid();
+        }
+    }
+    
+    // события
+    applyGridBtn.addEventListener('click', applyGridSize);
+    generateBtn.addEventListener('click', generateFilword);
+    clearAllBtn.addEventListener('click', fullClear);
+    showAnswersBtn.addEventListener('click', toggleAnswers);
+    downloadPngBtn.addEventListener('click', downloadAsPNG);
+    downloadPdfBtn.addEventListener('click', downloadAsPDF);
+    fontSelect.addEventListener('change', updateFontAndRender);
+    
+    // старт
+    initDefaultGrid();
+    updateFontAndRender();
+    wordsTextarea.value = "кот, дом, лес, море, солнце, роза";
+    infoMsgDiv.innerHTML = '💡 Готово! Теперь в филворде используются ТОЛЬКО русские буквы. Создайте филворд, используйте кнопки "Показать ответы" и скачивайте в PNG/PDF.';
+    
+    window.addEventListener('resize', () => {
+        if (currentGrid) renderGrid();
+    });
+</script>
+</body>
+</html>
