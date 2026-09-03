@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🖨️ Конструктор создания текстов</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #e8eef5;
+    min-height: 100vh;
+    padding: 20px;
+    color: #222;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+  h1 { font-size: 22px; margin-bottom: 15px; color: #1e3c72; }
+  h2 {
+    font-size: 14px;
+    margin: 15px 0 8px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  textarea {
+    width: 100%;
+    height: 140px;
+    padding: 10px;
+    border: 2px solid #d0d7e2;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+  }
+  textarea:focus { outline: none; border-color: #1e3c72; }
+  .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 12px;
+    border: 2px solid #d0d7e2;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+    flex: 1;
+    min-width: 80px;
+  }
+  .btn:hover { border-color: #1e3c72; }
+  .btn.active {
+    background: #1e3c72;
+    color: #fff;
+    border-color: #1e3c72;
+  }
+  
+  .btn-toggle {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #666;
+    position: relative;
+  }
+  .btn-toggle.active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border-color: #10b981;
+  }
+  
+  .btn-toggle.purple {
+    background: #f3e8ff;
+    border-color: #a855f7;
+    color: #6b21a8;
+  }
+  .btn-toggle.purple.active {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    color: #fff;
+    border-color: #a855f7;
+  }
+  
+  .btn-toggle.green {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+  }
+  .btn-toggle.green.active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border-color: #10b981;
+  }
+  
+  .btn-reset {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #fee2e2;
+    border: 2px solid #ef4444;
+    color: #991b1b;
+    font-weight: 700;
+  }
+  .btn-reset:hover {
+    background: #ef4444;
+    color: #fff;
+  }
+  
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+  }
+  .slider-row label { flex: 1; font-size: 13px; color: #555; }
+  .slider-row input[type="range"] { flex: 2; accent-color: #1e3c72; }
+  .slider-row .val {
+    min-width: 35px;
+    text-align: right;
+    font-weight: bold;
+    color: #1e3c72;
+    font-size: 13px;
+  }
+  .main-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .btn-action {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-generate {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+  }
+  .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,60,114,0.4); }
+  .btn-print {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: #000;
+  }
+  .btn-print:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(17,153,142,0.4); }
+  .btn-download {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #ff6b6b, #ffd700);
+    color: #000;
+  }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,107,0.4); }
+  .preview-wrap {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 0 0 1px #ddd, 0 8px 30px rgba(0,0,0,0.15);
+    padding: 15mm;
+    position: relative;
+    overflow: hidden;
+  }
+  .page svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .hint {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-top: 12px;
+    font-style: italic;
+  }
+  
+  /* ✅ НОВОЕ: подпись автора внизу */
+  .footer {
+    max-width: 1400px;
+    margin: 25px auto 10px;
+    text-align: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    border-radius: 14px;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .footer .author {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .footer .workshop {
+    font-size: 14px;
+    font-style: italic;
+    opacity: 0.9;
+    color: #ffd700;
+  }
+  
+  @media print {
+    body { background: #fff; padding: 0; }
+    .panel, .hint, .footer { display: none !important; }
+    .layout { display: block; }
+    .preview-wrap { padding: 0; box-shadow: none; background: none; }
+    .page {
+      box-shadow: none;
+      margin: 0;
+      width: 100%;
+      min-height: auto;
+      padding: 10mm;
+    }
+    @page { size: A4; margin: 0; }
+  }
+  
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .panel { position: static; }
+    .page { width: 100%; min-height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <div class="panel">
+    <h1>🖨️ Конструктор создания текстов</h1>
+    
+    <h2>📝 Текст</h2>
+    <textarea id="textInput" placeholder="Вставьте текст...">Чтение это удивительный процесс который позволяет нам путешествовать по мирам созданным словами. Каждый новый текст открывает перед нами двери в неизведанные миры знаний и эмоций. Тренировка чтения помогает развивать скорость восприятия информации и улучшает концентрацию внимания. Регулярные занятия делают наш ум более острым а мышление более гибким и структурированным. Книги являются источником мудрости и вдохновения для миллионов людей по всему миру.</textarea>
+    
+    <h2>🌊 Форма текста</h2>
+    <div class="btn-group">
+      <button class="btn active" data-shape="wave">Волна</button>
+      <button class="btn" data-shape="spiral">Спираль</button>
+      <button class="btn" data-shape="line">📏 Линия</button>
+    </div>
+    
+    <h2>✨ Спецрежимы</h2>
+    <div class="btn-group">
+      <button class="btn btn-toggle" id="mirrorBtn">🪞 Наоборот ⬜</button>
+      <button class="btn btn-toggle purple" id="halfTopBtn">🔠 Верх букв ⬜</button>
+      <button class="btn btn-toggle green" id="halfBottomBtn">🔡 Низ букв ⬜</button>
+    </div>
+    <button class="btn btn-reset" id="resetBtn">🔄 Сбросить все режимы</button>
+    
+    <h2>⚙️ Настройки</h2>
+    <div class="slider-row">
+      <label>Размер шрифта</label>
+      <input type="range" id="fontSize" min="10" max="24" value="14">
+      <span class="val" id="fontSizeVal">14</span>
+    </div>
+    <div class="slider-row">
+      <label>Амплитуда волны</label>
+      <input type="range" id="amplitude" min="5" max="40" value="18">
+      <span class="val" id="amplitudeVal">18</span>
+    </div>
+    <div class="slider-row">
+      <label>Частота волны</label>
+      <input type="range" id="frequency" min="1" max="6" value="2">
+      <span class="val" id="frequencyVal">2</span>
+    </div>
+    <div class="slider-row">
+      <label>Между строками</label>
+      <input type="range" id="lineGap" min="20" max="80" value="45">
+      <span class="val" id="lineGapVal">45</span>
+    </div>
+    
+    <h2>🎨 Цвет</h2>
+    <div class="btn-group">
+      <button class="btn active" data-color="#000000">Чёрный</button>
+      <button class="btn" data-color="#1e3c72">Синий</button>
+      <button class="btn" data-color="#8b0000">Бордо</button>
+    </div>
+    
+    <div class="main-btns">
+      <button class="btn-action btn-generate" id="generateBtn">🔄 Создать</button>
+      <button class="btn-action btn-print" id="printBtn">🖨️ Печать</button>
+      <button class="btn-action btn-download" id="downloadBtn">💾 Скачать JPEG</button>
+    </div>
+  </div>
+  
+  <div class="preview-wrap">
+    <div class="page" id="page">
+      <svg id="svg" viewBox="0 0 700 990" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="hint">Предпросмотр формата A4. Нажмите «Создать» для генерации.</div>
+  </div>
+</div>
+
+<!-- ✅ НОВОЕ: подпись автора внизу страницы -->
+<div class="footer">
+  <div class="author">М. Братухина</div>
+  <div class="workshop">«Мастерская учителя начальных классов»</div>
+</div>
+
+<script>
+const svg = document.getElementById('svg');
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+const state = {
+  shape: 'wave',
+  color: '#000000',
+  fontSize: 14,
+  amplitude: 18,
+  frequency: 2,
+  lineGap: 45,
+  mirror: false,
+  halfTop: false,
+  halfBottom: false
+};
+
+document.querySelectorAll('[data-shape]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.shape = btn.dataset.shape;
+  });
+});
+
+document.querySelectorAll('[data-color]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-color]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.color = btn.dataset.color;
+  });
+});
+
+function updateToggleBtn(btnId, isActive, baseText) {
+  const btn = document.getElementById(btnId);
+  const status = isActive ? '✅' : '⬜';
+  btn.textContent = `${baseText} ${status}`;
+  btn.classList.toggle('active', isActive);
+}
+
+document.getElementById('mirrorBtn').addEventListener('click', function() {
+  state.mirror = !state.mirror;
+  updateToggleBtn('mirrorBtn', state.mirror, '🪞 Наоборот');
+});
+
+document.getElementById('halfTopBtn').addEventListener('click', function() {
+  state.halfTop = !state.halfTop;
+  if (state.halfTop) state.halfBottom = false;
+  updateToggleBtn('halfTopBtn', state.halfTop, '🔠 Верх букв');
+  updateToggleBtn('halfBottomBtn', state.halfBottom, '🔡 Низ букв');
+});
+
+document.getElementById('halfBottomBtn').addEventListener('click', function() {
+  state.halfBottom = !state.halfBottom;
+  if (state.halfBottom) state.halfTop = false;
+  updateToggleBtn('halfBottomBtn', state.halfBottom, '🔡 Низ букв');
+  updateToggleBtn('halfTopBtn', state.halfTop, '🔠 Верх букв');
+});
+
+document.getElementById('resetBtn').addEventListener('click', function() {
+  state.mirror = false;
+  state.halfTop = false;
+  state.halfBottom = false;
+  
+  updateToggleBtn('mirrorBtn', false, '🪞 Наоборот');
+  updateToggleBtn('halfTopBtn', false, '🔠 Верх букв');
+  updateToggleBtn('halfBottomBtn', false, '🔡 Низ букв');
+});
+
+['fontSize', 'amplitude', 'frequency', 'lineGap'].forEach(id => {
+  const el = document.getElementById(id);
+  const val = document.getElementById(id + 'Val');
+  el.addEventListener('input', () => {
+    state[id] = parseFloat(el.value);
+    val.textContent = el.value;
+  });
+});
+
+function splitText(text) {
+  return text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+}
+
+function wavePath(yBase, width, amplitude, frequency, phase = 0) {
+  let d = '';
+  const step = 5;
+  for (let x = 0; x <= width; x += step) {
+    const y = yBase + Math.sin((x / width) * Math.PI * 2 * frequency + phase) * amplitude;
+    d += (x === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+  }
+  return d;
+}
+
+function spiralPath(cx, cy, startR, endR, turns) {
+  let d = '';
+  const steps = 400;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const angle = t * Math.PI * 2 * turns - Math.PI / 2;
+    const r = startR + (endR - startR) * t;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+  }
+  return d;
+}
+
+function renderLine(sentences, rootGroup, W, margin) {
+  let yCursor = margin + state.fontSize;
+  
+  sentences.forEach((sentence) => {
+    const textEl = document.createElementNS(SVG_NS, 'text');
+    textEl.setAttribute('font-size', state.fontSize);
+    textEl.setAttribute('fill', state.color);
+    textEl.setAttribute('font-family', 'Georgia, serif');
+    
+    if (state.halfTop) {
+      textEl.setAttribute('clip-path', 'url(#clip-top-half)');
+    } else if (state.halfBottom) {
+      textEl.setAttribute('clip-path', 'url(#clip-bottom-half)');
+    }
+    
+    textEl.setAttribute('x', margin);
+    textEl.setAttribute('y', yCursor);
+    
+    textEl.textContent = sentence;
+    rootGroup.appendChild(textEl);
+    
+    yCursor += state.lineGap;
+  });
+}
+
+function render() {
+  const text = document.getElementById('textInput').value.trim();
+  svg.innerHTML = '';
+  
+  if (!text) return;
+  
+  if (state.halfTop || state.halfBottom) {
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    
+    if (state.halfTop) {
+      const clipTop = document.createElementNS(SVG_NS, 'clipPath');
+      clipTop.setAttribute('id', 'clip-top-half');
+      clipTop.setAttribute('clipPathUnits', 'objectBoundingBox');
+      const rect = document.createElementNS(SVG_NS, 'rect');
+      rect.setAttribute('x', '0');
+      rect.setAttribute('y', '0');
+      rect.setAttribute('width', '1');
+      rect.setAttribute('height', '0.5');
+      clipTop.appendChild(rect);
+      defs.appendChild(clipTop);
+    }
+    
+    if (state.halfBottom) {
+      const clipBottom = document.createElementNS(SVG_NS, 'clipPath');
+      clipBottom.setAttribute('id', 'clip-bottom-half');
+      clipBottom.setAttribute('clipPathUnits', 'objectBoundingBox');
+      const rect = document.createElementNS(SVG_NS, 'rect');
+      rect.setAttribute('x', '0');
+      rect.setAttribute('y', '0.5');
+      rect.setAttribute('width', '1');
+      rect.setAttribute('height', '0.5');
+      clipBottom.appendChild(rect);
+      defs.appendChild(clipBottom);
+    }
+    
+    svg.appendChild(defs);
+  }
+  
+  const sentences = splitText(text);
+  
+  const W = 700, H = 990;
+  const margin = 20;
+  
+  let rootGroup;
+  if (state.mirror) {
+    rootGroup = document.createElementNS(SVG_NS, 'g');
+    rootGroup.setAttribute('transform', `scale(-1,1) translate(-${W},0)`);
+    svg.appendChild(rootGroup);
+  } else {
+    rootGroup = svg;
+  }
+  
+  if (state.shape === 'line') {
+    renderLine(sentences, rootGroup, W, margin);
+    return;
+  }
+  
+  if (state.shape === 'wave') {
+    let yCursor = margin + state.fontSize + state.amplitude;
+    
+    sentences.forEach((sentence, sIdx) => {
+      const yBase = yCursor;
+      const pathId = `path_${sIdx}`;
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('id', pathId);
+      
+      path.setAttribute('d', wavePath(yBase, W - margin * 2, state.amplitude, state.frequency, 0));
+      path.setAttribute('fill', 'none');
+      rootGroup.appendChild(path);
+      
+      const textEl = document.createElementNS(SVG_NS, 'text');
+      textEl.setAttribute('font-size', state.fontSize);
+      textEl.setAttribute('fill', state.color);
+      textEl.setAttribute('font-family', 'Georgia, serif');
+      
+      if (state.halfTop) {
+        textEl.setAttribute('clip-path', 'url(#clip-top-half)');
+      } else if (state.halfBottom) {
+        textEl.setAttribute('clip-path', 'url(#clip-bottom-half)');
+      }
+      
+      const textPath = document.createElementNS(SVG_NS, 'textPath');
+      textPath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + pathId);
+      textPath.setAttribute('startOffset', '2%');
+      textPath.textContent = sentence;
+      
+      textEl.appendChild(textPath);
+      rootGroup.appendChild(textEl);
+      
+      yCursor += state.lineGap + state.amplitude * 2;
+    });
+    
+    return;
+  }
+  
+  const cx = W / 2;
+  const cy = H / 2;
+  const maxR = Math.min(W, H) / 2 - margin - 30;
+  
+  const allText = sentences.join(' ');
+  const pathId = 'spiral_path';
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('id', pathId);
+  
+  path.setAttribute('d', spiralPath(cx, cy, maxR * 0.15, maxR, 5));
+  path.setAttribute('fill', 'none');
+  rootGroup.appendChild(path);
+  
+  const textEl = document.createElementNS(SVG_NS, 'text');
+  textEl.setAttribute('font-size', state.fontSize);
+  textEl.setAttribute('fill', state.color);
+  textEl.setAttribute('font-family', 'Georgia, serif');
+  
+  if (state.halfTop) {
+    textEl.setAttribute('clip-path', 'url(#clip-top-half)');
+  } else if (state.halfBottom) {
+    textEl.setAttribute('clip-path', 'url(#clip-bottom-half)');
+  }
+  
+  const textPath = document.createElementNS(SVG_NS, 'textPath');
+  textPath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + pathId);
+  textPath.setAttribute('startOffset', '0%');
+  textPath.textContent = allText;
+  
+  textEl.appendChild(textPath);
+  rootGroup.appendChild(textEl);
+}
+
+document.getElementById('generateBtn').addEventListener('click', render);
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  render();
+  setTimeout(() => window.print(), 100);
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  render();
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+  
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1400;
+    canvas.height = 1980;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    canvas.toBlob(blob => {
+      const link = document.createElement('a');
+      link.download = 'reading-text-' + Date.now() + '.jpg';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.95);
+  };
+  img.src = url;
+});
+
+render();
+</script>
+</body>
+</html>
