@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Периметр прямоугольника</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5dc;
+            background-image: 
+                linear-gradient(#e8e8c8 1px, transparent 1px),
+                linear-gradient(90deg, #e8e8c8 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border: 3px solid #4a4a4a;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 25px;
+            font-size: 1em;
+            font-style: italic;
+        }
+
+        .formula-box {
+            background: #d1ecf1;
+            border: 2px solid #0c5460;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #0c5460;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .task-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .task-btn {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .task-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .task-btn.completed { background: #28a745; }
+        .task-btn.active { background: #ffc107; color: #000; }
+
+        .task-content { display: none; animation: fadeIn 0.5s; }
+        .task-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-text {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #ffc107;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #495057;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background-color: white;
+            background-image: 
+                linear-gradient(#d0d0d0 1px, transparent 1px),
+                linear-gradient(90deg, #d0d0d0 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 2px solid #adb5bd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .canvas-container.pencil-mode {
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%23ffc107' stroke='%23333' stroke-width='1' d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/></svg>") 2 22, crosshair;
+        }
+
+        .canvas-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-label {
+            font-weight: bold;
+            color: #495057;
+            margin-right: 6px;
+            font-size: 0.9em;
+        }
+
+        .draggable-item {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 8px;
+            background: #007bff;
+            color: white;
+            border: 2px solid #0056b3;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .draggable-item:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .draggable-item.symbol {
+            background: #e83e8c;
+            border-color: #c2185b;
+        }
+
+        .draggable-item.symbol:hover {
+            background: #c2185b;
+        }
+
+        .draggable-item.word {
+            background: #6f42c1;
+            border-color: #5a32a3;
+            font-size: 0.9em;
+        }
+
+        .draggable-item.word:hover {
+            background: #5a32a3;
+        }
+
+        .custom-word-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            background: #5a32a3;
+            color: white;
+            border: 2px solid #3d1f7a;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .custom-word-btn:hover {
+            background: #3d1f7a;
+            transform: scale(1.05);
+        }
+
+        .tool-btn {
+            padding: 8px 14px;
+            background: #6c757d;
+            color: white;
+            border: 2px solid #5a6268;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .tool-btn:hover { background: #5a6268; }
+
+        .tool-btn.active {
+            background: #ffc107;
+            color: #000;
+            border-color: #d39e00;
+        }
+
+        .tool-btn.pencil-btn {
+            background: #fd7e14;
+            border-color: #e36b0a;
+        }
+
+        .tool-btn.pencil-btn.active {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .placed-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .placed-number {
+            width: 32px;
+            height: 32px;
+            background: #007bff;
+            color: white;
+            border: 2px solid #0056b3;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .placed-symbol {
+            width: 32px;
+            height: 32px;
+            background: #e83e8c;
+            color: white;
+            border: 2px solid #c2185b;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .placed-word {
+            padding: 4px 8px;
+            background: #6f42c1;
+            color: white;
+            border: 2px solid #5a32a3;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .placed-text {
+            padding: 4px 8px;
+            background: transparent;
+            color: #2c3e50;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            font-weight: bold;
+            white-space: nowrap;
+            border: 1px dashed transparent;
+        }
+
+        .placed-element:hover {
+            outline: 2px dashed #ff6b6b;
+        }
+
+        .hint {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .input-group { margin-bottom: 15px; }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #ced4da;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .check-btn:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .result.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+
+        .result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+
+        .clear-btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        .clear-btn:hover { background: #5a6268; }
+
+        .clear-btn.last-btn {
+            background: #dc3545;
+        }
+
+        .clear-btn.last-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 Периметр прямоугольника</h1>
+        <div class="subtitle">3 класс — Закрепление темы</div>
+        
+        <div class="formula-box">
+            📌 Формула периметра: <strong>Р = (a + b) × 2</strong>
+        </div>
+
+        <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 1.2em; font-weight: bold;">Прогресс:</span>
+                <span id="progress-text" style="font-size: 1.2em; font-weight: bold;">0 из 5 задач</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+            </div>
+        </div>
+
+        <div class="task-buttons">
+            <button class="task-btn" onclick="showTask(1)">Задача 1</button>
+            <button class="task-btn" onclick="showTask(2)">Задача 2</button>
+            <button class="task-btn" onclick="showTask(3)">Задача 3</button>
+            <button class="task-btn" onclick="showTask(4)">Задача 4</button>
+            <button class="task-btn" onclick="showTask(5)">Задача 5</button>
+        </div>
+
+        <div id="tasks-wrapper"></div>
+    </div>
+
+    <script>
+        const tasks = [
+            { 
+                text: 'Начерти прямоугольник, у которого длина равна 5 см, а ширина — 3 см. Найди периметр этого прямоугольника.', 
+                answer: 16
+            },
+            { 
+                text: 'Начерти прямоугольник, у которого длина равна 7 см, а ширина — 4 см. Найди периметр прямоугольника.', 
+                answer: 22
+            },
+            { 
+                text: 'Дачный участок имеет форму прямоугольника. Начерти этот прямоугольник, если его длина — 8 м, а ширина — 5 м. Найди периметр участка — какая длина забора получится?', 
+                answer: 26
+            },
+            { 
+                text: 'Начерти прямоугольный платок, длина которого 6 дм, а ширина — 4 дм. Найди периметр платка.', 
+                answer: 20
+            },
+            { 
+                text: 'Начерти прямоугольник, у которого длина равна 9 см, а ширина — 2 см. Найди периметр этого прямоугольника.', 
+                answer: 22
+            }
+        ];
+
+        const taskStates = {};
+        const quickWordsList = ['длина', 'ширина', 'Р', 'см', 'дм', 'м', 'P', 'a', 'b', '×', '2', '+', '(', ')', '='];
+
+        function buildTasks() {
+            const wrapper = document.getElementById('tasks-wrapper');
+            tasks.forEach((task, idx) => {
+                const num = idx + 1;
+                const div = document.createElement('div');
+                div.className = 'task-content';
+                div.id = `task${num}`;
+                div.innerHTML = `
+                    <div class="task-text">${task.text}</div>
+                    
+                    <div class="section">
+                        <div class="section-title">📐 Чертёж / Схема</div>
+                        
+                        <div class="toolbar">
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Цифры:</span>
+                                ${[0,1,2,3,4,5,6,7,8,9].map(n => 
+                                    `<div class="draggable-item" draggable="true" data-number="${n}">${n}</div>`
+                                ).join('')}
+                            </div>
+
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Знаки:</span>
+                                <div class="draggable-item symbol" draggable="true" data-symbol="?">?</div>
+                                <div class="draggable-item symbol" draggable="true" data-symbol="+">+</div>
+                                <div class="draggable-item symbol" draggable="true" data-symbol="=">=</div>
+                                <div class="draggable-item symbol" draggable="true" data-symbol="×">×</div>
+                                <div class="draggable-item symbol" draggable="true" data-symbol="(">(</div>
+                                <div class="draggable-item symbol" draggable="true" data-symbol=")">)</div>
+                            </div>
+
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Слова и обозначения:</span>
+                                ${quickWordsList.map(w => 
+                                    `<div class="draggable-item word" draggable="true" data-word="${w}">${w}</div>`
+                                ).join('')}
+                                <button class="custom-word-btn" onclick="addCustomWord(${num})">+свой</button>
+                            </div>
+
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Инструменты:</span>
+                                <button class="tool-btn pencil-btn" id="pencil-btn-${num}" onclick="togglePencil(${num})">✏️ Карандаш</button>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-container" id="canvas-container${num}">
+                            <canvas id="canvas${num}"></canvas>
+                        </div>
+                        <div class="hint">💡 Включи карандаш ✏️ и начерти прямоугольник по клеточкам. Перетаскивай цифры, знаки и слова на схему. Двойной клик по элементу — удалить.</div>
+                        <button class="clear-btn last-btn" onclick="undoLastAction(${num})">↩ Удалить последний</button>
+                        <button class="clear-btn" onclick="clearCanvas(${num})">🗑 Очистить всё</button>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">✏️ Решение</div>
+                        <div class="input-group">
+                            <textarea id="solution${num}"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">💡 Ответ</div>
+                        <div class="input-group">
+                            <label>Введи периметр (только число):</label>
+                            <input type="text" id="answer${num}" placeholder="Введите число">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer(${num}, ${task.answer})">Проверить</button>
+                        <div class="result" id="result${num}"></div>
+                    </div>
+                `;
+                wrapper.appendChild(div);
+            });
+        }
+
+        buildTasks();
+
+        let completedTasks = new Set();
+        let canvasContexts = {};
+        let isDrawing = {};
+        let lastPoint = {};
+        let placedElements = {};
+        let draggedElement = null;
+        let dragOffset = { x: 0, y: 0 };
+        const GRID_SIZE = 20;
+
+        const canvasHistory = {};
+        let hasMoved = {};
+
+        function snapToGrid(value) {
+            return Math.round(value / GRID_SIZE) * GRID_SIZE;
+        }
+
+        function saveCanvasSnapshot(taskNum) {
+            const canvas = document.getElementById(`canvas${taskNum}`);
+            if (!canvasHistory[taskNum]) canvasHistory[taskNum] = [];
+            canvasHistory[taskNum].push(canvas.toDataURL());
+            if (canvasHistory[taskNum].length > 50) {
+                canvasHistory[taskNum].shift();
+            }
+        }
+
+        function restoreCanvasSnapshot(taskNum) {
+            if (!canvasHistory[taskNum] || canvasHistory[taskNum].length === 0) return false;
+            const snapshot = canvasHistory[taskNum].pop();
+            const canvas = document.getElementById(`canvas${taskNum}`);
+            const ctx = canvasContexts[taskNum];
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = snapshot;
+            return true;
+        }
+
+        function initCanvas(taskNum) {
+            const container = document.getElementById(`canvas-container${taskNum}`);
+            const canvas = document.getElementById(`canvas${taskNum}`);
+            
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            
+            const ctx = canvas.getContext('2d');
+            canvasContexts[taskNum] = ctx;
+            isDrawing[taskNum] = false;
+            lastPoint[taskNum] = null;
+            placedElements[taskNum] = [];
+            canvasHistory[taskNum] = [];
+            hasMoved[taskNum] = false;
+            
+            if (!taskStates[taskNum]) {
+                taskStates[taskNum] = { pencilMode: false };
+            }
+            
+            saveCanvasSnapshot(taskNum);
+
+            // Рисование с привязкой к сетке
+            canvas.addEventListener('mousedown', (e) => {
+                if (!taskStates[taskNum].pencilMode) return;
+                
+                isDrawing[taskNum] = true;
+                hasMoved[taskNum] = false;
+                const rect = canvas.getBoundingClientRect();
+                
+                const x = snapToGrid(e.clientX - rect.left);
+                const y = snapToGrid(e.clientY - rect.top);
+                
+                lastPoint[taskNum] = { x, y };
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing[taskNum]) return;
+                if (!taskStates[taskNum].pencilMode) return;
+                
+                hasMoved[taskNum] = true;
+                const rect = canvas.getBoundingClientRect();
+                
+                const x = snapToGrid(e.clientX - rect.left);
+                const y = snapToGrid(e.clientY - rect.top);
+                
+                if (lastPoint[taskNum] && (lastPoint[taskNum].x !== x || lastPoint[taskNum].y !== y)) {
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = '#2c3e50';
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+                    
+                    lastPoint[taskNum] = { x, y };
+                }
+            });
+
+            const stopDraw = () => {
+                if (isDrawing[taskNum]) {
+                    saveCanvasSnapshot(taskNum);
+                }
+                isDrawing[taskNum] = false;
+                lastPoint[taskNum] = null;
+            };
+
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseout', stopDraw);
+
+            // Drag & Drop
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+            
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const number = e.dataTransfer.getData('number');
+                const symbol = e.dataTransfer.getData('symbol');
+                const word = e.dataTransfer.getData('word');
+                
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (number !== '') {
+                    placeNumber(taskNum, number, x, y);
+                } else if (symbol !== '') {
+                    placeSymbol(taskNum, symbol, x, y);
+                } else if (word !== '') {
+                    placeWord(taskNum, word, x, y);
+                }
+            };
+
+            container.addEventListener('drop', handleDrop);
+            canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+            canvas.addEventListener('drop', handleDrop);
+
+            // Настройка draggable
+            const toolbar = container.previousElementSibling;
+            
+            toolbar.querySelectorAll('.draggable-item[data-number]').forEach(el => {
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('number', el.dataset.number);
+                    e.dataTransfer.setData('symbol', '');
+                    e.dataTransfer.setData('word', '');
+                });
+            });
+            
+            toolbar.querySelectorAll('.draggable-item[data-symbol]').forEach(el => {
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('symbol', el.dataset.symbol);
+                    e.dataTransfer.setData('number', '');
+                    e.dataTransfer.setData('word', '');
+                });
+            });
+
+            toolbar.querySelectorAll('.draggable-item[data-word]').forEach(el => {
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('word', el.dataset.word);
+                    e.dataTransfer.setData('number', '');
+                    e.dataTransfer.setData('symbol', '');
+                });
+            });
+        }
+
+        function placeNumber(taskNum, number, x, y) {
+            const container = document.getElementById(`canvas-container${taskNum}`);
+            const element = document.createElement('div');
+            element.className = 'placed-element placed-number';
+            element.textContent = number;
+            element.style.left = (x - 16) + 'px';
+            element.style.top = (y - 16) + 'px';
+            
+            makeDraggable(element, container);
+            
+            element.addEventListener('dblclick', () => {
+                element.remove();
+                placedElements[taskNum] = placedElements[taskNum].filter(el => el !== element);
+            });
+            
+            container.appendChild(element);
+            placedElements[taskNum].push(element);
+        }
+
+        function placeSymbol(taskNum, symbol, x, y) {
+            const container = document.getElementById(`canvas-container${taskNum}`);
+            const element = document.createElement('div');
+            element.className = 'placed-element placed-symbol';
+            element.textContent = symbol;
+            element.style.left = (x - 16) + 'px';
+            element.style.top = (y - 16) + 'px';
+            
+            makeDraggable(element, container);
+            
+            element.addEventListener('dblclick', () => {
+                element.remove();
+                placedElements[taskNum] = placedElements[taskNum].filter(el => el !== element);
+            });
+            
+            container.appendChild(element);
+            placedElements[taskNum].push(element);
+        }
+
+        function placeWord(taskNum, word, x, y) {
+            const container = document.getElementById(`canvas-container${taskNum}`);
+            const element = document.createElement('div');
+            element.className = 'placed-element placed-word';
+            element.textContent = word;
+            element.style.left = x + 'px';
+            element.style.top = (y - 16) + 'px';
+            
+            makeDraggable(element, container);
+            
+            element.addEventListener('dblclick', () => {
+                element.remove();
+                placedElements[taskNum] = placedElements[taskNum].filter(el => el !== element);
+            });
+            
+            container.appendChild(element);
+            placedElements[taskNum].push(element);
+        }
+
+        function makeDraggable(element, container) {
+            element.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                
+                draggedElement = element;
+                const rect = element.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (draggedElement && draggedElement.parentElement === container) {
+                    const containerRect = container.getBoundingClientRect();
+                    const x = e.clientX - containerRect.left - dragOffset.x;
+                    const y = e.clientY - containerRect.top - dragOffset.y;
+                    draggedElement.style.left = x + 'px';
+                    draggedElement.style.top = y + 'px';
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                draggedElement = null;
+            });
+        }
+
+        function undoLastAction(taskNum) {
+            if (placedElements[taskNum] && placedElements[taskNum].length > 0) {
+                const lastElement = placedElements[taskNum].pop();
+                lastElement.remove();
+                return;
+            }
+            
+            if (canvasHistory[taskNum] && canvasHistory[taskNum].length > 1) {
+                restoreCanvasSnapshot(taskNum);
+                return;
+            }
+            
+            alert('Нечего удалять!');
+        }
+
+        function addCustomWord(taskNum) {
+            const text = prompt('Введите слово или обозначение:');
+            if (text && text.trim()) {
+                const toolbar = document.querySelector(`#task${taskNum} .toolbar`);
+                const wordsGroup = toolbar.querySelectorAll('.toolbar-group')[2]; // третья группа — слова
+                
+                const newWord = document.createElement('div');
+                newWord.className = 'draggable-item word';
+                newWord.draggable = true;
+                newWord.dataset.word = text.trim();
+                newWord.textContent = text.trim();
+                
+                newWord.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('word', text.trim());
+                    e.dataTransfer.setData('number', '');
+                    e.dataTransfer.setData('symbol', '');
+                });
+                
+                // Вставляем перед кнопкой "+свой"
+                const customBtn = wordsGroup.querySelector('.custom-word-btn');
+                wordsGroup.insertBefore(newWord, customBtn);
+                
+                alert(`✅ Слово "${text.trim()}" добавлено! Перетащите его на схему.`);
+            }
+        }
+
+        function togglePencil(taskNum) {
+            if (!taskStates[taskNum]) taskStates[taskNum] = { pencilMode: false };
+            taskStates[taskNum].pencilMode = !taskStates[taskNum].pencilMode;
+            
+            const btn = document.getElementById(`pencil-btn-${taskNum}`);
+            const container = document.getElementById(`canvas-container${taskNum}`);
+            
+            if (taskStates[taskNum].pencilMode) {
+                btn.classList.add('active');
+                container.classList.add('pencil-mode');
+            } else {
+                btn.classList.remove('active');
+                container.classList.remove('pencil-mode');
+            }
+        }
+
+        function clearCanvas(taskNum) {
+            const canvas = document.getElementById(`canvas${taskNum}`);
+            const ctx = canvasContexts[taskNum];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (placedElements[taskNum]) {
+                placedElements[taskNum].forEach(el => el.remove());
+                placedElements[taskNum] = [];
+            }
+            
+            canvasHistory[taskNum] = [];
+            saveCanvasSnapshot(taskNum);
+        }
+
+        function showTask(taskNum) {
+            document.querySelectorAll('.task-content').forEach(task => task.classList.remove('active'));
+            document.querySelectorAll('.task-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`task${taskNum}`).classList.add('active');
+            document.querySelectorAll('.task-btn')[taskNum - 1].classList.add('active');
+            
+            if (!canvasContexts[taskNum]) {
+                setTimeout(() => initCanvas(taskNum), 100);
+            }
+        }
+
+        function checkAnswer(taskNum, correctAnswer) {
+            const userAnswer = document.getElementById(`answer${taskNum}`).value.trim();
+            const resultDiv = document.getElementById(`result${taskNum}`);
+            
+            if (userAnswer === '') {
+                resultDiv.className = 'result incorrect';
+                resultDiv.textContent = '⚠️ Пожалуйста, введите ответ!';
+                return;
+            }
+            
+            const numericAnswer = parseInt(userAnswer);
+            
+            if (numericAnswer === correctAnswer) {
+                resultDiv.className = 'result correct';
+                resultDiv.textContent = '✅ Правильно! Молодец! Периметр найден верно!';
+                
+                if (!completedTasks.has(taskNum)) {
+                    completedTasks.add(taskNum);
+                    document.querySelectorAll('.task-btn')[taskNum - 1].classList.add('completed');
+                    updateProgress();
+                }
+            } else {
+                resultDiv.className = 'result incorrect';
+                resultDiv.textContent = `❌ Неправильно. Проверь вычисления по формуле Р = (a + b) × 2`;
+            }
+        }
+
+        function updateProgress() {
+            const total = 5;
+            const completed = completedTasks.size;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress-text').textContent = `${completed} из ${total} задач`;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            document.getElementById('progress-fill').textContent = Math.round(percentage) + '%';
+            
+            if (completed === total) {
+                setTimeout(() => alert('🎉 Поздравляем! Ты отлично справился со всеми задачами на периметр!'), 500);
+            }
+        }
+
+        window.addEventListener('load', () => showTask(1));
+    </script>
+</body>
+</html>
